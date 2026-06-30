@@ -28,7 +28,7 @@ A minimal set of Python packages used by the pipeline (see `requirements.txt` fo
 - scikit-learn
 - pylidc
 - gradnorm-pytorch
-- pytorch-grad-cam
+- grad-cam
 
 Quick start
 
