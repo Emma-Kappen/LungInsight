@@ -1,54 +1,24 @@
 """
 preprocess_cpu.py
 
-Local CPU-only dataset setup and manifest split utilities for the Explainable Lung Cancer Diagnosis AI.
+Local CPU-only dataset setup and manifest split utilities for the Explainable
+Lung Cancer Diagnosis AI.
+
+Note: dataset loading is handled by LIDCPatchDataset in
+cir_multihead_pipeline.py (the canonical dataset class for this project).
+This module only handles patient-aware splitting and patch archiving.
 """
 import argparse
 import os
 import random
 import zipfile
-from typing import Dict, List, Optional
 
-import numpy as np
 import pandas as pd
-import torch
-from torch.utils.data import Dataset
 
-from cir_multihead_pipeline import FEATURE_NAMES
-
-
-class ExtendedCirDataset(Dataset):
-    """Dataset for loading 3D patches and 10 binary characteristic labels."""
-
-    def __init__(self, manifest_csv: str, transform=None, device: str = 'cpu'):
-        if not os.path.isfile(manifest_csv):
-            raise FileNotFoundError(f'Manifest file not found: {manifest_csv}')
-        self.df = pd.read_csv(manifest_csv)
-        self.transform = transform
-        self.device = torch.device(device)
-
-    def __len__(self):
-        return len(self.df)
-
-    def __getitem__(self, idx):
-        row = self.df.iloc[idx]
-        patch_path = row['file_path']
-        if not os.path.isfile(patch_path):
-            raise FileNotFoundError(f'Patch file not found: {patch_path}')
-
-        patch = np.load(patch_path)
-        if patch.ndim != 3 or patch.shape != (64, 64, 64):
-            raise ValueError(f'Invalid patch shape {patch.shape} in {patch_path}, expected (64,64,64)')
-
-        patch_tensor = torch.from_numpy(patch.astype(np.float32)).unsqueeze(0)
-        if self.transform is not None:
-            patch_tensor = self.transform(patch_tensor)
-
-        labels = {
-            feat: torch.tensor(int(row[f'{feat}_label']), dtype=torch.long)
-            for feat in FEATURE_NAMES
-        }
-        return patch_tensor.to(self.device), labels
+# Re-exported for convenience so existing imports of
+# `from preprocess_cpu import ExtendedCirDataset` keep working; this is just
+# an alias for the canonical dataset class, not a separate implementation.
+from cir_multihead_pipeline import LIDCPatchDataset as ExtendedCirDataset  # noqa: F401
 
 
 def split_patients_by_manifest(manifest_csv: str, val_fraction: float = 0.2, seed: int = 42):

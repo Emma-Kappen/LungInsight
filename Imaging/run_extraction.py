@@ -1,0 +1,2 @@
+﻿from cir_multihead_pipeline import aggregate_and_extract
+aggregate_and_extract(output_dir='patches_output')

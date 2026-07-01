@@ -2,6 +2,11 @@
 inference_cpu.py
 
 Local CPU-only inference and explainability script for a single 3D patch.
+
+Model heads are already sigmoid-activated confidence scores in [0, 1]
+(see se_resnet3d.MultiHeadSEResNet3D.forward), so this script reads them
+directly -- it does NOT apply an additional sigmoid, which would silently
+double-squash the output toward 0.5.
 """
 import argparse
 import os
@@ -15,13 +20,16 @@ from cir_multihead_pipeline import create_multihead_model, FEATURE_NAMES
 
 
 class DictModelHeadTarget(ClassifierOutputTarget):
+    """Selects a single named head's output from the model's dict output so
+    pytorch_grad_cam can compute gradients w.r.t. that head specifically."""
+
     def __init__(self, head_name: str):
         super().__init__(category=0)
         self.head_name = head_name
 
     def __call__(self, model_output):
         if not isinstance(model_output, dict):
-            raise TypeError('Model output must be a dict of head_name->logits')
+            raise TypeError('Model output must be a dict of head_name->score')
         if self.head_name not in model_output:
             raise ValueError(f'Head {self.head_name} not found in model output')
         out = model_output[self.head_name]
@@ -60,33 +68,39 @@ def inference_with_heatmaps(patch_path: str, checkpoint_path: str, target_layer:
 
     probs = {}
     for head in FEATURE_NAMES:
-        logits = outputs[head]
-        if logits.dim() > 1 and logits.size(1) == 1:
-            logits = logits.squeeze(1)
-        probs[head] = float(torch.sigmoid(logits).cpu().item())
+        score = outputs[head]
+        if score.dim() > 1 and score.size(1) == 1:
+            score = score.squeeze(1)
+        # Heads already apply sigmoid internally -- this is the final
+        # confidence score, no further activation needed.
+        probs[head] = float(score.cpu().item())
 
     heatmaps = {}
     target_layer_module = getattr(model, target_layer, None)
     if target_layer_module is None:
         raise AttributeError(f'Model does not contain layer {target_layer}')
 
-    cam = GradCAMPlusPlus(model=model, target_layers=[target_layer_module], use_cuda=False)
-    for head in FEATURE_NAMES:
-        target = DictModelHeadTarget(head)
-        grayscale_cam = cam(x, targets=[target])
-        if grayscale_cam.ndim == 4:
-            heatmap = grayscale_cam[0]
-        elif grayscale_cam.ndim == 3:
-            heatmap = grayscale_cam
-        else:
-            raise RuntimeError(f'Unexpected heatmap shape: {grayscale_cam.shape}')
-        if heatmap.shape != (64, 64, 64):
-            if heatmap.shape[0] == 1 and heatmap.shape[1:] == (64, 64, 64):
-                heatmap = heatmap[0]
+    # Current pytorch_grad_cam no longer accepts a use_cuda kwarg; device
+    # placement is inferred from the model and input tensor. The context
+    # manager form ensures hooks are removed even if a head's CAM call
+    # raises partway through the loop.
+    with GradCAMPlusPlus(model=model, target_layers=[target_layer_module]) as cam:
+        for head in FEATURE_NAMES:
+            target = DictModelHeadTarget(head)
+            grayscale_cam = cam(input_tensor=x, targets=[target])
+            if grayscale_cam.ndim == 4:
+                heatmap = grayscale_cam[0]
+            elif grayscale_cam.ndim == 3:
+                heatmap = grayscale_cam
             else:
-                raise RuntimeError(f'Unsupported heatmap shape: {heatmap.shape}')
-        heatmap = np.clip((heatmap - heatmap.min()) / (heatmap.max() - heatmap.min() + 1e-8), 0.0, 1.0)
-        heatmaps[head] = heatmap.astype(np.float32)
+                raise RuntimeError(f'Unexpected heatmap shape: {grayscale_cam.shape}')
+            if heatmap.shape != (64, 64, 64):
+                if heatmap.shape[0] == 1 and heatmap.shape[1:] == (64, 64, 64):
+                    heatmap = heatmap[0]
+                else:
+                    raise RuntimeError(f'Unsupported heatmap shape: {heatmap.shape}')
+            heatmap = np.clip((heatmap - heatmap.min()) / (heatmap.max() - heatmap.min() + 1e-8), 0.0, 1.0)
+            heatmaps[head] = heatmap.astype(np.float32)
 
     out_path = os.path.splitext(patch_path)[0] + '_inference_results.npz'
     np.savez_compressed(
@@ -110,7 +124,7 @@ def parse_args():
 def main():
     args = parse_args()
     probs, heatmaps, out_path = inference_with_heatmaps(args.patch, args.checkpoint, args.target_layer)
-    print('Inference probabilities:')
+    print('Inference confidence scores:')
     for head, prob in probs.items():
         print(f'  {head}: {prob:.4f}')
     print(f'Saved inference results to: {out_path}')

@@ -1,0 +1,29 @@
+C:\Users\emkap\Documents\Projects\LungInsight\.venv\Lib\site-packages\pylidc\__init__.py:27: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources as _pr
+Traceback (most recent call last):
+  File "C:\Users\emkap\Documents\Projects\LungInsight\Imaging\run_extraction.py", line 2, in <module>
+    aggregate_and_extract(output_dir='patches_output')
+  File "C:\Users\emkap\Documents\Projects\LungInsight\Imaging\cir_multihead_pipeline.py", line 157, in aggregate_and_extract
+    vol, mask = ann.uniform_cubic_resample(side_length=patch_size, verbose=False)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emkap\Documents\Projects\LungInsight\.venv\Lib\site-packages\pylidc\Annotation.py", line 1239, in uniform_cubic_resample
+    images = self.scan.load_all_dicom_images(verbose=verbose)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emkap\Documents\Projects\LungInsight\.venv\Lib\site-packages\pylidc\Scan.py", line 293, in load_all_dicom_images
+    image = dicom.dcmread(os.path.join(path,fname))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emkap\Documents\Projects\LungInsight\.venv\Lib\site-packages\pydicom\filereader.py", line 1078, in dcmread
+    dataset = read_partial(
+              ^^^^^^^^^^^^^
+  File "C:\Users\emkap\Documents\Projects\LungInsight\.venv\Lib\site-packages\pydicom\filereader.py", line 841, in read_partial
+    file_meta = _read_file_meta_info(fileobj)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\emkap\Documents\Projects\LungInsight\.venv\Lib\site-packages\pydicom\filereader.py", line 672, in _read_file_meta_info
+    read_dataset(
+  File "C:\Users\emkap\Documents\Projects\LungInsight\.venv\Lib\site-packages\pydicom\filereader.py", line 476, in read_dataset
+    raw_data_elements = {e.tag: e for e in de_gen}
+                                           ^^^^^^
+  File "C:\Users\emkap\Documents\Projects\LungInsight\.venv\Lib\site-packages\pydicom\filereader.py", line 191, in data_element_generator
+    value_tell = fp_tell()
+                 ^^^^^^^^^
+KeyboardInterrupt
