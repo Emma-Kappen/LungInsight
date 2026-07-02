@@ -20,14 +20,20 @@ import numpy as np
 import pandas as pd
 
 try:
-    # pylidc 0.2.3 (latest on PyPI as of writing) calls the long-removed
-    # configparser.SafeConfigParser internally (Scan.py:55), which raises
-    # AttributeError on Python 3.12+. SafeConfigParser was a cosmetic alias
-    # for ConfigParser, so restoring it as an attribute is a safe shim --
-    # it does not change pylidc's behavior, only lets the import succeed.
+    # pylidc 0.2.3 calls configparser.SafeConfigParser (removed in Python
+    # 3.12) and np.int / np.float / np.bool (removed in NumPy 1.24).
+    # Restore them as aliases before importing pylidc so its internals work.
     import configparser
     if not hasattr(configparser, 'SafeConfigParser'):
         configparser.SafeConfigParser = configparser.ConfigParser
+
+    import numpy as _np
+    if not hasattr(_np, 'int'):
+        _np.int = int
+    if not hasattr(_np, 'float'):
+        _np.float = float
+    if not hasattr(_np, 'bool'):
+        _np.bool = bool
 
     import pylidc as pl
 except Exception:
@@ -39,17 +45,18 @@ from torch.utils.data import Dataset
 
 from se_resnet3d import se_resnet50_3d
 
+# 'density' is not a real pylidc annotation field -- removed to avoid all-NaN
+# targets. 'internalStructure' was effectively constant (>99% score=0) and
+# contributed no signal -- also removed.
 FEATURE_NAMES = [
-    'spiculation', 'lobulation', 'density', 'calcification', 'margin',
-    'texture', 'sphericity', 'subtlety', 'internalStructure', 'malignancy'
+    'spiculation', 'lobulation', 'calcification', 'margin',
+    'texture', 'sphericity', 'subtlety', 'malignancy'
 ]
 
 # pylidc rating scales per feature: (min, max) as annotated.
-# Most semantic features are rated 1-5. calcification and internalStructure
-# are rated on pylidc's 1-6 scale.
+# Most semantic features are rated 1-5; calcification is rated 1-6.
 FEATURE_RANGES = {feat: (1.0, 5.0) for feat in FEATURE_NAMES}
 FEATURE_RANGES['calcification'] = (1.0, 6.0)
-FEATURE_RANGES['internalStructure'] = (1.0, 6.0)
 
 # Features where a LOWER raw rating corresponds to MORE benign / LESS
 # malignant-suspicious appearance would need inversion after min-max scaling

@@ -43,3 +43,4 @@ node_modules/
 
 # Ignore LIDC folder
 LIDC/
+patches_output/
