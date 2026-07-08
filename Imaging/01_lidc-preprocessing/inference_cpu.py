@@ -24,24 +24,40 @@ import zipfile
 import numpy as np
 import torch
 from pytorch_grad_cam import GradCAMPlusPlus
-from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
+import pytorch_grad_cam.base_cam as pytorch_grad_cam_base_cam
+
+_orig_scale_cam_image = pytorch_grad_cam_base_cam.scale_cam_image
+
+def _scale_cam_image(cam, target_size=None):
+    cam = np.asarray(cam)
+    if cam.ndim == 5:
+        cam = cam.reshape(-1, *cam.shape[2:])
+    return _orig_scale_cam_image(cam, target_size)
+
+pytorch_grad_cam_base_cam.scale_cam_image = _scale_cam_image
 
 from cir_multihead_pipeline import create_multihead_model, FEATURE_NAMES
 
 
-class DictModelHeadTarget(ClassifierOutputTarget):
-    def __init__(self, head_name: str):
-        super().__init__(category=0)
+class HeadOnlyModel(torch.nn.Module):
+    """Wraps a multi-head dict-output model to expose a single tensor output."""
+
+    def __init__(self, model: torch.nn.Module, head_name: str):
+        super().__init__()
+        self.model = model
         self.head_name = head_name
 
-    def __call__(self, model_output):
-        if not isinstance(model_output, dict):
-            raise TypeError('Model output must be a dict of head_name->logits')
-        if self.head_name not in model_output:
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        outputs = self.model(x)
+        if not isinstance(outputs, dict):
+            raise TypeError('Wrapped model output must be a dict of head_name->logits')
+        if self.head_name not in outputs:
             raise ValueError(f'Head {self.head_name} not found in model output')
-        out = model_output[self.head_name]
-        if out.dim() > 1 and out.size(1) == 1:
-            out = out.squeeze(1)
+        out = outputs[self.head_name]
+        if not isinstance(out, torch.Tensor):
+            raise TypeError('Selected head output is not a torch.Tensor')
+        if out.dim() == 1:
+            out = out.unsqueeze(1)
         return out
 
 
@@ -85,10 +101,12 @@ def inference_with_heatmaps(patch_path: str, checkpoint_path: str, target_layer:
     if target_layer_module is None:
         raise AttributeError(f'Model does not contain layer {target_layer}')
 
-    cam = GradCAMPlusPlus(model=model, target_layers=[target_layer_module], use_cuda=False)
     for head in FEATURE_NAMES:
-        target = DictModelHeadTarget(head)
-        grayscale_cam = cam(x, targets=[target])
+        wrapped_model = HeadOnlyModel(model, head)
+        target = 0
+        with GradCAMPlusPlus(model=wrapped_model, target_layers=[target_layer_module], use_cuda=False) as cam:
+            grayscale_cam = cam(x, targets=[target])
+
         if grayscale_cam.ndim == 4:
             heatmap = grayscale_cam[0]
         elif grayscale_cam.ndim == 3:

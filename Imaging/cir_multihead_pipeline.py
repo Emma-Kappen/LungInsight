@@ -281,14 +281,20 @@ def generate_characteristic_heatmaps(model: torch.nn.Module,
     device = torch.device(device)
     input_patch = input_patch.to(device)
 
+    if input_patch.dim() != 5:
+        raise ValueError(f'Expected a 5D tensor [B, C, Z, Y, X], got {tuple(input_patch.shape)}')
+
     activations = {}
     gradients = {}
 
     def forward_hook(module, inp, out):
         activations['value'] = out
+
         def _save_grad(grad):
             gradients['value'] = grad.detach()
-        out.register_hook(_save_grad)
+
+        if out.requires_grad:
+            out.register_hook(_save_grad)
 
     if not hasattr(model, target_layer):
         raise ValueError(f'Model has no attribute {target_layer} to attach hooks')
@@ -300,27 +306,36 @@ def generate_characteristic_heatmaps(model: torch.nn.Module,
 
     try:
         for i, (name, out) in enumerate(head_items):
-            # Clear stale activation/gradient state from the previous head so
-            # a silently-failed hook can never cause us to reuse a prior
-            # head's gradient instead of erroring out.
+            model.zero_grad(set_to_none=True)
             gradients.pop('value', None)
-
-            model.zero_grad()
             score = out.squeeze() if out.dim() > 1 else out
             scalar = score.sum()
             is_last = (i == len(head_items) - 1)
-            scalar.backward(retain_graph=not is_last)
-
             act = activations.get('value')
-            grad = gradients.get('value')
-            if act is None or grad is None:
+            if act is None:
                 raise RuntimeError(
-                    f'Failed to capture activations or gradients for head "{name}" '
+                    f'Failed to capture activations for head "{name}" '
                     f'-- the {target_layer} hook may not be on the path to this head\'s output'
                 )
 
-            weights = torch.mean(grad, dim=(2, 3, 4), keepdim=True)
-            gcam = F.relu(torch.sum(weights * act.detach(), dim=1, keepdim=True))
+            scalar.backward(retain_graph=not is_last)
+            grad = gradients.get('value')
+            if grad is None:
+                raise RuntimeError(
+                    f'Failed to capture gradients for head "{name}" '
+                    f'-- the {target_layer} hook may not be on the path to this head\'s output'
+                )
+
+            grad = grad.detach()
+            act = act.detach()
+            grad2 = grad.pow(2)
+            grad3 = grad2 * grad
+            act_sum = torch.sum(act, dim=(2, 3, 4), keepdim=True)
+            denom = 2.0 * grad2 + act_sum * grad3
+            denom = torch.where(denom != 0, denom, torch.full_like(denom, 1e-8))
+            alpha = grad2 / denom
+            weights = torch.sum(alpha * F.relu(grad), dim=(2, 3, 4), keepdim=True)
+            gcam = F.relu(torch.sum(weights * act, dim=1, keepdim=True))
             up = F.interpolate(gcam, size=input_patch.shape[2:], mode='trilinear', align_corners=False)
             up_np = up.detach().cpu().numpy()
             bm = up_np[0, 0]
