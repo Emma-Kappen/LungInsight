@@ -1,0 +1,1027 @@
+bcr_patient_barcode,HISTOLOGY,gender,race,ethnicity,age_at_initial_pathologic_diagnosis,pathologic_stage,pathologic_T,pathologic_N,pathologic_M,histological_type,icd_o_3_histology,tumor_tissue_site,tobacco_smoking_history,number_pack_years_smoked,egfr_mutation_result,kras_mutation_result,eml4_alk_translocation_performed,vital_status,days_to_death,days_to_last_followup,eastern_cancer_oncology_group,karnofsky_performance_score,radiation_therapy,new_tumor_event_after_initial_treatment,days_to_event,OS_STATUS
+TCGA-J2-8192,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IIA,T2a,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,Exon 19 Deletion,,NO,Alive,,154,,,NO,NO,154,0:LIVING
+TCGA-91-8499,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,90,,,,Alive,,36,,,NO,NO,36,0:LIVING
+TCGA-53-7624,LUAD,FEMALE,WHITE,HISPANIC OR LATINO,40,Stage IV,T2,N0,M1,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,NO,Dead,1043,,0,0,NO,YES,1043,1:DECEASED
+TCGA-55-6986,LUAD,FEMALE,WHITE,,74,Stage IB,T2,N0,M0,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,1,,,,NO,Alive,,2151,,,NO,NO,2151,0:LIVING
+TCGA-38-4632,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,42,Stage IV,T2,N1,M1,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,10,,,NO,Dead,1357,,,,NO,YES,1357,1:DECEASED
+TCGA-78-7146,LUAD,FEMALE,WHITE,,71,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,6,,,NO,Dead,173,,1,,NO,,173,1:DECEASED
+TCGA-NJ-A4YG,LUAD,MALE,WHITE,,65,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8255/3,Lung,4,104,,,,Alive,,1726,,,NO,NO,1726,0:LIVING
+TCGA-86-8279,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,46,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,,21,2,80,YES,NO,21,0:LIVING
+TCGA-50-6591,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IV,T2,N0,M1,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Dead,119,,,,NO,NO,119,1:DECEASED
+TCGA-50-5939,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,85,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,15,,,,Dead,460,,,,NO,NO,460,1:DECEASED
+TCGA-62-8402,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,Exon 19 Deletion,,NO,Alive,1498,1445,0,100,YES,YES,1498,0:LIVING
+TCGA-49-4506,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,100,,,,Dead,999,,1,70,YES,YES,999,1:DECEASED
+TCGA-91-6847,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IB,T2,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,,Alive,,842,,,YES,YES,842,0:LIVING
+TCGA-97-8547,LUAD,FEMALE,,,78,Stage IIIA,T2a,N2,MX,Lung Adenocarcinoma Mixed Subtype,8550/3,Lung,1,,Exon 19 Deletion,,NO,Alive,,148,,,NO,NO,148,0:LIVING
+TCGA-97-7546,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IA,T1,N0,MX,Lung Acinar Adenocarcinoma,8550/3,Lung,3,25,,,,Alive,,964,,,YES,YES,964,0:LIVING
+TCGA-73-4659,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,12,,,NO,Dead,711,711,0,90,NO,YES,711,1:DECEASED
+TCGA-55-A48Y,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IIA,T2b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Alive,,42,,,NO,NO,42,0:LIVING
+TCGA-50-5049,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IA,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,,,,,,Alive,,1485,,,YES,YES,1485,0:LIVING
+TCGA-44-3396,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Alive,,311,1,80,NO,NO,311,0:LIVING
+TCGA-05-4405,LUAD,FEMALE,,,74,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,65,,,,Alive,,610,,,NO,NO,610,0:LIVING
+TCGA-78-8662,LUAD,FEMALE,,,53,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,45,,,NO,Dead,3361,,0,,NO,YES,3361,1:DECEASED
+TCGA-50-8460,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IA,T1a,N0,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,,,,,,Alive,,105,,,YES,NO,105,0:LIVING
+TCGA-55-8087,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Alive,,21,,,NO,NO,21,0:LIVING
+TCGA-MP-A4TA,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,55,,,NO,Dead,950,,1,,NO,YES,950,1:DECEASED
+TCGA-55-7815,LUAD,MALE,,,76,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,,54,,,NO,YES,54,0:LIVING
+TCGA-55-8096,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,104,,,NO,Alive,719,47,2,70,NO,NO,719,0:LIVING
+TCGA-NJ-A55R,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8230/3,Lung,3,5,,,NO,Alive,,603,,,NO,NO,603,0:LIVING
+TCGA-91-7771,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IIB,T3,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,75,,,,Alive,,31,,,NO,NO,31,0:LIVING
+TCGA-69-7760,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIB,T3,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,,,NO,Alive,,154,,,NO,NO,154,0:LIVING
+TCGA-44-5644,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,51,Stage IB,T2a,N0,,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,17.5,,,,Alive,,498,,,NO,NO,498,0:LIVING
+TCGA-69-7973,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,42,Stage IB,T2a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,25,,,,Alive,,230,1,,NO,NO,230,0:LIVING
+TCGA-44-6145,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,75,,,,Alive,,103,0,,NO,NO,103,0:LIVING
+TCGA-64-1676,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,60,,,,Alive,,1728,,,NO,NO,1728,0:LIVING
+TCGA-97-7553,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IA,T1,N0,MX,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,2,20,,,,Alive,,1332,,,NO,NO,1332,0:LIVING
+TCGA-55-8511,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,58,,,,Alive,,9,2,70,NO,NO,9,0:LIVING
+TCGA-MP-A4TF,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IIA,T2b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,40,,,NO,Dead,336,,,,NO,YES,336,1:DECEASED
+TCGA-55-8204,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,87,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,,Alive,,0,,,NO,NO,0,0:LIVING
+TCGA-55-8616,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,,Alive,,48,0,,,NO,48,0:LIVING
+TCGA-86-8281,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IA,T1,NX,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,30,,,,Alive,,0,0,100,,NO,0,0:LIVING
+TCGA-55-7574,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,2,,,,Alive,995,95,3,50,YES,YES,995,0:LIVING
+TCGA-L9-A743,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,56,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,40.5,,,NO,Alive,,312,0,,NO,NO,312,0:LIVING
+TCGA-73-4670,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IV,T2,N0,M1,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,30,,,NO,Alive,,14,2,50,NO,NO,14,0:LIVING
+TCGA-50-5066,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,72,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,,,YES,Alive,,297,,,NO,YES,297,0:LIVING
+TCGA-75-5126,LUAD,FEMALE,,,,Stage IIIA,T3,N2,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,4,40,,,NO,Alive,,,1,,NO,YES,,0:LIVING
+TCGA-64-5779,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IIIA,T2,N2,M0,Lung Acinar Adenocarcinoma,8550/3,Lung,4,40,,,,Alive,,507,0,,YES,NO,507,0:LIVING
+TCGA-55-6543,LUAD,FEMALE,WHITE,,60,Stage IA,T1b,N0,MX,Lung Bronchioloalveolar Carcinoma Mucinous,8253/3,Lung,4,60,,,,Alive,,2,,,NO,NO,2,0:LIVING
+TCGA-55-A48Z,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IIIB,T1a,N3,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,40,Other,,YES,Alive,,29,2,70,YES,NO,29,0:LIVING
+TCGA-86-8278,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8480/3,Lung,1,,,,,Alive,,23,2,80,NO,NO,23,0:LIVING
+TCGA-L4-A4E5,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,48,Stage I,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,33,,,NO,Alive,,213,1,,NO,NO,213,0:LIVING
+TCGA-49-4505,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,74,,,,Dead,428,,3,80,NO,YES,428,1:DECEASED
+TCGA-69-7980,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,70,Stage I,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8550/3,Lung,4,80,Other,,NO,Alive,,43,,,NO,NO,43,0:LIVING
+TCGA-55-7725,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,16,,,NO,Alive,,39,1,90,NO,NO,39,0:LIVING
+TCGA-78-7162,LUAD,MALE,WHITE,,75,Stage IA,T1,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,12,,,NO,Dead,3169,,0,,NO,YES,3169,1:DECEASED
+TCGA-80-5608,LUAD,FEMALE,,,,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,26,,,,Alive,,2832,1,,NO,NO,2832,0:LIVING
+TCGA-78-7159,LUAD,FEMALE,WHITE,,60,Stage IA,T1,NX,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,21,,,NO,Alive,,1221,1,,NO,,1221,0:LIVING
+TCGA-MP-A4TI,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,35,,G12C,NO,Dead,429,,,,,YES,429,1:DECEASED
+TCGA-78-7542,LUAD,MALE,WHITE,,56,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,60,,,NO,Dead,321,,0,,,,321,1:DECEASED
+TCGA-91-6836,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IB,T2,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Alive,,11,,,NO,NO,11,0:LIVING
+TCGA-78-7537,LUAD,MALE,,,72,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,20,,,NO,Dead,1622,,1,,NO,,1622,1:DECEASED
+TCGA-97-7941,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IA,T1b,N0,MX,Lung Acinar Adenocarcinoma,8550/3,Lung,3,22.5,,G12A,NO,Alive,,22,0,,NO,NO,22,0:LIVING
+TCGA-MP-A4TJ,LUAD,FEMALE,,,62,Stage IA,T1,N0,M0,Lung Signet Ring Adenocarcinoma,8490/3,Lung,2,,,,NO,Dead,339,,,,NO,,339,1:DECEASED
+TCGA-78-8660,LUAD,MALE,,,69,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,11,,,NO,Dead,321,,1,,YES,YES,321,1:DECEASED
+TCGA-49-AARQ,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,41,Stage I,T2,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,60,,,,Alive,,6443,1,90,NO,NO,6443,0:LIVING
+TCGA-05-4415,LUAD,MALE,,,57,Stage IIIB,T4,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,29,,,,Dead,91,,,,NO,YES,91,1:DECEASED
+TCGA-86-A4JF,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,56,Stage IIB,T3,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,NO,Alive,737,0,1,90,NO,NO,737,0:LIVING
+TCGA-86-7701,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IV,T2,N0,M1,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,,11,2,80,NO,YES,11,0:LIVING
+TCGA-44-3918,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,20,,,,Alive,,197,0,90,NO,NO,197,0:LIVING
+TCGA-50-6597,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,79,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,1268,1015,,,NO,NO,1268,0:LIVING
+TCGA-NJ-A4YI,LUAD,FEMALE,WHITE,,87,Stage IIIA,T2,N2,M0,Lung Papillary Adenocarcinoma,8550/3,Lung,3,3,,,,Dead,4,,,,NO,NO,4,1:DECEASED
+TCGA-86-8280,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,54,Stage IIA,T2b,N0,M0,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,1,,,,,Alive,,16,0,100,NO,NO,16,0:LIVING
+TCGA-44-2666,LUAD,MALE,WHITE,HISPANIC OR LATINO,43,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,30,,,,Dead,97,97,,,NO,NO,97,1:DECEASED
+TCGA-78-7154,LUAD,MALE,WHITE,,72,Stage IIIA,T3,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,112.5,,,NO,Dead,593,,1,,,,593,1:DECEASED
+TCGA-55-A491,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,81,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,45,,,NO,Alive,,0,2,80,NO,NO,0,0:LIVING
+TCGA-05-4390,LUAD,FEMALE,,,58,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,15,,,,Alive,,1126,,,NO,YES,1126,0:LIVING
+TCGA-05-4382,LUAD,MALE,,,68,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,62,,,,Alive,,607,,,YES,YES,607,0:LIVING
+TCGA-55-8206,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,56,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,,46,,,NO,NO,46,0:LIVING
+TCGA-55-7576,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,54,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Alive,,40,,,NO,NO,40,0:LIVING
+TCGA-55-8506,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IIB,T3,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Alive,,11,,,,NO,11,0:LIVING
+TCGA-50-5930,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,47,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,,,,,,Dead,282,,,,YES,YES,282,1:DECEASED
+TCGA-05-4403,LUAD,MALE,,,76,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,,,,,Alive,,578,,,,,578,0:LIVING
+TCGA-55-7911,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,96,,,NO,Alive,,21,,,NO,YES,21,0:LIVING
+TCGA-78-7143,LUAD,FEMALE,WHITE,,62,Stage IB,T2,N0,M0,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,1,,,,NO,Dead,4961,,0,,NO,YES,4961,1:DECEASED
+TCGA-62-A46P,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,40,,,NO,Dead,594,,,100,NO,YES,594,1:DECEASED
+TCGA-95-8494,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,5,,,,NO,Alive,,71,,,NO,NO,71,0:LIVING
+TCGA-35-5375,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,35,,,,Alive,,264,1,90,,,264,0:LIVING
+TCGA-78-7163,LUAD,MALE,WHITE,,60,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,41,,,NO,Alive,,6812,1,,NO,NO,6812,0:LIVING
+TCGA-05-4417,LUAD,FEMALE,,,51,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,56,,,,Alive,,455,,,NO,NO,455,0:LIVING
+TCGA-91-6828,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,,Alive,,38,2,,NO,NO,38,0:LIVING
+TCGA-44-A47A,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,78,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,80,,,NO,Alive,,202,1,,NO,NO,202,0:LIVING
+TCGA-L9-A443,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,90,,,NO,Alive,193,116,1,,NO,NO,193,0:LIVING
+TCGA-86-A4D0,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,48,Stage IIA,T2b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,NO,Alive,116,30,1,90,NO,NO,116,0:LIVING
+TCGA-44-A479,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,73,Stage IB,T2,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,40,,,NO,Alive,,256,0,,NO,NO,256,0:LIVING
+TCGA-97-A4LX,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,81,Stage IB,T2a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,120,,G12A,NO,Alive,,272,1,,NO,NO,272,0:LIVING
+TCGA-49-4486,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,17.5,,,,Dead,2318,,1,60,NO,YES,2318,1:DECEASED
+TCGA-50-5932,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,,,,,,Dead,1235,1091,,,NO,YES,1235,1:DECEASED
+TCGA-86-8073,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IB,T2a,N0,M0,Lung Bronchioloalveolar Carcinoma Nonmucinous,8250/3,Lung,2,40,,,NO,Alive,,13,0,100,NO,NO,13,0:LIVING
+TCGA-NJ-A55O,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,56,Stage IIA,T1b,N1,M0,Mucinous (Colloid) Carcinoma,8480/3,Lung,4,30,,,NO,Alive,,13,,,NO,NO,13,0:LIVING
+TCGA-55-A494,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,7,,G12D,YES,Alive,,5,1,80,NO,NO,5,0:LIVING
+TCGA-69-7765,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,56,,T4,N0,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,,Other,,NO,Alive,,129,,,NO,NO,129,0:LIVING
+TCGA-86-8672,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IIB,T3,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,19,15,,,NO,NO,19,0:LIVING
+TCGA-49-4488,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IA,T1,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,,Dead,869,,,,NO,YES,869,1:DECEASED
+TCGA-55-7903,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,40,,,NO,Alive,,19,,,NO,NO,19,0:LIVING
+TCGA-MP-A4T2,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,75,,,NO,Dead,1136,,,,NO,YES,1136,1:DECEASED
+TCGA-49-4487,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,40,,,,Dead,855,,,,YES,YES,855,1:DECEASED
+TCGA-99-8033,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IV,TX,NX,M1,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Alive,656,170,1,,NO,NO,656,0:LIVING
+TCGA-50-5068,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IIB,T2,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,,,,,,Dead,1499,1499,,,NO,YES,1499,1:DECEASED
+TCGA-55-6978,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,81,Stage IIA,T2b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Dead,176,,,,NO,YES,176,1:DECEASED
+TCGA-91-A4BC,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IIA,T2b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,30,,,,Alive,,44,,,,,44,0:LIVING
+TCGA-49-4490,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,45,Stage IIIA,T3,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,5,,,,Dead,385,,,,YES,NO,385,1:DECEASED
+TCGA-86-7955,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,,14,1,90,YES,NO,14,0:LIVING
+TCGA-05-4430,LUAD,FEMALE,,,59,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,80,,,,Alive,,761,,,,NO,761,0:LIVING
+TCGA-44-3398,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,60,,,,Alive,,253,,,NO,NO,253,0:LIVING
+TCGA-49-4507,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIIA,T3,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,78,,,,Dead,268,,1,,YES,YES,268,1:DECEASED
+TCGA-97-A4M5,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,83,Stage IA,T1b,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,6,,G12C,NO,Alive,,132,,,NO,NO,132,0:LIVING
+TCGA-49-6745,LUAD,MALE,WHITE,,82,Stage IIIA,T2a,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8260/3,Lung,4,20,,,,Alive,,156,,,NO,NO,156,0:LIVING
+TCGA-86-8674,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,50,Stage IIA,T2a,N1,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,4,37.5,,,,Alive,,0,,,NO,NO,0,0:LIVING
+TCGA-05-4384,LUAD,MALE,,,66,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,20,,,,Alive,,426,,,YES,YES,426,0:LIVING
+TCGA-69-7979,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IB,T2a,N0,MX,Lung Acinar Adenocarcinoma,8550/3,Lung,2,28,,,NO,Alive,,89,,,NO,NO,89,0:LIVING
+TCGA-78-7147,LUAD,FEMALE,WHITE,,67,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,NO,Dead,586,,1,,NO,YES,586,1:DECEASED
+TCGA-93-7347,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IA,T1a,N0,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,11,,,NO,Alive,,297,0,100,NO,NO,297,0:LIVING
+TCGA-49-4514,LUAD,FEMALE,WHITE,,79,Stage IA,T1,N0,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,3,65,,,,Alive,,1314,,,NO,NO,1314,0:LIVING
+TCGA-49-6742,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIA,T2a,N1,M0,Mucinous (Colloid) Carcinoma,8480/3,Lung,3,10,,,,Alive,488,445,3,40,NO,YES,488,0:LIVING
+TCGA-MN-A4N1,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,60,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,YES,Alive,,285,0,100,NO,NO,285,0:LIVING
+TCGA-J2-A4AD,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,120,,,NO,Alive,550,287,,,NO,NO,550,0:LIVING
+TCGA-78-7160,LUAD,MALE,WHITE,,61,Stage IV,T4,N2,M1,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,43.8,,,NO,Alive,697,678,1,,NO,,697,0:LIVING
+TCGA-05-4397,LUAD,MALE,,,65,Stage IIB,T2,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,45,,,,Dead,731,,,,,,731,1:DECEASED
+TCGA-91-8497,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,434,174,,,NO,NO,434,0:LIVING
+TCGA-55-7283,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IIIA,T3,N2,MX,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,3,5,,,NO,Alive,,35,0,100,NO,NO,35,0:LIVING
+TCGA-05-4244,LUAD,MALE,,,70,Stage IV,T2,N2,M1,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,38,,,,Alive,,0,,,,,0,0:LIVING
+TCGA-91-6848,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IIIA,T2,N2,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,,Alive,,127,,,NO,NO,127,0:LIVING
+TCGA-MP-A4TD,LUAD,MALE,WHITE,,71,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,20,,,NO,Dead,307,,0,,NO,YES,307,1:DECEASED
+TCGA-55-8620,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IV,T1a,N1,M1b,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,154,,,NO,Alive,375,66,2,70,YES,NO,375,0:LIVING
+TCGA-97-7547,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IB,T2,N0,MX,Lung Papillary Adenocarcinoma,8260/3,Lung,3,30,,,,Alive,,1435,,,NO,YES,1435,0:LIVING
+TCGA-44-6777,LUAD,FEMALE,WHITE,,85,Stage IB,T2,NX,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,64,,,,Dead,987,,1,,YES,NO,987,1:DECEASED
+TCGA-38-4629,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IIB,T3,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,100,,,NO,Dead,864,,,,NO,YES,864,1:DECEASED
+TCGA-55-8097,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,35,,,NO,Alive,,15,,,NO,NO,15,0:LIVING
+TCGA-97-8179,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IA,T1a,N0,M0,Lung Acinar Adenocarcinoma,8550/3,Lung,3,60,,,YES,Alive,,15,0,,NO,NO,15,0:LIVING
+TCGA-78-8648,LUAD,FEMALE,,,58,Stage IIB,T3,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,45,,,NO,Dead,1209,,2,,NO,YES,1209,1:DECEASED
+TCGA-75-5125,LUAD,MALE,,,,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,25,,,NO,Alive,2027,,,,NO,NO,2027,0:LIVING
+TCGA-95-7944,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Alive,,21,,,NO,NO,21,0:LIVING
+TCGA-44-6147,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IA,T1b,NX,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,,Alive,,236,2,80,NO,NO,236,0:LIVING
+TCGA-55-7727,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIIA,T1a,N2,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Alive,,34,,,NO,NO,34,0:LIVING
+TCGA-95-7039,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,54,Stage IIB,T3,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,34,,,,Alive,,34,1,,NO,YES,34,0:LIVING
+TCGA-55-6975,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IIB,T2,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,,,,NO,Dead,118,,,,NO,NO,118,1:DECEASED
+TCGA-05-4433,LUAD,MALE,,,82,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,1,,,,Alive,,730,,,,NO,730,0:LIVING
+TCGA-05-4427,LUAD,FEMALE,,,65,Stage IIB,T2,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,8,,,,Alive,,791,,,NO,NO,791,0:LIVING
+TCGA-86-7711,LUAD,MALE,WHITE,HISPANIC OR LATINO,70,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Alive,1046,27,2,80,NO,NO,1046,0:LIVING
+TCGA-69-7761,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,84,Stage IB,T2a,N0,MX,Lung Acinar Adenocarcinoma,8550/3,Lung,3,20,Other,,,Alive,,186,1,,NO,NO,186,0:LIVING
+TCGA-44-2661,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,,103,1,,NO,NO,103,0:LIVING
+TCGA-55-6981,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,53,Stage IIIA,T1,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,NO,Dead,1379,,,,YES,NO,1379,1:DECEASED
+TCGA-MP-A4TH,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,20,,,NO,Alive,,142,,,NO,NO,142,0:LIVING
+TCGA-55-8299,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,20,,,,Alive,469,216,,,NO,NO,469,0:LIVING
+TCGA-L4-A4E6,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,30,,,NO,Alive,,76,,,NO,NO,76,0:LIVING
+TCGA-44-A47F,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIB,T2b,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,20,,,,Alive,,246,0,90,NO,NO,246,0:LIVING
+TCGA-55-7913,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,61,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,40,,,YES,Alive,561,62,1,90,NO,NO,561,0:LIVING
+TCGA-38-4628,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Dead,1492,,,,NO,YES,1492,1:DECEASED
+TCGA-67-6215,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Alive,,162,2,,NO,NO,162,0:LIVING
+TCGA-NJ-A7XG,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,49,Stage IIIA,T4,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,Other,,,Alive,,295,,,NO,NO,295,0:LIVING
+TCGA-67-3772,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,82,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Alive,,573,,,,,573,0:LIVING
+TCGA-S2-AA1A,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,68,Stage IA,T1b,N0,M0,Lung Bronchioloalveolar Carcinoma Mucinous,8253/3,Lung,3,95,,,NO,Alive,,121,,,NO,NO,121,0:LIVING
+TCGA-49-6767,LUAD,FEMALE,WHITE,,46,Stage IIB,T3,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,30,,,,Alive,,0,,,,,0,0:LIVING
+TCGA-55-6980,LUAD,MALE,WHITE,,56,Stage IA,T1,N0,M0,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,1,,,,NO,Alive,,67,,,NO,NO,67,0:LIVING
+TCGA-44-6144,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,67.5,,,,Alive,,9,0,70,NO,YES,9,0:LIVING
+TCGA-44-5645,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,61,Stage IA,T1,NX,,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,5,,,,Alive,,208,,,NO,NO,208,0:LIVING
+TCGA-MP-A4T7,LUAD,FEMALE,,,75,Stage IV,T2,N0,M1,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,50,,,NO,Dead,167,,,,NO,,167,1:DECEASED
+TCGA-62-A46V,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,78,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,,,,NO,Alive,,1631,,90,NO,NO,1631,0:LIVING
+TCGA-44-6774,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,56,Stage IIIA,T1,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,20,,,,Alive,,166,1,,YES,NO,166,0:LIVING
+TCGA-55-8621,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,30,,,,Alive,,106,1,90,NO,NO,106,0:LIVING
+TCGA-05-4396,LUAD,MALE,,,76,Stage IIIB,T4,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,19,,,,Dead,303,,,,,,303,1:DECEASED
+TCGA-55-7573,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,NO,Alive,,4,1,90,NO,NO,4,0:LIVING
+TCGA-49-AARR,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,68,Stage IA,T1,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,,Alive,,4630,1,90,NO,YES,4630,0:LIVING
+TCGA-97-A4M3,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IA,T1b,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,37.5,,,NO,Alive,,237,1,,NO,YES,237,0:LIVING
+TCGA-49-AARO,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,39,Stage IA,T1a,N0,MX,Lung Papillary Adenocarcinoma,8260/3,Lung,2,,,,,Alive,,3755,1,90,NO,YES,3755,0:LIVING
+TCGA-91-6830,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IIA,T1,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,12,,,,Alive,,1,,,NO,YES,1,0:LIVING
+TCGA-38-6178,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIIA,T2b,N2,,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,Exon 19 Deletion,,NO,Alive,,158,,,NO,NO,158,0:LIVING
+TCGA-55-8091,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IB,T2,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,NO,Alive,,43,,,NO,NO,43,0:LIVING
+TCGA-55-8507,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,53,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,120,,,,Alive,,8,3,40,NO,NO,8,0:LIVING
+TCGA-75-7030,LUAD,MALE,,,,Stage IIB,T3,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,,,0,,NO,NO,,0:LIVING
+TCGA-86-A456,LUAD,FEMALE,ASIAN,NOT HISPANIC OR LATINO,78,Stage IA,T1a,N0,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,4,,,,,Alive,,10,1,90,NO,NO,10,0:LIVING
+TCGA-55-A492,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,35,,,NO,Alive,,1,2,80,NO,NO,1,0:LIVING
+TCGA-64-1678,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,70,,T2b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,20,,,,Alive,,1189,,,NO,NO,1189,0:LIVING
+TCGA-62-8399,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IIIA,T2,N2,M0,Lung Papillary Adenocarcinoma,8255/3,Lung,4,70,,,NO,Alive,,2093,,100,NO,NO,2093,0:LIVING
+TCGA-55-6985,LUAD,FEMALE,WHITE,,58,Stage IB,T2,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,50,,,NO,Alive,,1233,,,NO,NO,1233,0:LIVING
+TCGA-44-8120,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,58,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,5,30,,,,Alive,,169,0,,NO,NO,169,0:LIVING
+TCGA-50-5935,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,86,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,,,Other,,,Dead,653,653,,,YES,NO,653,1:DECEASED
+TCGA-50-5044,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IIIB,T4,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,,,,,,Dead,624,,,,YES,YES,624,1:DECEASED
+TCGA-55-8085,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IA,T1b,N0,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,2,,,,,Alive,,33,1,,NO,NO,33,0:LIVING
+TCGA-L9-A444,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,10,,,NO,Alive,,6,0,,NO,NO,6,0:LIVING
+TCGA-55-8615,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IIIA,T3,N2,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,67,,,,Alive,,15,,,NO,NO,15,0:LIVING
+TCGA-97-A4M0,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IB,T2a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,34,,G12C,NO,Alive,,216,0,,NO,NO,216,0:LIVING
+TCGA-95-7562,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,71,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,10,,,,Dead,87,,1,,NO,NO,87,1:DECEASED
+TCGA-38-4626,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,57,,T2b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,40,,,,Alive,,2595,,,NO,NO,2595,0:LIVING
+TCGA-67-6216,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Alive,,141,,,NO,NO,141,0:LIVING
+TCGA-75-6203,LUAD,FEMALE,,,,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,,,,,NO,,,0:LIVING
+TCGA-67-3773,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,84,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,NO,Alive,,427,,,,,427,0:LIVING
+TCGA-78-7161,LUAD,FEMALE,WHITE,,69,Stage IIB,T3,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,27.8,,,NO,Alive,291,215,1,,NO,YES,291,0:LIVING
+TCGA-NJ-A4YQ,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8255/3,Lung,4,40,,,NO,Alive,,886,,,NO,NO,886,0:LIVING
+TCGA-50-5072,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,15,,,YES,Alive,250,246,,,YES,YES,250,0:LIVING
+TCGA-50-5931,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,40,,,,Dead,434,,,,NO,YES,434,1:DECEASED
+TCGA-49-AARN,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,56,Stage IA,T1,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,5,,,,,Dead,1135,,1,90,NO,,1135,1:DECEASED
+TCGA-64-1681,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,Exon 19 Deletion,,,Dead,1167,,,0,NO,YES,1167,1:DECEASED
+TCGA-99-7458,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIIA,T4,N0,M0,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,4,52,,G12A,YES,Alive,,251,1,90,NO,NO,251,0:LIVING
+TCGA-35-4122,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,45,,,NO,Alive,,225,1,80,,,225,0:LIVING
+TCGA-55-7728,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IB,T2a,N0,MX,Mucinous (Colloid) Carcinoma,8480/3,Lung,4,30,,,NO,Alive,,24,,,NO,NO,24,0:LIVING
+TCGA-44-7672,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,20,,,,Alive,,418,,,NO,NO,418,0:LIVING
+TCGA-44-7662,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Alive,,50,,,NO,NO,50,0:LIVING
+TCGA-86-7714,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,61,Stage IIIA,T1b,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,43,,,,Alive,625,0,0,100,NO,NO,625,0:LIVING
+TCGA-97-7552,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IB,T2,N0,MX,Lung Bronchioloalveolar Carcinoma Mucinous,8253/3,Lung,3,40,,,,Alive,,1476,,,NO,YES,1476,0:LIVING
+TCGA-44-5643,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,53,Stage IIIA,T2b,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,20,,,,Alive,,106,1,,YES,NO,106,0:LIVING
+TCGA-75-7025,LUAD,MALE,,,,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,,Alive,,3305,0,,NO,NO,3305,0:LIVING
+TCGA-78-8655,LUAD,FEMALE,,,77,Stage IA,T1,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,10,,,NO,Alive,,2360,0,,NO,,2360,0:LIVING
+TCGA-97-7937,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IB,T2a,N0,MX,Lung Micropapillary Adenocarcinoma,8507/3,Lung,3,35,,,YES,Alive,,181,0,,NO,NO,181,0:LIVING
+TCGA-64-1679,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IIIA,T1,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,40,,,,Alive,,1686,0,,NO,NO,1686,0:LIVING
+TCGA-86-A4P8,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IIIA,T1b,N2,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,YES,Alive,,39,0,,YES,NO,39,0:LIVING
+TCGA-55-8205,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IIA,T2b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,30,,,NO,Alive,,33,0,100,NO,NO,33,0:LIVING
+TCGA-44-2668,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,51,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,60,,,,Alive,761,246,0,,NO,NO,761,0:LIVING
+TCGA-NJ-A4YP,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IB,T2a,N0,M0,Lung Papillary Adenocarcinoma,8255/3,Lung,5,60,,,NO,Alive,,50,,,NO,NO,50,0:LIVING
+TCGA-49-4494,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IIIA,T3,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,50,,,,Dead,1081,,1,90,,,1081,1:DECEASED
+TCGA-49-AAR9,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,61,Stage IIB,T3,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Dead,260,,1,80,NO,NO,260,1:DECEASED
+TCGA-38-4625,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,NO,Alive,,2973,,,NO,,2973,0:LIVING
+TCGA-44-7661,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,22,,,YES,Alive,557,153,0,,NO,YES,557,0:LIVING
+TCGA-55-7726,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,30,,,,Alive,,39,,,NO,NO,39,0:LIVING
+TCGA-75-6205,LUAD,FEMALE,,,,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Dead,,,,,NO,YES,,1:DECEASED
+TCGA-55-6972,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IB,T2,N0,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,2,,,,NO,Alive,1632,1475,,,NO,NO,1632,0:LIVING
+TCGA-86-8359,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IIIA,T3,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,36,,,,Alive,444,26,1,80,,,444,0:LIVING
+TCGA-50-6673,LUAD,FEMALE,WHITE,,84,Stage I,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Dead,22,,,,YES,NO,22,1:DECEASED
+TCGA-44-3917,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,33,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,16,,,,Alive,,392,,100,NO,NO,392,0:LIVING
+TCGA-95-7567,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IIB,T2b,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,,,,,Alive,,163,1,100,NO,NO,163,0:LIVING
+TCGA-97-8176,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IIIA,T3,N1,M0,Lung Acinar Adenocarcinoma,8550/3,Lung,4,40,,G12S,NO,Alive,468,252,0,,YES,YES,468,0:LIVING
+TCGA-64-1677,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Dead,628,,,0,NO,YES,628,1:DECEASED
+TCGA-50-5942,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,30,,,,Alive,,136,,,YES,NO,136,0:LIVING
+TCGA-38-4627,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IIA,T1b,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,,Dead,1147,,,,NO,,1147,1:DECEASED
+TCGA-86-8055,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,79,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,60,,,,Alive,124,10,2,80,NO,NO,124,0:LIVING
+TCGA-55-A4DF,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,88,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,60,,,,Alive,440,47,,,NO,NO,440,0:LIVING
+TCGA-44-2664,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,66,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,23,,,,Alive,,383,2,,NO,NO,383,0:LIVING
+TCGA-44-A47B,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,79,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,4.5,,,NO,Alive,,105,0,,NO,NO,105,0:LIVING
+TCGA-62-A46R,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,54,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,25,,,NO,Dead,1725,,,100,NO,NO,1725,1:DECEASED
+TCGA-71-8520,LUAD,FEMALE,ASIAN,NOT HISPANIC OR LATINO,60,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,210,3,,40,NO,NO,210,0:LIVING
+TCGA-80-5611,LUAD,MALE,,,,Stage IB,T2,N0,M0,Lung Solid Pattern Predominant Adenocarcinoma,8230/3,Lung,4,60,,,,Alive,,2595,0,,NO,NO,2595,0:LIVING
+TCGA-05-4250,LUAD,FEMALE,,,79,Stage IIIA,T3,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,47,,,,Dead,121,,,,,,121,1:DECEASED
+TCGA-78-7158,LUAD,FEMALE,WHITE,,59,Stage IIIB,T4,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,14,,,NO,Dead,179,,1,,NO,YES,179,1:DECEASED
+TCGA-53-7813,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,51,Stage IIIB,T4,N0,M0,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,4,35,,,NO,Alive,,418,1,,NO,,418,0:LIVING
+TCGA-55-6970,LUAD,FEMALE,WHITE,,67,Stage IIIA,T2,N2,MX,Lung Papillary Adenocarcinoma,8260/3,Lung,4,,,,NO,Dead,464,,,,YES,YES,464,1:DECEASED
+TCGA-73-A9RS,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,41,Stage IIB,T3,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8480/3,Lung,2,11,,,YES,Alive,340,305,1,80,YES,YES,340,0:LIVING
+TCGA-69-7764,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IA,T1b,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,30,,,NO,Alive,,414,0,,NO,NO,414,0:LIVING
+TCGA-55-8094,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,51,Stage IV,T2b,N0,M1b,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,70,,,YES,Alive,,4,,,YES,NO,4,0:LIVING
+TCGA-95-A4VN,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IIA,T2a,N1,M0,Lung Solid Pattern Predominant Adenocarcinoma,8140/3,Lung,4,42,,,NO,Alive,,142,1,,NO,NO,142,0:LIVING
+TCGA-69-8254,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,85,,T2b,,,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,40,Other,,NO,Alive,,77,0,80,NO,NO,77,0:LIVING
+TCGA-49-AAR3,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,69,Stage IIB,T2,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,,,,,,Alive,,1893,1,90,NO,YES,1893,0:LIVING
+TCGA-49-4510,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,51,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,55.5,,,,Dead,896,,1,80,YES,YES,896,1:DECEASED
+TCGA-55-7281,LUAD,FEMALE,WHITE,,70,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,20,,,,Alive,,18,,,NO,YES,18,0:LIVING
+TCGA-69-7763,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IA,T1b,N0,M0,Lung Adenocarcinoma Mixed Subtype,8550/3,Lung,4,7.5,,,NO,Alive,,690,1,,NO,NO,690,0:LIVING
+TCGA-78-7148,LUAD,MALE,WHITE,,71,Stage IIB,T2,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,57,,,NO,Dead,626,,0,,NO,YES,626,1:DECEASED
+TCGA-97-A4M7,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IA,T1b,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,40,L858R,,NO,Alive,,271,0,,NO,NO,271,0:LIVING
+TCGA-86-8668,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IA,T1b,N0,M0,Lung Bronchioloalveolar Carcinoma Mucinous,8253/3,Lung,1,,,,,Alive,,45,0,100,NO,NO,45,0:LIVING
+TCGA-49-AAQV,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,63,Stage II,T1,N1,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,Exon 19 Deletion,,YES,Dead,677,,1,90,NO,YES,677,1:DECEASED
+TCGA-71-6725,LUAD,FEMALE,ASIAN,NOT HISPANIC OR LATINO,48,Stage IB,T2,N0,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,2,,,,,Alive,,61,2,60,NO,YES,61,0:LIVING
+TCGA-55-7570,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,60,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Alive,,6,,,NO,NO,6,0:LIVING
+TCGA-05-4402,LUAD,FEMALE,,,57,Stage IV,T2,NX,M1,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,,,,Dead,244,,,,NO,NO,244,1:DECEASED
+TCGA-67-4679,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,69,,T3,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,NO,Alive,,448,,,,,448,0:LIVING
+TCGA-05-4422,LUAD,MALE,,,68,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,147,,,,Alive,,365,,,,,365,0:LIVING
+TCGA-55-7227,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IIIA,T3,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,,Alive,952,53,,,NO,YES,952,0:LIVING
+TCGA-55-1594,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Alive,,1178,,,,,1178,0:LIVING
+TCGA-49-AAR4,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,51,Stage IIIA,T2,N2,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,35,,,,Dead,879,,1,80,YES,NO,879,1:DECEASED
+TCGA-62-A46Y,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,,,NO,Dead,414,,,90,YES,YES,414,1:DECEASED
+TCGA-86-8054,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IIB,T2b,N1,M0,Lung Acinar Adenocarcinoma,8550/3,Lung,2,9,,,NO,Alive,,19,2,80,NO,NO,19,0:LIVING
+TCGA-62-A46S,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IB,T2,N0,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,4,40,,,NO,Dead,1653,,0,100,NO,YES,1653,1:DECEASED
+TCGA-97-8177,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IB,T2a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,L858R,,NO,Alive,,147,0,,NO,NO,147,0:LIVING
+TCGA-05-5425,LUAD,MALE,,,68,Stage IIB,T2b,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,40,,,,Alive,,90,,,YES,YES,90,0:LIVING
+TCGA-49-6744,LUAD,FEMALE,WHITE,,64,Stage IIA,T2a,N1,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,20,,,,Alive,,890,1,90,NO,NO,890,0:LIVING
+TCGA-44-6778,LUAD,MALE,BLACK OR AFRICAN AMERICAN,,59,Stage IA,T1,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,15,,,,Alive,,1110,,,NO,NO,1110,0:LIVING
+TCGA-75-6206,LUAD,MALE,,,,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,20,,,,Alive,,2590,0,,NO,NO,2590,0:LIVING
+TCGA-80-5607,LUAD,FEMALE,,,,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,15,,,,Alive,,,1,,NO,YES,,0:LIVING
+TCGA-NJ-A4YF,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,50,Stage IA,T1,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,30,,,NO,Alive,,1720,,,NO,NO,1720,0:LIVING
+TCGA-78-7220,LUAD,FEMALE,WHITE,,53,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,35,,,NO,Dead,807,,0,,YES,YES,807,1:DECEASED
+TCGA-50-6595,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,YES,Dead,189,,,,YES,YES,189,1:DECEASED
+TCGA-78-7167,LUAD,MALE,WHITE,,77,Stage IV,T2,N0,M1,Lung Papillary Adenocarcinoma,8260/3,Lung,2,64,,,NO,Dead,2681,,1,,NO,YES,2681,1:DECEASED
+TCGA-95-7948,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,42,Stage IB,T2a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,.15,,,,Alive,,133,,,NO,NO,133,0:LIVING
+TCGA-75-6207,LUAD,MALE,,,,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,10,,,,Dead,,,,,NO,,,1:DECEASED
+TCGA-05-4389,LUAD,MALE,,,70,Stage IA,T1,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,43,,,,Alive,,1369,,,NO,NO,1369,0:LIVING
+TCGA-05-5429,LUAD,MALE,,,60,Stage IIIA,T3,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,275,30,,,,,275,0:LIVING
+TCGA-55-7907,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IIA,T2a,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,80,,,,Alive,343,16,,,NO,YES,343,0:LIVING
+TCGA-67-3776,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,NO,Alive,,61,,,,,61,0:LIVING
+TCGA-73-4677,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,74,,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,NO,Dead,38,,1,80,NO,NO,38,1:DECEASED
+TCGA-97-8172,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IB,T2a,N0,M0,Lung Acinar Adenocarcinoma,8550/3,Lung,3,20,,G12V,NO,Alive,,182,1,,NO,NO,182,0:LIVING
+TCGA-75-5147,LUAD,FEMALE,,,,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8252/3,Lung,1,,,,NO,Alive,,1333,,,NO,NO,1333,0:LIVING
+TCGA-50-5045,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,57,,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,,,,,,Dead,2174,,,,YES,YES,2174,1:DECEASED
+TCGA-44-A4SU,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,50,,,,Alive,409,76,1,,NO,NO,409,0:LIVING
+TCGA-55-8301,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,100,,,,Alive,,44,,,NO,NO,44,0:LIVING
+TCGA-55-1596,LUAD,MALE,ASIAN,NOT HISPANIC OR LATINO,55,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Alive,,1375,,,NO,NO,1375,0:LIVING
+TCGA-55-A4DG,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,100,,,,Alive,,162,,,NO,NO,162,0:LIVING
+TCGA-49-AARE,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,51,Stage IA,T1,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,15,,,,Dead,1229,,1,90,NO,YES,1229,1:DECEASED
+TCGA-50-6592,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,,Dead,777,,,,YES,NO,777,1:DECEASED
+TCGA-J2-A4AG,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,25,,,NO,Alive,,238,,,NO,NO,238,0:LIVING
+TCGA-67-3771,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,77,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,NO,Alive,,610,,,,,610,0:LIVING
+TCGA-73-4662,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,10,,,NO,Alive,,912,0,100,NO,YES,912,0:LIVING
+TCGA-05-5420,LUAD,MALE,,,67,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,40,,,,Alive,,31,,,,YES,31,0:LIVING
+TCGA-86-8056,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IIIA,T4,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,36,,,NO,Alive,,0,0,100,,NO,0,0:LIVING
+TCGA-J2-A4AE,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Alive,,282,,,NO,NO,282,0:LIVING
+TCGA-44-7669,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,59,Stage IIA,T1b,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,20,,,,Dead,574,,4,,NO,YES,574,1:DECEASED
+TCGA-44-8119,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIB,T3,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Alive,,99,0,,NO,NO,99,0:LIVING
+TCGA-50-5941,LUAD,FEMALE,WHITE,,55,Stage IIIA,T2a,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,25,,,,Alive,,285,,,NO,NO,285,0:LIVING
+TCGA-64-5781,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,55,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,25,,,,Alive,,1202,0,,NO,YES,1202,0:LIVING
+TCGA-73-4666,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IV,T1,N0,M1,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,10,,,NO,Alive,,618,0,100,YES,YES,618,0:LIVING
+TCGA-L9-A8F4,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,64,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,14,,,NO,Alive,,102,0,,YES,NO,102,0:LIVING
+TCGA-69-8253,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,59,Stage IIA,T1a,N1,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,7.8,,,NO,Alive,,100,2,,NO,NO,100,0:LIVING
+TCGA-97-8552,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,55,Stage I,T1a,N0,MX,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,1,,Exon 19 Deletion,,NO,Alive,,115,0,,NO,NO,115,0:LIVING
+TCGA-44-6776,LUAD,FEMALE,WHITE,,60,Stage IA,T1,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,45,,,,Alive,,1938,,,NO,NO,1938,0:LIVING
+TCGA-L9-A5IP,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,40,Stage IV,T3,N2,M1b,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,YES,Dead,58,,,,NO,YES,58,1:DECEASED
+TCGA-44-6148,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IA,T1b,N0,M0,Lung Mucinous Adenocarcinoma,8480/3,Lung,3,60,,,,Alive,,96,1,,NO,NO,96,0:LIVING
+TCGA-38-4630,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IB,T2,N0,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,1,,,,NO,Dead,1073,,,,NO,YES,1073,1:DECEASED
+TCGA-95-7947,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IA,T1a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,100,,,,Alive,,40,,,NO,NO,40,0:LIVING
+TCGA-4B-A93V,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,52,Stage IA,T1b,N0,M0,Lung Adenocarcinoma Mixed Subtype,8140/3,Lung,4,30,,,,Alive,300,254,0,100,YES,YES,300,0:LIVING
+TCGA-86-8076,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,42,Stage IA,T1,N0,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,1,,,,NO,Alive,,26,2,80,NO,NO,26,0:LIVING
+TCGA-05-4410,LUAD,MALE,,,62,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,98,,,,Alive,,0,,,,,0,0:LIVING
+TCGA-62-A472,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIB,T3,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,60,,,NO,Alive,,540,1,80,NO,YES,540,0:LIVING
+TCGA-55-6968,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IV,T1,N0,M1,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Dead,1293,,,,YES,NO,1293,1:DECEASED
+TCGA-55-8514,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,70,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,20,,,,Alive,,202,,,NO,NO,202,0:LIVING
+TCGA-75-7031,LUAD,FEMALE,,,,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,5,,,,Alive,,,0,,NO,NO,,0:LIVING
+TCGA-62-8397,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIB,T3,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,,,NO,Alive,,940,0,90,NO,NO,940,0:LIVING
+TCGA-86-7953,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8250/3,Lung,1,,,,,Alive,,34,1,90,NO,NO,34,0:LIVING
+TCGA-75-5146,LUAD,MALE,,,,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8252/3,Lung,3,,,,NO,Alive,,2368,,,NO,NO,2368,0:LIVING
+TCGA-44-A47G,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,28,,,NO,Alive,,135,0,,NO,NO,135,0:LIVING
+TCGA-86-8671,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IIB,T2b,N1,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,1,,,,,Alive,,18,1,90,NO,NO,18,0:LIVING
+TCGA-86-8358,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,44,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,20,,,,Alive,,19,2,90,NO,NO,19,0:LIVING
+TCGA-93-A4JN,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IV,T2a,N0,M1a,Lung Acinar Adenocarcinoma,8550/3,Lung,3,40,,,YES,Alive,,382,1,90,NO,NO,382,0:LIVING
+TCGA-05-4432,LUAD,MALE,,,66,Stage IIB,T2,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,58,,,,Alive,,761,,,NO,NO,761,0:LIVING
+TCGA-86-8669,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,47,,,,Alive,,34,0,100,NO,YES,34,0:LIVING
+TCGA-95-A4VK,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIIA,T2b,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,45,,,NO,Alive,,121,1,,YES,NO,121,0:LIVING
+TCGA-44-7670,LUAD,FEMALE,WHITE,HISPANIC OR LATINO,47,Stage IIA,T1b,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,30,,,,Alive,,531,,,NO,NO,531,0:LIVING
+TCGA-73-7499,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,81,Stage IB,T2a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,,,NO,Alive,1531,519,0,90,NO,NO,1531,0:LIVING
+TCGA-62-A46U,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IIB,T2,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,,,NO,Alive,,1708,,100,NO,NO,1708,0:LIVING
+TCGA-55-8508,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,60,Stage IIA,T2a,N1,MX,Mucinous (Colloid) Carcinoma,8480/3,Lung,2,,,,,Alive,,15,2,60,NO,NO,15,0:LIVING
+TCGA-44-2657,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IB,T2,NX,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,25,,,,Alive,,400,0,,NO,NO,400,0:LIVING
+TCGA-97-8171,LUAD,MALE,ASIAN,NOT HISPANIC OR LATINO,81,Stage IV,T2a,N2,M1a,Lung Papillary Adenocarcinoma,8260/3,Lung,2,65,Exon 19 Deletion,,NO,Alive,,107,1,,NO,NO,107,0:LIVING
+TCGA-50-5944,LUAD,FEMALE,WHITE,,69,Stage IA,T1,N0,M0,Lung Acinar Adenocarcinoma,8550/3,Lung,,,,,,Alive,,373,,,NO,NO,373,0:LIVING
+TCGA-78-7633,LUAD,MALE,WHITE,,67,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,94,,,NO,Alive,1528,994,0,,,YES,1528,0:LIVING
+TCGA-64-5775,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IIIA,T4,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,110,,,,Dead,62,,,0,NO,NO,62,1:DECEASED
+TCGA-J2-8194,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IIB,T3,N0,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,20,,,,Alive,,114,,,NO,NO,114,0:LIVING
+TCGA-78-7539,LUAD,FEMALE,WHITE,,75,Stage IIA,T2b,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,2.2,,,NO,Alive,,327,1,,NO,YES,327,0:LIVING
+TCGA-91-6829,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,78,Stage IB,T2,N0,MX,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,4,94.5,,,,Dead,1258,,3,0,NO,NO,1258,1:DECEASED
+TCGA-99-8028,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,50,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,30,,G12C,YES,Alive,,459,0,,NO,NO,459,0:LIVING
+TCGA-78-7153,LUAD,FEMALE,WHITE,,65,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,20,,,NO,Alive,,760,0,,NO,,760,0:LIVING
+TCGA-L9-A50W,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,75,Stage IIA,T1b,N1,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,19,T790M,,YES,Alive,442,266,0,,NO,NO,442,0:LIVING
+TCGA-50-6594,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,79,Stage IIIA,T3,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,YES,Dead,370,,,,NO,YES,370,1:DECEASED
+TCGA-50-5936,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IIIA,T2,N2,M0,Mucinous (Colloid) Carcinoma,8480/3,Lung,,,,G12C,,Dead,257,,,,NO,YES,257,1:DECEASED
+TCGA-05-5428,LUAD,MALE,,,57,Stage IIA,T1b,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,30,,,,Alive,,0,,,YES,NO,0,0:LIVING
+TCGA-55-5899,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,58,,T1a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Alive,,87,0,100,NO,NO,87,0:LIVING
+TCGA-44-7659,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IA,T1b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,40,,,,Alive,,299,,,NO,NO,299,0:LIVING
+TCGA-55-7816,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,49,Stage IV,TX,NX,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,468,44,,,NO,NO,468,0:LIVING
+TCGA-05-4425,LUAD,FEMALE,,,70,Stage IV,T2,N0,M1,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,28,,,,Alive,,669,,,,,669,0:LIVING
+TCGA-44-2665,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,55,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,,400,1,,NO,NO,400,0:LIVING
+TCGA-05-4424,LUAD,MALE,,,70,Stage IIB,T3,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,50,,,,Alive,,913,,,YES,YES,913,0:LIVING
+TCGA-78-7156,LUAD,MALE,WHITE,,62,Stage IV,T4,N1,M1,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,84,,,NO,Dead,976,,1,,NO,,976,1:DECEASED
+TCGA-49-4512,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IIIA,T2,N2,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Dead,905,157,,,NO,NO,905,1:DECEASED
+TCGA-78-7536,LUAD,MALE,WHITE,,69,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,44,,,NO,Dead,244,,0,,YES,YES,244,1:DECEASED
+TCGA-97-8175,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,55,Stage IB,T2a,N0,M0,Lung Solid Pattern Predominant Adenocarcinoma,8230/3,Lung,3,,,,YES,Alive,,87,,,NO,NO,87,0:LIVING
+TCGA-49-4501,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Dead,1421,,1,,NO,YES,1421,1:DECEASED
+TCGA-53-7626,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IIA,T1,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,35,,,NO,Dead,929,,0,,NO,YES,929,1:DECEASED
+TCGA-55-6984,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,,,,,NO,Dead,760,,,,NO,YES,760,1:DECEASED
+TCGA-44-2659,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IIB,T1,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,57,,,,Alive,,529,1,,NO,NO,529,0:LIVING
+TCGA-MP-A4SW,LUAD,MALE,WHITE,,53,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,15,,,NO,Dead,1778,,,,NO,,1778,1:DECEASED
+TCGA-55-A48X,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IIA,T1b,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,36,,,,Alive,,33,,,NO,NO,33,0:LIVING
+TCGA-55-1592,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IA,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,,Dead,701,,,,NO,YES,701,1:DECEASED
+TCGA-86-8673,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IB,T2,N0,M0,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,2,54,,,,Alive,,0,,,NO,NO,0,0:LIVING
+TCGA-35-4123,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,38,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,20,,,NO,Alive,,182,1,90,,,182,0:LIVING
+TCGA-78-8640,LUAD,MALE,,,59,Stage IIA,T1,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,45,,,NO,Alive,,6346,0,,NO,NO,6346,0:LIVING
+TCGA-75-7027,LUAD,MALE,,,,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Alive,,3059,0,,NO,NO,3059,0:LIVING
+TCGA-99-8032,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,90,,G12C,NO,Alive,,44,0,,NO,,44,0:LIVING
+TCGA-49-6761,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IIIA,T1,N2,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,50,,,,Alive,,1,,,NO,NO,1,0:LIVING
+TCGA-MP-A4SY,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,40,,,NO,Dead,1501,,0,,NO,YES,1501,1:DECEASED
+TCGA-55-A490,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,78,Stage IIA,T2b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,34,,G12C,YES,Alive,99,48,1,80,NO,NO,99,0:LIVING
+TCGA-93-7348,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IA,T1a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,42,,,NO,Alive,,127,0,100,NO,NO,127,0:LIVING
+TCGA-49-AAR0,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,57,Stage IA,T1,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,37,,,,Alive,,4415,1,90,NO,NO,4415,0:LIVING
+TCGA-93-A4JP,LUAD,MALE,ASIAN,NOT HISPANIC OR LATINO,64,Stage IV,TX,NX,M1b,Lung Papillary Adenocarcinoma,8260/3,Lung,1,,L861Q,,NO,Alive,,269,0,,NO,NO,269,0:LIVING
+TCGA-55-6979,LUAD,FEMALE,WHITE,,59,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,NO,Dead,237,,,,NO,YES,237,1:DECEASED
+TCGA-73-7498,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IA,T1b,N0,M0,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,4,28,,,NO,Alive,,621,1,80,NO,NO,621,0:LIVING
+TCGA-MP-A4T8,LUAD,MALE,,,68,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,25,,,NO,Dead,161,,1,,NO,,161,1:DECEASED
+TCGA-50-6590,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,50,,,,Dead,1288,,,,NO,NO,1288,1:DECEASED
+TCGA-64-5815,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIB,T2,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,30,,,,Alive,,224,1,,NO,NO,224,0:LIVING
+TCGA-78-7540,LUAD,FEMALE,WHITE,,66,Stage IB,T2,N0,M0,Lung Bronchioloalveolar Carcinoma Mucinous,8253/3,Lung,1,,,,NO,Alive,1197,881,0,,NO,,1197,0:LIVING
+TCGA-55-8510,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,55,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Alive,,228,,,NO,NO,228,0:LIVING
+TCGA-44-7671,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,64,Stage IB,T2a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,,,,,Alive,,535,,,NO,NO,535,0:LIVING
+TCGA-91-8496,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IB,T2a,NX,MX,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,1,,,,NO,Alive,,197,0,,NO,NO,197,0:LIVING
+TCGA-55-8089,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,56,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,97,,,YES,Alive,702,100,0,100,NO,NO,702,0:LIVING
+TCGA-99-AA5R,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,70,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,46,,G12C,YES,Alive,,189,1,,NO,NO,189,0:LIVING
+TCGA-55-8505,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IIIA,T1a,N2,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,,29,,,NO,NO,29,0:LIVING
+TCGA-05-5423,LUAD,MALE,,,65,Stage IIB,T2,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,72,,,,Alive,,151,,,,,151,0:LIVING
+TCGA-55-8614,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,40,,,,Alive,,41,,,NO,NO,41,0:LIVING
+TCGA-50-5946,LUAD,MALE,WHITE,,62,Stage IA,T1,N0,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,,,,,Alive,,349,,,NO,YES,349,0:LIVING
+TCGA-05-4245,LUAD,MALE,,,81,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,32,,,,Alive,,395,,,NO,YES,395,0:LIVING
+TCGA-91-A4BD,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,78,Stage IIA,T1b,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,,Alive,,218,1,,NO,NO,218,0:LIVING
+TCGA-55-8512,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,41,Stage IV,T1a,N1,M1b,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,2,19,,,,Alive,607,3,1,90,NO,NO,607,0:LIVING
+TCGA-NJ-A55A,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8550/3,Lung,3,25,,,NO,Alive,,3,,,NO,NO,3,0:LIVING
+TCGA-05-4434,LUAD,FEMALE,,,67,Stage IV,T4,N1,M1,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,15,,,,Dead,457,,,,,,457,1:DECEASED
+TCGA-97-A4M6,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,45,Stage IA,T1a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,Exon 19 Deletion,,NO,Alive,,185,0,,NO,NO,185,0:LIVING
+TCGA-86-7954,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IB,T2,N0,M0,Lung Bronchioloalveolar Carcinoma Nonmucinous,8250/3,Lung,3,8,,,,Alive,,0,0,100,NO,NO,0,0:LIVING
+TCGA-78-7150,LUAD,MALE,WHITE,,59,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,37,,,NO,Dead,666,,0,,NO,YES,666,1:DECEASED
+TCGA-62-A470,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,84,Stage IB,T2,N0,M0,Lung Acinar Adenocarcinoma,8550/3,Lung,3,30,,,NO,Dead,1194,,0,100,NO,YES,1194,1:DECEASED
+TCGA-69-8255,LUAD,MALE,WHITE,HISPANIC OR LATINO,71,Stage IA,T1a,N0,M0,Lung Solid Pattern Predominant Adenocarcinoma,8230/3,Lung,2,40,Other,,NO,Alive,,129,,,NO,NO,129,0:LIVING
+TCGA-55-8208,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Alive,,0,0,100,NO,NO,0,0:LIVING
+TCGA-50-5051,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,42,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,30,,Other,,Alive,478,455,,,YES,YES,478,0:LIVING
+TCGA-55-7910,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,50,Stage IIA,T2b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,15,,,,Alive,,203,1,80,NO,YES,203,0:LIVING
+TCGA-38-7271,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,25,,,NO,Dead,800,,,,NO,YES,800,1:DECEASED
+TCGA-86-8585,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IB,T2a,N0,M0,Lung Solid Pattern Predominant Adenocarcinoma,8230/3,Lung,1,,,,,Alive,,35,,,NO,NO,35,0:LIVING
+TCGA-86-8075,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Alive,694,43,2,80,NO,YES,694,0:LIVING
+TCGA-73-4676,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,45,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,48,,,NO,Alive,281,122,1,70,YES,NO,281,0:LIVING
+TCGA-50-5933,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IIIB,T4,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,,,,,,Dead,2393,2370,,,YES,NO,2393,1:DECEASED
+TCGA-73-4675,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IIIA,T3,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,41,,,NO,Alive,922,40,0,,NO,YES,922,0:LIVING
+TCGA-55-6987,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,NO,Alive,,1170,,,NO,NO,1170,0:LIVING
+TCGA-50-5055,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,79,Stage IIA,T1,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,,,,,,Alive,1830,785,,,NO,YES,1830,0:LIVING
+TCGA-MN-A4N5,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,YES,Alive,,84,0,100,NO,NO,84,0:LIVING
+TCGA-38-A44F,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,80,Stage IB,T2a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8550/3,Lung,3,12,,,YES,Alive,,133,,,NO,NO,133,0:LIVING
+TCGA-55-6971,LUAD,FEMALE,WHITE,,59,Stage IB,T2,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,60,,,NO,Alive,,25,,,NO,NO,25,0:LIVING
+TCGA-69-7974,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,54,Stage IIIA,T2a,N2,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,30,Other,,,Alive,,184,,80,YES,NO,184,0:LIVING
+TCGA-44-6779,LUAD,FEMALE,WHITE,,50,Stage IIB,T2,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,15,,,,Dead,500,,,,NO,YES,500,1:DECEASED
+TCGA-MP-A4TC,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IIIA,T1,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,125,,,NO,Dead,74,,,,NO,NO,74,1:DECEASED
+TCGA-55-8302,LUAD,MALE,WHITE,,54,Stage IB,T2,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,59,,,,Alive,,23,,,NO,NO,23,0:LIVING
+TCGA-67-3774,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,NO,Alive,,385,,,,,385,0:LIVING
+TCGA-55-A493,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,54,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,53,,,NO,Alive,,28,,,,NO,28,0:LIVING
+TCGA-50-7109,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,120,,,,Alive,308,255,,,NO,YES,308,0:LIVING
+TCGA-55-6982,LUAD,FEMALE,WHITE,,79,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Dead,995,,,,NO,YES,995,1:DECEASED
+TCGA-86-8074,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IIA,T1b,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8260/3,Lung,2,40,,,NO,Alive,,24,2,80,,,24,0:LIVING
+TCGA-69-A59K,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,60,Stage IIB,T3,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,25,,,NO,Alive,,214,2,,NO,NO,214,0:LIVING
+TCGA-55-8090,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,80,Stage IA,T1a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Alive,598,6,,,NO,NO,598,0:LIVING
+TCGA-97-A4M2,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IA,T1a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,100,,,NO,Alive,,197,1,,NO,NO,197,0:LIVING
+TCGA-MP-A4T9,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,54,Stage IIIA,T2,N2,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,24,,,NO,Dead,1265,,,,YES,YES,1265,1:DECEASED
+TCGA-MP-A4TK,LUAD,FEMALE,,,56,Stage IIB,T2,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,28,,,NO,Dead,582,,,,NO,YES,582,1:DECEASED
+TCGA-91-6849,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,75,Stage IIIA,T2,N2,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,30,,,,Alive,,35,,90,,,35,0:LIVING
+TCGA-50-6593,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,49,Stage IIIA,T1,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,,,,YES,Dead,336,,,,YES,YES,336,1:DECEASED
+TCGA-95-7043,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IA,T1a,N0,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,40,,,,Alive,503,2,,,NO,NO,503,0:LIVING
+TCGA-55-7724,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,50,,,,Alive,,0,,,NO,NO,0,0:LIVING
+TCGA-53-A4EZ,LUAD,MALE,WHITE,HISPANIC OR LATINO,63,Stage IIA,T2a,N1,MX,Lung Acinar Adenocarcinoma,8550/3,Lung,3,40,,,YES,Alive,,280,0,100,NO,NO,280,0:LIVING
+TCGA-44-7667,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,49,Stage IIB,T3,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,,Alive,,557,,,NO,NO,557,0:LIVING
+TCGA-44-8117,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,54,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,54,,,,Alive,,259,1,,NO,NO,259,0:LIVING
+TCGA-55-6983,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,81,Stage IIB,T2,N1,M0,Mucinous (Colloid) Carcinoma,8480/3,Lung,4,60,,,NO,Alive,,1826,,,NO,NO,1826,0:LIVING
+TCGA-44-6146,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IIB,T3,N0,M0,Lung Mucinous Adenocarcinoma,8480/3,Lung,3,15,,,,Alive,,302,1,,NO,YES,302,0:LIVING
+TCGA-55-8513,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IIB,T3,N0,MX,Mucinous (Colloid) Carcinoma,8480/3,Lung,1,,,,YES,Alive,,146,2,60,NO,NO,146,0:LIVING
+TCGA-MP-A5C7,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,15,,,NO,Alive,,1490,1,,NO,NO,1490,0:LIVING
+TCGA-75-6214,LUAD,FEMALE,,,,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,40,,,,Alive,1115,,1,,NO,YES,1115,0:LIVING
+TCGA-86-7713,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIA,T2b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,,7,1,80,NO,NO,7,0:LIVING
+TCGA-75-6212,LUAD,FEMALE,,,,Stage IIB,T2,N1,M0,Lung Micropapillary Adenocarcinoma,8507/3,Lung,1,,,,,Alive,1516,,0,,NO,YES,1516,0:LIVING
+TCGA-62-8394,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IIIB,T4,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,,,NO,Dead,139,,,100,NO,NO,139,1:DECEASED
+TCGA-64-5778,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IB,T2,N0,M0,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,4,68,,,,Alive,,926,1,,NO,NO,926,0:LIVING
+TCGA-97-8174,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IIA,T2b,N0,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,3,40,,,YES,Dead,164,,0,,NO,NO,164,1:DECEASED
+TCGA-50-8459,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IIB,T3,N0,M0,Mucinous (Colloid) Carcinoma,8480/3,Lung,2,10,,G12C,,Alive,,231,,,NO,NO,231,0:LIVING
+TCGA-50-8457,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,63,Stage IA,T1a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,30,,G12A,YES,Alive,,44,,,NO,NO,44,0:LIVING
+TCGA-97-A4M1,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IA,T1a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,3,,,NO,Alive,,209,0,,NO,NO,209,0:LIVING
+TCGA-78-7166,LUAD,MALE,WHITE,,84,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,38,,,NO,Dead,258,,2,,YES,NO,258,1:DECEASED
+TCGA-83-5908,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,69,,,NO,Alive,,420,1,90,NO,NO,420,0:LIVING
+TCGA-05-4426,LUAD,MALE,,,71,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,20,,,,Alive,,791,,,,YES,791,0:LIVING
+TCGA-55-7995,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,60,,,NO,Alive,,5,1,80,NO,NO,5,0:LIVING
+TCGA-93-8067,LUAD,MALE,ASIAN,NOT HISPANIC OR LATINO,77,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,20,,,NO,Alive,,186,2,80,NO,NO,186,0:LIVING
+TCGA-55-7284,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIB,T3,N0,MX,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,3,,,,,Alive,243,121,,,NO,NO,243,0:LIVING
+TCGA-55-1595,LUAD,FEMALE,ASIAN,NOT HISPANIC OR LATINO,74,Stage IA,T1,N0,M0,Lung Clear Cell Adenocarcinoma,8310/3,Lung,4,,,,,Alive,,1479,,,NO,NO,1479,0:LIVING
+TCGA-44-2655,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,30,,,,Alive,,575,0,,NO,NO,575,0:LIVING
+TCGA-69-8453,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IIB,T3,N0,MX,Mucinous (Colloid) Carcinoma,8480/3,Lung,3,12,,,,Alive,,171,1,,NO,NO,171,0:LIVING
+TCGA-91-6835,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,81,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,25,,,,Alive,,35,,,NO,NO,35,0:LIVING
+TCGA-95-8039,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IA,T1,N0,MX,Lung Acinar Adenocarcinoma,8550/3,Lung,1,,,,,Alive,,27,0,,NO,NO,27,0:LIVING
+TCGA-97-7938,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IA,T1a,N0,MX,Lung Bronchioloalveolar Carcinoma Nonmucinous,8252/3,Lung,3,40,,G12C,NO,Dead,18,,,,NO,NO,18,1:DECEASED
+TCGA-69-7978,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IIB,T2b,N1,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,80,Other,,,Alive,,70,,,NO,NO,70,0:LIVING
+TCGA-55-7994,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,81,Stage IIB,T3,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,28,,,NO,Alive,,31,,,NO,NO,31,0:LIVING
+TCGA-55-8619,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IIB,T3,N0,MX,Mucinous (Colloid) Carcinoma,8480/3,Lung,1,,,,,Alive,,49,,90,NO,NO,49,0:LIVING
+TCGA-78-7149,LUAD,MALE,WHITE,,71,Stage IIIB,T4,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,115,,,NO,Alive,,1093,1,,NO,,1093,0:LIVING
+TCGA-38-4631,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,40,,,NO,Dead,354,,,,NO,YES,354,1:DECEASED
+TCGA-44-2662,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,56,,,,Alive,,480,1,,NO,YES,480,0:LIVING
+TCGA-MP-A4SV,LUAD,MALE,,,67,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,110,,,NO,Dead,2620,,,,NO,,2620,1:DECEASED
+TCGA-L9-A7SV,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,69,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,93,,,NO,Alive,,111,0,,NO,NO,111,0:LIVING
+TCGA-93-A4JQ,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,49,Stage IA,T1b,N0,MX,Lung Acinar Adenocarcinoma,8550/3,Lung,3,,,,NO,Alive,,100,0,,NO,NO,100,0:LIVING
+TCGA-35-3615,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Alive,,14,,,,,14,0:LIVING
+TCGA-05-4418,LUAD,MALE,,,69,Stage IIIA,T3,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,25,,,,Dead,274,,,,,,274,1:DECEASED
+TCGA-05-4249,LUAD,MALE,,,67,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,52,,,,Alive,,1158,,,NO,NO,1158,0:LIVING
+TCGA-MN-A4N4,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,NO,Alive,,622,1,100,NO,NO,622,0:LIVING
+TCGA-73-4658,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,80,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,25,,,,Dead,1600,1600,,,NO,NO,1600,1:DECEASED
+TCGA-44-A4SS,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,90,,,,Alive,,114,0,,NO,NO,114,0:LIVING
+TCGA-95-A4VP,LUAD,FEMALE,WHITE,,66,Stage IIIA,T2b,N2,M0,Lung Acinar Adenocarcinoma,8550/3,Lung,4,20,,,NO,Alive,,168,1,,NO,NO,168,0:LIVING
+TCGA-55-7914,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IIA,T1b,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,5,,G12C,YES,Alive,187,3,1,80,NO,NO,187,0:LIVING
+TCGA-78-7145,LUAD,FEMALE,WHITE,,52,Stage IV,T4,N1,M1,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,25,,,NO,Dead,826,,1,,NO,YES,826,1:DECEASED
+TCGA-55-8092,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IIB,T3,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,40,,,,Alive,154,26,,,NO,NO,154,0:LIVING
+TCGA-MP-A4TE,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,56,Stage IIA,T2b,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,40,,G12C,NO,Dead,896,,,,NO,YES,896,1:DECEASED
+TCGA-MP-A4T4,LUAD,FEMALE,WHITE,,68,Stage IIB,T2,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,NO,Dead,2617,,0,,NO,,2617,1:DECEASED
+TCGA-55-8203,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,50,,,NO,Alive,,4,,,NO,NO,4,0:LIVING
+TCGA-55-6712,LUAD,MALE,WHITE,,71,Stage IIA,T2a,N1,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,,Alive,171,24,,,NO,NO,171,0:LIVING
+TCGA-49-6743,LUAD,FEMALE,WHITE,,81,Stage IIIA,T1,N2,MX,Lung Clear Cell Adenocarcinoma,8310/3,Lung,4,50,,,,Alive,,369,,100,NO,NO,369,0:LIVING
+TCGA-73-4668,LUAD,FEMALE,AMERICAN INDIAN OR ALASKA NATIVE,NOT HISPANIC OR LATINO,66,Stage IIB,T2,N1,M0,Lung Micropapillary Adenocarcinoma,8507/3,Lung,4,55,,,NO,Alive,,467,0,100,NO,YES,467,0:LIVING
+TCGA-67-3770,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,,,NO,Alive,,610,,,,,610,0:LIVING
+TCGA-64-1680,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IV,T2a,N2,M1,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,50,,,,Alive,,1126,,,YES,NO,1126,0:LIVING
+TCGA-05-4398,LUAD,FEMALE,,,47,Stage IIIB,T4,N3,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,72,,,,Alive,,1431,,,NO,NO,1431,0:LIVING
+TCGA-78-7155,LUAD,MALE,WHITE,,68,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,48,,,NO,Dead,1171,,0,,,YES,1171,1:DECEASED
+TCGA-78-7152,LUAD,MALE,WHITE,,65,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,40,,,NO,Alive,1215,1202,1,,NO,YES,1215,0:LIVING
+TCGA-75-6211,LUAD,FEMALE,,,,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,34,,,,Dead,,,,,NO,YES,,1:DECEASED
+TCGA-MP-A4T6,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IIIA,T1,N2,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,50,,,NO,Dead,1790,,,,NO,NO,1790,1:DECEASED
+TCGA-55-A57B,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,80,Stage IA,T1b,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,,,NO,Alive,,21,0,90,NO,NO,21,0:LIVING
+TCGA-44-2656,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,23,,,,Alive,,582,0,,NO,NO,582,0:LIVING
+TCGA-93-A4JO,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IA,T1a,N0,MX,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,50,,,NO,Dead,33,,1,90,NO,NO,33,1:DECEASED
+TCGA-78-7535,LUAD,MALE,WHITE,,45,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,35,,,NO,Dead,949,,0,,NO,YES,949,1:DECEASED
+TCGA-62-8398,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,55,Stage IIIA,T2,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,4,20,,,NO,Dead,444,,,100,NO,NO,444,1:DECEASED
+TCGA-91-6840,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IA,T1b,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,50,,,,Alive,,0,,,NO,NO,0,0:LIVING
+TCGA-75-5122,LUAD,MALE,,,,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,20,,,NO,Dead,,,,0,NO,YES,,1:DECEASED
+TCGA-99-8025,LUAD,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,72,Stage IIIA,T3,N2,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,20,,,YES,Alive,,427,1,,NO,NO,427,0:LIVING
+TCGA-55-8207,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IB,T2a,N0,MX,Lung Acinar Adenocarcinoma,8550/3,Lung,3,,,,,Alive,,66,,,NO,NO,66,0:LIVING
+TCGA-55-6969,LUAD,MALE,WHITE,,52,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,,,,NO,Alive,,1239,,,,,1239,0:LIVING
+TCGA-64-5774,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,45,,,,Alive,,2550,,,NO,YES,2550,0:LIVING
+TCGA-O1-A52J,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IA,T1,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,45,,,NO,Dead,1798,,1,,NO,YES,1798,1:DECEASED
+TCGA-86-6851,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIA,T1b,N1,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,52,,,,Alive,,0,0,100,NO,NO,0,0:LIVING
+TCGA-62-8395,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,80,Stage IIB,T3,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,,,NO,Alive,,705,0,100,NO,YES,705,0:LIVING
+TCGA-86-A4P7,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,NO,Alive,,14,0,100,NO,NO,14,0:LIVING
+TCGA-91-6831,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IB,T2,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Alive,,39,,,NO,NO,39,0:LIVING
+TCGA-05-4420,LUAD,MALE,,,41,Stage IB,T2,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,2,38,,,,Alive,,912,,,NO,NO,912,0:LIVING
+TCGA-05-4395,LUAD,MALE,,,76,Stage IIIB,T4,N2,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,3,,,,,Dead,0,,,,,,0,1:DECEASED
+TCGA-67-6217,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,,L858R,,YES,Alive,,422,,,NO,YES,422,0:LIVING
+TCGA-44-4112,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IB,T2a,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,3,30,,,,Alive,808,141,0,70,NO,YES,808,0:LIVING
+TCGA-49-AAR2,LUAD,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,64,Stage IB,T2,N0,MX,Lung Acinar Adenocarcinoma,8550/3,Lung,4,,,,,Alive,,1945,1,90,NO,NO,1945,0:LIVING
+TCGA-62-A46O,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IB,T2,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,48,,,NO,Dead,1454,,,100,NO,YES,1454,1:DECEASED
+TCGA-44-7660,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IB,T2,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,124,,,,Alive,,162,1,70,NO,YES,162,0:LIVING
+TCGA-44-3919,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IA,T1,N0,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,1026,190,2,,NO,NO,1026,0:LIVING
+TCGA-44-6775,LUAD,FEMALE,WHITE,HISPANIC OR LATINO,72,Stage IB,T2a,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,25,,,,Alive,,83,,100,NO,NO,83,0:LIVING
+TCGA-97-7554,LUAD,FEMALE,WHITE,NOT HISPANIC OR LATINO,83,Stage IIIA,T2a,N2,M0,Lung Papillary Adenocarcinoma,8260/3,Lung,3,30,,G12V,,Alive,,264,0,,NO,NO,264,0:LIVING
+TCGA-86-6562,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IIA,T2a,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,1,,,,,Alive,376,0,,0,NO,YES,376,0:LIVING
+TCGA-55-6642,LUAD,MALE,WHITE,,63,Stage IB,T2,N0,MX,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,,,,,Alive,,993,,,NO,NO,993,0:LIVING
+TCGA-62-A471,LUAD,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IIB,T2b,N1,M0,Lung Adenocarcinoma- Not Otherwise Specified (NOS),8140/3,Lung,4,30,,,NO,Alive,,883,0,100,NO,NO,883,0:LIVING
+TCGA-05-5715,LUAD,FEMALE,,,69,Stage IB,T2a,N0,M0,Lung Adenocarcinoma Mixed Subtype,8255/3,Lung,1,,,,,Alive,,62,,,,,62,0:LIVING
+TCGA-85-6561,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IB,T2a,NX,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,35,,,,Alive,,24,0,100,YES,NO,24,0:LIVING
+TCGA-37-5819,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,45,,,,Alive,,103,1,90,,,103,0:LIVING
+TCGA-77-8008,LUSC,MALE,,,68,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,4,61.5,,,NO,Dead,2639,,1,,NO,,2639,1:DECEASED
+TCGA-56-8083,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,56,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,,Alive,,2,,,,NO,2,0:LIVING
+TCGA-56-A4ZJ,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8072/3,Lung,4,100,,,,Alive,,25,,,NO,NO,25,0:LIVING
+TCGA-85-7710,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,45,,,,Alive,,0,0,100,NO,NO,0,0:LIVING
+TCGA-77-A5G1,LUSC,MALE,,,75,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,53,,,NO,Alive,,3714,0,,NO,YES,3714,0:LIVING
+TCGA-22-5480,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Dead,2170,2170,2,0,NO,YES,2170,1:DECEASED
+TCGA-85-7698,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,48,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,44,,,,Alive,,49,0,100,NO,YES,49,0:LIVING
+TCGA-63-A5MU,LUSC,MALE,,,48,Stage IIB,T2b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,15,,,NO,Dead,,,0,0,NO,YES,,1:DECEASED
+TCGA-34-A5IX,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,80,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,,Alive,,636,,,NO,NO,636,0:LIVING
+TCGA-52-7811,LUSC,MALE,WHITE,HISPANIC OR LATINO,67,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,NO,Dead,266,,0,0,NO,YES,266,1:DECEASED
+TCGA-58-8387,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Dead,403,,0,90,NO,NO,403,1:DECEASED
+TCGA-21-5783,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,NO,Dead,2680,,,0,NO,,2680,1:DECEASED
+TCGA-85-A511,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IIB,T2b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,40,,,NO,Alive,455,0,,90,NO,NO,455,0:LIVING
+TCGA-94-8035,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IIB,T3,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,,Alive,,111,,,NO,NO,111,0:LIVING
+TCGA-37-4129,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,NO,Alive,,213,1,90,NO,NO,213,0:LIVING
+TCGA-77-8153,LUSC,FEMALE,,,77,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,25,,,NO,Alive,,1684,1,,NO,NO,1684,0:LIVING
+TCGA-NC-A5HG,LUSC,MALE,WHITE,,59,Stage IIIA,T2,N2,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,4,80,,,NO,Alive,,1548,1,,YES,NO,1548,0:LIVING
+TCGA-77-8146,LUSC,MALE,,,72,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,75,,,NO,Alive,,2183,0,,NO,,2183,0:LIVING
+TCGA-J1-A4AH,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIA,T2b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,100,,,NO,Alive,,222,,,NO,NO,222,0:LIVING
+TCGA-94-7033,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IB,T2,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,,Alive,,87,2,100,NO,NO,87,0:LIVING
+TCGA-66-2787,LUSC,MALE,,,57,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Alive,,1217,,,NO,NO,1217,0:LIVING
+TCGA-63-A5MJ,LUSC,MALE,,,54,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,,,,NO,Alive,,1524,,,NO,NO,1524,0:LIVING
+TCGA-18-3421,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Alive,,1331,,,NO,NO,1331,0:LIVING
+TCGA-21-1079,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IIIA,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,80,,,,Dead,965,965,,,NO,YES,965,1:DECEASED
+TCGA-34-5231,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,50,,,,Alive,1984,1528,,,NO,NO,1984,0:LIVING
+TCGA-NC-A5HE,LUSC,MALE,WHITE,,60,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,NO,Alive,,1722,0,,NO,NO,1722,0:LIVING
+TCGA-34-2600,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Dead,1874,1874,,,NO,NO,1874,1:DECEASED
+TCGA-66-2769,LUSC,MALE,,,75,Stage IIIB,T4,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,33,,,,Dead,215,,,,,,215,1:DECEASED
+TCGA-18-4083,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,45,,,,Dead,188,,,0,NO,,188,1:DECEASED
+TCGA-33-AAS8,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,59,Stage IA,T1,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,,Dead,1114,,1,90,NO,NO,1114,1:DECEASED
+TCGA-77-8130,LUSC,MALE,,,69,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,32.25,,,NO,Alive,,2522,0,,NO,YES,2522,0:LIVING
+TCGA-85-8352,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,,Alive,161,67,,80,NO,YES,161,0:LIVING
+TCGA-85-A512,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,46,Stage IIA,T1b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,25,,,NO,Alive,,0,0,90,NO,NO,0,0:LIVING
+TCGA-77-8145,LUSC,MALE,,,73,Stage IIIB,T4,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,57,,,NO,Dead,212,,0,,YES,YES,212,1:DECEASED
+TCGA-58-8388,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IB,T2a,N0,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,2,80,,,NO,Alive,412,378,0,90,NO,NO,412,0:LIVING
+TCGA-18-3415,LUSC,MALE,,,77,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,30,,,,Alive,2803,1810,,,NO,NO,2803,0:LIVING
+TCGA-33-4582,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,55,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,86,,,,Dead,3149,,1,60,YES,YES,3149,1:DECEASED
+TCGA-O2-A52V,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,75,Stage II,T3,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,1,,,NO,Dead,1335,,1,,YES,YES,1335,1:DECEASED
+TCGA-77-7335,LUSC,FEMALE,WHITE,,62,Stage IIIB,T4,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,3,52,,,NO,Dead,2133,,1,,NO,,2133,1:DECEASED
+TCGA-18-4721,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,,Alive,,2754,,,NO,,2754,0:LIVING
+TCGA-96-8170,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IIA,T1a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Alive,,211,2,,NO,NO,211,0:LIVING
+TCGA-52-7810,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,20,,,NO,Alive,,923,0,90,YES,NO,923,0:LIVING
+TCGA-NC-A5HR,LUSC,FEMALE,WHITE,,75,Stage IIA,T2a,N1,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,4,35,,,NO,Alive,,623,1,,NO,NO,623,0:LIVING
+TCGA-39-5021,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,114,,,NO,Dead,2086,2086,,,NO,YES,2086,1:DECEASED
+TCGA-56-7582,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,83,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,,Alive,,26,,100,NO,NO,26,0:LIVING
+TCGA-96-7545,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IA,T1,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,116,,,,Alive,1736,1324,,,NO,NO,1736,0:LIVING
+TCGA-22-5474,LUSC,MALE,WHITE,,74,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Dead,445,445,,0,NO,NO,445,1:DECEASED
+TCGA-63-A5MI,LUSC,MALE,,,65,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Alive,,1399,,,NO,NO,1399,0:LIVING
+TCGA-51-6867,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage I,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Dead,1856,,,,NO,YES,1856,1:DECEASED
+TCGA-66-2780,LUSC,MALE,,,65,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,28,,,,Dead,366,,,,,,366,1:DECEASED
+TCGA-85-A510,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIB,T2b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,45,,,NO,Alive,,0,0,100,NO,NO,0,0:LIVING
+TCGA-90-7964,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,180,,,NO,Alive,,100,2,,NO,NO,100,0:LIVING
+TCGA-56-8309,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IA,T1b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,,Alive,,18,,,NO,NO,18,0:LIVING
+TCGA-21-5786,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,75,,,,Alive,,661,,,NO,NO,661,0:LIVING
+TCGA-85-8582,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,49,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,2,40,,,NO,Alive,,4,,100,NO,NO,4,0:LIVING
+TCGA-98-A53B,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,40,,,NO,Dead,61,,0,,NO,NO,61,1:DECEASED
+TCGA-66-2757,LUSC,FEMALE,,,65,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,72,,,,Alive,1338,30,,,YES,YES,1338,0:LIVING
+TCGA-98-8022,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,117,,,NO,Alive,933,224,0,,NO,NO,933,0:LIVING
+TCGA-85-7950,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,46,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,27,,,,Alive,,60,0,100,NO,NO,60,0:LIVING
+TCGA-66-2791,LUSC,MALE,,,66,Stage IIIB,T2,N3,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,25,,,,Dead,153,,,,,,153,1:DECEASED
+TCGA-98-A53H,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,40,,,NO,Alive,,169,1,,NO,NO,169,0:LIVING
+TCGA-56-8625,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IIIA,T3,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,,,,,Alive,315,63,,,NO,NO,315,0:LIVING
+TCGA-34-8454,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,90,,,,Alive,,166,,,NO,NO,166,0:LIVING
+TCGA-70-6723,LUSC,MALE,ASIAN,NOT HISPANIC OR LATINO,65,Stage IIA,T3,N0,M0,Lung Papillary Squamous Cell Caricnoma,8052/3,Lung,1,,,,,Alive,,0,2,40,YES,YES,0,0:LIVING
+TCGA-34-2604,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,81,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,132,,,NO,Dead,958,958,,,NO,NO,958,1:DECEASED
+TCGA-46-3769,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,57,,T4,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,NO,Alive,,121,,,YES,NO,121,0:LIVING
+TCGA-22-1012,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,80,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,NO,Dead,429,,,,,NO,429,1:DECEASED
+TCGA-21-1072,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,,Alive,,3016,,,NO,NO,3016,0:LIVING
+TCGA-22-4595,LUSC,MALE,WHITE,,57,Stage IIIA,T3,N2,,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,37,,,NO,Dead,734,734,1,0,YES,YES,734,1:DECEASED
+TCGA-34-5929,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,78,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,40,,,YES,Dead,151,,,,NO,NO,151,1:DECEASED
+TCGA-85-A4QQ,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,2,50,,,NO,Alive,927,-2,,,NO,NO,927,0:LIVING
+TCGA-NK-A5D1,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IIA,T2a,N1,M0,Lung Basaloid Squamous Cell Carcinoma,8070/3,Lung,,90,,,NO,Alive,,511,,,,YES,511,0:LIVING
+TCGA-63-6202,LUSC,MALE,,,,Stage IIA,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,35,,,,Alive,,1602,1,,NO,NO,1602,0:LIVING
+TCGA-60-2724,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,47,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,NO,Alive,,37,,,NO,NO,37,0:LIVING
+TCGA-34-5240,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIB,T2,N1,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,2,56,,,NO,Alive,,235,,,NO,NO,235,0:LIVING
+TCGA-66-2773,LUSC,MALE,,,69,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,58,,,,Dead,92,,,,,,92,1:DECEASED
+TCGA-39-5039,LUSC,MALE,WHITE,,76,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,64,,,NO,Dead,544,544,,,NO,NO,544,1:DECEASED
+TCGA-60-2697,LUSC,MALE,WHITE,,41,Stage IIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,,,,,NO,Dead,372,,,,NO,YES,372,1:DECEASED
+TCGA-63-7023,LUSC,MALE,,,,Stage IIA,T1,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,55,,,,Alive,,1682,1,,YES,NO,1682,0:LIVING
+TCGA-56-7822,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,75,Stage IIB,T2b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,,Alive,532,1,1,80,,YES,532,0:LIVING
+TCGA-77-8140,LUSC,FEMALE,,,66,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,78,,,NO,Dead,351,,0,,NO,,351,1:DECEASED
+TCGA-77-8128,LUSC,MALE,,,60,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,113,,,NO,Dead,1150,,,,NO,,1150,1:DECEASED
+TCGA-22-5491,LUSC,MALE,WHITE,,74,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,57,,,NO,Dead,1713,1713,,0,,,1713,1:DECEASED
+TCGA-66-2783,LUSC,MALE,,,67,Stage IIIB,T2,N3,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,65,,,,Alive,,759,,,YES,NO,759,0:LIVING
+TCGA-60-2707,LUSC,MALE,,HISPANIC OR LATINO,70,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,49,,,NO,Dead,667,,,,NO,YES,667,1:DECEASED
+TCGA-58-8392,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,80,L858R,,NO,Dead,501,,1,70,NO,YES,501,1:DECEASED
+TCGA-66-2778,LUSC,FEMALE,,,68,Stage IIIB,T2,N3,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,37,,,,Alive,,578,,,YES,NO,578,0:LIVING
+TCGA-34-8456,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,5,20,,,,Alive,,203,,,NO,NO,203,0:LIVING
+TCGA-66-2753,LUSC,MALE,,,69,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,162,,,,Alive,,31,,,,,31,0:LIVING
+TCGA-98-A53C,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,112.5,,,NO,Alive,,311,2,,NO,NO,311,0:LIVING
+TCGA-33-AASL,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,57,Stage IA,T1,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,60,,,,Dead,826,,2,90,NO,YES,826,1:DECEASED
+TCGA-85-8277,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,,Alive,307,11,2,80,NO,NO,307,0:LIVING
+TCGA-63-7020,LUSC,MALE,,,,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Alive,,2133,1,,NO,NO,2133,0:LIVING
+TCGA-22-5483,LUSC,MALE,WHITE,,74,Stage IIA,T1a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Dead,573,573,,0,NO,YES,573,1:DECEASED
+TCGA-63-A5MH,LUSC,MALE,,,68,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,5,35,,,NO,Alive,,1772,,,NO,NO,1772,0:LIVING
+TCGA-56-A4BY,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,4,65,,,NO,Alive,543,31,2,80,NO,NO,543,0:LIVING
+TCGA-52-7812,LUSC,MALE,WHITE,HISPANIC OR LATINO,68,,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,NO,Dead,835,,1,0,YES,YES,835,1:DECEASED
+TCGA-60-2708,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,20,,,NO,Alive,,2083,,,NO,NO,2083,0:LIVING
+TCGA-85-7696,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,,Alive,,18,0,100,NO,NO,18,0:LIVING
+TCGA-60-2709,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,69,Stage IB,T2,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,157.5,,,NO,Alive,,1505,,,NO,NO,1505,0:LIVING
+TCGA-18-3416,LUSC,MALE,,,83,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,40,,,,Alive,973,956,,,NO,YES,973,0:LIVING
+TCGA-90-A59Q,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IIA,T2a,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,80,,,,Alive,322,269,1,,NO,NO,322,0:LIVING
+TCGA-85-8353,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,,Alive,94,54,,70,NO,NO,94,0:LIVING
+TCGA-18-3406,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,200,,,,Dead,371,,,0,NO,YES,371,1:DECEASED
+TCGA-85-8287,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,,Alive,23,13,0,90,NO,NO,23,0:LIVING
+TCGA-37-4133,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IIIA,T4,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Alive,,238,2,50,,,238,0:LIVING
+TCGA-58-A46M,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IIB,T2b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,,,,NO,Alive,,707,0,100,NO,NO,707,0:LIVING
+TCGA-56-8628,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,78,Stage IA,T1b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,,Alive,,16,3,70,NO,NO,16,0:LIVING
+TCGA-85-8666,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,55,,,NO,Alive,687,14,,0,NO,NO,687,0:LIVING
+TCGA-6A-AB49,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,73,Stage IB,T2,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,50,,,,Dead,,,,0,NO,NO,,1:DECEASED
+TCGA-66-2768,LUSC,MALE,,,57,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,,,,,Alive,,61,,,,,61,0:LIVING
+TCGA-58-A46J,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,,,,NO,Alive,,1973,,80,NO,NO,1973,0:LIVING
+TCGA-56-8082,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,80,Stage IIA,T2b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,,Alive,,26,1,,NO,NO,26,0:LIVING
+TCGA-NC-A5HL,LUSC,MALE,WHITE,,73,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Dead,88,,,,NO,NO,88,1:DECEASED
+TCGA-56-8201,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIB,T3,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,,Alive,397,28,,,NO,NO,397,0:LIVING
+TCGA-85-8350,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,40,,,,Alive,,60,0,100,NO,NO,60,0:LIVING
+TCGA-21-1083,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,240,,,,Dead,1315,267,,,NO,NO,1315,1:DECEASED
+TCGA-85-6560,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IIA,T1b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Alive,,11,0,90,NO,NO,11,0:LIVING
+TCGA-94-8491,LUSC,MALE,WHITE,,73,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,56,,,NO,Alive,,31,0,,NO,NO,31,0:LIVING
+TCGA-33-4583,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,46,,,,Alive,4601,4299,1,90,NO,NO,4601,0:LIVING
+TCGA-22-4607,LUSC,MALE,WHITE,,75,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,20,,,NO,Dead,587,587,3,,NO,NO,587,1:DECEASED
+TCGA-85-6175,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Alive,294,0,,,NO,NO,294,0:LIVING
+TCGA-22-4593,LUSC,MALE,WHITE,,77,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,NO,Dead,1067,1067,,0,NO,NO,1067,1:DECEASED
+TCGA-66-2794,LUSC,MALE,,,64,Stage IIIB,T4,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,100,,,,Alive,,1645,,,YES,NO,1645,0:LIVING
+TCGA-66-2759,LUSC,MALE,,,66,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,16,,,,Alive,,762,,,YES,NO,762,0:LIVING
+TCGA-MF-A522,LUSC,MALE,WHITE,,54,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,4,45,,,,Alive,360,83,4,10,NO,NO,360,0:LIVING
+TCGA-85-8052,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,53,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,40,,,NO,Alive,,16,0,100,NO,NO,16,0:LIVING
+TCGA-85-8072,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,15,,,NO,Alive,,36,0,100,NO,NO,36,0:LIVING
+TCGA-46-6026,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,81,Stage IIB,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,NO,Alive,,18,3,,YES,NO,18,0:LIVING
+TCGA-85-A53L,LUSC,MALE,ASIAN,NOT HISPANIC OR LATINO,63,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,NO,Alive,,13,2,90,NO,NO,13,0:LIVING
+TCGA-63-7022,LUSC,FEMALE,,,,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,,Alive,,2073,0,,NO,NO,2073,0:LIVING
+TCGA-56-5898,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,,,,,Alive,,0,,,NO,NO,0,0:LIVING
+TCGA-77-A5G3,LUSC,MALE,,,63,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Alive,,3576,1,,NO,NO,3576,0:LIVING
+TCGA-33-4589,LUSC,FEMALE,WHITE,HISPANIC OR LATINO,62,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,45,,,,Dead,47,,1,80,NO,NO,47,1:DECEASED
+TCGA-18-3408,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,,Alive,2304,2099,,0,NO,YES,2304,0:LIVING
+TCGA-39-5031,LUSC,FEMALE,,,76,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,NO,Alive,1841,833,,,NO,NO,1841,0:LIVING
+TCGA-79-5596,LUSC,MALE,,,,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Alive,,,1,,NO,YES,,0:LIVING
+TCGA-O2-A52Q,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,44,Stage III,T3,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,1,,,NO,Dead,113,,3,,NO,YES,113,1:DECEASED
+TCGA-85-6798,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,35,,,,Alive,195,34,,,NO,YES,195,0:LIVING
+TCGA-66-2781,LUSC,MALE,,,67,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,80,,,,Alive,,121,,,,,121,0:LIVING
+TCGA-56-A4BX,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIA,T2b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,83,,,NO,Alive,,46,2,70,NO,NO,46,0:LIVING
+TCGA-56-6546,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IIA,T2b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,,Alive,,,,,NO,NO,,0:LIVING
+TCGA-39-5040,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IIIA,T2a,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,NO,Dead,519,,,80,YES,YES,519,1:DECEASED
+TCGA-98-7454,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,60,,,YES,Alive,,115,0,100,NO,NO,115,0:LIVING
+TCGA-60-2715,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,51,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,25,,,NO,Dead,1075,,0,100,YES,NO,1075,1:DECEASED
+TCGA-18-5592,LUSC,MALE,,,57,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,40,,,,Alive,,92,,,YES,,92,0:LIVING
+TCGA-34-5241,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,79,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,25,,,NO,Alive,515,428,,,NO,NO,515,0:LIVING
+TCGA-43-A56V,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,61,Stage IIIA,T2a,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,48,,,,Alive,,154,,80,NO,NO,154,0:LIVING
+TCGA-56-8307,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,55,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,35,,,,Alive,,27,,,NO,NO,27,0:LIVING
+TCGA-77-A5GF,LUSC,MALE,,,70,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,NO,Alive,840,722,0,,NO,YES,840,0:LIVING
+TCGA-43-5668,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,78,Stage IIA,T1b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,20,,,,Alive,559,258,1,,NO,YES,559,0:LIVING
+TCGA-63-A5MT,LUSC,MALE,,,74,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,100,,,NO,Alive,,498,1,,NO,YES,498,0:LIVING
+TCGA-85-8580,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,38,,,NO,Alive,,28,0,100,NO,NO,28,0:LIVING
+TCGA-22-5492,LUSC,FEMALE,,,73,Stage IIIA,T2a,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Dead,506,506,,0,,,506,1:DECEASED
+TCGA-51-4079,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,73,Stage IB,T2,N0,,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,25,,,NO,Dead,12,,,,NO,NO,12,1:DECEASED
+TCGA-56-8304,LUSC,FEMALE,WHITE,,73,Stage IA,T1b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,58,,,,Alive,,106,,,,NO,106,0:LIVING
+TCGA-68-A59J,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,45,,,,Alive,,104,,,NO,NO,104,0:LIVING
+TCGA-63-5128,LUSC,MALE,,,,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,NO,Dead,,,,,NO,YES,,1:DECEASED
+TCGA-21-1080,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,100,,,,Alive,,3724,,,NO,NO,3724,0:LIVING
+TCGA-39-5034,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,084,,,NO,Dead,1107,1107,,,NO,YES,1107,1:DECEASED
+TCGA-77-7138,LUSC,MALE,,,67,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,20,,,NO,Dead,340,,1,,NO,,340,1:DECEASED
+TCGA-58-A46K,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IIIA,T2,N2,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,4,10,,,NO,Dead,1045,,0,100,YES,YES,1045,1:DECEASED
+TCGA-63-A5MN,LUSC,FEMALE,,,78,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Dead,345,,,,YES,YES,345,1:DECEASED
+TCGA-66-2790,LUSC,MALE,,,72,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,57,,,,Alive,,699,,,NO,YES,699,0:LIVING
+TCGA-85-7843,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,50,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,35,,,,Alive,,35,2,80,,,35,0:LIVING
+TCGA-63-A5MB,LUSC,MALE,,,62,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,25,,,NO,Alive,,2758,,,NO,NO,2758,0:LIVING
+TCGA-NK-A5CT,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,,80,,,NO,Alive,,1761,,,NO,NO,1761,0:LIVING
+TCGA-77-8007,LUSC,MALE,,,68,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,100,,,NO,Dead,198,,1,,,YES,198,1:DECEASED
+TCGA-56-A49D,LUSC,MALE,WHITE,,67,Stage IIIA,T2a,N2,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,53,,,,Alive,,38,,,NO,NO,38,0:LIVING
+TCGA-66-2755,LUSC,MALE,,,63,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,20,,,,Alive,,28,,,,,28,0:LIVING
+TCGA-43-8116,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,35,,,,Alive,,193,1,,NO,NO,193,0:LIVING
+TCGA-77-A5FZ,LUSC,MALE,,,64,Stage IIIB,T4,N0,M0,Lung Papillary Squamous Cell Caricnoma,8052/3,Lung,4,141,,,NO,Dead,3838,,1,,NO,,3838,1:DECEASED
+TCGA-85-8049,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Alive,,60,0,100,NO,NO,60,0:LIVING
+TCGA-85-8481,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIB,T3,N0,M0,Lung Papillary Squamous Cell Caricnoma,8070/3,Lung,4,80,,,NO,Alive,236,21,2,70,NO,,236,0:LIVING
+TCGA-43-6770,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,59,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,34,,,,Alive,,85,1,90,NO,NO,85,0:LIVING
+TCGA-56-8624,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,84,Stage IIB,T3,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,20,,,YES,Alive,,36,,,NO,NO,36,0:LIVING
+TCGA-60-2722,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,90,,,NO,Alive,,733,,,NO,YES,733,0:LIVING
+TCGA-37-A5EN,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IIIB,T4,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,,,,,,Alive,,356,,,NO,NO,356,0:LIVING
+TCGA-58-8386,LUSC,MALE,,,75,Stage IV,T3,NX,M1,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,65,,,NO,Dead,1,,,90,NO,NO,1,1:DECEASED
+TCGA-60-2695,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IB,T2,N0,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,3,64,,,NO,Alive,,474,,,NO,NO,474,0:LIVING
+TCGA-46-3767,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,NO,Alive,,396,,,,NO,396,0:LIVING
+TCGA-43-6647,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IIB,T2b,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,36,,,,Alive,,183,0,100,NO,NO,183,0:LIVING
+TCGA-77-7142,LUSC,FEMALE,WHITE,,59,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,52.5,,,NO,Alive,,1286,1,,NO,NO,1286,0:LIVING
+TCGA-85-A4PA,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8072/3,Lung,4,40,,,NO,Alive,,-6,,,NO,NO,-6,0:LIVING
+TCGA-21-1077,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,56,,,,Dead,1058,1058,,,NO,YES,1058,1:DECEASED
+TCGA-22-0944,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,38,,,NO,Dead,223,223,,,,NO,223,1:DECEASED
+TCGA-60-2725,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,56,,,NO,Alive,,719,0,90,NO,NO,719,0:LIVING
+TCGA-70-6722,LUSC,MALE,ASIAN,NOT HISPANIC OR LATINO,47,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,,Alive,,0,2,20,YES,YES,0,0:LIVING
+TCGA-66-2788,LUSC,MALE,,,56,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,80,,,,Alive,,699,,,NO,NO,699,0:LIVING
+TCGA-18-3409,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IA,T1,N0,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,3,20,,,,Alive,,2417,,,NO,YES,2417,0:LIVING
+TCGA-63-A5MM,LUSC,FEMALE,,,69,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,30,,,NO,Dead,456,,,,NO,YES,456,1:DECEASED
+TCGA-33-4547,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,40,,,,Alive,,1311,2,100,NO,NO,1311,0:LIVING
+TCGA-90-7766,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IA,T1b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,30,,,NO,Alive,,47,,,NO,YES,47,0:LIVING
+TCGA-22-5479,LUSC,MALE,WHITE,,64,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,35,,,NO,Alive,2625,1651,1,,NO,,2625,0:LIVING
+TCGA-33-AASD,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,83,Stage IA,T1,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,84,,,,Dead,2249,,1,80,NO,YES,2249,1:DECEASED
+TCGA-NC-A5HK,LUSC,FEMALE,WHITE,,58,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Alive,,128,1,,NO,NO,128,0:LIVING
+TCGA-56-7221,LUSC,MALE,WHITE,,79,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,25,,,,Alive,,30,,,NO,NO,30,0:LIVING
+TCGA-46-6025,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IIB,T2b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,NO,Alive,,206,1,,NO,NO,206,0:LIVING
+TCGA-52-7809,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IB,T2,N0,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,2,60,,,NO,Dead,166,,,0,,,166,1:DECEASED
+TCGA-66-2765,LUSC,MALE,,,64,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,108,,,,Alive,,61,,,,,61,0:LIVING
+TCGA-77-8144,LUSC,MALE,,,70,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,59,,,NO,Alive,,833,1,,NO,,833,0:LIVING
+TCGA-43-5670,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,30,,,,Alive,,549,0,,NO,NO,549,0:LIVING
+TCGA-77-8131,LUSC,MALE,,,72,Stage IB,T2,NX,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,69,,,NO,Dead,383,,1,,,,383,1:DECEASED
+TCGA-21-A5DI,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,,Alive,,979,,,NO,NO,979,0:LIVING
+TCGA-51-4080,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,65,Stage IIIB,T4,N1,,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,4,,,,NO,Dead,12,,,,NO,NO,12,1:DECEASED
+TCGA-37-A5EM,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,49,Stage II,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,,,,,,Alive,,112,,,NO,NO,112,0:LIVING
+TCGA-22-5489,LUSC,MALE,WHITE,,64,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,70,,,NO,Dead,1912,1912,1,0,NO,YES,1912,1:DECEASED
+TCGA-77-A5G7,LUSC,MALE,,,63,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,69,,,NO,Dead,180,,1,,NO,,180,1:DECEASED
+TCGA-60-2696,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,76,Stage IIA,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,15,,,NO,Dead,109,109,,0,NO,NO,109,1:DECEASED
+TCGA-85-A50Z,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,45,,,,Alive,,0,0,90,NO,YES,0,0:LIVING
+TCGA-77-6842,LUSC,MALE,WHITE,,79,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,22.5,,,NO,Dead,899,,1,,NO,YES,899,1:DECEASED
+TCGA-85-A4JB,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,25,,,NO,Alive,,-10,2,70,NO,NO,-10,0:LIVING
+TCGA-66-2771,LUSC,MALE,,,60,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,70,,,,Alive,,578,,,NO,NO,578,0:LIVING
+TCGA-63-A5MR,LUSC,FEMALE,,,70,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,120,,,NO,Alive,,2367,0,,NO,NO,2367,0:LIVING
+TCGA-68-7756,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,84,Stage IIIA,T4,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,20,,,NO,Alive,,202,,,YES,NO,202,0:LIVING
+TCGA-96-A4JL,LUSC,FEMALE,ASIAN,NOT HISPANIC OR LATINO,78,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Alive,,183,0,,NO,NO,183,0:LIVING
+TCGA-85-8584,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IIA,T2a,N1,M0,Lung Papillary Squamous Cell Caricnoma,8052/3,Lung,2,50,,,NO,Alive,383,0,1,90,,,383,0:LIVING
+TCGA-22-5472,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,35,,,NO,Dead,1975,,,0,NO,YES,1975,1:DECEASED
+TCGA-18-5595,LUSC,MALE,,,50,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,,Dead,827,,,,,,827,1:DECEASED
+TCGA-85-8048,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,,Alive,,26,0,100,NO,NO,26,0:LIVING
+TCGA-60-2698,LUSC,MALE,WHITE,,62,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,NO,Dead,311,,,0,NO,YES,311,1:DECEASED
+TCGA-85-8288,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIA,T1b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,,Alive,402,54,0,70,NO,NO,402,0:LIVING
+TCGA-34-5234,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Alive,,994,,90,NO,NO,994,0:LIVING
+TCGA-46-3765,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,,,,NO,Alive,,396,,,NO,NO,396,0:LIVING
+TCGA-66-2795,LUSC,MALE,,,68,Stage IIIB,T4,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,86,,,,Alive,,122,,,,,122,0:LIVING
+TCGA-LA-A446,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IA,T1b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,26,,,NO,Alive,,36,0,,NO,NO,36,0:LIVING
+TCGA-77-7463,LUSC,MALE,WHITE,,75,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,42,,,NO,Dead,1423,,1,,NO,,1423,1:DECEASED
+TCGA-33-AASI,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,65,Stage IIB,T2,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,,Dead,1344,,1,90,YES,NO,1344,1:DECEASED
+TCGA-22-5473,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,78,,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,45,,,NO,Dead,1933,,,0,NO,YES,1933,1:DECEASED
+TCGA-68-7755,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IIA,T1b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,78,,,NO,Alive,,83,,,NO,NO,83,0:LIVING
+TCGA-NC-A5HO,LUSC,FEMALE,WHITE,,70,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,4,30,,,NO,Alive,,789,1,,NO,NO,789,0:LIVING
+TCGA-18-3407,LUSC,MALE,ASIAN,NOT HISPANIC OR LATINO,72,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,40,,,,Dead,136,,,0,NO,NO,136,1:DECEASED
+TCGA-37-4135,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,45,,,NO,Alive,,207,1,80,,,207,0:LIVING
+TCGA-34-2596,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,60,,,,Dead,80,80,,,NO,NO,80,1:DECEASED
+TCGA-96-7544,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,83,Stage IIB,T2,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,65,,,,Alive,2160,1213,,,NO,NO,2160,0:LIVING
+TCGA-68-7757,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IA,T1b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,25,,,NO,Alive,,211,0,,NO,NO,211,0:LIVING
+TCGA-85-8354,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,53,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,30,,,,Alive,,61,,70,NO,NO,61,0:LIVING
+TCGA-66-2756,LUSC,MALE,,,68,Stage IIIB,T4,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,,Alive,,30,,,,,30,0:LIVING
+TCGA-39-5036,LUSC,MALE,WHITE,,73,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,63,,,NO,Alive,,1084,,,NO,NO,1084,0:LIVING
+TCGA-77-A5G6,LUSC,MALE,,,66,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,74,,,NO,Dead,678,,0,,NO,YES,678,1:DECEASED
+TCGA-77-6845,LUSC,MALE,WHITE,,69,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,51,,,NO,Dead,708,,1,,NO,NO,708,1:DECEASED
+TCGA-22-5485,LUSC,FEMALE,WHITE,,58,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,60,,,NO,Dead,916,916,,0,NO,YES,916,1:DECEASED
+TCGA-90-6837,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IIB,T3,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Alive,,42,0,,NO,NO,42,0:LIVING
+TCGA-33-4566,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,40,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,20,,,,Dead,5287,,1,,,,5287,1:DECEASED
+TCGA-46-3766,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,NO,Alive,,365,,,NO,NO,365,0:LIVING
+TCGA-66-2777,LUSC,MALE,,,71,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,12,,,,Alive,,61,,,,,61,0:LIVING
+TCGA-77-8143,LUSC,MALE,,,76,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,NO,Dead,803,,1,,YES,,803,1:DECEASED
+TCGA-90-A4EE,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,53,Stage IIA,T2a,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,68,Other,Other,YES,Alive,,331,,,NO,NO,331,0:LIVING
+TCGA-66-2785,LUSC,MALE,,,65,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,70,,,,Alive,,60,,,,,60,0:LIVING
+TCGA-66-2789,LUSC,MALE,,,73,Stage IIIB,T1,N3,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Dead,123,,,,,,123,1:DECEASED
+TCGA-NC-A5HJ,LUSC,MALE,WHITE,,59,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,78,,,NO,Dead,418,,1,,NO,YES,418,1:DECEASED
+TCGA-46-3768,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,NO,Dead,299,4,1,0,YES,NO,299,1:DECEASED
+TCGA-34-7107,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage II,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,,Dead,34,,,,,,34,1:DECEASED
+TCGA-77-8009,LUSC,MALE,,,68,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,97.5,,,NO,Alive,1695,1641,0,,NO,YES,1695,0:LIVING
+TCGA-98-A539,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,75,,,YES,Alive,,118,1,,NO,NO,118,0:LIVING
+TCGA-63-A5MS,LUSC,MALE,,,78,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,6,,,NO,Alive,,2025,0,,NO,NO,2025,0:LIVING
+TCGA-60-2714,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,90,,,NO,Alive,,512,0,100,NO,NO,512,0:LIVING
+TCGA-33-4533,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,76,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Alive,,3469,2,90,NO,NO,3469,0:LIVING
+TCGA-18-3412,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,25,,,,Dead,345,,,0,NO,YES,345,1:DECEASED
+TCGA-43-3394,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,52,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,15,,,,Alive,1190,352,0,90,NO,NO,1190,0:LIVING
+TCGA-33-4586,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,108,,,,Dead,428,,1,80,YES,YES,428,1:DECEASED
+TCGA-92-7340,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,45,Stage IIA,T2a,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,15,,,NO,Alive,,82,2,80,NO,NO,82,0:LIVING
+TCGA-58-A46L,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIIA,T2,N2,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,5,,,,NO,Alive,,1113,0,100,NO,NO,1113,0:LIVING
+TCGA-85-7697,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,49,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,30,,,,Alive,,10,0,100,NO,NO,10,0:LIVING
+TCGA-85-A4CL,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,40,,,NO,Alive,921,15,,100,NO,NO,921,0:LIVING
+TCGA-60-2706,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,51,,,NO,Alive,,2500,0,100,NO,NO,2500,0:LIVING
+TCGA-22-0940,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IIA,T1,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,25,,,NO,Dead,669,608,,,NO,,669,1:DECEASED
+TCGA-56-7823,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IIA,T1b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,80,,,,Alive,,77,1,90,NO,NO,77,0:LIVING
+TCGA-98-A53D,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,4,90,,,NO,Alive,645,22,2,,NO,NO,645,0:LIVING
+TCGA-77-7337,LUSC,MALE,WHITE,,65,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,79.5,,,NO,Dead,3253,,0,,NO,,3253,1:DECEASED
+TCGA-51-4081,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,55,Stage IIB,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,80,,,NO,Alive,,63,,,NO,NO,63,0:LIVING
+TCGA-98-8023,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,75,,,NO,Alive,,308,0,,NO,NO,308,0:LIVING
+TCGA-34-2605,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IIIB,T4,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,NO,Dead,881,881,1,,NO,YES,881,1:DECEASED
+TCGA-56-1622,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,86,,,,Dead,881,,,,NO,NO,881,1:DECEASED
+TCGA-77-8139,LUSC,MALE,,,72,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,52,,,NO,Alive,,3166,0,,NO,NO,3166,0:LIVING
+TCGA-66-2758,LUSC,MALE,,,71,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,56,,,,Alive,,639,,,NO,NO,639,0:LIVING
+TCGA-NC-A5HT,LUSC,MALE,WHITE,,69,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Alive,,419,,,NO,YES,419,0:LIVING
+TCGA-56-8622,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,40,,,,Alive,,55,,,,NO,55,0:LIVING
+TCGA-22-1000,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Dead,454,,,,NO,YES,454,1:DECEASED
+TCGA-NK-A5CR,LUSC,MALE,,NOT HISPANIC OR LATINO,77,Stage IB,T2,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,40,,,NO,Alive,,2178,,,NO,NO,2178,0:LIVING
+TCGA-56-8623,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,45,,,,Alive,692,6,0,90,NO,NO,692,0:LIVING
+TCGA-92-7341,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,NO,Alive,,106,0,100,NO,NO,106,0:LIVING
+TCGA-56-8629,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IIA,T2b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,66,,,NO,Alive,,34,1,80,NO,NO,34,0:LIVING
+TCGA-22-1002,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,85,,,NO,Dead,131,131,,,NO,NO,131,1:DECEASED
+TCGA-77-6844,LUSC,MALE,WHITE,,74,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,45,,,NO,Dead,2284,,1,,YES,YES,2284,1:DECEASED
+TCGA-21-1076,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,54,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,35,,,,Alive,,1852,,,NO,YES,1852,0:LIVING
+TCGA-56-8504,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,,Alive,,178,1,90,NO,NO,178,0:LIVING
+TCGA-56-7731,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,100,,,,Alive,3,0,,,NO,NO,3,0:LIVING
+TCGA-77-6843,LUSC,MALE,WHITE,,74,Stage IIA,T1,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,30,,,NO,Dead,2224,,2,,NO,,2224,1:DECEASED
+TCGA-21-5782,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,48,,,,Dead,962,962,,0,NO,NO,962,1:DECEASED
+TCGA-90-A4ED,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,30,,,NO,Alive,,244,0,,NO,NO,244,0:LIVING
+TCGA-43-2576,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,20,,,,Alive,,556,,90,YES,NO,556,0:LIVING
+TCGA-18-3417,LUSC,MALE,,,65,Stage IV,T2,N1,M1,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,25,,,,Alive,1097,758,,,NO,,1097,0:LIVING
+TCGA-66-2800,LUSC,MALE,,,70,Stage IIIB,T4,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,75,,,,Alive,,1492,,,NO,NO,1492,0:LIVING
+TCGA-21-1070,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,60,Stage IIIA,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,15,,,,Alive,,3516,,,NO,NO,3516,0:LIVING
+TCGA-63-A5MV,LUSC,MALE,,,69,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Alive,,787,0,,NO,NO,787,0:LIVING
+TCGA-66-2793,LUSC,MALE,,,68,Stage IIIB,T4,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,112,,,,Dead,306,,,,,,306,1:DECEASED
+TCGA-33-4587,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IB,T2,N0,MX,Lung Small Cell Squamous Cell Carcinoma,8073/3,Lung,4,,,,,Dead,1656,,,,NO,NO,1656,1:DECEASED
+TCGA-33-6737,LUSC,MALE,WHITE,,71,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,20,,,,Dead,601,,,,NO,NO,601,1:DECEASED
+TCGA-77-8136,LUSC,FEMALE,,,74,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,135,,,NO,Dead,1189,,0,,NO,YES,1189,1:DECEASED
+TCGA-85-7699,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIIA,T4,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,74,,,,Alive,1001,1,,,NO,YES,1001,0:LIVING
+TCGA-66-2727,LUSC,FEMALE,,,55,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,56,,,,Dead,516,,,,,,516,1:DECEASED
+TCGA-85-A513,LUSC,FEMALE,ASIAN,NOT HISPANIC OR LATINO,60,Stage IA,T1a,NX,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Alive,,24,1,80,NO,NO,24,0:LIVING
+TCGA-85-8479,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IA,T1a,N0,M0,Lung Papillary Squamous Cell Caricnoma,8052/3,Lung,4,90,,,NO,Alive,,22,1,80,,NO,22,0:LIVING
+TCGA-22-4609,LUSC,MALE,WHITE,,81,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,77,,,NO,Dead,291,,,,NO,NO,291,1:DECEASED
+TCGA-39-5027,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Alive,,1849,2,,NO,NO,1849,0:LIVING
+TCGA-92-8063,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IIIA,T2b,N2,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,74,,,NO,Alive,,122,1,90,YES,NO,122,0:LIVING
+TCGA-60-2723,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,58,,,NO,Alive,,693,2,60,NO,NO,693,0:LIVING
+TCGA-34-5236,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,,,,,,Dead,276,,,,NO,YES,276,1:DECEASED
+TCGA-37-3789,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IB,T2,N0,,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Alive,,13,,,,,13,0:LIVING
+TCGA-63-A5MG,LUSC,MALE,,,68,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,,Alive,,1769,,,NO,NO,1769,0:LIVING
+TCGA-33-A4WN,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,60,,,,Dead,143,,1,90,,NO,143,1:DECEASED
+TCGA-94-A5I6,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,80,,,NO,Alive,,185,2,,NO,NO,185,0:LIVING
+TCGA-85-8664,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIB,T2b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,60,,,,Alive,550,3,,,NO,YES,550,0:LIVING
+TCGA-22-4596,LUSC,FEMALE,WHITE,,69,Stage IB,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Dead,17,17,,0,NO,NO,17,1:DECEASED
+TCGA-39-5029,LUSC,MALE,WHITE,HISPANIC OR LATINO,67,Stage IIIA,T1b,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,192,,,NO,Dead,740,,,,NO,YES,740,1:DECEASED
+TCGA-43-2581,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,47,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,30,,,,Alive,,399,1,,NO,NO,399,0:LIVING
+TCGA-94-A4VJ,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,37.5,,,NO,Alive,,43,,,NO,NO,43,0:LIVING
+TCGA-NC-A5HN,LUSC,MALE,WHITE,,77,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,100,,,NO,Alive,,894,,,NO,NO,894,0:LIVING
+TCGA-39-5037,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IIA,T1b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,26,,,NO,Alive,,24,,,NO,NO,24,0:LIVING
+TCGA-60-2726,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,56,Stage IIA,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,42,,,NO,Dead,358,358,,0,NO,NO,358,1:DECEASED
+TCGA-98-A53J,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,100,,,YES,Alive,,159,0,,NO,NO,159,0:LIVING
+TCGA-66-2737,LUSC,MALE,,,72,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,40,,,,Alive,,61,,,,,61,0:LIVING
+TCGA-56-A4ZK,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,NO,Alive,,4,1,90,NO,NO,4,0:LIVING
+TCGA-77-A5GA,LUSC,MALE,,,76,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,99,,,NO,Alive,,36,1,,NO,,36,0:LIVING
+TCGA-60-2703,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Dead,2945,,0,,NO,YES,2945,1:DECEASED
+TCGA-22-5481,LUSC,FEMALE,WHITE,,72,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,75,,,NO,Dead,2409,,,,NO,YES,2409,1:DECEASED
+TCGA-22-4613,LUSC,FEMALE,WHITE,,73,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,30,,,NO,Dead,358,358,,0,NO,,358,1:DECEASED
+TCGA-56-A5DR,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,81,Stage IA,T1a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Alive,,4,,,NO,NO,4,0:LIVING
+TCGA-77-7141,LUSC,MALE,WHITE,,64,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,70,,,NO,Alive,,15,1,,NO,,15,0:LIVING
+TCGA-58-A46N,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IB,T2a,N0,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,2,50,,,NO,Alive,,540,0,90,NO,NO,540,0:LIVING
+TCGA-63-A5MP,LUSC,MALE,,,56,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,41,,,NO,Alive,,769,0,,YES,YES,769,0:LIVING
+TCGA-43-7658,LUSC,FEMALE,WHITE,,75,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,12,,,,Alive,2378,2023,0,50,NO,NO,2378,0:LIVING
+TCGA-43-A56U,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IA,T1b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,20.5,,,,Alive,,55,0,,NO,NO,55,0:LIVING
+TCGA-L3-A4E7,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,25,,,NO,Alive,,35,1,,NO,NO,35,0:LIVING
+TCGA-56-7730,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,,,,,Alive,198,6,,,YES,NO,198,0:LIVING
+TCGA-22-4605,LUSC,FEMALE,,,78,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8072/3,Lung,4,75,,,NO,Dead,974,,,,YES,NO,974,1:DECEASED
+TCGA-56-8626,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IA,T1a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,,Alive,302,17,,,NO,NO,302,0:LIVING
+TCGA-85-8355,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,,Alive,,20,,,NO,NO,20,0:LIVING
+TCGA-90-7769,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,55,Stage IIB,T2b,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,36,,,NO,Alive,,18,1,,NO,NO,18,0:LIVING
+TCGA-43-6771,LUSC,MALE,WHITE,,85,Stage IB,T2,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,40,,,,Dead,166,,,,NO,YES,166,1:DECEASED
+TCGA-63-7021,LUSC,MALE,,,,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,21,,,,Alive,,2142,1,,NO,NO,2142,0:LIVING
+TCGA-34-5928,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,83,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,40,,,,Alive,,169,,,NO,NO,169,0:LIVING
+TCGA-60-2704,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,60,,,NO,Dead,1154,,0,,NO,YES,1154,1:DECEASED
+TCGA-56-8308,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,79,Stage IIB,T3,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,63,,,,Alive,,217,,80,YES,NO,217,0:LIVING
+TCGA-85-8070,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,NO,Alive,,43,2,80,NO,NO,43,0:LIVING
+TCGA-NC-A5HM,LUSC,MALE,WHITE,,76,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,50,,,NO,Alive,,29,,,NO,NO,29,0:LIVING
+TCGA-33-6738,LUSC,MALE,WHITE,,80,Stage IIIA,T1,N2,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Alive,,822,0,100,NO,NO,822,0:LIVING
+TCGA-43-A475,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,100,,,,Alive,,206,0,80,YES,NO,206,0:LIVING
+TCGA-NC-A5HF,LUSC,MALE,WHITE,,74,Stage IIIB,T4,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,2,,,,NO,Dead,138,,,,NO,YES,138,1:DECEASED
+TCGA-NC-A5HP,LUSC,MALE,WHITE,,69,Stage IV,T2a,N0,M1b,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,2,50,,,NO,Alive,770,730,,,NO,YES,770,0:LIVING
+TCGA-94-A5I4,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IIA,T2a,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,80,,,NO,Alive,,155,2,,NO,NO,155,0:LIVING
+TCGA-90-7767,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,56,Stage IIB,T2b,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,25,,,NO,Alive,,89,1,,,,89,0:LIVING
+TCGA-66-2792,LUSC,MALE,,,58,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,10,,,,Alive,,913,,,NO,NO,913,0:LIVING
+TCGA-77-8133,LUSC,MALE,,,74,Stage IIA,T1,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,22,,,NO,Dead,1640,,0,,NO,,1640,1:DECEASED
+TCGA-18-3411,LUSC,FEMALE,,,63,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,,Alive,,1415,,,YES,,1415,0:LIVING
+TCGA-33-A5GW,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IIA,T1a,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Alive,9,9,1,90,NO,NO,9,0:LIVING
+TCGA-18-4086,LUSC,MALE,,,64,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,,Dead,85,,,,,,85,1:DECEASED
+TCGA-43-A474,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,47,,,,Alive,,262,,90,NO,NO,262,0:LIVING
+TCGA-XC-AA0X,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,77,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,30,,,NO,Dead,6,,,,NO,NO,6,1:DECEASED
+TCGA-34-8455,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IV,T4,N0,M1a,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Dead,123,,,,NO,NO,123,1:DECEASED
+TCGA-33-4532,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,53,,,,Alive,3924,2524,1,,NO,NO,3924,0:LIVING
+TCGA-39-5011,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,45,,,NO,Alive,,1454,,,NO,YES,1454,0:LIVING
+TCGA-56-A62T,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,78,Stage IIA,T2b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,102,,,NO,Alive,,5,1,90,YES,NO,5,0:LIVING
+TCGA-37-4130,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,56,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,25,,,NO,Alive,,247,1,90,,,247,0:LIVING
+TCGA-96-8169,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,35,,,NO,Alive,,189,0,,NO,NO,189,0:LIVING
+TCGA-34-5927,LUSC,FEMALE,WHITE,,70,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,,,,,,Alive,,698,,,NO,YES,698,0:LIVING
+TCGA-22-5482,LUSC,MALE,WHITE,,81,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,NO,Dead,357,357,,0,NO,NO,357,1:DECEASED
+TCGA-85-A4JC,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,84,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,25,,,NO,Alive,604,-10,1,90,NO,YES,604,0:LIVING
+TCGA-85-A50M,LUSC,MALE,ASIAN,NOT HISPANIC OR LATINO,47,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,15,,,NO,Alive,826,19,3,60,NO,NO,826,0:LIVING
+TCGA-22-A5C4,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,80,,,NO,Alive,,29,1,,NO,NO,29,0:LIVING
+TCGA-85-8276,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IIA,T1b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,20,,,,Alive,,13,,,NO,NO,13,0:LIVING
+TCGA-60-2711,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,39,,,NO,Alive,,889,0,90,NO,NO,889,0:LIVING
+TCGA-43-3920,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Alive,,268,,,NO,NO,268,0:LIVING
+TCGA-56-8503,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,91,,,,Alive,,41,,,,NO,41,0:LIVING
+TCGA-56-A4BW,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,55,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,120,,,,Alive,,2,0,90,NO,NO,2,0:LIVING
+TCGA-33-4538,LUSC,MALE,WHITE,HISPANIC OR LATINO,66,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,51,,,,Dead,2979,,2,90,NO,,2979,1:DECEASED
+TCGA-39-5022,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,76,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,35,,,NO,Dead,1679,,,,NO,YES,1679,1:DECEASED
+TCGA-98-8020,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,56,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Dead,84,,1,,NO,YES,84,1:DECEASED
+TCGA-22-4594,LUSC,FEMALE,,,60,Stage IIIA,T3,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Dead,1470,1470,,0,,,1470,1:DECEASED
+TCGA-33-AASB,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,66,Stage IB,T2,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,40,,,,Dead,211,,1,90,NO,YES,211,1:DECEASED
+TCGA-37-3783,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,51,Stage IIIA,T3,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,,,,,NO,Alive,,122,,,,,122,0:LIVING
+TCGA-92-8064,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,58,,T2b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,30,,,NO,Alive,,160,1,,NO,NO,160,0:LIVING
+TCGA-NC-A5HI,LUSC,FEMALE,WHITE,,68,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,60,,,NO,Alive,,1135,,,NO,YES,1135,0:LIVING
+TCGA-NC-A5HD,LUSC,MALE,WHITE,,79,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Dead,2,,,,NO,NO,2,1:DECEASED
+TCGA-39-5030,LUSC,FEMALE,ASIAN,,81,Stage IIIA,T2a,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,08,,,NO,Dead,59,59,,,NO,NO,59,1:DECEASED
+TCGA-98-A53I,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,70,,,YES,Alive,,99,1,,NO,NO,99,0:LIVING
+TCGA-43-7657,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IA,T1,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,45,,,,Alive,,48,0,,NO,NO,48,0:LIVING
+TCGA-77-8148,LUSC,MALE,,,68,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,NO,Alive,,293,1,,NO,,293,0:LIVING
+TCGA-66-2767,LUSC,MALE,,,62,Stage IIIB,T2,N3,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,43,,,,Alive,,61,,,,,61,0:LIVING
+TCGA-85-A4CN,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,56,Stage IIB,T2b,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,NO,Alive,,6,1,90,YES,NO,6,0:LIVING
+TCGA-77-7139,LUSC,MALE,WHITE,,56,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,2,,,NO,Alive,,2737,1,,YES,,2737,0:LIVING
+TCGA-O2-A52W,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,63,Stage I,T2,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,2.5,,,NO,Dead,261,,3,,NO,NO,261,1:DECEASED
+TCGA-63-A5MW,LUSC,MALE,,,76,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,,Alive,,140,0,,NO,NO,140,0:LIVING
+TCGA-66-2770,LUSC,MALE,,,79,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,25,,,,Alive,,700,,,,,700,0:LIVING
+TCGA-66-2754,LUSC,MALE,,,67,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Alive,,61,,,,,61,0:LIVING
+TCGA-18-3410,LUSC,MALE,,,81,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,,Dead,146,,,0,NO,NO,146,1:DECEASED
+TCGA-77-7338,LUSC,MALE,WHITE,,64,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,41.25,,,NO,Dead,5,,1,,NO,NO,5,1:DECEASED
+TCGA-85-7844,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,40,,,,Alive,,38,2,80,NO,NO,38,0:LIVING
+TCGA-92-8065,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IIB,T3,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,3,14,,,NO,Alive,,70,0,,NO,NO,70,0:LIVING
+TCGA-NC-A5HQ,LUSC,MALE,WHITE,,70,Stage IIIA,T3,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,2,,,,NO,Dead,448,,1,,YES,NO,448,1:DECEASED
+TCGA-60-2720,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,110,,,NO,Alive,,97,,,,,97,0:LIVING
+TCGA-22-1017,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,62,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,NO,Dead,1485,,1,0,NO,YES,1485,1:DECEASED
+TCGA-21-1082,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,,,,,,Alive,,3644,,,NO,NO,3644,0:LIVING
+TCGA-22-5477,LUSC,MALE,WHITE,,65,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,100,,,NO,Dead,1346,1346,,0,NO,YES,1346,1:DECEASED
+TCGA-56-7223,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,66,Stage IIIA,T3,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,,Alive,442,30,,,NO,YES,442,0:LIVING
+TCGA-43-8115,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IIA,T2a,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,55.83,,,,Alive,,202,1,,NO,NO,202,0:LIVING
+TCGA-85-A5B5,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,58,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,15,,,NO,Alive,,111,,,NO,NO,111,0:LIVING
+TCGA-63-A5M9,LUSC,FEMALE,,,,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,25,,,,Alive,,0,,,,,0,0:LIVING
+TCGA-56-5897,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,74,Stage IA,T1b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,,Alive,,3,,,NO,NO,3,0:LIVING
+TCGA-77-7465,LUSC,MALE,WHITE,,58,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,120,,,NO,Alive,,479,1,,,,479,0:LIVING
+TCGA-L3-A524,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,45,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,25.6,,,NO,Alive,490,449,1,,NO,NO,490,0:LIVING
+TCGA-22-4601,LUSC,FEMALE,WHITE,,73,Stage IIIA,T4,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,60,,,NO,Dead,1057,1057,,0,,YES,1057,1:DECEASED
+TCGA-58-8393,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,68,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,7,,,NO,Alive,,20,0,100,NO,NO,20,0:LIVING
+TCGA-68-8251,LUSC,MALE,WHITE,HISPANIC OR LATINO,78,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,52,,,,Alive,,96,0,,NO,NO,96,0:LIVING
+TCGA-63-5131,LUSC,MALE,,,,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Dead,,,,0,NO,NO,,1:DECEASED
+TCGA-22-4604,LUSC,MALE,WHITE,,73,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,NO,Dead,399,,0,0,NO,YES,399,1:DECEASED
+TCGA-56-7579,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,2,,,,Alive,951,44,,,YES,YES,951,0:LIVING
+TCGA-37-4132,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,61,Stage IV,T2,N0,M1,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Alive,,227,2,50,NO,,227,0:LIVING
+TCGA-56-7580,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,84,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,,Alive,,40,,,NO,NO,40,0:LIVING
+TCGA-77-A5GB,LUSC,MALE,,,90,Stage IB,T2a,NX,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8071/3,Lung,2,52,,,NO,Dead,0,,1,,NO,YES,0,1:DECEASED
+TCGA-58-8391,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,30,,,NO,Alive,,1342,,100,YES,NO,1342,0:LIVING
+TCGA-68-8250,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,66,Stage IA,T1a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Alive,,244,,,NO,NO,244,0:LIVING
+TCGA-39-5024,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IIIA,T2a,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Alive,,2130,,,NO,NO,2130,0:LIVING
+TCGA-21-1071,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,90,,,,Dead,1426,1426,,,NO,YES,1426,1:DECEASED
+TCGA-56-6545,LUSC,FEMALE,WHITE,,77,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,,Alive,,62,,,NO,NO,62,0:LIVING
+TCGA-96-A4JK,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,110,,,NO,Alive,,273,0,,NO,NO,273,0:LIVING
+TCGA-22-1011,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,83,,,NO,Dead,53,53,,,NO,NO,53,1:DECEASED
+TCGA-21-5784,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,80,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,14,,,,Alive,,908,,,NO,NO,908,0:LIVING
+TCGA-43-6143,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IB,T2,N0,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,4,114,,,,Alive,,214,1,80,NO,NO,214,0:LIVING
+TCGA-O2-A52S,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,57,Stage III,T4,N2,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,3,,,NO,Dead,387,,1,,YES,YES,387,1:DECEASED
+TCGA-21-1075,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,57,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,74,,,,Alive,,2134,,,NO,NO,2134,0:LIVING
+TCGA-39-5028,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IIIA,T4,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,30,,,NO,Dead,52,52,,,NO,NO,52,1:DECEASED
+TCGA-98-A53A,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,70,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,80,,,YES,Alive,552,274,1,,NO,NO,552,0:LIVING
+TCGA-34-5232,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,75,Stage IIA,T1,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,,,,,,Alive,,1575,,,NO,NO,1575,0:LIVING
+TCGA-85-8071,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,52,Stage IIA,T1a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,30,,,NO,Alive,,14,2,80,NO,NO,14,0:LIVING
+TCGA-66-2766,LUSC,MALE,,,54,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,80,,,,Alive,,31,,,,,31,0:LIVING
+TCGA-56-A5DS,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IB,T2a,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,50,,,NO,Alive,,8,,,,NO,8,0:LIVING
+TCGA-NK-A5CX,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IIA,T2b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Alive,,111,,,NO,NO,111,0:LIVING
+TCGA-39-5016,LUSC,MALE,WHITE,,44,Stage IIA,T2a,N1,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,4,40,,,NO,Alive,,2253,,,NO,NO,2253,0:LIVING
+TCGA-52-7622,LUSC,FEMALE,WHITE,HISPANIC OR LATINO,62,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,22,,,NO,Alive,,541,1,90,NO,NO,541,0:LIVING
+TCGA-60-2721,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,73,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,93,,,NO,Alive,,794,1,70,NO,NO,794,0:LIVING
+TCGA-22-4599,LUSC,FEMALE,WHITE,,73,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,25,,,NO,Dead,1161,1161,,0,,,1161,1:DECEASED
+TCGA-77-8154,LUSC,MALE,,,67,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Alive,,1092,1,,NO,NO,1092,0:LIVING
+TCGA-O2-A52N,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,78,Stage I,T2,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,4.125,,,NO,Dead,1006,,0,,NO,NO,1006,1:DECEASED
+TCGA-66-2782,LUSC,MALE,,,71,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Dead,365,,,,NO,YES,365,1:DECEASED
+TCGA-22-1016,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,40,,,NO,Dead,822,822,,,NO,NO,822,1:DECEASED
+TCGA-77-A5GH,LUSC,MALE,,,81,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,11,,,NO,Alive,,713,1,,NO,,713,0:LIVING
+TCGA-77-7140,LUSC,FEMALE,WHITE,,69,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Dead,632,,0,,NO,YES,632,1:DECEASED
+TCGA-18-3419,LUSC,MALE,,,73,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Alive,,53,,,,NO,53,0:LIVING
+TCGA-22-5478,LUSC,MALE,,,79,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,NO,Dead,24,24,,0,NO,NO,24,1:DECEASED
+TCGA-66-2734,LUSC,FEMALE,,,62,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Alive,,1311,,,NO,NO,1311,0:LIVING
+TCGA-18-3414,LUSC,MALE,ASIAN,NOT HISPANIC OR LATINO,73,Stage IV,T4,N1,M1,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,25,,,,Dead,716,,,0,NO,NO,716,1:DECEASED
+TCGA-43-6773,LUSC,MALE,WHITE,,76,Stage IIB,T2,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,,,,,Dead,116,,,,NO,,116,1:DECEASED
+TCGA-21-1081,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,45,,,,Dead,284,284,,0,YES,NO,284,1:DECEASED
+TCGA-37-3792,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,69,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Alive,,12,,,,,12,0:LIVING
+TCGA-NC-A5HH,LUSC,MALE,WHITE,,53,Stage IA,T1,N0,M0,Lung Basaloid Squamous Cell Carcinoma,8083/3,Lung,2,60,,,NO,Alive,,37,,,NO,NO,37,0:LIVING
+TCGA-39-5019,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,30,,,NO,Alive,,1361,,,NO,YES,1361,0:LIVING
+TCGA-94-8490,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,5,,,,NO,Alive,,153,,,NO,NO,153,0:LIVING
+TCGA-34-2609,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,81,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,NO,Dead,951,951,,,NO,YES,951,1:DECEASED
+TCGA-68-A59I,LUSC,FEMALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,73,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,,Alive,,121,,70,NO,NO,121,0:LIVING
+TCGA-37-4141,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,65,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,1,,,,NO,Alive,,12,,,,,12,0:LIVING
+TCGA-34-2608,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,84,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,60,,,,Dead,1000,1000,,,NO,NO,1000,1:DECEASED
+TCGA-60-2712,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,79,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,10,,,NO,Dead,274,274,,0,NO,NO,274,1:DECEASED
+TCGA-56-7222,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,60,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,23,,,NO,Alive,562,13,3,70,NO,YES,562,0:LIVING
+TCGA-77-A5G8,LUSC,MALE,,,70,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,90,,,NO,Alive,,1290,0,,,,1290,0:LIVING
+TCGA-63-A5MY,LUSC,MALE,,,63,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Alive,,6,,,NO,NO,6,0:LIVING
+TCGA-66-2786,LUSC,FEMALE,,,68,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,74,,,,Alive,,790,,,NO,NO,790,0:LIVING
+TCGA-77-8150,LUSC,MALE,,,64,Stage IIIA,T3,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,46,,,NO,Dead,1655,,0,,NO,YES,1655,1:DECEASED
+TCGA-85-8351,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IIA,T2a,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,60,,,,Alive,,55,0,100,NO,NO,55,0:LIVING
+TCGA-21-1078,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,77,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,9,,,,Dead,474,474,,,NO,YES,474,1:DECEASED
+TCGA-94-7943,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,80,Stage IA,T1b,NX,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,30,,,,Alive,,143,1,,NO,NO,143,0:LIVING
+TCGA-43-2578,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,59,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,64,,,,Alive,684,550,0,,NO,NO,684,0:LIVING
+TCGA-66-2763,LUSC,FEMALE,,,63,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,,Alive,,30,,,,,30,0:LIVING
+TCGA-98-8021,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IA,T1a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,NO,Alive,,413,2,,NO,NO,413,0:LIVING
+TCGA-85-A4QR,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Alive,,25,0,100,NO,NO,25,0:LIVING
+TCGA-33-AASJ,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,60,Stage IB,T2,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,,,,,Dead,3600,,1,90,NO,YES,3600,1:DECEASED
+TCGA-22-1005,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,63,Stage IA,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,40,,,NO,Dead,1953,1953,,,NO,NO,1953,1:DECEASED
+TCGA-22-5471,LUSC,MALE,WHITE,,75,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,50,,,NO,Alive,,964,1,,YES,YES,964,0:LIVING
+TCGA-77-8156,LUSC,MALE,,,60,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,57.5,,,NO,Alive,,10,0,,NO,,10,0:LIVING
+TCGA-39-5035,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,47,,,NO,Alive,,474,,,NO,NO,474,0:LIVING
+TCGA-60-2710,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IIA,T1,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,63,,,NO,Alive,,1686,1,80,NO,NO,1686,0:LIVING
+TCGA-98-A538,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,67,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,35,,,NO,Alive,,120,2,,NO,NO,120,0:LIVING
+TCGA-58-8390,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,70,Stage IIA,T2b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,120,,,NO,Alive,,272,0,90,NO,NO,272,0:LIVING
+TCGA-43-7656,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,71,Stage IA,T1b,N0,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,45,,,,Alive,,212,0,,NO,NO,212,0:LIVING
+TCGA-22-4591,LUSC,MALE,WHITE,,80,Stage IIIA,T3,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,,,,NO,Dead,623,623,,0,NO,YES,623,1:DECEASED
+TCGA-37-A5EL,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,53,Stage IIB,T3,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,,,,,,Alive,1143,454,,,YES,NO,1143,0:LIVING
+TCGA-77-8138,LUSC,MALE,,,74,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,54,,,NO,Dead,539,,0,,NO,YES,539,1:DECEASED
+TCGA-66-2744,LUSC,MALE,,,71,Stage IIB,T2,N1,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,63,,,,Alive,,30,,,,,30,0:LIVING
+TCGA-21-5787,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,65,Stage IIIA,T2,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,100,,,,Dead,329,329,,0,YES,YES,329,1:DECEASED
+TCGA-NK-A7XE,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,66,Stage IIIB,T4,N2,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,5,80,,,NO,Alive,,13,,,NO,NO,13,0:LIVING
+TCGA-34-5239,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,75,Stage IIIA,T4,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,,,,,YES,Alive,,329,,,NO,NO,329,0:LIVING
+TCGA-60-2716,LUSC,MALE,,NOT HISPANIC OR LATINO,39,Stage IIB,T2,N1,M0,,8070/3,Lung,1,,,,NO,Alive,,1181,0,90,NO,NO,1181,0:LIVING
+TCGA-60-2719,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,83,Stage IB,T1,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,7,,,NO,Alive,,932,2,60,NO,NO,932,0:LIVING
+TCGA-94-7557,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,73,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,,,,,Dead,5,,,,NO,NO,5,1:DECEASED
+TCGA-56-8305,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,72,Stage IB,T2a,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,100,,,,Alive,,105,,,,NO,105,0:LIVING
+TCGA-66-2742,LUSC,MALE,,,70,Stage IV,T2,N1,M1,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,3,44,,,,Alive,,641,,,NO,NO,641,0:LIVING
+TCGA-60-2713,LUSC,MALE,WHITE,NOT HISPANIC OR LATINO,64,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,2,110,,,NO,Alive,,1456,1,70,NO,YES,1456,0:LIVING
+TCGA-O2-A5IB,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,71,Stage III,T3,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,2.5,,,NO,Dead,340,,0,,NO,YES,340,1:DECEASED
+TCGA-43-8118,LUSC,FEMALE,WHITE,NOT HISPANIC OR LATINO,55,Stage IA,T1b,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8140/3,Lung,2,20,,,NO,Dead,89,,1,,NO,NO,89,1:DECEASED
+TCGA-LA-A7SW,LUSC,MALE,BLACK OR AFRICAN AMERICAN,NOT HISPANIC OR LATINO,71,Stage IIIA,T3,N1,MX,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,37,,,NO,Alive,408,146,1,,NO,YES,408,0:LIVING
+TCGA-63-A5ML,LUSC,MALE,,,68,Stage IB,T2,N0,M0,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),8070/3,Lung,4,60,,,NO,Alive,,1163,,,NO,NO,1163,0:LIVING
