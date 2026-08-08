@@ -848,6 +848,9 @@ def shape_filter_and_grow(
                 "volume_mm3": None, "equivalent_diameter_mm": None,
                 "erosion_radius_used_mm": None,
                 "bbox_used": "rejected_tubular",
+                "bbox_z0": None, "bbox_z1": None,
+                "bbox_y0": None, "bbox_y1": None,
+                "bbox_x0": None, "bbox_x1": None,
                 "patch_file": None,
             })
             continue
@@ -913,6 +916,29 @@ def shape_filter_and_grow(
             "equivalent_diameter_mm": round(growth["equivalent_diameter_mm"], 2) if growth["grown_ok"] else None,
             "erosion_radius_used_mm": growth.get("erosion_radius_used_mm"),
             "bbox_used": bbox_used,
+            # The ACTUAL voxel region (in volume_hu's own index space)
+            # this patch was cropped from -- WITHOUT this, nothing
+            # downstream can place this patch's Grad-CAM heatmap back
+            # into the full volume correctly. It was previously
+            # computed (see `bbox` above) and used to crop, but never
+            # saved -- 07_visualize_gradcam.py's own docstring already
+            # anticipates a "bbox_zyx" field under exactly this name
+            # and falls back to an approximation (centered on the
+            # ORIGINAL LoG seed voxel, not the true grown-region
+            # center) whenever it's absent, which was always, until
+            # now. IMPORTANT: (z0,z1,y0,y1,x0,x1) above are Python
+            # slice bounds (z1 EXCLUSIVE, from `volume_hu[z0:z1, ...]`
+            # a few lines up) -- 07's own placement code
+            # (build_full_volume_heatmap/compute_fallback_bbox) uses
+            # INCLUSIVE bounds (`full_heatmap[z0:z1+1, ...]`), so the
+            # upper bound of each axis is written as z1-1 (etc.) here,
+            # not the raw exclusive z1 -- writing the exclusive value
+            # directly would silently shrink every placed region by
+            # one voxel on the far edge of each axis.
+            "bbox_zyx": [int(z0), int(z1 - 1), int(y0), int(y1 - 1), int(x0), int(x1 - 1)],
+            "bbox_z0": int(z0), "bbox_z1": int(z1 - 1),
+            "bbox_y0": int(y0), "bbox_y1": int(y1 - 1),
+            "bbox_x0": int(x0), "bbox_x1": int(x1 - 1),
             "patch_file": os.path.join("patches", patch_filename),
         })
 
@@ -923,10 +949,17 @@ def shape_filter_and_grow(
     fieldnames = [
         "candidate_id", "kept", "sphericity", "num_negative_eigs",
         "grown_ok", "leaked", "volume_mm3", "equivalent_diameter_mm",
-        "erosion_radius_used_mm", "bbox_used", "patch_file",
+        "erosion_radius_used_mm", "bbox_used",
+        "bbox_z0", "bbox_z1", "bbox_y0", "bbox_y1", "bbox_x0", "bbox_x1",
+        "patch_file",
     ]
     with open(csv_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        # extrasaction="ignore": rows also carry a nested "bbox_zyx"
+        # list (same 6 numbers, for nodules.json/07's consumption --
+        # see the rows.append comment above) that has no sane flat-CSV
+        # column; the 6 bbox_z0..bbox_x1 columns above already cover
+        # the same information for nodules.csv.
+        writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(rows)
 

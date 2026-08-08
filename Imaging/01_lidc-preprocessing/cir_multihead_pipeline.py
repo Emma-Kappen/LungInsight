@@ -24,11 +24,25 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 
-# Import the 3D SE-ResNet implementation from local senet package
+# Import the 3D SE-ResNet implementation from se_resnet3d.py.
+#
+# NOTE: this used to be `from Imaging.se_resnet3d import se_resnet50_3d`,
+# which assumes Imaging/ is itself an importable package from a parent
+# directory on sys.path (e.g. LungInsight/ on the path, Imaging/ containing
+# an __init__.py). That's not how this project's path_setup.py works: it
+# adds the Imaging/ directory ITSELF to sys.path (see
+# ensure_project_paths()), which makes se_resnet3d importable as a
+# top-level module -- `Imaging.se_resnet3d` can never resolve that way, so
+# the import silently failed and se_resnet50_3d was always None (masked by
+# the bare `except Exception` below, which is why the resulting
+# create_multihead_model() error message pointed at "the local senet
+# package" -- a red herring from an earlier design, not the real cause).
 try:
-    from senet import se_resnet50_3d
-except Exception:
+    from se_resnet3d import se_resnet50_3d
+except Exception as _se_resnet3d_import_error:
     se_resnet50_3d = None
+    print(f"[warn] Could not import se_resnet50_3d from se_resnet3d.py: "
+          f"{_se_resnet3d_import_error!r}")
 
 # --- Configuration ---
 FEATURE_NAMES = [
@@ -323,3 +337,4 @@ if __name__ == '__main__':
             print('Generated heatmaps for heads:', list(maps.keys()))
         except Exception as e:
             print('Heatmap generation failed:', e)
+            
