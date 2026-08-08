@@ -1,0 +1,39 @@
+# Ignore dataset folders and contents
+dataset/
+datasets/
+data/
+
+# Ignore output folders and contents
+output/
+outputs/
+
+# Ignore common output files
+*.out
+*.log
+
+# Standard ignores
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+env/
+venv/
+.venv/
+.env
+
+# IDE/editor
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.agents/
