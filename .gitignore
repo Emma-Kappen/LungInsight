@@ -37,3 +37,6 @@ venv/
 *.userosscache
 *.sln.docstates
 .agents/
+
+*.npy
+*.pth
