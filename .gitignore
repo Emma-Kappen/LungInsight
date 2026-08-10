@@ -29,6 +29,27 @@ venv/
 .venv/
 .env
 
+# ML models
+*.pth
+*.pt
+*.onnx
+*.ckpt
+
+# Medical imaging / generated arrays
+*.npy
+*.npz
+*.dcm
+*.nii
+*.nii.gz
+
+# Generated imaging data
+Imaging/output/
+Imaging/checkpoints/
+Imaging/candidate_patches_v2/
+
+# Clinical datasets
+Clinical/datasets/
+
 # IDE/editor
 .vscode/
 .idea/
@@ -37,6 +58,3 @@ venv/
 *.userosscache
 *.sln.docstates
 .agents/
-
-*.npy
-*.pth
