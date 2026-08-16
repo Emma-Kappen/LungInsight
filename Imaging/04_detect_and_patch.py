@@ -1,3 +1,7 @@
+import numpy as np
+from scipy import ndimage
+
+
 def characteristic_candidate_detect(
     volume_hu_masked: np.ndarray,
     lung_mask: np.ndarray,
