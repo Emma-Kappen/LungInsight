@@ -94,6 +94,31 @@ stomach/bowel false-positive), and the Z boundary comes from area on
 that verified structure rather than a bilateral count (fixes the
 uneven-diaphragm expiration false-negative).
 
+=== Follow-up fix: identity must run BEFORE bridging, not after ===
+
+Even with full 3D connectivity, an earlier version of this file still
+let gastric/bowel gas leak into lung_mask, because it ran the
+trachea-bridging 3D closing step FIRST and only labeled/size-filtered
+components afterward. Closing bridges gaps up to roughly twice
+`closing_radius_mm` (default 5mm, so up to ~10mm) -- but the diaphragm
+separating the lung base from the stomach is often only 2-5mm thick,
+especially right under a domed hemidiaphragm at end-expiration. That
+closing step could physically weld a stomach/bowel gas pocket onto the
+real lung base into a single 3D component before the size-relative
+"is this really lung-sized" test ever saw them as separate -- and once
+welded, the combined component's size was dominated by real lung
+tissue, so it sailed through the size check with the gas pocket riding
+along for free.
+
+The fix is to swap the order: run the 3D organ-identity/size check on
+the un-bridged mask first (where the diaphragm has not been
+artificially erased, so real anatomy alone -- not a closing artifact
+-- decides what counts as "lung"), and only run the trachea-bridging
+closing step afterward, on that already-verified lung-only core. The
+core by construction contains no stomach/bowel voxels for the closing
+step to weld onto, so it can still bridge trachea/bronchial-wall gaps
+within real lung tissue without ever being able to reach abdominal gas.
+
 Usage:
     python 02_mask_and_crop.py output/LIDC-IDRI-0001_processed \
         --out-dir output/LIDC-IDRI-0001_masked \
@@ -344,25 +369,34 @@ def compute_lung_mask(
          outer border -- that's always background air surrounding the
          patient, done per-slice so a lung apex/base legitimately
          reaching the top/bottom of the stack isn't mistaken for it.
-      3. 3D binary closing with an mm-sized ellipsoidal structuring
-         element. This bridges the small physical gaps between the
-         trachea, the main bronchi, and the two lung fields so they
-         become ONE connected 3D component.
-      4. *3D organ identity*: label connected components in full 3D
-         and keep the component(s) whose size is within
-         `core_relative_size_threshold` of the single largest
-         component (plus an absolute noise floor,
-         `min_component_fraction` of the volume). This is what
-         actually separates "lung + bridged airway tree" from a
-         same-slice stomach bubble or bowel-gas loop -- those are
-         physically disconnected from the lungs in 3D (the diaphragm
-         is in the way) and are essentially always much smaller than
-         the full bilateral lung volume, however many components they
-         happen to form within any single 2D slice. This step also
-         records `core_z_indices`: the actual Z indices (in this
-         verified 3D component) that contain lung tissue, which the
-         caller uses for Z-cropping (see module docstring) instead of
-         any per-slice symmetry test.
+      3. *3D organ identity, done BEFORE any bridging*: label connected
+         components in full 3D on the un-bridged mask and keep the
+         component(s) whose size is within `core_relative_size_
+         threshold` of the single largest component (plus an absolute
+         noise floor, `min_component_fraction` of the volume). Doing
+         this before closing is deliberate: the diaphragm is often only
+         2-5mm thick, thinner than the closing step's own bridging
+         radius, so running closing first can physically weld a
+         stomach bubble or bowel-gas loop onto the lung base into one
+         3D component -- and once fused, its size is dominated by the
+         real lung tissue, so it passes the size check riding along
+         with it. Checking identity on the un-bridged mask means a gas
+         pocket has to be disconnected in true anatomy, not just after
+         an artificial bridge, to be excluded -- and it always is,
+         since the diaphragm genuinely separates them and it is
+         essentially always much smaller than the full bilateral lung
+         volume, however many components it forms within any single 2D
+         slice. This step also records `core_z_indices`: the actual Z
+         indices (in this verified, un-bridged component) that contain
+         lung tissue, which the caller uses for Z-cropping (see module
+         docstring) instead of any per-slice symmetry test.
+      4. 3D binary closing, applied only to the just-verified lung
+         core, with an mm-sized ellipsoidal structuring element. This
+         bridges the small physical gaps between the trachea, the main
+         bronchi, and the two lung fields so they render as ONE
+         connected structure. Because it runs on the verified core --
+         which by construction contains no stomach/bowel voxels -- it
+         has nothing non-pulmonary nearby left to weld onto.
       5. Fill holes per axial slice, so vessels/airway walls/nodules
          inside the lung silhouette are included rather than excluded
          -- but ONLY up to `max_hole_area_mm2` in cross-sectional
@@ -437,33 +471,63 @@ def compute_lung_mask(
                          closing_radius_mm / px)
     closing_structure = _ellipsoid_structure(closing_radii_vox)
 
-    # Bridge the trachea/bronchi to the lung fields so the whole
-    # airway tree becomes one connected 3D component.
-    closed = ndimage.binary_closing(interior, structure=closing_structure)
-
+    # --- 3D organ identity FIRST, before any bridging. ---
+    #
+    # BUG FIXED HERE: the previous version ran the 3D closing (bridging
+    # step) *before* labeling/size-filtering components. That closing
+    # uses an isotropic-in-mm structuring element sized by
+    # `closing_radius_mm` (default 5mm, i.e. it can bridge gaps up to
+    # ~10mm). The diaphragm separating the lung base from the stomach/
+    # bowel is frequently only 2-5mm thick, especially right under a
+    # domed hemidiaphragm at end-expiration -- exactly the geometry in
+    # the screenshot that motivated this fix. So the closing step could
+    # physically weld a gastric/bowel gas pocket onto the lung base
+    # into ONE 3D component *before* the size-relative "is this really
+    # lung-sized" test ever ran. Once fused, that component's total
+    # size was dominated by the real lung tissue, so it sailed through
+    # `core_relative_size_threshold` with the gas pocket riding along --
+    # defeating the very check that was supposed to reject it.
+    #
+    # The fix is to swap the order: label and size-filter components on
+    # the un-bridged `interior` mask, where the diaphragm has not been
+    # artificially erased. Real anatomy alone (no closing artifact) is
+    # enough to identify lung tissue here -- the left and right lungs
+    # are each independently large (comfortably >= 12% of the larger
+    # one), while a stomach/bowel gas pocket is a genuinely separate,
+    # much smaller 3D component with no path to the lungs at all. Only
+    # *after* this verified lung-only core is established do we run the
+    # closing step, and we run it on the core alone -- so it can still
+    # bridge trachea/bronchial-wall gaps within real lung tissue, but it
+    # no longer has any stomach/bowel voxels sitting nearby to weld onto.
     structure_3d = np.ones((3, 3, 3), dtype=bool)
-    labeled, num_features = ndimage.label(closed, structure=structure_3d)
+    labeled, num_features = ndimage.label(interior, structure=structure_3d)
     if num_features == 0:
         return empty_mask, empty_z, empty_mask.copy()
 
-    sizes = ndimage.sum(closed, labeled, index=np.arange(1, num_features + 1))
+    sizes = ndimage.sum(interior, labeled, index=np.arange(1, num_features + 1))
     largest_size = sizes.max()
     abs_floor = min_component_fraction * volume_hu.size
 
-    # --- 3D organ identity: this is the anatomical fix. ---
-    # Keep components close in size to the largest one (handles the
-    # rare case where trachea bridging fails and left/right lungs
-    # remain two separate similar-sized components), but reject
-    # anything much smaller -- which is exactly what an abdominal gas
-    # pocket is relative to the full bilateral lung volume, regardless
-    # of how many 2D components it forms within a single slice.
+    # Keep components close in size to the largest one (handles left
+    # lung + right lung as two separate components -- they no longer
+    # need pre-bridging to both pass, since each is independently
+    # lung-sized), but reject anything much smaller -- which is exactly
+    # what an abdominal gas pocket is relative to the full bilateral
+    # lung volume, regardless of how many 2D components it forms within
+    # a single slice, and regardless of how close it sits to the
+    # diaphragm.
     keep_mask = (sizes >= abs_floor) & (sizes >= core_relative_size_threshold * largest_size)
     keep_labels = list(np.nonzero(keep_mask)[0] + 1)  # ndimage labels are 1-indexed
 
-    core_mask = np.isin(labeled, keep_labels)
-    core_z_indices = np.where(core_mask.any(axis=(1, 2)))[0]
+    core_mask_preclosing = np.isin(labeled, keep_labels)
+    core_z_indices = np.where(core_mask_preclosing.any(axis=(1, 2)))[0]
 
-    lung_mask = core_mask.copy()
+    # Bridge the trachea/bronchi to the already-verified lung fields so
+    # the whole airway tree renders as one connected structure. Applied
+    # to the verified core only, this can no longer create a false path
+    # from stomach/bowel gas into "lung" -- there is no stomach/bowel
+    # tissue left in the mask for it to reach.
+    lung_mask = ndimage.binary_closing(core_mask_preclosing, structure=closing_structure)
 
     # Physical area-per-voxel in-plane, used to convert max_hole_area_mm2
     # into a voxel count for the size-limited hole fill.
