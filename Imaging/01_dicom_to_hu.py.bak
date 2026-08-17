@@ -110,40 +110,9 @@ class SeriesSlices:
 
 
 def find_dicom_files(patient_dir: str) -> List[str]:
-    """Recursively collect every candidate DICOM file under patient_dir.
-
-    Resolves ~, tries the provided path, a script-relative path, and
-    the absolute path, in that order.
-    """
-    # Expand ~ to the user home directory first
-    expanded = os.path.expanduser(patient_dir)
-
-    # Candidate paths to try (as absolute paths for clear error messages)
-    script_dir = os.path.dirname(__file__)
-    script_relative = os.path.join(script_dir, patient_dir)
-    abspath_candidate = os.path.abspath(patient_dir)
-
-    attempted = [
-        os.path.abspath(expanded),
-        os.path.abspath(script_relative),
-        os.path.abspath(abspath_candidate),
-    ]
-
-    # Pick the first that exists
-    if os.path.exists(expanded):
-        resolved_dir = expanded
-    elif os.path.exists(script_relative):
-        resolved_dir = script_relative
-    elif os.path.exists(abspath_candidate):
-        resolved_dir = abspath_candidate
-    else:
-        raise FileNotFoundError(
-            "Patient directory not found; attempted the following paths:\n"
-            f"  {attempted[0]}\n  {attempted[1]}\n  {attempted[2]}"
-        )
-
+    """Recursively collect every candidate DICOM file under patient_dir."""
     dicom_paths = []
-    for root, _dirs, files in os.walk(resolved_dir):
+    for root, _dirs, files in os.walk(patient_dir):
         for fname in files:
             # LIDC-IDRI slice files usually have no extension or .dcm;
             # don't filter by extension, just try to read everything.
@@ -151,7 +120,7 @@ def find_dicom_files(patient_dir: str) -> List[str]:
                 continue
             dicom_paths.append(os.path.join(root, fname))
     if not dicom_paths:
-        raise FileNotFoundError(f"No files found under '{resolved_dir}'.")
+        raise FileNotFoundError(f"No files found under '{patient_dir}'.")
     return dicom_paths
 
 
