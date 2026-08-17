@@ -846,6 +846,7 @@ def shape_filter_and_grow(
                 "num_negative_eigs": num_negative,
                 "grown_ok": None, "leaked": None,
                 "volume_mm3": None, "equivalent_diameter_mm": None,
+                "leaked_volume_mm3_estimate": None, "leaked_diameter_mm_estimate": None,
                 "erosion_radius_used_mm": None,
                 "bbox_used": "rejected_tubular",
                 "bbox_z0": None, "bbox_z1": None,
@@ -912,8 +913,21 @@ def shape_filter_and_grow(
             "num_negative_eigs": num_negative,
             "grown_ok": growth["grown_ok"],
             "leaked": growth["leaked"],
-            "volume_mm3": round(growth["volume_mm3"], 1) if growth["grown_ok"] else None,
-            "equivalent_diameter_mm": round(growth["equivalent_diameter_mm"], 2) if growth["grown_ok"] else None,
+            # Only trust volume/diameter when growth both succeeded AND
+            # didn't leak into a vessel. grown_ok stays True in the
+            # leaked case too (see grow_nodule_region()), so checking
+            # grown_ok alone let a discarded, vessel-inflated leak
+            # measurement masquerade as the real grown size in
+            # nodules.csv/json and every downstream report -- while the
+            # actual patch fed to the classifier came from
+            # fallback_bbox_global_zyx() instead. Gate on both flags.
+            "volume_mm3": round(growth["volume_mm3"], 1) if (growth["grown_ok"] and not growth["leaked"]) else None,
+            "equivalent_diameter_mm": round(growth["equivalent_diameter_mm"], 2) if (growth["grown_ok"] and not growth["leaked"]) else None,
+            # Keep the discarded leak measurement around for auditing
+            # (e.g. "how badly did this one leak"), clearly separated
+            # so it can never be read as the true grown size.
+            "leaked_volume_mm3_estimate": round(growth["volume_mm3"], 1) if growth["leaked"] else None,
+            "leaked_diameter_mm_estimate": round(growth["equivalent_diameter_mm"], 2) if growth["leaked"] else None,
             "erosion_radius_used_mm": growth.get("erosion_radius_used_mm"),
             "bbox_used": bbox_used,
             # The ACTUAL voxel region (in volume_hu's own index space)
@@ -949,6 +963,7 @@ def shape_filter_and_grow(
     fieldnames = [
         "candidate_id", "kept", "sphericity", "num_negative_eigs",
         "grown_ok", "leaked", "volume_mm3", "equivalent_diameter_mm",
+        "leaked_volume_mm3_estimate", "leaked_diameter_mm_estimate",
         "erosion_radius_used_mm", "bbox_used",
         "bbox_z0", "bbox_z1", "bbox_y0", "bbox_y1", "bbox_x0", "bbox_x1",
         "patch_file",
