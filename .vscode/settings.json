@@ -6,5 +6,15 @@
     "python.testing.pytestEnabled": true,
     "python.analysis.extraPaths": [
         "./Imaging/01_lidc-preprocessing"
-    ]
+    ],
+    "chat.tools.terminal.autoApprove": {
+        "/^Set-Location \"c:\\\\Users\\\\emkap\\\\Documents\\\\Projects\\\\LungInsight\\\\Imaging\"; python -m unittest tests\\.test_candidate_filtering -v$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^Set-Location \"c:\\\\Users\\\\emkap\\\\Documents\\\\Projects\\\\LungInsight\\\\Imaging\"; python -m py_compile 04_detect_and_patch\\.py 05_shape_filter_and_grow\\.py tests\\\\test_candidate_filtering\\.py$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
 }

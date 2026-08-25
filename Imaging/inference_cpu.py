@@ -4,10 +4,8 @@ inference_cpu.py
 Local CPU-only inference and explainability script for 3D CT patches or
 full-volume scan inference.
 
-Model heads are already sigmoid-activated confidence scores in [0, 1]
-(see se_resnet3d.MultiHeadSEResNet3D.forward), so this script reads them
-directly -- it does NOT apply an additional sigmoid, which would silently
-double-squash the output toward 0.5.
+The canonical model returns raw logits. This wrapper applies sigmoid exactly
+once when exposing probabilities to callers.
 """
 import argparse
 import os
@@ -37,13 +35,20 @@ except Exception:  # pragma: no cover - exercised by lightweight import tests
     create_multihead_model = None
     generate_characteristic_heatmaps = None
 
-from detect_candidates_cpu import (
-    detect_nodules_log,
-    extract_patch,
-    get_spacing_mm,
-    load_volume_hu,
-    segment_lungs,
-)
+try:
+    from detect_candidates_cpu import (
+        detect_nodules_log,
+        extract_patch,
+        get_spacing_mm,
+        load_volume_hu,
+        segment_lungs,
+    )
+except ImportError:  # The canonical 01-05 pipeline replaces this old detector.
+    detect_nodules_log = None
+    extract_patch = None
+    get_spacing_mm = None
+    load_volume_hu = None
+    segment_lungs = None
 
 
 def load_patch(patch_path: str) -> torch.Tensor:
@@ -60,7 +65,13 @@ def load_patch(patch_path: str) -> torch.Tensor:
 def load_checkpoint(model: torch.nn.Module, checkpoint_path: str, device: torch.device):
     if not os.path.isfile(checkpoint_path):
         raise FileNotFoundError(f'Checkpoint not found: {checkpoint_path}')
-    state_dict = torch.load(checkpoint_path, map_location=device)
+    checkpoint = torch.load(checkpoint_path, map_location=device)
+    if isinstance(checkpoint, dict) and not all(torch.is_tensor(v) for v in checkpoint.values()):
+        for key in ('model_state_dict', 'state_dict', 'model'):
+            if isinstance(checkpoint.get(key), dict):
+                checkpoint = checkpoint[key]
+                break
+    state_dict = checkpoint
     model.load_state_dict(state_dict)
     return model
 
@@ -78,7 +89,8 @@ def save_candidate_results(output_dir: str, candidate_id: str, patch: np.ndarray
     }
     for head in FEATURE_NAMES:
         payload[f'{head}_score'] = np.asarray(probs[head], dtype=np.float32)
-        payload[f'{head}_heatmap'] = np.asarray(heatmaps[head], dtype=np.float32)
+        if head in heatmaps:
+            payload[f'{head}_heatmap'] = np.asarray(heatmaps[head], dtype=np.float32)
     np.savez_compressed(result_path, **payload)
 
     row = {'candidate_id': candidate_id, 'result_path': result_path}
@@ -112,11 +124,11 @@ def inference_with_heatmaps(patch_path: str, checkpoint_path: str, target_layer:
         score = outputs[head]
         if score.dim() > 1 and score.size(1) == 1:
             score = score.squeeze(1)
-        probs[head] = float(score.cpu().item())
+        probs[head] = float(torch.sigmoid(score).cpu().item())
 
     heatmaps = generate_characteristic_heatmaps(model, x, device=device, target_layer=target_layer)
     out_path = os.path.splitext(patch_path)[0] + '_inference_results.npz'
-    save_candidate_results(
+    saved_path = save_candidate_results(
         os.path.dirname(out_path),
         os.path.splitext(os.path.basename(out_path))[0],
         x.squeeze(0).squeeze(0).cpu().numpy(),
@@ -124,12 +136,17 @@ def inference_with_heatmaps(patch_path: str, checkpoint_path: str, target_layer:
         heatmaps,
         center_zyx=(0.0, 0.0, 0.0),
     )
-    return probs, heatmaps, out_path
+    return probs, heatmaps, saved_path
 
 
 def run_scan_inference(scan, checkpoint_path: str, output_dir: str, target_layer: str = 'layer4'):
     if pl is None:
         raise RuntimeError('pylidc is required for full-scan inference')
+    if any(fn is None for fn in (detect_nodules_log, extract_patch, get_spacing_mm, load_volume_hu, segment_lungs)):
+        raise RuntimeError(
+            'Legacy full-scan inference is unavailable because detect_candidates_cpu.py '
+            'is not part of this repository. Use the canonical 01-05-06 pipeline.'
+        )
 
     device = torch.device('cpu')
     volume_hu = load_volume_hu(scan)
@@ -154,7 +171,7 @@ def run_scan_inference(scan, checkpoint_path: str, output_dir: str, target_layer
             score = outputs[head]
             if score.dim() > 1 and score.size(1) == 1:
                 score = score.squeeze(1)
-            probs[head] = float(score.cpu().item())
+            probs[head] = float(torch.sigmoid(score).cpu().item())
         heatmaps = generate_characteristic_heatmaps(model, patch_tensor, device=device, target_layer=target_layer)
         cand_id = f"{scan.patient_id}_cand{idx:03d}"
         result_path = save_candidate_results(

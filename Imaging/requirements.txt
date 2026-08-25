@@ -6,3 +6,4 @@ scikit-learn
 pylidc
 gradnorm-pytorch
 grad-cam
+h5py

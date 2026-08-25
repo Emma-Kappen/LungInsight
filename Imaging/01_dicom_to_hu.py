@@ -331,6 +331,14 @@ def extract_metadata(ordered_datasets, slice_spacing_mm: float) -> dict:
     pixel_spacing = [float(x) for x in getattr(first, "PixelSpacing", [1.0, 1.0])]
     origin = [float(x) for x in getattr(first, "ImagePositionPatient", [0.0, 0.0, 0.0])]
 
+    orientation = [float(x) for x in getattr(
+        first, "ImageOrientationPatient", [1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+    )]
+    row_direction = np.asarray(orientation[:3], dtype=np.float64)
+    column_direction = np.asarray(orientation[3:], dtype=np.float64)
+    slice_direction = np.cross(row_direction, column_direction)
+    direction_lps = np.column_stack((slice_direction, row_direction, column_direction))
+
     # Direction z moves in as slice index increases, so a later Z-crop
     # (in step 2) can shift origin_mm by the right sign (superior->
     # inferior scans usually DECREASE z with index, but this isn't
@@ -353,8 +361,12 @@ def extract_metadata(ordered_datasets, slice_spacing_mm: float) -> dict:
         "columns": int(first.Columns),
         # (x, y) mm spacing within a slice, then z spacing between slices
         "pixel_spacing_mm": pixel_spacing,
+        "spacing_zyx_mm": [slice_spacing_mm, pixel_spacing[0], pixel_spacing[1]],
         "slice_spacing_mm": slice_spacing_mm,
         "origin_mm": origin,
+        "direction_lps": direction_lps.tolist(),
+        "array_axes": ["z", "y", "x"],
+        "coordinate_system": "DICOM_LPS",
         "manufacturer": str(getattr(first, "Manufacturer", "UNKNOWN")),
         "kvp": getattr(first, "KVP", None),
         "convolution_kernel": str(getattr(first, "ConvolutionKernel", "UNKNOWN")),
@@ -402,9 +414,8 @@ def convert_patient_to_hu(
     else:
         meta["multi_window_saved"] = False
 
-    meta_to_write = {k: v for k, v in meta.items() if not k.startswith("_")}
     with open(os.path.join(out_dir, "meta.json"), "w") as f:
-        json.dump(meta_to_write, f, indent=2)
+        json.dump(meta, f, indent=2)
 
     print(f"[done] Volume shape: {volume_hu.shape} (Z, Y, X)")
     print(f"[done] HU range: [{meta['hu_min']:.1f}, {meta['hu_max']:.1f}]")

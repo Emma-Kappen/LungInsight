@@ -413,10 +413,21 @@ def compute_lung_mask(
          regions alone (see _fill_small_holes_2d). The regions that
          were too big to fill are collected across all slices and
          handed to compute_heart_mask() to build a dedicated heart
-         mask, which is then explicitly subtracted from the lung mask
-         as a belt-and-suspenders step (so a later dilation can't
-         re-absorb any of it at the boundary).
-      6. Dilate outward by `wall_margin_mm` (mm-aware, anisotropic) to
+         mask.
+      6. Any "too big to fill" region that ISN'T the identified heart
+         is, by elimination, dense intra-lung TISSUE rather than
+         mediastinal cavity -- almost always a solid mass/
+         consolidation large enough to fail the air threshold in
+         cross-section. That is real anatomy 04_detect_and_patch.py
+         needs to see, so it is added back into lung_mask here (never
+         into heart_mask, which stays excluded). Without this step, a
+         large tumor is indistinguishable from mediastinum to this
+         function and gets silently blanked to air HU downstream --
+         see compute_heart_mask's own docstring for the residual
+         caveat (a mass large/central enough to win the "biggest
+         large-hole component" contest, or contiguous with the true
+         heart, is still misclassified as heart and excluded).
+      7. Dilate outward by `wall_margin_mm` (mm-aware, anisotropic) to
          pull in a rim of the lung wall itself -- the pleura and the
          walls of the trachea/bronchi, which are denser than
          `lung_threshold` and would otherwise be excluded even though
@@ -436,10 +447,12 @@ def compute_lung_mask(
                         candidate was found.
 
     Note: this is a solid general-purpose segmentation but not a
-    clinical-grade one -- pathology that makes lung tissue much denser
-    (e.g. large consolidations, pleural effusion) can locally break
-    the threshold assumption, and `wall_margin_mm` is a fixed
-    approximation of the pleura, not a true tissue-boundary detector.
+    clinical-grade one -- `wall_margin_mm` is a fixed approximation of
+    the pleura, not a true tissue-boundary detector, and distinguishing
+    a large intrapulmonary mass from the heart (step 6 above) is a
+    size/connectivity heuristic with no independent anatomical prior --
+    see compute_heart_mask's docstring for when that heuristic can
+    still misclassify a large mass as heart.
     """
     binary = volume_hu < lung_threshold
 
@@ -553,6 +566,42 @@ def compute_lung_mask(
     # lung mask even before the wall-margin dilation below.
     lung_mask &= ~heart_mask
 
+    # Recover non-heart large holes into lung_mask.
+    #
+    # BUG FIXED HERE: `filled` (now `lung_mask`) never contained large
+    # holes to begin with -- _fill_small_holes_2d excludes anything
+    # over max_hole_area_mm2 by construction, before heart_mask is even
+    # computed a few lines above. heart_mask was only ever used to
+    # SUBTRACT from lung_mask (a no-op for voxels that were never in
+    # lung_mask), never to add anything back -- so EVERY "too big to
+    # fill" region was unconditionally discarded, whether it was the
+    # heart, the esophagus/great vessels, or a real intrapulmonary
+    # tumor/consolidation large enough to exceed the area cap in
+    # cross-section. A large solid mass got treated exactly like
+    # mediastinum: silently blanked to air HU downstream in
+    # blank_non_lung(), so 04_detect_and_patch.py's candidate detector
+    # -- which only ever looks inside lung_mask -- could never generate
+    # a candidate there, however good its thresholds are.
+    #
+    # By elimination, a large-hole voxel that is NOT part of the
+    # identified heart component is dense TISSUE, not mediastinal
+    # cavity -- most often a mass/consolidation that failed the air
+    # threshold for a pathological reason. That is real lung-interior
+    # anatomy 04 needs to see, so it belongs in lung_mask.
+    #
+    # Caveat (see compute_heart_mask's own docstring): if a tumor is
+    # itself large/central enough to win the "largest 3D large-hole
+    # component" contest, or is contiguous with the true heart
+    # component, it will be classified as heart_mask and still get
+    # excluded here. This fix recovers the common case (a mass smaller
+    # than, or spatially separate from, the heart) but is not a
+    # substitute for visually QA-ing the mask (03_visualize.py) on any
+    # scan with a suspected large intrapulmonary mass, and adjusting
+    # max_hole_area_mm2 / compute_heart_mask's own thresholds if the
+    # mass and heart are still being confused for one another.
+    non_heart_large_mass = large_holes_stack & ~heart_mask
+    lung_mask |= non_heart_large_mass
+
     # Grow outward by a physical margin to pull in the lung wall
     # (pleura) and the walls of the trachea/main bronchi -- these are
     # denser than lung_threshold so thresholding alone always excludes
@@ -628,6 +677,7 @@ def crop_to_lung_slices(
     """
     if core_z_indices is None or len(core_z_indices) == 0:
         meta["z_crop_applied"] = False
+        meta["crop_offset_zyx"] = [0, 0, 0]
         meta["z_crop_warning"] = (
             "No 3D-verified lung component was found; skipped Z-cropping "
             "to avoid discarding the whole volume."
@@ -671,17 +721,24 @@ def crop_to_lung_slices(
 
     # Shift the z-origin so downstream code that maps voxel index -> mm
     # position still lands in the right place after cropping.
-    origin = meta.get("origin_mm", [0.0, 0.0, 0.0])
-    z_sign = meta.get("_z_step_sign", -1.0)
-    origin_shifted = list(origin)
-    origin_shifted[2] = origin[2] + z_sign * z_lo * slice_spacing_mm
+    origin = np.asarray(meta.get("origin_mm", [0.0, 0.0, 0.0]), dtype=float)
+    direction = np.asarray(meta.get("direction_lps", np.eye(3).tolist()), dtype=float)
+    if direction.shape != (3, 3):
+        raise ValueError("meta.json contains an invalid direction_lps matrix")
+    spacing_zyx = np.asarray(meta.get(
+        "spacing_zyx_mm",
+        [slice_spacing_mm, *meta.get("pixel_spacing_mm", [1.0, 1.0])],
+    ), dtype=float)
+    origin_shifted = origin + direction @ (np.asarray([z_lo, 0, 0], dtype=float) * spacing_zyx)
 
     meta["z_crop_applied"] = True
     meta["original_num_slices"] = original_num_slices
     meta["z_crop_range"] = [z_lo, z_hi]
     meta["z_crop_margin_mm"] = margin_mm
     meta["z_crop_min_area_frac"] = z_crop_min_area_frac
-    meta["origin_mm"] = origin_shifted
+    meta["origin_mm"] = origin_shifted.tolist()
+    meta["crop_offset_zyx"] = [z_lo, 0, 0]
+    meta["spacing_zyx_mm"] = spacing_zyx.tolist()
     meta["num_slices"] = cropped_volume_hu.shape[0]
 
     print(
