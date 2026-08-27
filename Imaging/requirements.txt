@@ -7,3 +7,5 @@ pylidc
 gradnorm-pytorch
 grad-cam
 h5py
+transformers
+huggingface_hub
