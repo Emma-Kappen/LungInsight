@@ -1,185 +1,325 @@
-"""Multimodal clinical + CT inference orchestration."""
 from __future__ import annotations
-import base64, io, logging, tempfile
-from pathlib import Path
-from typing import Any
-import joblib, numpy as np, pandas as pd
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from .config import *
-from .imaging_processor import load_ct, resample_isotropic, preview_slice
 
-log = logging.getLogger(__name__)
+import base64
+import io
+import json
+import os
+import warnings
+from pathlib import Path
+from typing import Any, Dict, Optional, Tuple
+
+import joblib
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+
+
+FEATURE_COLUMNS = [
+    'AGE', 'SEX', 'RACE', 'ETHNICITY', 'SMOKING_STATUS',
+    'num_treatment_events', 'num_distinct_tumor_sites',
+    'ever_pdl1_positive', 'eastern_cancer_oncology_group',
+    'karnofsky_performance_score', 'SOURCE_DATASET',
+    'missing_ever_pdl1_positive',
+    'missing_eastern_cancer_oncology_group',
+    'missing_karnofsky_performance_score',
+]
+
+NUMERIC_BOUNDS = {
+    'AGE': (18.0, 100.0),
+    'num_treatment_events': (0.0, 20.0),
+    'num_distinct_tumor_sites': (1.0, 15.0),
+    'eastern_cancer_oncology_group': (0.0, 4.0),
+    'karnofsky_performance_score': (0.0, 100.0),
+}
+CATEGORICALS = {
+    'SEX': ['Female', 'Male'],
+    'RACE': ['White', 'Black or African American', 'Asian', 'Other'],
+    'ETHNICITY': ['Non-Spanish; Non-Hispanic', 'Spanish; Hispanic', 'Unknown'],
+    'SMOKING_STATUS': ['Former/Current Smoker', 'Never'],
+    'ever_pdl1_positive': ['Yes', 'No', 'Unknown / Missing'],
+    'SOURCE_DATASET': ['MSK-CHORD', 'TCGA-LUAD', 'TCGA-LUSC'],
+}
+MODEL_DEFAULT_SOURCE_DATASET = "MSK-CHORD"
+DEFAULTS = {
+    'AGE': 65.0, 'SEX': 'Female', 'RACE': 'White',
+    'ETHNICITY': 'Non-Spanish; Non-Hispanic',
+    'SMOKING_STATUS': 'Former/Current Smoker',
+    'num_treatment_events': 2.0, 'num_distinct_tumor_sites': 1.0,
+    'ever_pdl1_positive': 'Unknown / Missing',
+    'eastern_cancer_oncology_group': 1.0,
+    'karnofsky_performance_score': 80.0,
+    'SOURCE_DATASET': 'MSK-CHORD',
+}
+
 
 class ClinicalPipeline:
-    def __init__(self, model_dir: str | Path | None = None):
-        self.model_dir = Path(model_dir or MODEL_DIR)
-        self.preprocessor = self._load("clinical_preprocessor.joblib", required=True)
-        self.stage_bundle = self._load("stage_model_bundle.joblib", required=False)
-        self.stage_model = self._unwrap_model(self.stage_bundle, ["model", "classifier", "estimator"]) or self._load("stage_rf_model.joblib", required=True)
-        self.hist_bundle = self._load("histology_model_bundle.joblib", required=False)
-        self.hist_model = self._unwrap_model(self.hist_bundle, ["model", "classifier", "estimator"]) or self._load("histology_rf_model.joblib", required=False)
-        self.survival_model = self._load("survival_coxph_model.joblib", required=False)
-        self.fusion_model = self._load("multimodal_fusion_model.joblib", required=False)
-        self.imaging_extractor = self._load("imaging_feature_extractor.pt", required=False) or self._load("imaging_model.pt", required=False)
-        self.stage_threshold = float(self._bundle_get(self.stage_bundle, "threshold", 0.535))
-        log.info("ClinicalPipeline loaded from %s", self.model_dir)
+    """Inference adapter for the exact artifacts produced by train_clinical.ipynb.
 
-    def _load(self, name, required=False):
+    Imaging is intentionally not reimplemented here. The class consumes an
+    embedding/output directory produced by the existing Imaging/01..09 pipeline.
+    """
+
+    def __init__(self, model_dir: str | os.PathLike[str], imaging_root: str | os.PathLike[str] | None = None):
+        self.model_dir = Path(model_dir)
+        self.imaging_root = Path(imaging_root) if imaging_root else self.model_dir.parent.parent / 'Imaging'
+        self.preprocessor = self._load_required('clinical_preprocessor.joblib')
+        self.stage_bundle = self._load_optional('stage_model_bundle.joblib')
+        self.stage_model = self._load_optional('stage_rf_model.joblib')
+        self.hist_bundle = self._load_optional('histology_model_bundle.joblib')
+        self.hist_model = self._load_optional('histology_rf_model.joblib')
+        self.survival_bundle = self._load_optional('survival_coxph_model.joblib')
+        self.stage_explainer = self._load_optional('stage_explainer.joblib')
+        self.fusion_model = self._load_optional('multimodal_fusion_model.joblib')
+        self._validate_loaded_contracts()
+
+    def _load_required(self, name: str):
         p = self.model_dir / name
         if not p.exists():
-            if required: raise FileNotFoundError(f"Required model artifact missing: {p}")
-            return None
-        if p.suffix == ".joblib": return joblib.load(p)
-        return __import__("torch").load(p, map_location="cpu")
+            raise FileNotFoundError(f'Missing required clinical artifact: {p}')
+        return joblib.load(p)
+
+    def _load_optional(self, name: str):
+        p = self.model_dir / name
+        return joblib.load(p) if p.exists() else None
+
+    def _validate_loaded_contracts(self):
+        if self.stage_bundle is None and self.stage_model is None:
+            warnings.warn('No stage model artifact found; stage prediction will be unavailable.')
+        if self.hist_bundle is None and self.hist_model is None:
+            warnings.warn('No histology model artifact found; histology prediction will be unavailable.')
+        if self.survival_bundle is None:
+            warnings.warn('No survival bundle found; survival prediction will be unavailable.')
 
     @staticmethod
-    def _bundle_get(bundle, key, default=None):
-        if isinstance(bundle, dict): return bundle.get(key, default)
-        return getattr(bundle, key, default)
+    def validate_patient_data(patient_data: Dict[str, Any]) -> Dict[str, Any]:
+        x = dict(DEFAULTS)
+        incoming = {
+            k: v for k, v in patient_data.items()
+            if k != 'SOURCE_DATASET'
+        }
+        x.update({k: v for k, v in incoming.items() if v is not None and v != ''})
+        # Keep the fitted preprocessor's training-time feature contract.
+        x['SOURCE_DATASET'] = MODEL_DEFAULT_SOURCE_DATASET
+        errors = []
+        for col, (lo, hi) in NUMERIC_BOUNDS.items():
+            value = x.get(col)
+            if value is None or value == '':
+                continue
+            try:
+                x[col] = float(value)
+            except (TypeError, ValueError):
+                errors.append(f'{col} must be numeric.')
+                continue
+            if not (lo <= x[col] <= hi):
+                errors.append(f'{col} must be between {lo} and {hi}.')
+        for col, allowed in CATEGORICALS.items():
+            if x.get(col) is not None and x[col] not in allowed:
+                errors.append(f'{col} must be one of: {allowed}.')
+        if errors:
+            raise ValueError(' '.join(errors))
+        # Preserve actual missing numeric values if explicitly supplied as null.
+        for col in NUMERIC_BOUNDS:
+            if col in patient_data and patient_data[col] in (None, ''):
+                x[col] = np.nan
+        return x
 
     @staticmethod
-    def _unwrap_model(bundle, names):
-        if bundle is None: return None
-        if hasattr(bundle, "predict"): return bundle
+    def engineer_features(patient: Dict[str, Any]) -> pd.DataFrame:
+        row = dict(patient)
+        pdl1_missing = pd.isna(row.get('ever_pdl1_positive')) or row.get('ever_pdl1_positive') == 'Unknown / Missing'
+        ecog_missing = pd.isna(row.get('eastern_cancer_oncology_group'))
+        kps_missing = pd.isna(row.get('karnofsky_performance_score'))
+        # Notebook creates missing flags before preprocessing. Numeric NaN remains
+        # available to the fitted median imputer, while categorical unknown/missing
+        # is represented as NaN so the fitted categorical imputer handles it.
+        if row.get('ever_pdl1_positive') == 'Unknown / Missing':
+            row['ever_pdl1_positive'] = np.nan
+        row['missing_ever_pdl1_positive'] = int(pdl1_missing)
+        row['missing_eastern_cancer_oncology_group'] = int(ecog_missing)
+        row['missing_karnofsky_performance_score'] = int(kps_missing)
+        return pd.DataFrame([row], columns=FEATURE_COLUMNS)
+
+    def _tabular_matrix(self, patient: Dict[str, Any]) -> pd.DataFrame:
+        raw = self.engineer_features(patient)
+        transformed = self.preprocessor.transform(raw)
+        names = list(self.preprocessor.get_feature_names_out())
+        return pd.DataFrame(transformed, columns=names, dtype=float)
+
+    @staticmethod
+    def _bundle_model(bundle, fallback):
         if isinstance(bundle, dict):
-            for n in names:
-                if hasattr(bundle.get(n), "predict"): return bundle[n]
-        for n in names:
-            obj = getattr(bundle, n, None)
-            if hasattr(obj, "predict"): return obj
+            return bundle.get('model') or fallback
+        return bundle or fallback
+
+    def _stage_predict(self, x: pd.DataFrame) -> Dict[str, Any]:
+        model = self._bundle_model(self.stage_bundle, self.stage_model)
+        if model is None:
+            return {'label': 'Unavailable', 'confidence': None, 'probabilities': {}}
+        if not hasattr(model, 'predict_proba'):
+            label = str(model.predict(x)[0])
+            return {'label': label, 'confidence': None, 'probabilities': {}}
+        classes = list(model.classes_)
+        proba = np.asarray(model.predict_proba(x)[0], dtype=float)
+        bundle = self.stage_bundle if isinstance(self.stage_bundle, dict) else {}
+        threshold = float(bundle.get('threshold', 0.535))
+        positive = bundle.get('positive_label', 'Stage 4')
+        if positive in classes:
+            pi = classes.index(positive)
+            label = positive if proba[pi] >= threshold else next((c for c in classes if c != positive), classes[0])
+        else:
+            label = classes[int(np.argmax(proba))]
+        return {
+            'label': str(label),
+            'confidence': float(max(proba)),
+            'stage4_probability': float(proba[classes.index(positive)]) if positive in classes else None,
+            'threshold': threshold,
+            'probabilities': {str(c): float(p) for c, p in zip(classes, proba)},
+        }
+
+    def _histology_predict(self, x: pd.DataFrame) -> Dict[str, Any]:
+        model = self._bundle_model(self.hist_bundle, self.hist_model)
+        if model is None:
+            return {'label': 'Unavailable', 'confidence': None, 'probabilities': {}}
+        proba = np.asarray(model.predict_proba(x)[0], dtype=float) if hasattr(model, 'predict_proba') else None
+        if proba is not None:
+            idx = int(np.argmax(proba)); label = model.classes_[idx]
+            return {'label': str(label), 'confidence': float(proba[idx]), 'probabilities': {str(c): float(p) for c,p in zip(model.classes_,proba)}}
+        return {'label': str(model.predict(x)[0]), 'confidence': None, 'probabilities': {}}
+
+    def _survival_matrix(self, patient: Dict[str, Any]) -> pd.DataFrame:
+        if not isinstance(self.survival_bundle, dict):
+            return pd.DataFrame()
+        cols = self.survival_bundle.get('feature_columns')
+        if not cols:
+            return pd.DataFrame()
+        raw = self.engineer_features(patient)
+        # Training excluded num_treatment_events because it is often post-baseline.
+        raw = raw.drop(columns=['num_treatment_events'], errors='ignore')
+        cat_cols = self.survival_bundle.get('categorical_cols', [])
+        num_cols = self.survival_bundle.get('numeric_cols', [])
+        ni = self.survival_bundle.get('num_imputer')
+        ci = self.survival_bundle.get('cat_imputer')
+        if num_cols:
+            raw[num_cols] = ni.transform(raw[num_cols])
+        if cat_cols:
+            raw[cat_cols] = ci.transform(raw[cat_cols])
+        out = pd.get_dummies(raw, columns=cat_cols, drop_first=True)
+        return out.reindex(columns=cols, fill_value=0).astype(float)
+
+    def _survival_predict(self, patient: Dict[str, Any]) -> Dict[str, Any]:
+        if not isinstance(self.survival_bundle, dict) or self.survival_bundle.get('model') is None:
+            return {'risk_score': None, 'times_months': [], 'survival_probability': []}
+        model = self.survival_bundle['model']
+        x = self._survival_matrix(patient)
+        risk = float(np.asarray(model.predict(x.astype(np.float64)))[0])
+        times = np.linspace(1.0, 120.0, 60)
+        # sksurv's baseline_survival_ is a StepFunction in fitted CoxPH models.
+        try:
+            base = model.baseline_survival_(times)
+            surv = np.power(np.asarray(base, dtype=float), np.exp(risk))
+        except Exception:
+            # Fallback to direct baseline function evaluation at its native grid.
+            base_fn = model.baseline_survival_
+            native = np.asarray(getattr(base_fn, 'x', times), dtype=float)
+            times = np.linspace(float(native.min()), float(native.max()), 60)
+            base = np.asarray(base_fn(times), dtype=float)
+            surv = np.power(base, np.exp(risk))
+        return {'risk_score': risk, 'times_months': [float(t) for t in times], 'survival_probability': [float(np.clip(v,0,1)) for v in surv]}
+
+    @staticmethod
+    def _find_embedding(image_output_dir: Path) -> Optional[np.ndarray]:
+        candidates = ['imaging_embedding.npy', 'embedding.npy', 'ct_embedding.npy', 'features.npy']
+        for name in candidates:
+            p = image_output_dir / name
+            if p.exists():
+                arr = np.asarray(np.load(p, allow_pickle=False), dtype=float)
+                return arr.reshape(1, -1) if arr.ndim == 1 else arr
+        for name in ['embedding.json', 'imaging_embedding.json']:
+            p = image_output_dir / name
+            if p.exists():
+                obj = json.loads(p.read_text())
+                arr = np.asarray(obj.get('embedding', obj), dtype=float)
+                return arr.reshape(1, -1) if arr.ndim == 1 else arr
         return None
 
-    def validate(self, data: dict) -> dict:
-        out = {}
-        for k, (lo, hi) in NUMERIC_RANGES.items():
-            v = data.get(k, np.nan)
-            if v in ("", None, "Unknown / Missing"): v = np.nan
-            else: v = float(v)
-            if not np.isnan(v) and not (lo <= v <= hi):
-                raise ValueError(f"{k} must be between {lo} and {hi}.")
-            out[k] = v
-        for k, allowed in CATEGORIES.items():
-            v = data.get(k, "Unknown / Missing" if k == "ever_pdl1_positive" else np.nan)
-            if k == "ever_pdl1_positive" and v == "Unknown / Missing": v = np.nan
-            if not pd.isna(v) and v not in allowed: raise ValueError(f"Invalid {k}.")
-            out[k] = v
-        out["missing_ever_pdl1_positive"] = int(pd.isna(out["ever_pdl1_positive"]))
-        out["missing_eastern_cancer_oncology_group"] = int(pd.isna(out["eastern_cancer_oncology_group"]))
-        out["missing_karnofsky_performance_score"] = int(pd.isna(out["karnofsky_performance_score"]))
-        out["SOURCE_DATASET"] = data.get("SOURCE_DATASET", "Web Upload")
-        return out
-
-    def _tabular_frame(self, data):
-        d = self.validate(data)
-        return pd.DataFrame([d]), d
-
-    def _stage(self, x):
-        probs = None
-        if hasattr(self.stage_model, "predict_proba"):
-            probs = np.asarray(self.stage_model.predict_proba(x))[0]
-            classes = list(getattr(self.stage_model, "classes_", range(len(probs))))
-            positive = "Stage 4" if "Stage 4" in classes else classes[-1]
-            pi = classes.index(positive)
-            label = positive if probs[pi] >= self.stage_threshold else ("Stage 1-3" if positive == "Stage 4" else classes[0])
-            return label, dict(zip(map(str, classes), probs.tolist())), float(probs[pi])
-        pred = self.stage_model.predict(x)[0]
-        return str(pred), {}, None
-
-    def _histology(self, x):
-        if self.hist_model is None: return {"label": None, "probabilities": {}, "available": False}
-        probs = {}
-        if hasattr(self.hist_model, "predict_proba"):
-            p = np.asarray(self.hist_model.predict_proba(x))[0]
-            cls = list(getattr(self.hist_model, "classes_", range(len(p))))
-            probs = dict(zip(map(str, cls), p.tolist()))
-        return {"label": str(self.hist_model.predict(x)[0]), "probabilities": probs, "available": True}
-
-    def _survival(self, x):
-        if self.survival_model is None: return {"available": False}
-        m = self.survival_model
-        risk = float(np.asarray(m.predict(x)).reshape(-1)[0])
-        result = {"available": True, "risk_score": risk}
+    def _fusion_predict(self, tabular: pd.DataFrame, image_output_dir: Optional[str]) -> Optional[Dict[str, Any]]:
+        if self.fusion_model is None or not image_output_dir:
+            return None
+        emb = self._find_embedding(Path(image_output_dir))
+        if emb is None:
+            return None
+        model = self.fusion_model.get('model') if isinstance(self.fusion_model, dict) else self.fusion_model
+        if model is None:
+            return None
+        tab = tabular.to_numpy(dtype=float)
         try:
-            fn = m.predict_survival_function(x)[0]
-            times = np.asarray(fn.x, dtype=float)
-            surv = np.asarray(fn.y, dtype=float)
-            result["times_months"] = times.tolist()
-            result["survival_probability"] = surv.tolist()
-            below = np.where(surv <= 0.5)[0]
-            result["median_survival_months"] = float(times[below[0]]) if len(below) else None
-        except Exception as e:
-            log.warning("Survival curve unavailable: %s", e)
-        return result
+            fused = np.hstack([tab, emb])
+            if hasattr(model, 'predict_proba'):
+                p = np.asarray(model.predict_proba(fused)[0], dtype=float)
+                classes = getattr(model, 'classes_', np.arange(len(p)))
+                return {'used': True, 'probabilities': {str(c): float(v) for c,v in zip(classes,p)}, 'label': str(classes[int(np.argmax(p))]), 'confidence': float(np.max(p))}
+            return {'used': True, 'label': str(model.predict(fused)[0]), 'confidence': None, 'probabilities': {}}
+        except Exception as exc:
+            warnings.warn(f'Multimodal fusion skipped because artifact input contract did not match: {exc}')
+            return None
 
-    def _imaging_features(self, volume):
-        if self.imaging_extractor is None:
-            raise RuntimeError("No imaging feature extractor artifact found. Add imaging_feature_extractor.pt or imaging_model.pt.")
-        import torch
-        model = self.imaging_extractor
-        if isinstance(model, dict):
-            raise RuntimeError("The imaging .pt is a state_dict/config artifact; provide the corresponding model architecture or an exported TorchScript module.")
-        model.eval()
-        arr = np.clip(volume, -1000, 400) / 1400.0
-        t = torch.from_numpy(arr[None, None].astype(np.float32))
-        with torch.no_grad():
-            z = model(t)
-        if isinstance(z, (tuple, list)): z = z[0]
-        return np.asarray(z.detach().cpu()).reshape(1, -1)
-
-    def _shap(self, x):
+    def _shap(self, x: pd.DataFrame, stage_result: Dict[str, Any]) -> Dict[str, Any]:
+        if self.stage_explainer is None:
+            return {'positive': [], 'negative': [], 'waterfall_png_b64': None}
+        explainer = self.stage_explainer
         try:
+            raw = explainer.shap_values(x, check_additivity=False)
+            if isinstance(raw, list):
+                vals = np.stack(raw, axis=-1)
+            else:
+                vals = np.asarray(raw)
+                if vals.ndim == 3 and vals.shape[1] == len(getattr(explainer, 'classes_', [])):
+                    vals = np.moveaxis(vals, 1, -1)
+            if vals.ndim == 3:
+                classes = list(getattr(explainer, 'classes_', []))
+                target = 'Stage 4'
+                ci = classes.index(target) if target in classes else int(np.argmax(np.abs(vals[0]).sum(axis=0)))
+                values = vals[0, :, ci]
+                base = np.asarray(explainer.expected_value).reshape(-1)
+                base_value = float(base[ci] if len(base) > 1 else base[0])
+            else:
+                values = vals[0]
+                base_value = float(np.asarray(explainer.expected_value).reshape(-1)[0])
+            names = list(x.columns)
+            pairs = sorted(zip(names, values), key=lambda z: float(z[1]), reverse=True)
+            pos = [{'feature': str(k), 'value': float(v)} for k,v in pairs if v > 0][:5]
+            neg = [{'feature': str(k), 'value': float(v)} for k,v in sorted(pairs, key=lambda z: float(z[1])) if v < 0][:5]
             import shap
-            explainer = shap.TreeExplainer(self.stage_model)
-            sv = explainer.shap_values(x)
-            if isinstance(sv, list): sv = sv[-1]
-            vals = np.asarray(sv)[0]
-            names = list(getattr(self.preprocessor, "get_feature_names_out", lambda: [f"feature_{i}" for i in range(len(vals))])())
-            pairs = sorted(zip(names, vals.tolist()), key=lambda z: z[1], reverse=True)
-            pos, neg = pairs[:5], sorted(pairs, key=lambda z: z[1])[:5]
-            fig, ax = plt.subplots(figsize=(8, 4.5))
-            top = sorted(pos[:5] + neg[:5], key=lambda z: z[1])
-            ax.barh([n for n, _ in top], [v for _, v in top])
-            ax.axvline(0, linewidth=0.8)
-            ax.set_title("Local Stage Model Feature Contributions")
-            ax.set_xlabel("SHAP value")
-            fig.tight_layout()
-            b = io.BytesIO(); fig.savefig(b, format="png", dpi=150); plt.close(fig)
-            return {"positive": pos, "negative": neg, "plot_base64": base64.b64encode(b.getvalue()).decode()}
-        except Exception as e:
-            log.exception("SHAP computation failed")
-            return {"positive": [], "negative": [], "plot_base64": None, "error": str(e)}
+            exp = shap.Explanation(values=np.asarray(values), base_values=base_value, data=x.iloc[0].to_numpy(), feature_names=names)
+            fig = plt.figure(figsize=(10, 6))
+            shap.plots.waterfall(exp, max_display=15, show=False)
+            plt.tight_layout()
+            buf = io.BytesIO(); fig.savefig(buf, format='png', dpi=160, bbox_inches='tight'); plt.close(fig)
+            return {'positive': pos, 'negative': neg, 'waterfall_png_b64': base64.b64encode(buf.getvalue()).decode('ascii')}
+        except Exception as exc:
+            warnings.warn(f'SHAP explanation unavailable: {exc}')
+            return {'positive': [], 'negative': [], 'waterfall_png_b64': None}
 
-    def predict(self, tabular_data: dict, ct_path: str | None = None) -> dict:
-        raw, clean = self._tabular_frame(tabular_data)
-        x = self.preprocessor.transform(raw)
-        stage_label, stage_probs, stage_conf = self._stage(x)
-        result = {
-            "clinical_inputs": clean,
-            "stage": {"label": stage_label, "probabilities": stage_probs, "positive_probability": stage_conf, "threshold": self.stage_threshold},
-            "histology": self._histology(x),
-            "survival": self._survival(x),
-            "shap": self._shap(x),
-            "imaging": {"available": False},
+    def predict(self, patient_data: Dict[str, Any], ct_output_dir: Optional[str] = None) -> Dict[str, Any]:
+        patient = self.validate_patient_data(patient_data)
+        tabular = self._tabular_matrix(patient)
+        stage = self._stage_predict(tabular)
+        hist = self._histology_predict(tabular)
+        survival = self._survival_predict(patient)
+        fusion = self._fusion_predict(tabular, ct_output_dir)
+        shap_result = self._shap(tabular, stage)
+        return {
+            'patient': {k: (None if pd.isna(v) else v) for k,v in patient.items()},
+            'stage': stage,
+            'histology': hist,
+            'survival': survival,
+            'multimodal_fusion': fusion or {'used': False},
+            'shap': shap_result,
+            'model_contract': {
+                'preprocessed_features': int(tabular.shape[1]),
+                'stage_threshold': stage.get('threshold', 0.535),
+                'survival_excludes': ['num_treatment_events'],
+            },
         }
-        if ct_path:
-            with tempfile.TemporaryDirectory(prefix="lunginsight_ct_") as td:
-                ct = resample_isotropic(load_ct(ct_path, td))
-                emb = self._imaging_features(ct.volume_hu)
-                result["imaging"] = {
-                    "available": True, "shape_zyx": list(ct.volume_hu.shape),
-                    "spacing_zyx_mm": list(ct.spacing_zyx), "series_uid": ct.series_uid,
-                    "scan_date": ct.scan_date, "representative_slice": preview_slice(ct.volume_hu, ct.volume_hu.shape[0] // 2),
-                    "embedding_dimensions": int(emb.shape[1]),
-                }
-                if self.fusion_model is not None:
-                    try:
-                        fusion_x = np.hstack([np.asarray(x.toarray() if hasattr(x, "toarray") else x), emb])
-                        fp = self.fusion_model.predict_proba(fusion_x)[0] if hasattr(self.fusion_model, "predict_proba") else None
-                        result["fusion"] = {"available": True, "probabilities": fp.tolist() if fp is not None else {}, "label": str(self.fusion_model.predict(fusion_x)[0])}
-                    except Exception as e:
-                        result["fusion"] = {"available": False, "error": str(e)}
-                else:
-                    result["fusion"] = {"available": False, "error": "multimodal_fusion_model.joblib not found."}
-        return result

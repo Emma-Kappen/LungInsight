@@ -45,3 +45,8 @@ node_modules/
 datasets/msk_chord_2024/
 datasets/TCGA-LUAD/
 datasets/TCGA-LUSC/
+
+# Ignore models
+*.joblib
+*.bin
+*.pt

@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+    <title>LungInsight | Clinical Decision Support</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --navy: #0f172a;
+            --navy-2: #172554;
+            --slate-bg: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --blue: #2563eb;
+            --blue-dark: #1d4ed8;
+            --teal: #0f766e;
+            --coral: #dc6b5f;
+            --green: #15803d;
+            --red: #dc2626;
+            --white: #ffffff;
+            --radius: 8px;
+            --shadow: 0 2px 8px rgba(15, 23, 42, .06);
+            --sidebar-width: minmax(320px, 30%);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+            margin: 0;
+        }
+
+        body {
+            background: var(--slate-bg);
+            color: var(--slate-700);
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont,
+                         "Segoe UI", sans-serif;
+            font-size: 13px;
+            overflow-x: hidden;
+        }
+
+        /* =====================================================
+           TOP NAVIGATION
+           ===================================================== */
+
+        .topbar {
+            height: 68px;
+            width: 100%;
+            background: var(--navy);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 clamp(16px, 2.2vw, 36px);
+            box-shadow: 0 2px 10px rgba(0,0,0,.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            min-width: 0;
+        }
+
+        .brand-mark {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            background: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 17px;
+            flex: 0 0 auto;
+        }
+
+        .brand-name {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -.02em;
+        }
+
+        .brand-subtitle {
+            color: #94a3b8;
+            font-size: 10px;
+            margin-top: 3px;
+            white-space: nowrap;
+        }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #cbd5e1;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34,197,94,.12);
+        }
+
+        .profile {
+            width: 34px;
+            height: 34px;
+            border: 1px solid #334155;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            font-weight: 600;
+            background: #1e293b;
+        }
+
+        /* =====================================================
+           MAIN DASHBOARD
+           ===================================================== */
+
+        .dashboard {
+            width: 100%;
+            max-width: 2200px;
+            margin: 0 auto;
+            padding: 18px clamp(12px, 2vw, 30px) 28px;
+
+            display: grid;
+            grid-template-columns:
+                var(--sidebar-width)
+                minmax(0, 1fr);
+
+            gap: 18px;
+            align-items: start;
+        }
+
+        .sidebar,
+        .main-content {
+            min-width: 0;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-rows: auto auto;
+            gap: 18px;
+            min-width: 0;
+        }
+
+        /* =====================================================
+           CARDS
+           ===================================================== */
+
+        .clinical-card,
+        .dashboard-card {
+            background: var(--white);
+            border: 1px solid var(--slate-200);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header-clean {
+            min-height: 52px;
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .card-title {
+            margin: 0;
+            color: var(--navy);
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .01em;
+        }
+
+        .card-subtitle {
+            margin-top: 3px;
+            color: var(--slate-400);
+            font-size: 10px;
+        }
+
+        .card-body-clean {
+            padding: 16px;
+        }
+
+        /* =====================================================
+           CLINICAL INPUT
+           ===================================================== */
+
+        .section-label {
+            color: var(--slate-500);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: .09em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .clinical-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 11px 12px;
+        }
+
+        .field {
+            min-width: 0;
+        }
+
+        .field label {
+            display: block;
+            color: var(--slate-500);
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 5px;
+        }
+
+        .field .form-control,
+        .field .form-select {
+            height: 36px;
+            border-color: var(--slate-200);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--slate-700);
+            background: #fff;
+            box-shadow: none;
+        }
+
+        .field .form-control:focus,
+        .field .form-select:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.09);
+        }
+
+        .sample-btn {
+            border: 1px solid var(--slate-200);
+            background: var(--slate-100);
+            color: var(--slate-600);
+            border-radius: 6px;
+            padding: 7px 10px;
+            font-size: 10px;
+            font-weight: 600;
+            transition: .15s ease;
+        }
+
+        .sample-btn:hover {
+            background: #e2e8f0;
+            color: var(--navy);
+        }
+
+        /* =====================================================
+           UPLOAD
+           ===================================================== */
+
+        .dropzone {
+            border: 1.5px dashed #cbd5e1;
+            border-radius: 8px;
+            min-height: 130px;
+            padding: 20px 15px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+            cursor: pointer;
+            background: #fbfdff;
+            transition: .18s ease;
+        }
+
+        .dropzone:hover,
+        .dropzone.drag-active {
+            border-color: var(--blue);
+            background: #eff6ff;
+        }
+
+        .upload-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            background: #eff6ff;
+            color: var(--blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 9px;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .drop-title {
+            color: var(--slate-700);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .drop-subtitle {
+            color: var(--slate-400);
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        #fileName {
+            color: var(--blue);
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 8px;
+            word-break: break-word;
+        }
+
+        .run-btn {
+            width: 100%;
+            height: 46px;
+            margin-top: 0;
+
+            border: 0;
+            border-radius: 7px;
+            background: var(--blue);
+            color: white;
+
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .01em;
+
+            box-shadow: 0 3px 8px rgba(37,99,235,.2);
+            transition: .15s ease;
+        }
+
+        .run-btn:hover {
+            background: var(--blue-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 12px rgba(37,99,235,.25);
+        }
+
+        .run-btn:disabled {
+            opacity: .6;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        /* =====================================================
+           RESULTS HEADER
+           ===================================================== */
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding-bottom: 2px;
+        }
+
+        .results-heading {
+            color: var(--navy);
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -.025em;
+        }
+
+        .results-description {
+            color: var(--slate-500);
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        .pdf-btn {
+            height: 36px;
+            flex: 0 0 auto;
+            border: 1px solid var(--slate-200);
+            background: white;
+            color: var(--slate-600);
+            border-radius: 6px;
+            padding: 0 13px;
+            font-size: 10px;
+            font-weight: 600;
+            transition: .15s ease;
+        }
+
+        .pdf-btn:hover:not(:disabled) {
+            color: var(--blue);
+            border-color: #93c5fd;
+            background: #eff6ff;
+        }
+
+        .pdf-btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        /* =====================================================
+           KPI CARDS
+           ===================================================== */
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .kpi {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 8px;
+            padding: 15px 16px;
+            min-height: 112px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--blue);
+        }
+
+        .kpi:nth-child(2)::before {
+            background: var(--teal);
+        }
+
+        .kpi:nth-child(3)::before {
+            background: #64748b;
+        }
+
+        .kpi-label {
+            color: var(--slate-500);
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .kpi-value {
+            color: var(--navy);
+            font-size: 22px;
+            line-height: 1.2;
+            font-weight: 700;
+            margin-top: 9px;
+            word-break: break-word;
+        }
+
+        .kpi-meta {
+            color: var(--slate-400);
+            font-size: 9px;
+            margin-top: 6px;
+        }
+
+        /* =====================================================
+           ANALYTICS
+           ===================================================== */
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .analytics-card {
+            min-width: 0;
+            min-height: 300px;
+        }
+
+        .analytics-body {
+            padding: 12px 15px 15px;
+        }
+
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            height: 255px;
+        }
+
+        .chart-wrap canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .shap-image {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            height: 255px;
+            object-fit: contain;
+        }
+
+        .risk-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .risk-title {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .risk-title.positive {
+            color: var(--teal);
+        }
+
+        .risk-title.negative {
+            color: var(--coral);
+        }
+
+        .risk-list {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .risk-list li {
+            padding: 4px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 9px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        /* =====================================================
+           CT VIEWER
+           ===================================================== */
+
+        .viewer-card {
+            min-width: 0;
+        }
+
+        .viewer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--slate-200);
+        }
+
+        .viewer-title {
+            color: var(--navy);
+            font-size: 13px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .viewer-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .window-btn {
+            height: 29px;
+            padding: 0 9px;
+            border: 1px solid var(--slate-200);
+            background: white;
+            color: var(--slate-500);
+            border-radius: 5px;
+            font-size: 9px;
+            font-weight: 600;
+            transition: .15s ease;
+        }
+
+        .window-btn:hover,
+        .window-btn.active {
+            color: var(--blue);
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .slice-count {
+            color: var(--slate-600);
+            background: var(--slate-100);
+            border-radius: 5px;
+            padding: 7px 9px;
+            font-size: 9px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .fullscreen-btn {
+            height: 29px;
+            width: 31px;
+            padding: 0;
+            border: 1px solid var(--slate-200);
+            background: white;
+            color: var(--slate-500);
+            border-radius: 5px;
+        }
+
+        .fullscreen-btn:hover {
+            color: var(--blue);
+            background: #eff6ff;
+        }
+
+        .ct-viewport {
+            width: 100%;
+            height: clamp(430px, 58vh, 760px);
+            min-height: 380px;
+
+            background:
+                radial-gradient(circle at center, #172033 0%, #0b1120 72%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ct-stage09 {
+            width: 100%;
+            min-height: 720px;
+            background: #0b1020;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ct-stage09 iframe {
+            display: none;
+            width: 100%;
+            height: 720px;
+            border: 0;
+            background: #0b1020;
+        }
+
+        .ct-stage09.loaded iframe { display: block; }
+        .ct-stage09.loaded .ct-empty-state { display: none; }
+
+        .ct-empty-state {
+            min-height: 720px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            text-align: center;
+            padding: 40px;
+        }
+
+        #ctImg {
+            display: block;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            image-rendering: auto;
+        }
+
+        #ctCanvas {
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .viewer-empty {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .viewer-empty-icon {
+            width: 58px;
+            height: 58px;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+            color: #64748b;
+        }
+
+        .viewer-empty strong {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .viewer-empty span {
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        .viewer-footer {
+            padding: 11px 15px 13px;
+            border-top: 1px solid var(--slate-200);
+            background: white;
+        }
+
+        .slice-row {
+            display: grid;
+            grid-template-columns: 80px minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 12px;
+        }
+
+        #slice {
+            width: 100%;
+            accent-color: var(--blue);
+        }
+
+        .slice-label {
+            color: var(--slate-500);
+            font-size: 9px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .metadata-badge {
+            color: var(--slate-500);
+            background: var(--slate-100);
+            border: 1px solid var(--slate-200);
+            border-radius: 5px;
+            padding: 5px 8px;
+            font-size: 9px;
+            white-space: nowrap;
+        }
+
+        /* =====================================================
+           EMPTY RESULT STATE
+           ===================================================== */
+
+        .empty-results {
+            border: 1px dashed var(--slate-200);
+            border-radius: 8px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--slate-400);
+            background: #fbfdff;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+        @media (max-width: 1200px) {
+
+            .dashboard {
+                grid-template-columns: minmax(285px, 34%) minmax(0, 1fr);
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-card {
+                min-height: 275px;
+            }
+
+            .ct-viewport {
+                height: clamp(400px, 52vh, 650px);
+            }
+        }
+
+        @media (max-width: 900px) {
+
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                align-items: start;
+            }
+
+            .sidebar > .clinical-card:first-child {
+                grid-column: 1 / -1;
+            }
+
+            .main-content {
+                grid-row: auto;
+            }
+
+            .ct-viewport {
+                height: 60vh;
+            }
+        }
+
+        @media (max-width: 680px) {
+
+            .topbar {
+                height: 60px;
+            }
+
+            .brand-subtitle,
+            .system-status {
+                display: none;
+            }
+
+            .dashboard {
+                padding: 10px;
+                gap: 12px;
+            }
+
+            .sidebar {
+                display: flex;
+            }
+
+            .clinical-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .results-header {
+                align-items: flex-start;
+            }
+
+            .results-heading {
+                font-size: 18px;
+            }
+
+            .pdf-btn {
+                font-size: 9px;
+                padding: 0 8px;
+            }
+
+            .ct-viewport {
+                height: 55vh;
+                min-height: 300px;
+            }
+
+            .viewer-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .viewer-controls {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .slice-row {
+                grid-template-columns: 1fr;
+                gap: 6px;
+            }
+
+            .slice-label,
+            .metadata-badge {
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 430px) {
+
+            .clinical-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-name {
+                font-size: 16px;
+            }
+
+            .profile {
+                display: none;
+            }
+
+            .results-header {
+                flex-direction: column;
+            }
+
+            .pdf-btn {
+                width: 100%;
+            }
+
+            .ct-viewport {
+                height: 48vh;
+                min-height: 260px;
+            }
+        }
+
+        /* Landscape mobile/tablet */
+        @media (max-height: 600px) and (orientation: landscape) {
+
+            .topbar {
+                height: 54px;
+            }
+
+            .dashboard {
+                padding-top: 10px;
+            }
+
+            .ct-viewport {
+                height: 70vh;
+                min-height: 280px;
+            }
+
+            .analytics-card {
+                min-height: 240px;
+            }
+
+            .chart-wrap,
+            .shap-image {
+                height: 200px;
+            }
+        }
+
+        /* Full-screen CT mode */
+        .viewer-card.fullscreen {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            border-radius: 0;
+            background: #0b1120;
+        }
+
+        .viewer-card.fullscreen .ct-viewport {
+            height: calc(100vh - 112px);
+            max-height: none;
+        }
+
+        .viewer-card.fullscreen .viewer-header {
+            background: white;
+        }
+
+        .viewer-card.fullscreen .viewer-footer {
+            background: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- =========================================================
+     TOP BAR
+     ========================================================= -->
+
+<header class="topbar">
+
+    <div class="brand">
+        <div class="brand-mark">LI</div>
+
+        <div>
+            <div class="brand-name">LungInsight</div>
+            <div class="brand-subtitle">
+                Explainable multimodal clinical &amp; CT decision support
+            </div>
+        </div>
+    </div>
+
+    <div class="topbar-right">
+
+        <div class="system-status">
+            <span class="status-dot"></span>
+            Clinical AI System Ready
+        </div>
+
+        <div class="profile">
+            AI
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =========================================================
+     DASHBOARD
+     ========================================================= -->
+
+<main class="dashboard">
+
+    <!-- =====================================================
+         LEFT SIDEBAR
+         ===================================================== -->
+
+    <aside class="sidebar">
+
+        <!-- Clinical Input -->
+        <section class="clinical-card">
+
+            <div class="card-header-clean">
+
+                <div>
+                    <h2 class="card-title">Clinical Input</h2>
+                    <div class="card-subtitle">
+                        Baseline patient characteristics
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    id="sample"
+                    class="sample-btn">
+                    Load Sample Patient
+                </button>
+
+            </div>
+
+            <div class="card-body-clean">
+
+                <div class="clinical-grid">
+
+                    <div class="field">
+                        <label for="PATIENT_ID">Patient ID</label>
+                        <input
+                            id="PATIENT_ID"
+                            class="form-control"
+                            type="text"
+                            value="">
+                    </div>
+
+                    <div class="field">
+                        <label for="AGE">Age</label>
+                        <input
+                            id="AGE"
+                            class="form-control"
+                            type="number"
+                            min="18"
+                            max="100"
+                            step="0.1"
+                            value="65">
+                    </div>
+
+                    <div class="field">
+                        <label for="SEX">Sex</label>
+                        <select id="SEX" class="form-select">
+                            <option>Female</option>
+                            <option>Male</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="RACE">Race</label>
+                        <select id="RACE" class="form-select">
+                            <option>White</option>
+                            <option>Black or African American</option>
+                            <option>Asian</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="ETHNICITY">Ethnicity</label>
+                        <select id="ETHNICITY" class="form-select">
+                            <option>Non-Spanish; Non-Hispanic</option>
+                            <option>Spanish; Hispanic</option>
+                            <option>Unknown</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="SMOKING_STATUS">Smoking</label>
+                        <select id="SMOKING_STATUS" class="form-select">
+                            <option>Former/Current Smoker</option>
+                            <option>Never</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="ever_pdl1_positive">PD-L1</label>
+                        <select id="ever_pdl1_positive" class="form-select">
+                            <option>Yes</option>
+                            <option>No</option>
+                            <option>Unknown / Missing</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="num_treatment_events">
+                            Treatment Events
+                        </label>
+                        <input
+                            id="num_treatment_events"
+                            class="form-control"
+                            type="number"
+                            min="0"
+                            max="20"
+                            step="1"
+                            value="2">
+                    </div>
+
+                    <div class="field clinical-derived-field">
+                        <label for="noduleCount">Imaging-identified nodules</label>
+                        <div id="noduleCount" class="metric">&mdash;</div>
+                        <div class="card-subtitle">Derived from Imaging Stage 04</div>
+                    </div>
+
+                    <div class="field">
+                        <label for="eastern_cancer_oncology_group">
+                            ECOG
+                        </label>
+                        <select
+                            id="eastern_cancer_oncology_group"
+                            class="form-select">
+
+                            <option value="0">0</option>
+                            <option value="1" selected>1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="karnofsky_performance_score">
+                            KPS
+                        </label>
+                        <select
+                            id="karnofsky_performance_score"
+                            class="form-select">
+
+                            <option value="0">0</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="40">40</option>
+                            <option value="50">50</option>
+                            <option value="60">60</option>
+                            <option value="70">70</option>
+                            <option value="80" selected>80</option>
+                            <option value="90">90</option>
+                            <option value="100">100</option>
+
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- CT Upload -->
+        <section class="clinical-card">
+
+            <div class="card-header-clean">
+
+                <div>
+                    <h2 class="card-title">CT Scan</h2>
+                    <div class="card-subtitle">
+                        DICOM / NIfTI imaging input
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card-body-clean">
+
+                <div id="drop" class="dropzone">
+
+                    <div class="upload-icon">
+                        +
+                    </div>
+
+                    <div class="drop-title">
+                        Drop ZIP / TAR.GZ / DICOM / NIfTI here
+                    </div>
+
+                    <div class="drop-subtitle">
+                        Or click to select a scan or DICOM folder
+                    </div>
+
+                    <div id="fileName"></div>
+
+                </div>
+
+                <input
+                    id="ct"
+                    type="file"
+                    hidden
+                    multiple
+                    webkitdirectory
+                    directory
+                    accept=".zip,.tar.gz,.dcm,.nii,.nii.gz">
+
+            </div>
+
+        </section>
+
+
+        <!-- Primary Action -->
+        <button
+            id="run"
+            type="button"
+            class="run-btn">
+
+            Run Multimodal Inference
+
+        </button>
+
+
+        <!-- Status -->
+        <div
+            id="status"
+            class="small text-muted px-1">
+        </div>
+
+        <div
+            id="error"
+            class="alert alert-danger d-none"
+            style="font-size:10px;">
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         RIGHT MAIN CONTENT
+         ===================================================== -->
+
+    <section class="main-content">
+
+
+        <!-- =================================================
+             RESULTS
+             ================================================= -->
+
+        <section>
+
+            <div class="results-header">
+
+                <div>
+                    <h1 class="results-heading">
+                        Results
+                    </h1>
+
+                    <div class="results-description">
+                        Multimodal inference, risk trajectory and explainability
+                    </div>
+                </div>
+
+                <button
+                    id="pdf"
+                    type="button"
+                    class="pdf-btn"
+                    disabled>
+
+                    Download Official PDF Report
+
+                </button>
+
+            </div>
+
+
+            <!-- KPI cards -->
+            <div class="kpi-grid">
+
+                <article class="kpi">
+
+                    <div class="kpi-label">
+                        Predicted Stage
+                    </div>
+
+                    <div
+                        id="stage"
+                        class="kpi-value">
+                        —
+                    </div>
+
+                    <div
+                        id="stageConf"
+                        class="kpi-meta">
+                        Awaiting inference
+                    </div>
+
+                </article>
+
+
+                <article class="kpi">
+
+                    <div class="kpi-label">
+                        Histology
+                    </div>
+
+                    <div
+                        id="hist"
+                        class="kpi-value"
+                        style="font-size:17px;">
+                        —
+                    </div>
+
+                    <div
+                        id="histConf"
+                        class="kpi-meta">
+                        Awaiting inference
+                    </div>
+
+                </article>
+
+
+                <article class="kpi">
+
+                    <div class="kpi-label">
+                        Survival Risk Score
+                    </div>
+
+                    <div
+                        id="riskScore"
+                        class="kpi-value">
+                        —
+                    </div>
+
+                    <div class="kpi-meta">
+                        Cox proportional hazards
+                    </div>
+
+                </article>
+
+            </div>
+
+
+            <!-- Analytics -->
+            <div class="analytics-grid">
+
+
+                <!-- Survival -->
+                <article class="dashboard-card analytics-card">
+
+                    <div class="card-header-clean">
+
+                        <div>
+                            <h2 class="card-title">
+                                Survival Trajectory
+                            </h2>
+
+                            <div class="card-subtitle">
+                                Estimated time-to-event probability
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="analytics-body">
+
+                        <div class="chart-wrap">
+
+                            <canvas id="survival"></canvas>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+
+                <!-- SHAP -->
+                <article class="dashboard-card analytics-card">
+
+                    <div class="card-header-clean">
+
+                        <div>
+                            <h2 class="card-title">
+                                Local SHAP Explanation
+                            </h2>
+
+                            <div class="card-subtitle">
+                                Individual risk attribution
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="analytics-body">
+
+                        <img
+                            id="shap"
+                            class="shap-image"
+                            alt="Local SHAP feature importance"
+                            style="display:none;">
+
+                        <div class="risk-columns">
+
+                            <div>
+                                <div class="risk-title positive">
+                                    Positive Risk Drivers
+                                </div>
+
+                                <ul
+                                    id="pos"
+                                    class="risk-list">
+                                </ul>
+                            </div>
+
+                            <div>
+                                <div class="risk-title negative">
+                                    Negative Risk Drivers
+                                </div>
+
+                                <ul
+                                    id="neg"
+                                    class="risk-list">
+                                </ul>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             CT VIEWER
+             ================================================= -->
+
+        <section
+            id="viewerCard"
+            class="dashboard-card viewer-card">
+
+            <div class="viewer-header">
+
+                <div>
+                    <h2 class="viewer-title">
+                        Interactive CT Scan Viewer
+                    </h2>
+
+                    <div class="card-subtitle">
+                        Axial CT visualization
+                    </div>
+                </div>
+
+
+                <div class="viewer-controls">
+
+                    <button
+                        type="button"
+                        class="window-btn active"
+                        data-window="lung">
+                        Lung
+                    </button>
+
+                    <button
+                        type="button"
+                        class="window-btn"
+                        data-window="mediastinum">
+                        Mediastinum
+                    </button>
+
+                    <button
+                        type="button"
+                        class="window-btn"
+                        data-window="bone">
+                        Bone
+                    </button>
+
+                    <span
+                        id="sliceReadout"
+                        class="slice-count">
+                        Slice 0 / 0
+                    </span>
+
+                    <button
+                        id="fullscreen"
+                        type="button"
+                        class="fullscreen-btn"
+                        title="Full screen">
+                        ⛶
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div id="ctStage09" class="ct-stage09">
+                <div class="ct-empty-state">
+                    <div class="fs-3 mb-2">CT Viewer</div>
+                    <div>Run multimodal inference with a CT scan to load the full Stage 09 presentation.</div>
+                </div>
+                <iframe
+                    id="stage09Frame"
+                    title="LungInsight Stage 09 CT Viewer"
+                    loading="lazy"
+                    allowfullscreen>
+                </iframe>
+            </div>
+
+        </section>
+
+    </section>
+
+</main>
+
+
+<script>
+/*
+ * Viewer-only UI helpers.
+ * Existing app.js continues to own inference,
+ * CT retrieval and result rendering.
+ */
+
+(function () {
+
+    const viewerCard = document.getElementById("viewerCard");
+    const fullscreen = document.getElementById("fullscreen");
+
+    if (fullscreen && viewerCard) {
+
+        fullscreen.addEventListener("click", function () {
+
+            viewerCard.classList.toggle("fullscreen");
+
+            const isFullscreen =
+                viewerCard.classList.contains("fullscreen");
+
+            fullscreen.textContent =
+                isFullscreen ? "×" : "⛶";
+
+            setTimeout(function () {
+                window.dispatchEvent(new Event("resize"));
+            }, 100);
+
+        });
+    }
+
+
+    /*
+     * Native browser fullscreen.
+     * Falls back to CSS fullscreen if unavailable.
+     */
+    if (fullscreen && viewerCard) {
+
+        fullscreen.addEventListener("dblclick", async function () {
+
+            try {
+
+                if (!document.fullscreenElement) {
+                    await viewerCard.requestFullscreen();
+                } else {
+                    await document.exitFullscreen();
+                }
+
+            } catch (_) {
+                // CSS fullscreen remains available.
+            }
+
+        });
+
+    }
+
+
+    /*
+     * Highlight active CT window preset.
+     */
+    document
+        .querySelectorAll(".window-btn")
+        .forEach(function (button) {
+
+            button.addEventListener("click", function () {
+
+                document
+                    .querySelectorAll(".window-btn")
+                    .forEach(function (b) {
+                        b.classList.remove("active");
+                    });
+
+                button.classList.add("active");
+
+            });
+
+        });
+
+
+    /*
+     * Make the viewer empty state disappear
+     * automatically when a CT image is loaded.
+     */
+    const image = document.getElementById("ctImg");
+    const empty = document.getElementById("viewerEmpty");
+
+    if (image && empty) {
+
+        const observer = new MutationObserver(function () {
+
+            const visible =
+                image.style.display !== "none" &&
+                image.src;
+
+            empty.style.display =
+                visible ? "none" : "flex";
+
+        });
+
+        observer.observe(
+            image,
+            {
+                attributes: true,
+                attributeFilter: ["src", "style"]
+            }
+        );
+
+    }
+
+
+    /*
+     * Drag/drop visual feedback.
+     */
+    const drop = document.getElementById("drop");
+
+    if (drop) {
+
+        ["dragenter", "dragover"].forEach(function (eventName) {
+
+            drop.addEventListener(eventName, function (e) {
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                drop.classList.add("drag-active");
+
+            });
+
+        });
+
+        ["dragleave", "drop"].forEach(function (eventName) {
+
+            drop.addEventListener(eventName, function (e) {
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                drop.classList.remove("drag-active");
+
+            });
+
+        });
+
+    }
+
+})();
+</script>
+
+<script src="/static/js/app.js"></script>
+
+</body>
+</html>
