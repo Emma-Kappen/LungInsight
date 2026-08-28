@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LungInsight — Clinical Imaging Review</title>
+<style>
+  :root{
+    --ink:#1b2430;
+    --paper:#f6f7f5;
+    --line:#d8dcd6;
+    --teal:#0f6e6a;
+    --teal-dark:#0a4f4c;
+    --amber:#b5701a;
+    --red:#a3372f;
+    --muted:#5c6a68;
+    --card:#ffffff;
+    --radius:6px;
+    font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    line-height:1.5;
+  }
+  .disclaimer-band{
+    background:#2b2118; color:#f4ead8; padding:10px 20px;
+    font-size:13px; text-align:center; letter-spacing:.2px;
+    border-bottom:2px solid var(--amber);
+  }
+  .disclaimer-band strong{ color:#ffd48a; }
+  header.app{
+    padding:24px 32px 16px; border-bottom:1px solid var(--line);
+    display:flex; align-items:baseline; gap:14px; background:var(--card);
+  }
+  header.app h1{
+    font-family: Georgia, "Times New Roman", serif;
+    font-size:26px; margin:0; letter-spacing:.2px;
+  }
+  header.app .tag{ color:var(--muted); font-size:13px; }
+  main{ max-width:1080px; margin:0 auto; padding:28px 20px 80px; }
+  .grid{ display:grid; grid-template-columns: 1.1fr 1fr; gap:24px; }
+  @media (max-width: 860px){ .grid{ grid-template-columns:1fr; } }
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:22px;
+  }
+  .card h2{
+    font-size:15px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--teal-dark); margin:0 0 16px; border-bottom:1px solid var(--line);
+    padding-bottom:10px;
+  }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:13px; font-weight:600; margin-bottom:5px; }
+  .field .hint{ font-size:12px; color:var(--muted); margin-top:4px; }
+  .field input[type=text], .field input[type=number], .field select, .field textarea{
+    width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:4px;
+    font-size:14px; font-family:inherit; background:#fcfcfb;
+  }
+  .field textarea{ min-height:90px; resize:vertical; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .err{ color:var(--red); font-size:12px; margin-top:4px; display:none; }
+  .field.invalid input, .field.invalid select{ border-color:var(--red); }
+  .field.invalid .err{ display:block; }
+
+  .dropzone{
+    border:2px dashed var(--line); border-radius:var(--radius); padding:22px;
+    text-align:center; cursor:pointer; background:#fbfbfa; transition:border-color .15s;
+  }
+  .dropzone.drag{ border-color:var(--teal); background:#effaf9; }
+  .dropzone p{ margin:6px 0; font-size:13px; color:var(--muted); }
+  .dropzone .filename{ font-weight:600; color:var(--ink); }
+  .preview-thumb{ max-width:100%; max-height:180px; margin-top:12px; border-radius:4px; border:1px solid var(--line); display:none; }
+
+  button.primary{
+    background:var(--teal); color:#fff; border:none; padding:12px 20px;
+    font-size:14px; font-weight:600; border-radius:4px; cursor:pointer; width:100%;
+  }
+  button.primary:disabled{ background:#9fb8b6; cursor:not-allowed; }
+  button.secondary{
+    background:transparent; color:var(--teal-dark); border:1px solid var(--teal);
+    padding:10px 16px; font-size:13px; font-weight:600; border-radius:4px; cursor:pointer;
+  }
+
+  .status-line{ font-size:13px; color:var(--muted); margin-top:10px; min-height:18px; }
+
+  /* Results */
+  #results{ display:none; }
+  .finding-row{ display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .finding-label{ width:190px; font-size:13px; }
+  .bar-track{ flex:1; height:10px; background:#e7e9e5; border-radius:5px; overflow:hidden; }
+  .bar-fill{ height:100%; background:var(--teal); }
+  .bar-fill.flag-suspicious{ background:var(--red); }
+  .bar-fill.flag-watch{ background:var(--amber); }
+  .finding-pct{ width:46px; text-align:right; font-variant-numeric:tabular-nums; font-size:13px; }
+  .flag-pill{
+    font-size:11px; padding:2px 8px; border-radius:10px; text-transform:uppercase;
+    letter-spacing:.04em; margin-left:6px;
+  }
+  .flag-pill.suspicious{ background:#fbe6e4; color:var(--red); }
+  .flag-pill.watch{ background:#fbeed9; color:var(--amber); }
+  .flag-pill.unlikely{ background:#e6f1ef; color:var(--teal-dark); }
+
+  .heatmap-wrap{ position:relative; margin-top:10px; }
+  .heatmap-wrap img{ width:100%; border-radius:4px; border:1px solid var(--line); display:block; }
+  .opacity-row{ display:flex; align-items:center; gap:10px; margin-top:8px; font-size:12px; color:var(--muted); }
+  .opacity-row input{ flex:1; }
+
+  .uncertainty-note{
+    font-size:12px; margin-top:14px; padding:10px 12px; border-left:3px solid var(--amber);
+    background:#fdf6ea; color:#5c4a1e;
+  }
+
+  .composite{ display:flex; align-items:baseline; gap:8px; margin-top:6px; }
+  .composite .score{ font-size:28px; font-weight:700; color:var(--teal-dark); font-family:Georgia,serif; }
+
+  footer.app{ text-align:center; padding:24px; font-size:12px; color:var(--muted); }
+
+  /* Print report (rendered off-screen, shown via window.print) */
+  #report{ display:none; }
+  @media print{
+    body *{ visibility:hidden; }
+    .disclaimer-band, header.app, main > .grid, footer.app { display:none !important; }
+    #report, #report *{ visibility:visible; }
+    #report{ display:block; position:absolute; top:0; left:0; width:100%; padding:20px; }
+    #report .rx-header{ display:flex; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:16px; }
+    #report h1{ font-size:20px; margin:0; }
+    #report table{ width:100%; border-collapse:collapse; margin:14px 0; font-size:12px; }
+    #report th, #report td{ border:1px solid #999; padding:6px 8px; text-align:left; }
+    #report .rx-disclaimer{ border:1px solid #000; padding:10px; font-size:11px; margin:16px 0; }
+    #report .signatures{ display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:60px; }
+    #report .sig-line{ border-top:1px solid #000; padding-top:6px; font-size:11px; }
+    #report .rx-heatmap img{ max-width:320px; border:1px solid #666; }
+  }
+</style>
+</head>
+<body>
+
+<div class="disclaimer-band">
+  <strong>Investigational prototype.</strong> LungInsight has not been validated as a diagnostic device and is not FDA cleared. All outputs require independent physician review before informing patient care. Do not enter real patient identifiers into a non-production instance.
+</div>
+
+<header class="app">
+  <h1>LungInsight</h1>
+  <span class="tag">Clinical imaging review — decision support</span>
+</header>
+
+<main>
+  <div class="grid">
+
+    <!-- INTAKE FORM -->
+    <section class="card" id="intake-card">
+      <h2>Patient &amp; study intake</h2>
+      <form id="intake-form" novalidate>
+        <div class="row2">
+          <div class="field" data-field="age">
+            <label for="age">Age (years)</label>
+            <input type="number" id="age" min="0" max="120" required>
+            <div class="err">Enter an age between 0 and 120.</div>
+          </div>
+          <div class="field" data-field="sex">
+            <label for="sex">Sex</label>
+            <select id="sex" required>
+              <option value="">Select…</option>
+              <option value="F">Female</option>
+              <option value="M">Male</option>
+              <option value="O">Other / not specified</option>
+            </select>
+            <div class="err">Please select a value.</div>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="field" data-field="smoking_status">
+            <label for="smoking_status">Smoking history</label>
+            <select id="smoking_status" required>
+              <option value="">Select…</option>
+              <option value="never">Never smoker</option>
+              <option value="former">Former smoker</option>
+              <option value="current">Current smoker</option>
+            </select>
+            <div class="err">Please select a value.</div>
+          </div>
+          <div class="field" data-field="pack_years">
+            <label for="pack_years">Pack-years (if applicable)</label>
+            <input type="number" id="pack_years" min="0" max="200" step="0.5">
+            <div class="hint">Leave blank for never smokers.</div>
+          </div>
+        </div>
+
+        <div class="field" data-field="notes">
+          <label for="notes">Clinical notes</label>
+          <textarea id="notes" placeholder="Presenting symptoms, duration, relevant history…" required></textarea>
+          <div class="err">A brief clinical note is required for context.</div>
+        </div>
+
+        <div class="field" data-field="image">
+          <label>Imaging study</label>
+          <div class="dropzone" id="dropzone">
+            <p>Drop a file here, or <span style="color:var(--teal-dark); font-weight:600;">click to browse</span></p>
+            <p>Accepted: DICOM (.dcm), PNG, JPEG — max 25&nbsp;MB</p>
+            <p class="filename" id="filename"></p>
+            <img class="preview-thumb" id="preview-thumb" alt="Preview">
+          </div>
+          <input type="file" id="file-input" accept=".dcm,.png,.jpg,.jpeg" hidden>
+          <div class="err">Attach a DICOM, PNG, or JPEG image.</div>
+        </div>
+
+        <button type="submit" class="primary" id="submit-btn">Run analysis</button>
+        <div class="status-line" id="status-line"></div>
+      </form>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="card" id="results">
+      <h2>Findings</h2>
+      <div id="findings-list"></div>
+
+      <div class="composite">
+        <span class="score" id="composite-score">—</span>
+        <span style="font-size:12px;color:var(--muted);">composite risk score (imaging + clinical fusion)</span>
+      </div>
+
+      <div class="uncertainty-note" id="uncertainty-note" style="display:none;"></div>
+
+      <h2 style="margin-top:22px;">Grad-CAM overlay</h2>
+      <div class="heatmap-wrap">
+        <img id="heatmap-img" alt="Grad-CAM heatmap overlay">
+      </div>
+      <div class="opacity-row">
+        <span>Overlay opacity</span>
+        <input type="range" id="opacity-slider" min="0" max="100" value="55">
+      </div>
+
+      <button type="button" class="secondary" id="report-btn" style="margin-top:20px;">Generate printable report</button>
+    </section>
+  </div>
+</main>
+
+<footer class="app">
+  LungInsight prototype · model version shown per-case · not for use in clinical decision-making without physician sign-off
+</footer>
+
+<!-- PRINT / REPORT VIEW -->
+<div id="report">
+  <div class="rx-header">
+    <div>
+      <h1>LungInsight — Clinical Imaging Report</h1>
+      <div id="rx-meta" style="font-size:12px;color:#333;"></div>
+    </div>
+    <div style="text-align:right; font-size:11px;">
+      <div>Case ID: <span id="rx-caseid"></span></div>
+      <div>Generated: <span id="rx-timestamp"></span></div>
+      <div>Model version: <span id="rx-modelver"></span></div>
+    </div>
+  </div>
+
+  <table>
+    <tr><th>Age</th><td id="rx-age"></td><th>Sex</th><td id="rx-sex"></td></tr>
+    <tr><th>Smoking status</th><td id="rx-smoking"></td><th>Pack-years</th><td id="rx-packyears"></td></tr>
+    <tr><th colspan="4">Clinical notes</th></tr>
+    <tr><td colspan="4" id="rx-notes"></td></tr>
+  </table>
+
+  <h3>Findings</h3>
+  <table>
+    <thead><tr><th>Finding</th><th>Probability</th><th>Flag</th></tr></thead>
+    <tbody id="rx-findings-body"></tbody>
+  </table>
+
+  <h3>Composite risk score</h3>
+  <p id="rx-composite" style="font-size:14px;"></p>
+
+  <h3>Diagnostic visualization</h3>
+  <div class="rx-heatmap">
+    <img id="rx-heatmap-img" alt="Grad-CAM heatmap overlay">
+  </div>
+
+  <div class="rx-disclaimer">
+    LungInsight is an investigational decision-support tool. It has not been validated as a diagnostic device
+    and is not FDA cleared. This report does not constitute a diagnosis. All findings require independent
+    review and sign-off by a licensed physician before informing patient care.
+  </div>
+
+  <div class="signatures">
+    <div class="sig-line">Reviewing physician — signature &amp; date</div>
+    <div class="sig-line">Attending / co-signer — signature &amp; date</div>
+  </div>
+</div>
+
+<script>
+const API_BASE = window.LUNGINSIGHT_API_BASE || "http://localhost:8000";
+
+const form = document.getElementById('intake-form');
+const dropzone = document.getElementById('dropzone');
+const fileInput = document.getElementById('file-input');
+const filenameEl = document.getElementById('filename');
+const previewThumb = document.getElementById('preview-thumb');
+const statusLine = document.getElementById('status-line');
+const submitBtn = document.getElementById('submit-btn');
+let selectedFile = null;
+let lastResult = null;
+let lastInputs = null;
+
+dropzone.addEventListener('click', () => fileInput.click());
+['dragover'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add('drag'); }));
+['dragleave','drop'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('drag'); }));
+dropzone.addEventListener('drop', e => {
+  if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files.length) handleFile(e.target.files[0]); });
+
+function handleFile(file){
+  const allowed = ['.dcm', '.png', '.jpg', '.jpeg'];
+  const lower = file.name.toLowerCase();
+  if (!allowed.some(ext => lower.endsWith(ext))){
+    setFieldError('image', true);
+    return;
+  }
+  if (file.size > 25 * 1024 * 1024){
+    statusLine.textContent = 'File exceeds 25 MB limit.';
+    return;
+  }
+  selectedFile = file;
+  filenameEl.textContent = file.name;
+  setFieldError('image', false);
+
+  if (lower.endsWith('.png') || lower.endsWith('.jpg') || lower.endsWith('.jpeg')){
+    const reader = new FileReader();
+    reader.onload = e => { previewThumb.src = e.target.result; previewThumb.style.display = 'block'; };
+    reader.readAsDataURL(file);
+  } else {
+    previewThumb.style.display = 'none';
+  }
+}
+
+function setFieldError(name, isInvalid){
+  const el = document.querySelector(`[data-field="${name}"]`);
+  if (el) el.classList.toggle('invalid', isInvalid);
+}
+
+function validate(){
+  let ok = true;
+  const age = document.getElementById('age');
+  const ageVal = Number(age.value);
+  const ageInvalid = age.value === '' || ageVal < 0 || ageVal > 120;
+  setFieldError('age', ageInvalid); if (ageInvalid) ok = false;
+
+  const sex = document.getElementById('sex');
+  const sexInvalid = !sex.value;
+  setFieldError('sex', sexInvalid); if (sexInvalid) ok = false;
+
+  const smoking = document.getElementById('smoking_status');
+  const smokingInvalid = !smoking.value;
+  setFieldError('smoking_status', smokingInvalid); if (smokingInvalid) ok = false;
+
+  const notes = document.getElementById('notes');
+  const notesInvalid = notes.value.trim().length === 0;
+  setFieldError('notes', notesInvalid); if (notesInvalid) ok = false;
+
+  const imageInvalid = !selectedFile;
+  setFieldError('image', imageInvalid); if (imageInvalid) ok = false;
+
+  return ok;
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!validate()){
+    statusLine.textContent = 'Please fix the highlighted fields.';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  statusLine.textContent = 'Uploading and running analysis…';
+
+  const fd = new FormData();
+  fd.append('age', document.getElementById('age').value);
+  fd.append('sex', document.getElementById('sex').value);
+  fd.append('smoking_status', document.getElementById('smoking_status').value);
+  fd.append('pack_years', document.getElementById('pack_years').value || '0');
+  fd.append('clinical_notes', document.getElementById('notes').value);
+  fd.append('image', selectedFile);
+
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/analyze`, { method: 'POST', body: fd });
+    if (!res.ok){
+      const err = await res.json().catch(() => ({detail: res.statusText}));
+      statusLine.textContent = `Analysis failed: ${err.detail || res.statusText}`;
+      submitBtn.disabled = false;
+      return;
+    }
+    const data = await res.json();
+    lastResult = data;
+    lastInputs = {
+      age: document.getElementById('age').value,
+      sex: document.getElementById('sex').value,
+      smoking_status: document.getElementById('smoking_status').value,
+      pack_years: document.getElementById('pack_years').value || '0',
+      notes: document.getElementById('notes').value,
+    };
+    renderResults(data);
+    statusLine.textContent = 'Analysis complete.';
+  } catch (err){
+    statusLine.textContent = `Network error contacting analysis service: ${err.message}`;
+  } finally {
+    submitBtn.disabled = false;
+  }
+});
+
+function flagClass(flag){
+  if (flag === 'suspicious') return 'suspicious';
+  if (flag === 'watch') return 'watch';
+  return 'unlikely';
+}
+
+function renderResults(data){
+  const list = document.getElementById('findings-list');
+  list.innerHTML = '';
+  data.findings.slice().sort((a,b) => b.probability - a.probability).forEach(f => {
+    const row = document.createElement('div');
+    row.className = 'finding-row';
+    const pct = Math.round(f.probability * 100);
+    row.innerHTML = `
+      <div class="finding-label">${f.label}
+        <span class="flag-pill ${flagClass(f.flag)}">${f.flag}</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill flag-${flagClass(f.flag)}" style="width:${pct}%"></div></div>
+      <div class="finding-pct">${pct}%</div>`;
+    list.appendChild(row);
+  });
+
+  document.getElementById('composite-score').textContent = data.composite_risk_score.toFixed(2);
+
+  const note = document.getElementById('uncertainty-note');
+  if (data.uncertainty && data.uncertainty !== 'low'){
+    note.style.display = 'block';
+    note.textContent = `Model uncertainty: ${data.uncertainty}. Interpret findings with additional caution and prioritize direct image review.`;
+  } else {
+    note.style.display = 'none';
+  }
+
+  const heatmap = document.getElementById('heatmap-img');
+  heatmap.src = `data:image/png;base64,${data.heatmap_png_b64}`;
+  heatmap.style.opacity = document.getElementById('opacity-slider').value / 100;
+
+  document.getElementById('results').style.display = 'block';
+}
+
+document.getElementById('opacity-slider').addEventListener('input', (e) => {
+  document.getElementById('heatmap-img').style.opacity = e.target.value / 100;
+});
+
+document.getElementById('report-btn').addEventListener('click', () => {
+  if (!lastResult){ return; }
+  populateReport(lastResult, lastInputs);
+  window.print();
+});
+
+function populateReport(data, inputs){
+  document.getElementById('rx-caseid').textContent = data.case_id;
+  document.getElementById('rx-timestamp').textContent = new Date().toLocaleString();
+  document.getElementById('rx-modelver').textContent = data.model_version;
+  document.getElementById('rx-meta').textContent = 'Investigational decision-support output — requires physician sign-off.';
+
+  document.getElementById('rx-age').textContent = inputs.age;
+  document.getElementById('rx-sex').textContent = inputs.sex;
+  document.getElementById('rx-smoking').textContent = inputs.smoking_status;
+  document.getElementById('rx-packyears').textContent = inputs.pack_years;
+  document.getElementById('rx-notes').textContent = inputs.notes;
+
+  const body = document.getElementById('rx-findings-body');
+  body.innerHTML = '';
+  data.findings.slice().sort((a,b) => b.probability - a.probability).forEach(f => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${f.label}</td><td>${Math.round(f.probability*100)}%</td><td>${f.flag}</td>`;
+    body.appendChild(tr);
+  });
+
+  document.getElementById('rx-composite').textContent =
+    `${data.composite_risk_score.toFixed(2)} (fused imaging + clinical estimate; uncertainty: ${data.uncertainty})`;
+
+  document.getElementById('rx-heatmap-img').src = `data:image/png;base64,${data.heatmap_png_b64}`;
+}
+</script>
+</body>
+</html>
