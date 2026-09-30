@@ -1,60 +1,21 @@
-# Ignore dataset folders and contents
-dataset/
-datasets/
-data/
+# Virtual Environment
+l-env/
 
-# Ignore output folders and contents
-output/
-outputs/
-
-# Ignore common output files
-*.out
-*.log
-
-# Standard ignores
-# macOS
-.DS_Store
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Python
+# Python Cache & Bytecode
 __pycache__/
 *.py[cod]
 *$py.class
-env/
-venv/
-.venv/
-.env
 
-# ML models
-*.pth
-*.pt
-*.onnx
-*.ckpt
+# Datasets (Ignores all dataset subfolders/files)
+datasets/
 
-# Medical imaging / generated arrays
-*.npy
-*.npz
-*.dcm
-*.nii
-*.nii.gz
+LungInsight_v2/backend/output/
 
-# Generated imaging data
-Imaging/output/
-Imaging/checkpoints/
-Imaging/candidate_patches_v2/
-
-# Clinical datasets
-Clinical/datasets/
-
-# IDE/editor
+# OS & IDE Files (Recommended)
+.DS_Store
+Thumbs.db
 .vscode/
 .idea/
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-.agents/
+.env
+
+LungInsight_v1/

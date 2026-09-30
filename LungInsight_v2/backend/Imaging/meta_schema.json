@@ -1,0 +1,479 @@
+{
+  "description": "LungInsight v2 preprocessing metadata format",
+  "array_axes": [
+    "z",
+    "y",
+    "x"
+  ],
+  "coordinate_system": "DICOM_LPS",
+  "coordinate_format": {
+    "index_origin": [
+      0,
+      0,
+      0
+    ],
+    "origin_definition": "origin_mm is the physical DICOM-LPS coordinate in mm of the CENTER of saved voxel [0,0,0].",
+    "index_to_physical_formula": "p_LPS_mm = origin_mm + direction_lps @ ([z,y,x] * spacing_zyx_mm)",
+    "units": "mm",
+    "final_volume_reference": "The origin_mm value in meta.json refers to the CENTER of saved voxel [0,0,0] of the final volume (volume_hu_cropped.npy and aligned masks).",
+    "direction_lps_columns": {
+      "z": "direction_lps[:,0]",
+      "y": "direction_lps[:,1]",
+      "x": "direction_lps[:,2]"
+    },
+    "array_axes": [
+      "z",
+      "y",
+      "x"
+    ],
+    "index_order": "[z,y,x]",
+    "coordinate_system": "DICOM_LPS",
+    "origin_mm_definition": "origin_mm is the physical DICOM-LPS coordinate [LPS x, LPS y, LPS z] of the CENTER of saved CT voxel [0,0,0] in volume_hu_cropped.npy.",
+    "coordinate_vector_semantics": {
+      "voxel_index": "[z,y,x]",
+      "spacing": "spacing_zyx_mm = [z_spacing, y_spacing, x_spacing]",
+      "physical_vector": "[LPS x, LPS y, LPS z] in millimetres",
+      "direction_matrix": "Columns of direction_lps give the physical LPS direction of the array Z, Y, X axes respectively."
+    },
+    "ct_frame_space": "stage01_final_cropped_ct",
+    "ct_origin_reference": "This is the cropped Stage 01 CT frame. A Z-crop changes origin_mm while preserving voxel spacing and direction_lps; no resampling is performed by Stage 01.",
+    "anatomical_coordinate_note": "Anatomical localization is attached to detector candidates and patches; it does not change the voxel or DICOM-LPS coordinate frame."
+  },
+  "outputs": {
+    "volume_hu.npy": "float32, complete HU volume before Z-cropping",
+    "volume_hu_cropped.npy": "float32, final Z-cropped HU result volume",
+    "volume_hu_masked.npy": "float32, final Z-cropped volume with voxels outside lung_mask blanked to the configured physical-air HU",
+    "volume_windowed.npy": "uint8, final Z-cropped 3-channel volume [lung window, soft-tissue window, bone window]",
+    "lung_mask.npy": "bool, final lung region mask",
+    "air_mask.npy": "bool, final physical-air mask",
+    "heart_mask.npy": "bool, heuristic heart/great-vessel mask",
+    "meta.json": "per-patient metadata conforming to this coordinate convention",
+    "anatomical_location": "Heuristic anatomical localization attached to each detector candidate and extracted patch; not a new segmentation mask.",
+    "03_nodule_classification": "Stage 03 per-patch nodule attribute predictions, attention weights, and provenance."
+  },
+  "schema_version": "2.3",
+  "stage_02_detect_and_patch": {
+    "stage": "02",
+    "space": "stage01_final_cropped_ct",
+    "patch_space": "patch_local_ct",
+    "input_volume": {
+      "file": "volume_hu_cropped.npy",
+      "dtype": "float32",
+      "array_axes": [
+        "z",
+        "y",
+        "x"
+      ],
+      "description": "Final Z-cropped, unmasked HU volume used for detection and patch extraction."
+    },
+    "authoritative_detector": {
+      "name": "ViTDet3D",
+      "checkpoint_default": "rlsn/DeTr4LungNodule",
+      "input_window_zyx_voxels": [
+        40,
+        128,
+        128
+      ],
+      "sliding_stride_zyx_voxels": [
+        30,
+        96,
+        96
+      ],
+      "normalization": {
+        "mean": -775.657161489884,
+        "std": 962.3208802005623,
+        "note": "These normalization constants are specific to the pretrained ViTDet3D detector."
+      },
+      "candidate_center_authority": "center_zyx is the detector proposal center retained after NMS; downstream patch cropping uses this native CT voxel coordinate. NMS discards redundant lower-scoring detections and does not average centers.",
+      "required_candidate_fields": [
+        "candidate_id",
+        "source",
+        "detector_score",
+        "coordinate_order",
+        "center_zyx",
+        "bbox_start_zyx",
+        "bbox_end_zyx",
+        "bbox_size_zyx_voxels",
+        "spacing_zyx_mm",
+        "space",
+        "model"
+      ],
+      "candidate_physical_coordinate": {
+        "field": "center_lps_mm",
+        "definition": "DICOM-LPS [x,y,z] millimetre coordinate of center_zyx mapped through origin_mm, spacing_zyx_mm, and direction_lps.",
+        "formula": "center_lps_mm = origin_mm + direction_lps @ (center_zyx * spacing_zyx_mm)"
+      },
+      "candidate_anatomical_location_field": "anatomical_location"
+    },
+    "diagnostic_log_detector": {
+      "role": "research_comparison_only",
+      "authoritative": false,
+      "note": "LoG records must never be merged into candidates.json."
+    },
+    "patch_outputs": {
+      "root": "02_detect_and_patch/patches/",
+      "array_directory": "02_detect_and_patch/patches/arrays/",
+      "visualization_directory": "02_detect_and_patch/patches/visualizations/",
+      "manifest": "02_detect_and_patch/patches/patches_manifest.json",
+      "array_dtype": "float32",
+      "array_axes": [
+        "z",
+        "y",
+        "x"
+      ],
+      "patch_space": "patch_local_ct"
+    },
+    "patch_coordinate_conventions": {
+      "patch_origin_definition": "patch_origin_lps_mm is the physical DICOM-LPS [x,y,z] coordinate of the CENTER of saved patch voxel [0,0,0]. It is computed from the source CT origin and crop_start_zyx, so it remains valid even when the requested crop extends outside the native CT and is filled with virtual air padding.",
+      "patch_spacing_definition": "patch_spacing_zyx_mm equals the source CT spacing_zyx_mm because patches are cropped without resampling.",
+      "index_to_physical_formula": "p_LPS_mm = patch_origin_lps_mm + direction_lps @ ([z,y,x] * patch_spacing_zyx_mm)",
+      "patch_center_definition": "patch_center_local_zyx is the nearest integer voxel location of the authoritative detector center inside the saved patch.",
+      "crop_bounds": {
+        "coordinate_frame": "stage01_final_cropped_ct",
+        "order": [
+          "z",
+          "y",
+          "x"
+        ],
+        "start_semantics": "inclusive",
+        "end_semantics": "exclusive",
+        "out_of_volume_behavior": "virtual padding with -1000 HU"
+      },
+      "bbox_local_mapping": "bbox_local_start_zyx = bbox_start_zyx - crop_start_zyx and bbox_local_end_zyx = bbox_end_zyx - crop_start_zyx, clipped to the saved patch bounds for visualization/statistics."
+    },
+    "patch_record_fields": {
+      "patch_id": "Sequential patch identifier assigned during extraction.",
+      "candidate_id": "Authoritative ViTDet3D candidate identifier.",
+      "space": "patch_local_ct",
+      "source_space": "stage01_final_cropped_ct",
+      "center_zyx": "Authoritative detector center in source CT voxel coordinates.",
+      "center_lps_mm": "Same center expressed in DICOM-LPS millimetres.",
+      "crop_start_zyx": "Source CT crop start, inclusive.",
+      "crop_end_zyx": "Source CT crop end, exclusive.",
+      "source_clip_start_zyx": "Portion of crop intersecting the source CT.",
+      "source_clip_end_zyx": "Portion of crop intersecting the source CT, exclusive.",
+      "patch_center_local_zyx": "Nearest integer voxel to the detector center within patch coordinates.",
+      "patch_size_vox_zyx": "Saved patch shape in ZYX voxels.",
+      "spacing_zyx_mm": "Native CT spacing inherited by the patch.",
+      "origin_lps_mm": "Source CT [0,0,0] voxel-center physical coordinate.",
+      "patch_origin_lps_mm": "Patch [0,0,0] voxel-center physical coordinate.",
+      "patch_center_lps_mm": "Physical coordinate of patch_center_local_zyx.",
+      "direction_lps": "Same axis-direction matrix as the source CT.",
+      "bbox_start_zyx": "Detector bounding-box start in source CT ZYX voxel coordinates.",
+      "bbox_end_zyx": "Detector bounding-box end in source CT ZYX voxel coordinates.",
+      "bbox_local_start_zyx": "Detector bounding-box start in patch-local ZYX coordinates.",
+      "bbox_local_end_zyx": "Detector bounding-box end in patch-local ZYX coordinates.",
+      "bbox_size_vox_zyx": "Bounding-box extent along source CT Z/Y/X axes.",
+      "bbox_size_mm_zyx": "Bounding-box physical extent along source CT Z/Y/X axes, in millimetres.",
+      "nodule_volume_estimate_mm3": "Product of bbox_size_mm_zyx.",
+      "padding_value_hu": "HU used for out-of-volume patch padding; default -1000.",
+      "intensity_statistics": "HU statistics for detector-bbox voxels and surrounding native CT context.",
+      "array_path": "Path to float32 patch .npy array.",
+      "triplanar_path": "Path to tri-planar visualization.",
+      "anatomical_location": "Heuristic anatomical localization object copied from the authoritative candidate; uses the same detector center and CT geometry."
+    },
+    "outputs": {
+      "candidates.json": "Authoritative ViTDet3D-only candidate list.",
+      "candidates.csv": "Flat human-readable mirror of candidates.json.",
+      "detector_metadata.json": "Detector, CT-frame, patch-frame, and provenance metadata.",
+      "log_candidates_diagnostic.json": "Diagnostic LoG records only.",
+      "candidates_diagnostic_agreement.json": "Read-only ViTDet3D-vs-LoG comparison.",
+      "patches/arrays/patch_000.npy": "Float32 ZYX nodule patch.",
+      "patches/visualizations/patch_000_triplanar.png": "Tri-planar patch visualization.",
+      "patches/patches_manifest.json": "Per-patch geometry, coordinates, provenance, and characterization."
+    },
+    "anatomical_localization": {
+      "enabled": true,
+      "method": "heuristic_from_stage01_masks_and_dicom_lps_geometry",
+      "purpose": "Describe where a ViTDet3D detector proposal lies within the existing Stage 01 lung/air/heart masks.",
+      "not_a_new_detector": true,
+      "inputs": [
+        "center_zyx",
+        "lung_mask.npy",
+        "air_mask.npy",
+        "heart_mask.npy",
+        "spacing_zyx_mm",
+        "origin_mm",
+        "direction_lps"
+      ],
+      "coordinate_rules": {
+        "center_voxel_order": "ZYX",
+        "physical_coordinate_system": "DICOM_LPS",
+        "center_lps_formula": "center_lps_mm = origin_mm + direction_lps @ (center_zyx * spacing_zyx_mm)",
+        "laterality_rule": "DICOM-LPS +X is patient left. Candidate LPS X above the lung centroid X is labeled left; below is right; within the configured tolerance is midline/central."
+      },
+      "primary_labels": [
+        "trachea",
+        "bronchus",
+        "lung_wall",
+        "lung_parenchyma",
+        "mediastinal",
+        "outside_lung"
+      ],
+      "region_labels": [
+        "trachea",
+        "left_bronchus",
+        "right_bronchus",
+        "bronchus",
+        "left_lung_wall",
+        "right_lung_wall",
+        "lung_wall",
+        "left_lung_parenchyma",
+        "right_lung_parenchyma",
+        "lung_parenchyma",
+        "heart_or_great_vessels",
+        "outside_lung_mask"
+      ],
+      "anatomical_location_fields": {
+        "primary": "Primary heuristic compartment/location.",
+        "region": "More specific left/right/airway region label.",
+        "laterality": "left, right, midline, midline_or_central, or unknown.",
+        "compartment": "airway, lung_wall, parenchyma, mediastinum, or outside_lung.",
+        "vertical_region": "superior, middle, inferior, or unknown based on axial lung extent.",
+        "wall_relationship": "Relationship to the Stage 01 lung-mask boundary.",
+        "distance_to_lung_mask_mm": "Local physical distance to the lung-mask boundary.",
+        "airway_type": "trachea, bronchus, or null.",
+        "airway_proximity_mm": "Local physical distance to the retained central airway proxy.",
+        "center_inside_lung_mask": "Whether the rounded detector center lies in lung_mask.npy.",
+        "center_inside_heart_mask": "Whether the rounded detector center lies in heart_mask.npy.",
+        "center_lps_mm": "DICOM-LPS physical coordinate of the detector center.",
+        "method": "Localization method identifier.",
+        "method_version": "Localization heuristic version.",
+        "parameters": "Thresholds used for localization.",
+        "limitations": "Explicit statement that this is heuristic rather than clinical anatomical segmentation."
+      },
+      "default_parameters": {
+        "wall_distance_mm": 5.0,
+        "airway_proximity_mm": 4.0,
+        "midline_tolerance_mm": 5.0,
+        "airway_central_radius_mm": 22.0,
+        "trachea_central_radius_mm": 15.0,
+        "trachea_z_fraction": 0.55
+      },
+      "output_locations": {
+        "candidates.json": "Each authoritative ViTDet3D candidate contains anatomical_location.",
+        "candidates.csv": "Flat anatomical location columns mirror anatomical_location.primary, region, laterality, and compartment.",
+        "patches/patches_manifest.json": "Each extracted patch record contains the same anatomical_location object copied from its authoritative candidate.",
+        "detector_metadata.json": "Contains the anatomical-localization configuration used for the run."
+      },
+      "limitations": "No dedicated anatomical atlas or airway segmentation model is used. Trachea/bronchus labels are inferred from the Stage 01 physical-air mask and central 3-D connectivity; lung-wall labels use local distance to the Stage 01 lung-mask boundary. These labels are for pipeline localization/QA and should not be treated as clinical anatomy."
+    }
+  },
+  "stage_03_nodule_classification": {
+    "stage": "03",
+    "space": "patch_local_ct",
+    "source_stage": "02_detect_and_patch",
+    "inputs": {
+      "patch_manifest": "02_detect_and_patch/patches/patches_manifest.json",
+      "patch_arrays": "02_detect_and_patch/patches/arrays/*.npy",
+      "dtype": "float32",
+      "array_axes": [
+        "z",
+        "y",
+        "x"
+      ],
+      "spatial_shape_requirement": [
+        64,
+        64
+      ],
+      "depth": "arbitrary_z_depth_supported_by_SliceAttention"
+    },
+    "model": {
+      "module": "backend.models.nodule_ranker.model.Network",
+      "architecture": "attention-enhanced cross-task nodule attribute network",
+      "initial_depth": 32,
+      "n_features": 9,
+      "feature_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "attribute_order": [
+        "subtlety",
+        "internal_structure",
+        "calcification",
+        "sphericity",
+        "margin",
+        "lobulation",
+        "spiculation",
+        "texture",
+        "malignancy"
+      ],
+      "outputs": {
+        "final": "9 sigmoid outputs in [0,1]; authoritative attribute predictions",
+        "aux": "9 sigmoid auxiliary ASCMM predictions retained for provenance",
+        "slice_attention": "one weight per input axial slice",
+        "cross_attribute_attention": "attribute-by-feature attention matrix"
+      }
+    },
+    "preprocessing": {
+      "source_units": "HU",
+      "clip_hu": [
+        -1000,
+        400
+      ],
+      "shift_after_clip": 1000,
+      "fold_normalization": "(clip(HU,-1000,400)+1000-fold_mean)/fold_std",
+      "fold_id": "1..5 selected by CLI",
+      "fold_means": [
+        357.87565,
+        356.72941,
+        360.50329,
+        355.27085,
+        357.84044
+      ],
+      "fold_stds": [
+        288.47657,
+        287.1689,
+        290.45408,
+        286.90142,
+        288.45889
+      ],
+      "batching": "one nodule patch at a time; slices are presented as the model batch dimension",
+      "spatial_order": "ZYX"
+    },
+    "attribute_scales": {
+      "subtlety": {
+        "normalized_range": [
+          0,
+          1
+        ],
+        "original_rating_range": [
+          1,
+          5
+        ]
+      },
+      "internal_structure": {
+        "normalized_range": [
+          0,
+          1
+        ],
+        "original_rating_range": [
+          1,
+          4
+        ]
+      },
+      "calcification": {
+        "normalized_range": [
+          0,
+          1
+        ],
+        "original_rating_range": [
+          1,
+          6
+        ]
+      },
+      "sphericity": {
+        "normalized_range": [
+          0,
+          1
+        ],
+        "original_rating_range": [
+          1,
+          5
+        ]
+      },
+      "margin": {
+        "normalized_range": [
+          0,
+          1
+        ],
+        "original_rating_range": [
+          1,
+          5
+        ]
+      },
+      "lobulation": {
+        "normalized_range": [
+          0,
+          1
+        ],
+        "original_rating_range": [
+          1,
+          5
+        ]
+      },
+      "spiculation": {
+        "normalized_range": [
+          0,
+          1
+        ],
+        "original_rating_range": [
+          1,
+          5
+        ]
+      },
+      "texture": {
+        "normalized_range": [
+          0,
+          1
+        ],
+        "original_rating_range": [
+          1,
+          5
+        ]
+      },
+      "malignancy": {
+        "normalized_range": [
+          0,
+          1
+        ],
+        "original_rating_range": [
+          1,
+          5
+        ]
+      }
+    },
+    "prediction_semantics": {
+      "score_0_1": "Normalized model sigmoid output, not a calibrated class probability.",
+      "rating_original_scale": "Reference LIDC rating scale recovered from the normalized score.",
+      "malignancy": "Model output is the LIDC 1-to-5 malignancy rating; Stage 03 does not convert it to a binary probability.",
+      "anatomical_location": "Copied from the Stage 02 authoritative candidate/patch record; Stage 03 does not alter it."
+    },
+    "coordinate_conventions": {
+      "array_order": "ZYX",
+      "coordinate_system": "DICOM_LPS",
+      "source_ct_origin_definition": "origin_lps_mm is the LPS coordinate of the center of source CT voxel [0,0,0].",
+      "patch_origin_definition": "patch_origin_lps_mm is the LPS coordinate of the center of patch voxel [0,0,0].",
+      "patch_index_to_physical_formula": "p_LPS_mm = patch_origin_lps_mm + direction_lps @ ([z,y,x] * spacing_zyx_mm)",
+      "prediction_center": "center_zyx remains the Stage 02 detector center and is not recomputed by Stage 03."
+    },
+    "outputs": {
+      "root": "03_nodule_classification/",
+      "predictions_json": "predictions.json",
+      "predictions_csv": "predictions.csv",
+      "classification_metadata_json": "classification_metadata.json",
+      "attention_directory": "attention/",
+      "slice_attention": "attention/patch_###_slice_attention.npy",
+      "attribute_attention": "attention/patch_###_attribute_attention.npy"
+    },
+    "prediction_record_fields": {
+      "patch_id": "Stage 02 patch identifier.",
+      "candidate_id": "Authoritative ViTDet3D candidate identifier.",
+      "coordinate_order": "Always ZYX.",
+      "prediction_space": "patch_local_ct.",
+      "center_zyx": "Authoritative Stage 02 detector center in source CT coordinates.",
+      "center_lps_mm": "Same center in DICOM-LPS millimetres.",
+      "patch_origin_lps_mm": "Physical center coordinate of patch voxel [0,0,0].",
+      "spacing_zyx_mm": "Native Stage 02 spacing inherited by the patch.",
+      "direction_lps": "Native Stage 01 DICOM-LPS axis-direction matrix.",
+      "anatomical_location": "Stage 02 heuristic anatomical-location object.",
+      "detector_score": "Stage 02 ViTDet3D score.",
+      "attributes": "Nine final attribute predictions with normalized and original-scale values plus auxiliary scores.",
+      "attention": "SliceAttention and CAAM attention weights.",
+      "patch_array_path": "Source patch array used for inference."
+    },
+    "limitations": [
+      "The supplied model predicts normalized LIDC attribute ratings; score_0_1 values should not be interpreted as calibrated probabilities.",
+      "The malignancy output is a 1-to-5 LIDC rating after inverse scaling, not a binary benign/malignant probability.",
+      "The supplied model source does not define a binary classification threshold, so Stage 03 does not invent one.",
+      "Absolute prediction validity depends on using a trained checkpoint compatible with the supplied Network architecture and the reference preprocessing domain."
+    ]
+  }
+}
