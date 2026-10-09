@@ -1,0 +1,22 @@
+LUNGINSIGHT v2 — FROZEN PRETRAINED-ENCODER PROBE
+============================================================
+Mean best VAL Spearman: 0.0356
+
+PER-ATTRIBUTE DECISION
+  subtlety             rho=-0.0830 MAE=0.9749 baseline=0.8719 | LITTLE_OR_NO_FROZEN_RANK_SIGNAL
+  internal_structure   rho=+0.0237 MAE=0.0607 baseline=0.0166 | LITTLE_OR_NO_FROZEN_RANK_SIGNAL
+  calcification        rho=-0.0035 MAE=0.6019 baseline=0.2784 | LITTLE_OR_NO_FROZEN_RANK_SIGNAL
+  sphericity           rho=+0.0921 MAE=0.6950 baseline=0.6617 | LITTLE_OR_NO_FROZEN_RANK_SIGNAL
+  margin               rho=+0.0738 MAE=0.9235 baseline=0.8295 | LITTLE_OR_NO_FROZEN_RANK_SIGNAL
+  lobulation           rho=+0.0143 MAE=0.7108 baseline=0.6077 | LITTLE_OR_NO_FROZEN_RANK_SIGNAL
+  spiculation          rho=+0.0976 MAE=0.6762 baseline=0.5411 | LITTLE_OR_NO_FROZEN_RANK_SIGNAL
+  texture              rho=+0.0696 MAE=0.9049 baseline=0.6365 | LITTLE_OR_NO_FROZEN_RANK_SIGNAL
+
+OVERALL
+FROZEN_ENCODER_SIGNAL_IS_WEAK: representation quality remains a leading suspect; do not conclude from this alone that the full encoder must be replaced.
+
+FILES
+  frozen_encoder_probe.json
+  probe_results.csv
+  train_embeddings.npy
+  val_embeddings.npy

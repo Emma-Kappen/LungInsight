@@ -1,0 +1,1 @@
+print('JL TRAINING TEST OK')

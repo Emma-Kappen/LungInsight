@@ -1,0 +1,313 @@
+{
+  "architecture": {
+    "attention": "task-query spatial attention + normalized 3D coordinate keys",
+    "attention_dim": 96,
+    "dropout": 0.2,
+    "encoder": {
+      "blocks": [
+        1,
+        2,
+        2
+      ],
+      "channels": [
+        32,
+        64,
+        128
+      ],
+      "stem_channels": 16
+    },
+    "head_hidden": 64,
+    "input_shape": [
+      64,
+      64,
+      64
+    ],
+    "name": "LungInsightSpatialObjectiveV1",
+    "nominal_targets": [
+      "internal_structure",
+      "calcification"
+    ],
+    "objective": "ordinal_reader",
+    "ordered_targets": [
+      "subtlety",
+      "sphericity",
+      "margin",
+      "lobulation",
+      "spiculation",
+      "texture"
+    ],
+    "preprocessing": {
+      "clip_high_hu": 400.0,
+      "clip_low_hu": -1000.0,
+      "formula": "(clip(HU,-1000,400)+1000-357.87565)/288.47657",
+      "mean": 357.87565,
+      "shift": 1000.0,
+      "std": 288.47657
+    },
+    "rating_max": {
+      "calcification": 6,
+      "internal_structure": 4,
+      "lobulation": 5,
+      "margin": 5,
+      "sphericity": 5,
+      "spiculation": 5,
+      "subtlety": 5,
+      "texture": 5
+    },
+    "spatial_output": [
+      128,
+      8,
+      8,
+      8
+    ],
+    "spatial_tokens": 512,
+    "spatial_variant": "stride8",
+    "targets": [
+      "subtlety",
+      "internal_structure",
+      "calcification",
+      "sphericity",
+      "margin",
+      "lobulation",
+      "spiculation",
+      "texture"
+    ],
+    "version": "1.0"
+  },
+  "baseline": {
+    "rows": [
+      {
+        "attribute": "subtlety",
+        "baseline": "train_median_reader_mean",
+        "mae": 0.8719243407249451,
+        "train_valid_n": 1859,
+        "val_valid_n": 437,
+        "value": 4.0
+      },
+      {
+        "accuracy": 0.9862700228832952,
+        "attribute": "internal_structure",
+        "baseline": "train_global_reader_distribution",
+        "mode_class": 1,
+        "nll": 0.046822915450594645,
+        "train_distribution": [
+          0.9943518019962873,
+          0.0018379057267214657,
+          0.00017930787695073127,
+          0.0036309844000405405
+        ],
+        "train_valid_n": 1859,
+        "val_valid_n": 437
+      },
+      {
+        "accuracy": 0.8718535469107551,
+        "attribute": "calcification",
+        "baseline": "train_global_reader_distribution",
+        "mode_class": 6,
+        "nll": 0.37581724486490037,
+        "train_distribution": [
+          0.0004034427264506291,
+          0.0016137709058025164,
+          0.09942621584925616,
+          0.0061323297498519355,
+          0.00833781583364238,
+          0.8840864249349963
+        ],
+        "train_valid_n": 1859,
+        "val_valid_n": 437
+      },
+      {
+        "attribute": "sphericity",
+        "baseline": "train_median_reader_mean",
+        "mae": 0.6617412567138672,
+        "train_valid_n": 1859,
+        "val_valid_n": 437,
+        "value": 3.75
+      },
+      {
+        "attribute": "margin",
+        "baseline": "train_median_reader_mean",
+        "mae": 0.8295031189918518,
+        "train_valid_n": 1859,
+        "val_valid_n": 437,
+        "value": 4.0
+      },
+      {
+        "attribute": "lobulation",
+        "baseline": "train_median_reader_mean",
+        "mae": 0.6077257990837097,
+        "train_valid_n": 1859,
+        "val_valid_n": 437,
+        "value": 1.3333333730697632
+      },
+      {
+        "attribute": "spiculation",
+        "baseline": "train_median_reader_mean",
+        "mae": 0.5411190986633301,
+        "train_valid_n": 1859,
+        "val_valid_n": 437,
+        "value": 1.25
+      },
+      {
+        "attribute": "texture",
+        "baseline": "train_median_reader_mean",
+        "mae": 0.636471688747406,
+        "train_valid_n": 1859,
+        "val_valid_n": 437,
+        "value": 5.0
+      }
+    ]
+  },
+  "best_epoch": 6,
+  "best_selection_metric": "M6>=3",
+  "best_selection_score": 0.006093048666388756,
+  "canonical_counts": {
+    "test": 355,
+    "train": 1859,
+    "val": 437
+  },
+  "elapsed_seconds": 209.2432143688202,
+  "environment": {
+    "cpu_count": 64,
+    "cuda_available": true,
+    "cuda_version": "13.0",
+    "gpu": "NVIDIA A30",
+    "python": "3.10.20 (main, Mar 11 2026, 17:46:40) [GCC 14.3.0]",
+    "torch": "2.11.0+cu130"
+  },
+  "experiment": "spatial_objective_v1",
+  "files": {
+    "checkpoint": "/home/LungInsight_v2/backend/models/nodule_ranker_3d_distributional_v1/spatial_v1/checkpoints/ordinal_reader/seed_123/best.pth",
+    "history": "/home/LungInsight_v2/backend/models/nodule_ranker_3d_distributional_v1/spatial_v1/checkpoints/ordinal_reader/seed_123/history.csv",
+    "run": "/home/LungInsight_v2/backend/models/nodule_ranker_3d_distributional_v1/spatial_v1/checkpoints/ordinal_reader/seed_123/run.json"
+  },
+  "h5": "/home/LungInsight_v2/datasets/LIDC/lidc_patches.h5",
+  "h5_modified": false,
+  "invalid_ratings_excluded": [],
+  "last_validation_metrics": {
+    "calcification": {
+      "accuracy": 0.8718535469107551,
+      "n": 437,
+      "nll": 0.37474361062049866,
+      "pred_class_distribution": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        437
+      ],
+      "present_absent_auroc": 0.5333708286464192,
+      "true_class_distribution": [
+        0,
+        0,
+        24,
+        19,
+        13,
+        381
+      ]
+    },
+    "internal_structure": {
+      "accuracy": 0.9862700228832952,
+      "n": 437,
+      "nll": 0.04690675809979439,
+      "pred_class_distribution": [
+        437,
+        0,
+        0,
+        0
+      ],
+      "true_class_distribution": [
+        431,
+        5,
+        0,
+        1
+      ]
+    },
+    "lobulation": {
+      "mae": 0.6638429164886475,
+      "n_all": 437,
+      "n_ge3": 215,
+      "pearson": 0.006916676526294199,
+      "pred_std": 0.009635315276682377,
+      "rmse": 0.8788807988166809,
+      "sd_ratio": 0.010966215282678604,
+      "spearman": 0.006756159444865853,
+      "spearman_ge3": 0.02000980260692355,
+      "target_std": 0.878636360168457
+    },
+    "margin": {
+      "mae": 0.8894522190093994,
+      "n_all": 437,
+      "n_ge3": 215,
+      "pearson": -0.04434735187984435,
+      "pred_std": 0.052498746663331985,
+      "rmse": 1.0866283178329468,
+      "sd_ratio": 0.04862961545586586,
+      "spearman": -0.05242265706698457,
+      "spearman_ge3": -0.09295597356359814,
+      "target_std": 1.0795632600784302
+    },
+    "sphericity": {
+      "mae": 0.6787533760070801,
+      "n_all": 437,
+      "n_ge3": 215,
+      "pearson": 0.04992495820224195,
+      "pred_std": 0.042884524911642075,
+      "rmse": 0.8116452693939209,
+      "sd_ratio": 0.05467989295721054,
+      "spearman": 0.028213847186263172,
+      "spearman_ge3": -0.016489204003570235,
+      "target_std": 0.7842832803726196
+    },
+    "spiculation": {
+      "mae": 0.6475715041160583,
+      "n_all": 437,
+      "n_ge3": 215,
+      "pearson": 0.009481660263716218,
+      "pred_std": 0.012726910412311554,
+      "rmse": 0.8748080134391785,
+      "sd_ratio": 0.014570734463632107,
+      "spearman": -0.044943904684541444,
+      "spearman_ge3": -0.05137237457507505,
+      "target_std": 0.8734570145606995
+    },
+    "subtlety": {
+      "mae": 0.8779354095458984,
+      "n_all": 437,
+      "n_ge3": 215,
+      "pearson": -0.06044007124748742,
+      "pred_std": 0.012734553776681423,
+      "rmse": 1.0790960788726807,
+      "sd_ratio": 0.011817499063909054,
+      "spearman": -0.059933244198323486,
+      "spearman_ge3": -0.02398463538992751,
+      "target_std": 1.077601432800293
+    },
+    "texture": {
+      "mae": 0.8715237975120544,
+      "n_all": 437,
+      "n_ge3": 215,
+      "pearson": -0.028135132845512226,
+      "pred_std": 0.055188197642564774,
+      "rmse": 1.1205554008483887,
+      "sd_ratio": 0.049693793058395386,
+      "spearman": 0.00799065876708744,
+      "spearman_ge3": 0.0166749375732975,
+      "target_std": 1.110565185546875
+    }
+  },
+  "model_parameter_count": 2066776,
+  "objective": "ordinal_reader",
+  "read_only_h5": true,
+  "selection_rule": "M6>=3, else M6all, else -val_loss_fallback only when all six ordered correlations are undefined",
+  "split_file": "/home/LungInsight_v2/backend/models/nodule_ranker_3d/checkpoints_model2_final/split.json",
+  "split_hashes": {
+    "test": "e3ebe6f752237c58240e0888492679295ab068d6929cd75be1df83b821e4b56c",
+    "train": "1814147c1f1f0ccfbda73b56c5dbb392c14412b72c6b0fe316ee7a81957ad922",
+    "val": "0831f0b8e0ba4b54de794c914677e783d21197bedc5c6f93c695eb07011051f7"
+  },
+  "split_modified": false,
+  "test_loaded_during_training": false,
+  "test_used_for_selection": false
+}

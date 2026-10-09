@@ -1,0 +1,83 @@
+LUNGINSIGHT v2 — ONE-STOP DIAGNOSTIC
+============================================================
+H5: C:\Users\emkap\Documents\Projects\LungInsight\datasets\LIDC\lidc_patches.h5
+Split: C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\models\nodule_ranker_3d\checkpoints_model2_final\split.json
+Train/Val/Test: 1859/437/355
+
+DECISIVE FINDINGS
+- SUPPORTED_AS_SPECIFICATION_PROBLEM: Internal-structure cardinality is specified incorrectly in the current implementation.
+    Authoritative LIDC schema uses internalStructure codes 1..4.
+    Current implementation assumptions report internal_structure K=5.
+    The discrepancy is testable directly from the H5 and model code.
+- WEAKENED: Patient-level split leakage explains the failure.
+    Patient overlap across split pairs = 0.
+- SUPPORTED: Several attributes are dominated by marginal prevalence, making raw accuracy/MAE misleading.
+    subtlety: validation mean-target SD=1.078, median-baseline MAE=0.872
+    internal_structure: validation mean-target SD=0.170, median-baseline MAE=0.017
+    calcification: validation mean-target SD=0.778, median-baseline MAE=0.278
+- SUPPORTED_AS_CONTRIBUTOR: Reader disagreement materially limits attainable performance.
+    Mean fraction of 2+ reader nodules with disagreement across attributes = 0.539
+- WEAKENED: There is recoverable image signal in cheap CT statistics.
+    Best handcrafted Ridge validation Spearman = 0.115
+- WEAKENED: The observed best-checkpoint collapse is only an early-stopping artifact.
+    The prior full run's last checkpoint recovered prediction variance but remained near-zero in Spearman.
+    Therefore variance recovery alone did not restore generalization.
+- NOT_PROVEN: The existing distributional objective is proven to be the root cause.
+    Current diagnostics can establish target semantics and baselines, but cannot prove an objective is causal without a matched objective comparison.
+    A small-data failure can arise from representation, supervision, objective, or their interaction.
+- UNRESOLVED: The pretrained encoder is the root cause.
+    Checkpoint metadata can be inspected here, but metadata alone cannot establish transfer quality.
+    A frozen embedding probe is required to distinguish representation quality from head/objective failure.
+- NOT_JUSTIFIED_YET: A wholesale architecture replacement is currently justified.
+    Multiple opinions independently recommend diagnostic isolation before architecture search.
+    The current evidence does not isolate the encoder as the bottleneck.
+
+TARGET CARDINALITIES
+{
+  "authoritative": {
+    "subtlety": 5,
+    "internal_structure": 4,
+    "calcification": 6,
+    "sphericity": 5,
+    "margin": 5,
+    "lobulation": 5,
+    "spiculation": 5,
+    "texture": 5
+  },
+  "current_code_assumption": {
+    "subtlety": 5,
+    "internal_structure": 5,
+    "calcification": 6,
+    "sphericity": 5,
+    "margin": 5,
+    "lobulation": 5,
+    "spiculation": 5,
+    "texture": 5
+  }
+}
+
+FILES WRITTEN
+  one_stop_diagnostic.json
+  target_consistency.csv
+  category_counts.csv
+  reader_count_target_stability.csv
+  baselines.csv
+  handcrafted_probe.csv (if sklearn available)
+  handcrafted_train_features.npy / handcrafted_val_features.npy (if probe ran)
+
+DECISION GATE
+{
+  "do_not_regenerate_h5": true,
+  "do_not_change_split": true,
+  "do_not_use_test_for_model_selection": true,
+  "do_not_launch_large_architecture_grid_yet": true,
+  "must_audit_internal_structure_cardinality": true,
+  "next_required_evidence": [
+    "training-derived baselines",
+    "reader agreement / target stability",
+    "cheap image-feature probe",
+    "runtime audit of internal_structure K",
+    "frozen pretrained-encoder probe if feasible",
+    "only then a matched objective comparison"
+  ]
+}

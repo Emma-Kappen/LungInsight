@@ -19,3 +19,9 @@ Thumbs.db
 .env
 
 LungInsight_v1/
+
+# Zipped Files
+*.zip
+*.tar.gz
+
+*.tar.gz
