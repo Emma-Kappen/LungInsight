@@ -1,0 +1,12 @@
+{
+  "rows": [
+    {
+      "attribute": "sphericity",
+      "baseline": "train_median_reader_mean",
+      "mae": 0.6617412567138672,
+      "train_valid_n": 1859,
+      "val_valid_n": 437,
+      "value": 3.75
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "rows": [
+    {
+      "attribute": "texture",
+      "baseline": "train_median_reader_mean",
+      "mae": 0.636471688747406,
+      "train_valid_n": 1859,
+      "val_valid_n": 437,
+      "value": 5.0
+    }
+  ]
+}

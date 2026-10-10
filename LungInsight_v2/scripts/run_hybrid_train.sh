@@ -1,7 +1,8 @@
 ﻿#!/usr/bin/env bash
 set -euo pipefail
 
-cd /home/LungInsight_v2
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}/.."
 
 for group in lobulation_spiculation subtlety sphericity margin texture; do
     echo "============================================================"

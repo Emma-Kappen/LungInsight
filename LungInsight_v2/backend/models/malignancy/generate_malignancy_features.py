@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
+import os
 import random
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +20,7 @@ from torch.utils.data import DataLoader
 
 HERE = Path(__file__).resolve().parent
 SPATIAL_DIR = HERE.parent / "nodule_ranker_3d_distributional_v1" / "spatial_v1"
+HYBRID_CHECKPOINT_DIR = SPATIAL_DIR / "checkpoints" / "hybrid"
 sys.path.insert(0, str(SPATIAL_DIR))
 
 from model_objective import MODEL_TARGETS, SpatialObjectiveModel, preprocess_hu  # noqa: E402
@@ -50,6 +54,159 @@ CHECKPOINT_ARGS = {
 MALIGNANCY_READER_INDEX = 3
 
 
+def resolve_checkpoint_path(
+    path: str | Path, group: str, checkpoint_dir: Path = HYBRID_CHECKPOINT_DIR
+) -> Path:
+    """Resolve explicit paths or the repository's canonical hybrid checkpoint path."""
+    requested = Path(path).expanduser()
+    resolved = requested.resolve()
+    if resolved.is_file():
+        return resolved
+
+    canonical = (checkpoint_dir / group / "best.pth").resolve()
+    if not requested.is_absolute() and canonical.is_file():
+        return canonical
+
+    raise FileNotFoundError(
+        f"group '{group}': attribute checkpoint not found; requested path={resolved}; "
+        f"canonical checkpoint path={canonical}. Pass the existing checkpoint path explicitly."
+    )
+
+
+def build_group_channel_mapping(
+    groups: dict[str, tuple[str, ...]] = GROUPS,
+    attribute_names: tuple[str, ...] = ATTRIBUTE_NAMES,
+    model_targets: list[str] = MODEL_TARGETS,
+) -> dict[str, tuple[tuple[str, int, int], ...]]:
+    """Map each group's target names to (attribute slot, model output channel)."""
+    if len(attribute_names) != len(set(attribute_names)):
+        raise ValueError(f"Duplicate malignancy attributes: {attribute_names}")
+    if len(model_targets) != len(set(model_targets)):
+        raise ValueError(f"Duplicate model output targets: {model_targets}")
+
+    mapping: dict[str, tuple[tuple[str, int, int], ...]] = {}
+    assigned_by: dict[str, str] = {}
+    for group, targets in groups.items():
+        expected_targets = tuple(targets)
+        if len(expected_targets) != len(set(expected_targets)):
+            raise ValueError(
+                f"group '{group}': duplicate target mapping; expected targets={expected_targets}; "
+                "actual output dimensions=not available before inference"
+            )
+        entries = []
+        for target in expected_targets:
+            if target not in model_targets:
+                raise ValueError(
+                    f"group '{group}': unknown model target '{target}'; expected targets="
+                    f"{expected_targets}; actual output dimensions=not available before inference; "
+                    f"valid model targets={tuple(model_targets)}"
+                )
+            if target not in attribute_names:
+                raise ValueError(
+                    f"group '{group}': target '{target}' is not a malignancy feature; "
+                    f"expected targets={expected_targets}; actual output dimensions="
+                    "not available before inference; invalid mapping"
+                )
+            if target in assigned_by:
+                raise ValueError(
+                    f"group '{group}': duplicate assignment for '{target}' already mapped by "
+                    f"group '{assigned_by[target]}'; expected targets={expected_targets}; "
+                    "actual output dimensions=not available before inference"
+                )
+            assigned_by[target] = group
+            entries.append((target, attribute_names.index(target), model_targets.index(target)))
+        mapping[group] = tuple(entries)
+
+    missing = tuple(name for name in attribute_names if name not in assigned_by)
+    if missing:
+        raise ValueError(
+            f"missing malignancy attribute mappings={missing}; expected attributes={attribute_names}; "
+            "actual output dimensions=not available before inference"
+        )
+    return mapping
+
+
+def assemble_attribute_slots(
+    group_outputs: dict[str, np.ndarray], sample_count: int,
+    mapping: dict[str, tuple[tuple[str, int, int], ...]] | None = None,
+) -> np.ndarray:
+    """Assemble [N,6,2] mean/uncertainty slots from full model-target outputs."""
+    mapping = mapping or build_group_channel_mapping()
+    expected_groups = set(mapping)
+    actual_groups = set(group_outputs)
+    if actual_groups != expected_groups:
+        raise ValueError(
+            f"attribute groups do not match mapping; missing={sorted(expected_groups - actual_groups)}, "
+            f"unknown={sorted(actual_groups - expected_groups)}; expected targets by group="
+            f"{ {group: tuple(item[0] for item in entries) for group, entries in mapping.items()} }; "
+            "actual output dimensions=unavailable for missing groups; invalid mapping"
+        )
+
+    slots = np.full((sample_count, len(ATTRIBUTE_NAMES), 2), np.nan, dtype=np.float32)
+    assignment_counts = np.zeros(len(ATTRIBUTE_NAMES), dtype=np.int32)
+    for group, entries in mapping.items():
+        values = np.asarray(group_outputs[group])
+        expected_shape = (sample_count, len(MODEL_TARGETS), 2)
+        expected_targets = tuple(item[0] for item in entries)
+        if values.shape != expected_shape:
+            raise ValueError(
+                f"group '{group}': incompatible output shape; expected targets={expected_targets}; "
+                f"expected output dimensions={expected_shape} with model target order={tuple(MODEL_TARGETS)}; "
+                f"actual output dimensions={values.shape}; invalid mapping"
+            )
+        for target, feature_slot, output_channel in entries:
+            if output_channel < 0 or output_channel >= values.shape[1]:
+                raise ValueError(
+                    f"group '{group}': invalid channel mapping for target '{target}'; "
+                    f"expected targets={expected_targets}; output channel={output_channel}; "
+                    f"actual output dimensions={values.shape}; invalid mapping"
+                )
+            if assignment_counts[feature_slot]:
+                raise ValueError(
+                    f"group '{group}': duplicate feature-slot assignment for '{target}'; "
+                    f"expected targets={expected_targets}; actual output dimensions={values.shape}; "
+                    "invalid mapping"
+                )
+            selected = values[:, output_channel, :]
+            if not np.isfinite(selected).all():
+                raise ValueError(
+                    f"group '{group}': nonfinite values for target '{target}'; "
+                    f"expected targets={expected_targets}; actual output dimensions={values.shape}; "
+                    "invalid mapping"
+                )
+            slots[:, feature_slot, :] = selected
+            assignment_counts[feature_slot] += 1
+
+    unfilled = tuple(ATTRIBUTE_NAMES[i] for i, count in enumerate(assignment_counts) if count != 1)
+    if unfilled:
+        raise ValueError(
+            f"unfilled or multiply assigned malignancy feature slots={unfilled}; "
+            f"expected attributes={ATTRIBUTE_NAMES}; actual slot shape={slots.shape}; "
+            f"assignment counts={assignment_counts.tolist()}"
+        )
+    if not np.isfinite(slots).all():
+        raise ValueError(
+            f"nonfinite assembled feature slots; expected attributes={ATTRIBUTE_NAMES}; "
+            f"actual slot shape={slots.shape}; assignment counts={assignment_counts.tolist()}"
+        )
+    return slots
+
+
+def pack_feature_matrix(slots: np.ndarray) -> np.ndarray:
+    """Pack six score means followed by their six corresponding uncertainties."""
+    expected_shape = (slots.shape[0], len(ATTRIBUTE_NAMES), 2) if slots.ndim == 3 else None
+    if slots.ndim != 3 or slots.shape != expected_shape:
+        raise ValueError(
+            f"Expected assembled slots [N,{len(ATTRIBUTE_NAMES)},2], got {slots.shape}"
+        )
+    if not np.isfinite(slots).all():
+        raise ValueError(f"Cannot pack nonfinite feature slots with shape {slots.shape}")
+    features = np.concatenate((slots[:, :, 0], slots[:, :, 1]), axis=1).astype(np.float32)
+    if features.shape != (slots.shape[0], 12):
+        raise ValueError(f"Expected 12 malignancy features, got shape {features.shape}")
+    return features
+
+
 def seed_all(seed: int) -> None:
     random.seed(seed)
     np.random.seed(seed)
@@ -58,11 +215,79 @@ def seed_all(seed: int) -> None:
         torch.cuda.manual_seed_all(seed)
 
 
-def load_attribute_checkpoint(path: Path, device: torch.device) -> tuple[dict[str, Any], dict[str, Any]]:
+def sha256_file(path: Path, chunk_size: int = 8 * 1024 * 1024) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        while chunk := source.read(chunk_size):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def atomic_save_npz(path: Path, **arrays: np.ndarray) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="wb", dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False
+        ) as temporary_file:
+            temporary_path = Path(temporary_file.name)
+            np.savez_compressed(temporary_file, **arrays)
+            temporary_file.flush()
+            os.fsync(temporary_file.fileno())
+        os.replace(temporary_path, path)
+    finally:
+        if temporary_path is not None and temporary_path.exists():
+            temporary_path.unlink()
+
+
+def load_fold_cache(
+    path: Path,
+    expected_metadata: dict[str, Any],
+    expected_positions: np.ndarray,
+    expected_h5_indices: np.ndarray,
+) -> np.ndarray | None:
+    if not path.is_file():
+        return None
+    try:
+        with np.load(path, allow_pickle=False) as cache:
+            metadata = json.loads(str(cache["metadata"].item()))
+            positions = np.asarray(cache["train_positions"], dtype=np.int64)
+            h5_indices = np.asarray(cache["h5_indices"], dtype=np.int64)
+            features = np.asarray(cache["X"], dtype=np.float32)
+        if metadata != expected_metadata:
+            return None
+        if not np.array_equal(positions, expected_positions):
+            return None
+        if not np.array_equal(h5_indices, expected_h5_indices):
+            return None
+        if features.shape != (len(expected_positions), 12) or not np.isfinite(features).all():
+            return None
+        return features
+    except (OSError, ValueError, KeyError, json.JSONDecodeError):
+        return None
+
+
+def load_attribute_checkpoint(
+    path: Path, device: torch.device, expected_group: str
+) -> tuple[dict[str, Any], dict[str, Any]]:
     checkpoint = torch.load(path, map_location="cpu", weights_only=False)
     architecture = checkpoint["architecture"]
     if architecture.get("objective") != "ordinal_reader":
         raise ValueError(f"{path} must be an ordinal_reader attribute checkpoint")
+    declared_targets = tuple(architecture.get("targets", ()))
+    if declared_targets != tuple(MODEL_TARGETS):
+        raise ValueError(
+            f"group '{expected_group}': checkpoint target order mismatch; "
+            f"expected targets={tuple(MODEL_TARGETS)}; actual checkpoint targets={declared_targets}; "
+            "actual output dimensions are not verified until inference"
+        )
+    checkpoint_group = checkpoint.get("attribute_group") or checkpoint.get("training_config", {}).get("attribute_group")
+    if checkpoint_group != expected_group:
+        raise ValueError(
+            f"group '{expected_group}': checkpoint group metadata mismatch; "
+            f"expected targets={GROUPS.get(expected_group)}; actual checkpoint group={checkpoint_group!r}; "
+            f"checkpoint output target order={declared_targets}"
+        )
     model = SpatialObjectiveModel(
         architecture["objective"],
         architecture["attention_dim"],
@@ -80,15 +305,16 @@ def mc_attribute_predictions(
     device: torch.device,
     passes: int,
     batch_size: int,
+    group: str,
 ) -> np.ndarray:
-    """Return [N, 6, 2] mean and MC-dropout SD of expected ratings."""
+    """Return [N,8,2], ordered by MODEL_TARGETS, with mean and MC-dropout SD."""
     if passes < 2:
         raise ValueError("--mc-passes must be at least 2 to estimate uncertainty")
     model.eval()
     for module in model.modules():
         if isinstance(module, torch.nn.Dropout):
             module.train()
-    results = np.empty((len(indices), len(ATTRIBUTE_NAMES), 2), dtype=np.float32)
+    results = np.empty((len(indices), len(MODEL_TARGETS), 2), dtype=np.float32)
     with torch.inference_mode():
         for start in range(0, len(indices), batch_size):
             batch_indices = indices[start : start + batch_size]
@@ -96,9 +322,21 @@ def mc_attribute_predictions(
             x = preprocess_hu(torch.from_numpy(patches).to(device)).unsqueeze(1)
             scores = []
             for _ in range(passes):
-                expected = model.expected_ratings(model(x))
-                score_indices = [MODEL_TARGETS.index(name) for name in ATTRIBUTE_NAMES]
-                scores.append(expected[:, score_indices])
+                outputs = model(x)
+                if len(outputs) != len(MODEL_TARGETS):
+                    raise ValueError(
+                        f"group '{group}': model returned {len(outputs)} output heads; "
+                        f"expected targets={tuple(MODEL_TARGETS)} ({len(MODEL_TARGETS)} heads); "
+                        f"actual output dimensions={[tuple(output.shape) for output in outputs]}"
+                    )
+                expected = model.expected_ratings(outputs)
+                if expected.ndim != 2 or expected.shape[1] != len(MODEL_TARGETS):
+                    raise ValueError(
+                        f"group '{group}': expected ratings do not match target channels; "
+                        f"expected targets={tuple(MODEL_TARGETS)}; "
+                        f"actual output dimensions={tuple(expected.shape)}"
+                    )
+                scores.append(expected)
             draws = torch.stack(scores, dim=0)
             means = draws.mean(dim=0)
             stds = draws.std(dim=0, unbiased=False)
@@ -252,7 +490,7 @@ def save_archive(path: Path, features: np.ndarray, labels: np.ndarray, valid: np
     metadata = json.dumps({"split": split_name, "feature_names": [
         f"{name}_score" for name in ATTRIBUTE_NAMES
     ] + [f"{name}_uncertainty" for name in ATTRIBUTE_NAMES]})
-    np.savez_compressed(
+    atomic_save_npz(
         path,
         X=features.astype(np.float32),
         y=labels.astype(np.float32),
@@ -271,13 +509,26 @@ def main(args: argparse.Namespace) -> int:
     split_path = Path(args.split_file).resolve()
     output_dir = Path(args.output).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
+    group_mapping = build_group_channel_mapping()
     checkpoint_paths = {
-        group: Path(getattr(args, CHECKPOINT_ARGS[group])).resolve() for group in GROUPS
+        group: resolve_checkpoint_path(getattr(args, CHECKPOINT_ARGS[group]), group)
+        for group in GROUPS
     }
-    loaded = {group: load_attribute_checkpoint(path, device) for group, path in checkpoint_paths.items()}
+    loaded = {
+        group: load_attribute_checkpoint(path, device, expected_group=group)
+        for group, path in checkpoint_paths.items()
+    }
     architectures = [item[0]["architecture"] for item in loaded.values()]
     if any(architecture != architectures[0] for architecture in architectures[1:]):
         raise ValueError("All five hybrid checkpoints must share one architecture configuration")
+    input_hashes = {
+        "h5_sha256": sha256_file(h5_path),
+        "split_sha256": sha256_file(split_path),
+        "checkpoint_sha256": {
+            group: sha256_file(path) for group, path in checkpoint_paths.items()
+        },
+        "generator_sha256": sha256_file(Path(__file__).resolve()),
+    }
 
     with h5py.File(h5_path, "r") as h5:
         splits = parse_and_validate_split(split_path, int(h5["patches"].shape[0]), h5)
@@ -298,15 +549,59 @@ def main(args: argparse.Namespace) -> int:
         raw_masks = read_h5_indices(h5["reader_mask"], train_indices).astype(bool)
         target_arrays = build_target_arrays(raw_labels, raw_masks)
         train_positions = np.arange(len(train_indices))
+        fold_assignment = np.full(len(train_indices), -1, dtype=np.int64)
+        for fold_number, positions in enumerate(folds):
+            if np.any(fold_assignment[positions] != -1):
+                raise ValueError(f"Training sample assigned to multiple OOF folds: {fold_number}")
+            fold_assignment[positions] = fold_number
+        if np.any(fold_assignment < 0):
+            missing_positions = np.flatnonzero(fold_assignment < 0).tolist()
+            raise ValueError(f"Training samples missing OOF fold assignments: {missing_positions[:10]}")
+        fold_assignment_hash = hashlib.sha256(fold_assignment.tobytes()).hexdigest()
+        fold_cache_dir = output_dir / "fold_cache"
 
         for fold_number, heldout_positions in enumerate(folds):
             fit_positions = np.setdiff1d(train_positions, heldout_positions, assume_unique=True)
             fold_indices = train_indices[fit_positions]
+            heldout_h5_indices = train_indices[heldout_positions]
+            fold_training_epochs = {
+                group: fold_training_config(checkpoint, group, args.fold_epochs)["epochs"]
+                for group, (checkpoint, _) in loaded.items()
+            }
+            fold_metadata = {
+                **input_hashes,
+                "fold_number": fold_number,
+                "fold_count": args.folds,
+                "fold_assignment_sha256": fold_assignment_hash,
+                "heldout_train_positions": heldout_positions.tolist(),
+                "heldout_h5_indices": heldout_h5_indices.tolist(),
+                "heldout_patient_ids": np.asarray(train_patients[heldout_positions]).astype(str).tolist(),
+                "seed": args.seed,
+                "mc_passes": args.mc_passes,
+                "batch_size": args.batch_size,
+                "num_workers": args.num_workers,
+                "device": str(device),
+                "fold_training_epochs": fold_training_epochs,
+                "model_target_order": list(MODEL_TARGETS),
+                "attribute_order": list(ATTRIBUTE_NAMES),
+                "feature_order": [f"{name}_score" for name in ATTRIBUTE_NAMES]
+                + [f"{name}_uncertainty" for name in ATTRIBUTE_NAMES],
+            }
+            cache_path = fold_cache_dir / f"fold_{fold_number:02d}.npz"
             print(
                 f"Fold {fold_number + 1}/{args.folds}: fit={len(fit_positions)} "
                 f"heldout={len(heldout_positions)} patients={len(np.unique(train_patients[heldout_positions]))}",
                 flush=True,
             )
+            cached_features = load_fold_cache(
+                cache_path, fold_metadata, heldout_positions, heldout_h5_indices
+            )
+            if cached_features is not None:
+                train_features[heldout_positions] = cached_features
+                print(f"Reusing validated fold cache {cache_path}", flush=True)
+                continue
+            if cache_path.exists():
+                print(f"Ignoring incomplete or incompatible fold cache {cache_path}", flush=True)
             fold_targets = {
                 key: value[fit_positions] if isinstance(value, np.ndarray) and value.shape[0] == len(train_indices) else value
                 for key, value in target_arrays.items()
@@ -324,31 +619,39 @@ def main(args: argparse.Namespace) -> int:
                     args.fold_epochs,
                     args.num_workers,
                 )
+                mc_seed = args.seed + 500_000 + fold_number * 1009 + list(GROUPS).index(group)
+                seed_all(mc_seed)
                 fold_outputs[group] = mc_attribute_predictions(
-                    model, h5, train_indices[heldout_positions], device, args.mc_passes, args.batch_size
+                    model, h5, train_indices[heldout_positions], device,
+                    args.mc_passes, args.batch_size, group,
                 )
                 del model
-            assembled = np.empty((len(heldout_positions), 6, 2), dtype=np.float32)
-            for group, names in GROUPS.items():
-                group_values = fold_outputs[group]
-                model_names = ("lobulation", "spiculation") if group == "lobulation_spiculation" else names
-                for name in model_names:
-                    assembled[:, ATTRIBUTE_NAMES.index(name), :] = group_values[:, MODEL_TARGETS.index(name), :]
-            train_features[heldout_positions] = np.concatenate(
-                (assembled[:, :, 0], assembled[:, :, 1]), axis=1
+            assembled = assemble_attribute_slots(
+                fold_outputs, len(heldout_positions), group_mapping
             )
+            fold_features = pack_feature_matrix(assembled)
+            atomic_save_npz(
+                cache_path,
+                X=fold_features,
+                train_positions=heldout_positions.astype(np.int64),
+                h5_indices=heldout_h5_indices.astype(np.int64),
+                metadata=np.asarray(json.dumps(fold_metadata, sort_keys=True)),
+            )
+            train_features[heldout_positions] = fold_features
+            print(f"Saved completed fold cache {cache_path}", flush=True)
 
         for split_name in ("val", "test"):
             indices = splits[split_name]
-            combined = np.full((len(indices), 6, 2), np.nan, dtype=np.float32)
+            split_outputs: dict[str, np.ndarray] = {}
+            split_index = 0 if split_name == "val" else 1
             for group, (_, entry) in loaded.items():
                 model = entry["model"]
-                predictions = mc_attribute_predictions(
-                    model, h5, indices, device, args.mc_passes, args.batch_size
+                seed_all(args.seed + 700_001 + split_index * 1009 + list(GROUPS).index(group))
+                split_outputs[group] = mc_attribute_predictions(
+                    model, h5, indices, device, args.mc_passes, args.batch_size, group
                 )
-                for name in GROUPS[group]:
-                    combined[:, ATTRIBUTE_NAMES.index(name), :] = predictions[:, MODEL_TARGETS.index(name), :]
-            features = np.concatenate((combined[:, :, 0], combined[:, :, 1]), axis=1)
+            combined = assemble_attribute_slots(split_outputs, len(indices), group_mapping)
+            features = pack_feature_matrix(combined)
             labels, valid = malignancy_targets(h5, indices)
             patients = read_h5_indices(h5["patient_id"], indices)
             nodules = read_h5_indices(h5["nodule_id"], indices)
@@ -380,7 +683,7 @@ def main(args: argparse.Namespace) -> int:
             np.full(len(splits[name]), "train_oof" if name == "train" else name)
             for name in ("train", "val", "test")
         ])
-        np.savez_compressed(
+        atomic_save_npz(
             output_dir / "features.npz",
             X=all_features.astype(np.float32), y=all_labels.astype(np.float32),
             y_mask=all_valid.astype(bool), patient_ids=all_patients.astype(str),
@@ -403,6 +706,12 @@ if __name__ == "__main__":
     parser.add_argument("--output", required=True)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--folds", type=int, default=5)
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=123,
+        help="Random seed for patient-grouped out-of-fold generation.",
+    )
     parser.add_argument("--fold-epochs", type=int, default=None,
                         help="Override fold training epochs; defaults to each checkpoint's selected epoch")
     parser.add_argument("--mc-passes", type=int, default=20)

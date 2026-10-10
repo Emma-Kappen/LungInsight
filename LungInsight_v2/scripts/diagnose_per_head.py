@@ -19,11 +19,15 @@ import csv
 import json
 import math
 from pathlib import Path
+import sys
 from types import SimpleNamespace
 
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, TensorDataset
+
+MODEL_DIR = Path(__file__).resolve().parents[1] / "backend" / "models" / "nodule_ranker_3d_distributional_v1"
+sys.path.insert(0, str(MODEL_DIR))
 
 from model_3d import load_trained_model, preprocess_hu
 from train_nodule_ranker_3d import (

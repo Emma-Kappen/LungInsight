@@ -1,0 +1,20 @@
+{
+  "rows": [
+    {
+      "attribute": "lobulation",
+      "baseline": "train_median_reader_mean",
+      "mae": 0.6077257990837097,
+      "train_valid_n": 1859,
+      "val_valid_n": 437,
+      "value": 1.3333333730697632
+    },
+    {
+      "attribute": "spiculation",
+      "baseline": "train_median_reader_mean",
+      "mae": 0.5411190986633301,
+      "train_valid_n": 1859,
+      "val_valid_n": 437,
+      "value": 1.25
+    }
+  ]
+}

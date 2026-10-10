@@ -1,0 +1,260 @@
+{
+  "architecture": {
+    "attention": "task-query spatial attention + normalized 3D coordinate keys",
+    "attention_dim": 96,
+    "dropout": 0.2,
+    "encoder": {
+      "blocks": [
+        1,
+        2,
+        2
+      ],
+      "channels": [
+        32,
+        64,
+        128
+      ],
+      "stem_channels": 16
+    },
+    "head_hidden": 64,
+    "input_shape": [
+      64,
+      64,
+      64
+    ],
+    "name": "LungInsightSpatialObjectiveV1",
+    "nominal_targets": [
+      "internal_structure",
+      "calcification"
+    ],
+    "objective": "ordinal_reader",
+    "ordered_targets": [
+      "subtlety",
+      "sphericity",
+      "margin",
+      "lobulation",
+      "spiculation",
+      "texture"
+    ],
+    "preprocessing": {
+      "clip_high_hu": 400.0,
+      "clip_low_hu": -1000.0,
+      "formula": "(clip(HU,-1000,400)+1000-357.87565)/288.47657",
+      "mean": 357.87565,
+      "shift": 1000.0,
+      "std": 288.47657
+    },
+    "rating_max": {
+      "calcification": 6,
+      "internal_structure": 4,
+      "lobulation": 5,
+      "margin": 5,
+      "sphericity": 5,
+      "spiculation": 5,
+      "subtlety": 5,
+      "texture": 5
+    },
+    "spatial_output": [
+      128,
+      8,
+      8,
+      8
+    ],
+    "spatial_tokens": 512,
+    "spatial_variant": "stride8",
+    "targets": [
+      "subtlety",
+      "internal_structure",
+      "calcification",
+      "sphericity",
+      "margin",
+      "lobulation",
+      "spiculation",
+      "texture"
+    ],
+    "version": "1.0"
+  },
+  "baseline": {
+    "rows": [
+      {
+        "attribute": "sphericity",
+        "baseline": "train_median_reader_mean",
+        "mae": 0.6617412567138672,
+        "train_valid_n": 1859,
+        "val_valid_n": 437,
+        "value": 3.75
+      }
+    ]
+  },
+  "best_epoch": 6,
+  "best_selection_metric": "sphericity.spearman_ge3",
+  "best_selection_score": 0.1241756271531366,
+  "canonical_counts": {
+    "test": 355,
+    "train": 1859,
+    "val": 437
+  },
+  "elapsed_seconds": 130.49514627456665,
+  "environment": {
+    "cpu_count": 64,
+    "cuda_available": true,
+    "cuda_version": "13.0",
+    "gpu": "NVIDIA A30",
+    "python": "3.10.20 (main, Mar 11 2026, 17:46:40) [GCC 14.3.0]",
+    "torch": "2.11.0+cu130"
+  },
+  "experiment": "spatial_objective_v1",
+  "files": {
+    "checkpoint": "/home/LungInsight_v2/backend/models/nodule_ranker_3d_distributional_v1/spatial_v1/checkpoints/hybrid/sphericity/best.pth",
+    "history": "/home/LungInsight_v2/backend/models/nodule_ranker_3d_distributional_v1/spatial_v1/checkpoints/hybrid/sphericity/history.csv",
+    "run": "/home/LungInsight_v2/backend/models/nodule_ranker_3d_distributional_v1/spatial_v1/checkpoints/hybrid/sphericity/run.json"
+  },
+  "h5": "/home/LungInsight_v2/datasets/LIDC/lidc_patches.h5",
+  "h5_modified": false,
+  "invalid_ratings_excluded": [],
+  "last_validation_metrics": {
+    "sphericity": {
+      "mae": 0.6745086312294006,
+      "n_all": 437,
+      "n_ge3": 215,
+      "pearson": 0.08636909366277931,
+      "pred_std": 0.04656856879591942,
+      "rmse": 0.8075467944145203,
+      "sd_ratio": 0.05937723070383072,
+      "spearman": 0.08311392519796429,
+      "spearman_ge3": 0.10715457223252312,
+      "target_std": 0.7842832803726196
+    }
+  },
+  "last_variance_diagnostics": {
+    "mean_ordered_pred_sd": 0.04656856879591942,
+    "mean_ordered_sd_ratio": 0.05937723070383072,
+    "mean_ordered_target_sd": 0.7842832803726196
+  },
+  "model_parameter_count": 2066776,
+  "objective": "ordinal_reader",
+  "ranking_config": {
+    "attribute": "all",
+    "attribute_group": "sphericity",
+    "pair_counts_train": {
+      "sphericity": {
+        "pairs_025": 1377647,
+        "pairs_050": 1377647,
+        "pairs_100": 986330
+      }
+    },
+    "rank_loss_weight": 0.5,
+    "ranking_min_confidence": 0.1,
+    "ranking_pair_threshold": 0.5,
+    "ranking_target": "median"
+  },
+  "read_only_h5": true,
+  "selection_rule": "sphericity.spearman_ge3, else -val_loss_fallback when undefined",
+  "split_file": "/home/LungInsight_v2/backend/models/nodule_ranker_3d/checkpoints_model2_final/split.json",
+  "split_hashes": {
+    "test": "e3ebe6f752237c58240e0888492679295ab068d6929cd75be1df83b821e4b56c",
+    "train": "1814147c1f1f0ccfbda73b56c5dbb392c14412b72c6b0fe316ee7a81957ad922",
+    "val": "0831f0b8e0ba4b54de794c914677e783d21197bedc5c6f93c695eb07011051f7"
+  },
+  "split_modified": false,
+  "test_loaded_during_training": false,
+  "test_used_for_selection": false,
+  "variance_diagnostics_by_epoch": [
+    {
+      "epoch": 1,
+      "mean_ordered_pred_sd": 0.019491994753479958,
+      "mean_ordered_sd_ratio": 0.024853257462382317,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 2,
+      "mean_ordered_pred_sd": 0.038165438920259476,
+      "mean_ordered_sd_ratio": 0.04866282269358635,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 3,
+      "mean_ordered_pred_sd": 0.014859702438116074,
+      "mean_ordered_sd_ratio": 0.018946856260299683,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 4,
+      "mean_ordered_pred_sd": 0.010492869652807713,
+      "mean_ordered_sd_ratio": 0.013378928415477276,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 5,
+      "mean_ordered_pred_sd": 0.04314768686890602,
+      "mean_ordered_sd_ratio": 0.0550154373049736,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 6,
+      "mean_ordered_pred_sd": 0.00465165451169014,
+      "mean_ordered_sd_ratio": 0.005931089632213116,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 7,
+      "mean_ordered_pred_sd": 0.014299809001386166,
+      "mean_ordered_sd_ratio": 0.018232963979244232,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 8,
+      "mean_ordered_pred_sd": 0.0217254851013422,
+      "mean_ordered_sd_ratio": 0.02770106866955757,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 9,
+      "mean_ordered_pred_sd": 0.04700013995170593,
+      "mean_ordered_sd_ratio": 0.059927504509687424,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 10,
+      "mean_ordered_pred_sd": 0.047514211386442184,
+      "mean_ordered_sd_ratio": 0.0605829693377018,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 11,
+      "mean_ordered_pred_sd": 0.019924182444810867,
+      "mean_ordered_sd_ratio": 0.025404319167137146,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 12,
+      "mean_ordered_pred_sd": 0.028276128694415092,
+      "mean_ordered_sd_ratio": 0.03605346381664276,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 13,
+      "mean_ordered_pred_sd": 0.0475463904440403,
+      "mean_ordered_sd_ratio": 0.06062399968504906,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 14,
+      "mean_ordered_pred_sd": 0.07445527613162994,
+      "mean_ordered_sd_ratio": 0.09493416547775269,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 15,
+      "mean_ordered_pred_sd": 0.0942569375038147,
+      "mean_ordered_sd_ratio": 0.12018226087093353,
+      "mean_ordered_target_sd": 0.7842832803726196
+    },
+    {
+      "epoch": 16,
+      "mean_ordered_pred_sd": 0.04656856879591942,
+      "mean_ordered_sd_ratio": 0.05937723070383072,
+      "mean_ordered_target_sd": 0.7842832803726196
+    }
+  ]
+}

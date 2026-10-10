@@ -1,7 +1,8 @@
 ﻿#!/usr/bin/env bash
 set -euo pipefail
 
-cd /home/LungInsight_v2
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}/.."
 
 for seed in 123 456 789 1337 2025; do
     for attribute in all subtlety sphericity margin lobulation spiculation texture; do
