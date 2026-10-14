@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-STAGE02 = ROOT / "backend" / "Imaging" / "02_detect_and_patch.py"
+STAGE02 = ROOT / "backend" / "Imaging" / "stages" / "02_detect_and_patch.py"
 
 
 class Stage02GateWiringTests(unittest.TestCase):

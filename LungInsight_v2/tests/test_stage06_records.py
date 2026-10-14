@@ -15,7 +15,13 @@ sys.path.insert(0, str(IMAGING_ROOT))
 
 
 def load_imaging_script(name: str, filename: str):
-    spec = importlib.util.spec_from_file_location(name, IMAGING_ROOT / filename)
+    subdirectory = {
+        "05_gradcam.py": "inference",
+        "06_full_ct_gradcam.py": "visualization",
+        "07_visualize.py": "visualization",
+    }.get(filename)
+    script_path = IMAGING_ROOT / subdirectory / filename if subdirectory else IMAGING_ROOT / filename
+    spec = importlib.util.spec_from_file_location(name, script_path)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Could not load {filename}")
     module = importlib.util.module_from_spec(spec)

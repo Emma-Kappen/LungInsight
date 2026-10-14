@@ -8,6 +8,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 IMAGING = ROOT / "backend" / "Imaging"
+STAGES = IMAGING / "stages"
+INFERENCE = IMAGING / "inference"
+VISUALIZATION = IMAGING / "visualization"
 sys.path.insert(0, str(IMAGING))
 from pipeline_schema import (  # noqa: E402
     PipelineSchemaError,
@@ -43,7 +46,7 @@ class PipelineSchemaTests(unittest.TestCase):
         )
 
     def test_stage02_resolves_log_manifest_before_use_and_saves_after_extraction(self):
-        stage2 = IMAGING / "02_detect_and_patch.py"
+        stage2 = STAGES / "02_detect_and_patch.py"
         source = stage2.read_text(encoding="utf-8")
         log_path_assignment = source.index(
             'log_patch_manifest_path = patient_root / STAGE02_LOG_PATCH_OUTPUTS["manifest"]'
@@ -63,7 +66,7 @@ class PipelineSchemaTests(unittest.TestCase):
         self.assertLess(log_manifest_save, authoritative_manifest_save)
 
     def test_stage05_patch_shape_is_defined_from_schema_and_matches_stage03(self):
-        stage5 = IMAGING / "05_gradcam.py"
+        stage5 = INFERENCE / "05_gradcam.py"
         source = stage5.read_text(encoding="utf-8")
         tree = ast.parse(source, filename=str(stage5))
         assigned_names = {
@@ -83,7 +86,7 @@ class PipelineSchemaTests(unittest.TestCase):
         )
 
     def test_stage05_allows_six_requested_attributes_as_subset_of_eight_model_targets(self):
-        stage5 = IMAGING / "05_gradcam.py"
+        stage5 = INFERENCE / "05_gradcam.py"
         tree = ast.parse(stage5.read_text(encoding="utf-8"), filename=str(stage5))
         function = next(
             node for node in tree.body
@@ -109,7 +112,7 @@ class PipelineSchemaTests(unittest.TestCase):
             validate(model_targets, ("subtlety", "malignancy"))
 
     def test_stage04_loads_stage03_path_configuration(self):
-        stage4 = IMAGING / "04_malignancy_prediction.py"
+        stage4 = STAGES / "04_malignancy_prediction.py"
         tree = ast.parse(stage4.read_text(encoding="utf-8"), filename=str(stage4))
         assigned = {
             target.id
@@ -124,7 +127,7 @@ class PipelineSchemaTests(unittest.TestCase):
         import numpy as np
         from types import SimpleNamespace
 
-        stage2_path = IMAGING / "02_detect_and_patch.py"
+        stage2_path = STAGES / "02_detect_and_patch.py"
         tree = ast.parse(stage2_path.read_text(encoding="utf-8"), filename=str(stage2_path))
         function = next(
             node for node in tree.body
@@ -151,14 +154,14 @@ class PipelineSchemaTests(unittest.TestCase):
     def test_schema_defaults_to_top_100_ranked_log_candidates(self):
         stage2 = self.schema["stage_02_detect_and_patch"]["diagnostic_log_detector"]
         self.assertEqual(stage2["patch_limit_default"], 100)
-        self.assertIn("--all-log-patches", (IMAGING / "02_detect_and_patch.py").read_text(encoding="utf-8"))
+        self.assertIn("--all-log-patches", (STAGES / "02_detect_and_patch.py").read_text(encoding="utf-8"))
 
     def test_stage07_csv_columns_are_schema_driven(self):
         stage7 = self.schema["stage_07_visualize"]
         columns = stage7["csv_columns_order"]
         self.assertEqual(columns.count("{attribute_columns}"), 1)
         self.assertTrue(set(self.schema["attribute_contracts"]["stage03_ranked_attributes"]).isdisjoint({"{attribute_columns}"}))
-        self.assertIn('get_required(STAGE07, "csv_columns_order", expected_type=list)', (IMAGING / "07_visualize.py").read_text(encoding="utf-8"))
+        self.assertIn('get_required(STAGE07, "csv_columns_order", expected_type=list)', (VISUALIZATION / "07_visualize.py").read_text(encoding="utf-8"))
 
     def test_stage04_log_diagnostic_output_is_separate(self):
         stage4 = self.schema["paths"]["stage_04"]
@@ -167,7 +170,7 @@ class PipelineSchemaTests(unittest.TestCase):
         self.assertIn("log_diagnostic_predictions_json", stage3)
 
     def test_stage05_batch_gradcam_uses_manifest_and_cached_checkpoints(self):
-        stage5_path = IMAGING / "05_gradcam.py"
+        stage5_path = INFERENCE / "05_gradcam.py"
         source = stage5_path.read_text(encoding="utf-8")
         self.assertIn('"--manifest"', source)
         self.assertIn('"--batch-limit"', source)
@@ -176,7 +179,7 @@ class PipelineSchemaTests(unittest.TestCase):
 
     def test_stage07_excludes_centers_outside_lung_mask(self):
         import numpy as np
-        stage7_path = IMAGING / "07_visualize.py"
+        stage7_path = VISUALIZATION / "07_visualize.py"
         tree = ast.parse(stage7_path.read_text(encoding="utf-8"), filename=str(stage7_path))
         fn = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "sample_mask")
         module = ast.Module(body=[ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0), fn], type_ignores=[])
@@ -198,7 +201,7 @@ class PipelineSchemaTests(unittest.TestCase):
         self.assertNotIn("$Schema.stage_07_visualize.outputs.report_json", runner)
 
     def test_stage07_is_registered_for_static_validation(self):
-        validator = (ROOT / "validate_pipeline.py").read_text(encoding="utf-8")
+        validator = (IMAGING / "validation" / "validate_pipeline.py").read_text(encoding="utf-8")
         self.assertIn('"07_visualize.py"', validator)
         self.assertEqual(get_required(self.schema, self.schema["stage_07_visualize"]["outputs"]["report_csv_ref"]), self.schema["paths"]["stage_07"]["report_csv"])
 
@@ -214,7 +217,7 @@ class PipelineSchemaTests(unittest.TestCase):
             self.assertEqual(repository_root(script), root)
 
     def test_stage01_legacy_archive_root_is_derived_from_schema_root(self):
-        stage01 = ROOT / "backend" / "Imaging" / "01_hu_and_crop.py"
+        stage01 = STAGES / "01_hu_and_crop.py"
         tree = ast.parse(stage01.read_text(encoding="utf-8"), filename=str(stage01))
         assignments = {}
         for node in ast.walk(tree):
