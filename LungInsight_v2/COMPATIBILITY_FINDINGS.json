@@ -1,0 +1,45 @@
+{
+  "issue_from_user_log": {
+    "first_error": "The utility required schema_version == '2.3' while the local workspace schema reports '2.6'.",
+    "second_error": "The shell moved to the parent LungInsight directory, so the relative backend\\Imaging script path was no longer valid."
+  },
+  "fix": {
+    "schema_policy": "Do not pin to a schema version number; require and validate the exact coordinate contract used by the utility.",
+    "contract_invariants": [
+      "array axes are [z, y, x]",
+      "physical coordinate system is DICOM_LPS",
+      "Stage 02 space and coordinate_format.ct_frame_space agree when both are defined"
+    ],
+    "schema_mutated": false,
+    "numbered_stages_replaced": false
+  },
+  "local_audit_report_pasted_by_user": {
+    "schema_version": "2.6",
+    "full_pipeline_compatible_from_supplied_files": true,
+    "problems": [],
+    "scope_note": "This checks interface presence, not checkpoint loading, model validity, clinical validity, or GPU execution."
+  },
+  "validation_run_in_this_bundle_build": {
+    "unit_tests": {
+      "executed": true,
+      "result": "19 passed"
+    },
+    "py_compile": {
+      "executed": true,
+      "result": "passed for the helper, tests, and audit script"
+    },
+    "uploaded_schema_2_3_contract": {
+      "executed": true,
+      "result": "passed; DICOM_LPS, ZYX axes, and stage01_final_cropped_ct read correctly"
+    },
+    "synthetic_schema_2_6_cli_smoke_test": {
+      "executed": true,
+      "result": "passed; 1 LoG + 2 ViTDet3D = 3 union candidates, 2 after deduplication, 1 accepted and 1 rejected at the heart mask",
+      "actual_user_schema_file_used": false
+    },
+    "real_user_schema_2_6": "Not uploaded as a separate file in this troubleshooting turn; structurally validated using a synthetic 2.6 fixture, and the helper must be run against the actual local schema.",
+    "real_ct_inference": "Not run",
+    "gradcam_polarity": "Not validated by this candidate-fusion utility",
+    "stage_03_to_07_gating": "Not integrated by this standalone utility"
+  }
+}

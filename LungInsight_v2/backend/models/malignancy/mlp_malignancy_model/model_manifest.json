@@ -1,0 +1,11 @@
+{
+  "model_path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\mlp_malignancy_model\\mlp_malignancy.pt",
+  "model_sha256": "ef76a2ae19363d8f4e12952301cf48b5feeb86c0d09f38a9200633ad88c86cab",
+  "feature_schema_path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\mlp_malignancy_model\\feature_schema.json",
+  "metrics_path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\mlp_malignancy_model\\metrics.json",
+  "training_config_path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\mlp_malignancy_model\\training_config.json",
+  "training_history_path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\mlp_malignancy_model\\training_history.csv",
+  "feature_directory": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\frozen_features",
+  "stage03_weights_modified": false,
+  "stage04_inference_implemented": false
+}

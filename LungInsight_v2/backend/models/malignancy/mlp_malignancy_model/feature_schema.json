@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "model_type": "small_regularized_ordinal_mlp_cumulative_logit",
+  "feature_names_in_order": [
+    "subtlety",
+    "sphericity",
+    "margin",
+    "lobulation",
+    "spiculation",
+    "texture"
+  ],
+  "feature_count": 6,
+  "normalization": "z-score using train.npz nodule rows only; feature_mean/feature_scale stored in mlp_malignancy.pt",
+  "rating_classes": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "probability_semantics": "distribution over LIDC reader malignancy/suspicion ratings, not a cancer probability",
+  "expected_rating_formula": "sum(probability[r] * r for r in 1..5)",
+  "missing_feature_policy": "reject missing or non-finite features; no silent imputation"
+}

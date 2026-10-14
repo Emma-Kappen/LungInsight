@@ -1,0 +1,70 @@
+{
+  "n_evaluated": 1124,
+  "mae_continuous": 0.7373362779208535,
+  "qwk_rounded_clipped": 0.46317009854575686,
+  "accuracy_rounded_clipped": 0.4386120996441281,
+  "rounding_clipping_policy": "half_up_clip_1_5",
+  "prediction_distribution_continuous": {
+    "mean": 2.7939431099030925,
+    "std": 0.681367270764842,
+    "min": 1.7244527062196824,
+    "max": 4.834242790608161
+  },
+  "prediction_integer_counts_1_to_5": {
+    "1": 0,
+    "2": 458,
+    "3": 498,
+    "4": 147,
+    "5": 21
+  },
+  "target_integer_counts_1_to_5": {
+    "1": 143,
+    "2": 269,
+    "3": 417,
+    "4": 175,
+    "5": 120
+  },
+  "confusion_matrix_rows_target_1_to_5_cols_prediction_1_to_5": [
+    [
+      0,
+      95,
+      42,
+      5,
+      1
+    ],
+    [
+      0,
+      190,
+      76,
+      3,
+      0
+    ],
+    [
+      0,
+      134,
+      238,
+      44,
+      1
+    ],
+    [
+      0,
+      25,
+      100,
+      48,
+      2
+    ],
+    [
+      0,
+      14,
+      42,
+      47,
+      17
+    ]
+  ],
+  "input_source": "XML validation reader-level rows",
+  "target_column": "malignancy",
+  "rows_total": 1124,
+  "rows_used": 1124,
+  "rows_dropped_invalid": 0,
+  "target_semantics": "Reader-assigned malignancy/suspicion rating, not pathology-confirmed cancer."
+}

@@ -1,0 +1,244 @@
+{
+  "schema_version": "1.0",
+  "created_at_utc": "2026-10-11T16:28:42.836528+00:00",
+  "target_description": "LIDC reader-rated malignancy/suspicion (1..5), not confirmed cancer and not a calibrated cancer probability",
+  "validation_used_for_model_selection": true,
+  "test_used_for_model_selection": false,
+  "selected_candidate": "depth2_regularized",
+  "selected_rounds": 10,
+  "selection_rule": "Maximize validation nodule-consensus quadratic weighted kappa; break ties using lower MAE; validation logloss early-stopping determines each candidate's iteration.",
+  "selected_candidate_validation_metrics": {
+    "split": "validation",
+    "nodules_total": 437,
+    "nodules_with_valid_malignancy_labels": 437,
+    "nodules_without_valid_malignancy_labels": 0,
+    "valid_reader_observations": 1124,
+    "rating_counts_reader_observations": {
+      "1": 143,
+      "2": 269,
+      "3": 417,
+      "4": 175,
+      "5": 120
+    },
+    "nodule_consensus": {
+      "target": "mean of valid reader malignancy ratings (continuous 1..5)",
+      "quadratic_weighted_kappa": 0.0,
+      "mae": 0.7014381032718401,
+      "accuracy_rounded_consensus_vs_predicted_class": 0.482837528604119,
+      "spearman_rho_expected_rating_vs_reader_mean": 0.11652349199103555,
+      "median_target_mae_diagnostic": 0.7635102027886519
+    },
+    "reader_observation": {
+      "target": "each valid individual LIDC reader's malignancy/suspicion rating; reader observations weighted so each nodule has total weight 1",
+      "quadratic_weighted_kappa": 0.0,
+      "mae_expected_rating_vs_reader_rating": 0.8699488668317814,
+      "accuracy_predicted_class_vs_reader_rating": 0.3903018415604228,
+      "spearman_rho_expected_rating_vs_reader_rating_unweighted": 0.0790498816497443
+    }
+  },
+  "selected_model_validation_metrics": {
+    "split": "validation_selected_model",
+    "nodules_total": 437,
+    "nodules_with_valid_malignancy_labels": 437,
+    "nodules_without_valid_malignancy_labels": 0,
+    "valid_reader_observations": 1124,
+    "rating_counts_reader_observations": {
+      "1": 143,
+      "2": 269,
+      "3": 417,
+      "4": 175,
+      "5": 120
+    },
+    "nodule_consensus": {
+      "target": "mean of valid reader malignancy ratings (continuous 1..5)",
+      "quadratic_weighted_kappa": 0.0,
+      "mae": 0.7014381032718401,
+      "accuracy_rounded_consensus_vs_predicted_class": 0.482837528604119,
+      "spearman_rho_expected_rating_vs_reader_mean": 0.11652349199103555,
+      "median_target_mae_diagnostic": 0.7635102027886519
+    },
+    "reader_observation": {
+      "target": "each valid individual LIDC reader's malignancy/suspicion rating; reader observations weighted so each nodule has total weight 1",
+      "quadratic_weighted_kappa": 0.0,
+      "mae_expected_rating_vs_reader_rating": 0.8699488668317814,
+      "accuracy_predicted_class_vs_reader_rating": 0.3903018415604228,
+      "spearman_rho_expected_rating_vs_reader_rating_unweighted": 0.0790498816497443
+    }
+  },
+  "test_metrics_once_after_selection": {
+    "split": "test",
+    "nodules_total": 355,
+    "nodules_with_valid_malignancy_labels": 355,
+    "nodules_without_valid_malignancy_labels": 0,
+    "valid_reader_observations": 896,
+    "rating_counts_reader_observations": {
+      "1": 159,
+      "2": 200,
+      "3": 351,
+      "4": 105,
+      "5": 81
+    },
+    "nodule_consensus": {
+      "target": "mean of valid reader malignancy ratings (continuous 1..5)",
+      "quadratic_weighted_kappa": 0.0,
+      "mae": 0.7185933737897537,
+      "accuracy_rounded_consensus_vs_predicted_class": 0.4788732394366197,
+      "spearman_rho_expected_rating_vs_reader_mean": 0.055298478283467144,
+      "median_target_mae_diagnostic": 0.7783665174119909
+    },
+    "reader_observation": {
+      "target": "each valid individual LIDC reader's malignancy/suspicion rating; reader observations weighted so each nodule has total weight 1",
+      "quadratic_weighted_kappa": 0.0,
+      "mae_expected_rating_vs_reader_rating": 0.8579627749855528,
+      "accuracy_predicted_class_vs_reader_rating": 0.41772300469483564,
+      "spearman_rho_expected_rating_vs_reader_rating_unweighted": 0.025557885136395616
+    }
+  },
+  "candidate_validation_results": [
+    {
+      "name": "depth2_regularized",
+      "parameters": {
+        "max_depth": 2,
+        "min_child_weight": 3.0,
+        "eta": 0.03,
+        "subsample": 0.9,
+        "colsample_bytree": 0.9,
+        "reg_lambda": 5.0,
+        "reg_alpha": 0.0
+      },
+      "best_iteration_zero_based": 9,
+      "best_rounds": 10,
+      "best_validation_mlogloss": 1.4470823383162692,
+      "validation_metrics": {
+        "split": "validation",
+        "nodules_total": 437,
+        "nodules_with_valid_malignancy_labels": 437,
+        "nodules_without_valid_malignancy_labels": 0,
+        "valid_reader_observations": 1124,
+        "rating_counts_reader_observations": {
+          "1": 143,
+          "2": 269,
+          "3": 417,
+          "4": 175,
+          "5": 120
+        },
+        "nodule_consensus": {
+          "target": "mean of valid reader malignancy ratings (continuous 1..5)",
+          "quadratic_weighted_kappa": 0.0,
+          "mae": 0.7014381032718401,
+          "accuracy_rounded_consensus_vs_predicted_class": 0.482837528604119,
+          "spearman_rho_expected_rating_vs_reader_mean": 0.11652349199103555,
+          "median_target_mae_diagnostic": 0.7635102027886519
+        },
+        "reader_observation": {
+          "target": "each valid individual LIDC reader's malignancy/suspicion rating; reader observations weighted so each nodule has total weight 1",
+          "quadratic_weighted_kappa": 0.0,
+          "mae_expected_rating_vs_reader_rating": 0.8699488668317814,
+          "accuracy_predicted_class_vs_reader_rating": 0.3903018415604228,
+          "spearman_rho_expected_rating_vs_reader_rating_unweighted": 0.0790498816497443
+        }
+      },
+      "selection_qwk": 0.0,
+      "selection_mae": 0.7014381032718401,
+      "reader_observation_rows_train": 4839,
+      "reader_observation_rows_validation": 1124
+    },
+    {
+      "name": "depth3_regularized",
+      "parameters": {
+        "max_depth": 3,
+        "min_child_weight": 5.0,
+        "eta": 0.03,
+        "subsample": 0.85,
+        "colsample_bytree": 0.9,
+        "reg_lambda": 8.0,
+        "reg_alpha": 0.0
+      },
+      "best_iteration_zero_based": 8,
+      "best_rounds": 9,
+      "best_validation_mlogloss": 1.4480560465410575,
+      "validation_metrics": {
+        "split": "validation",
+        "nodules_total": 437,
+        "nodules_with_valid_malignancy_labels": 437,
+        "nodules_without_valid_malignancy_labels": 0,
+        "valid_reader_observations": 1124,
+        "rating_counts_reader_observations": {
+          "1": 143,
+          "2": 269,
+          "3": 417,
+          "4": 175,
+          "5": 120
+        },
+        "nodule_consensus": {
+          "target": "mean of valid reader malignancy ratings (continuous 1..5)",
+          "quadratic_weighted_kappa": 0.0,
+          "mae": 0.70176119758008,
+          "accuracy_rounded_consensus_vs_predicted_class": 0.482837528604119,
+          "spearman_rho_expected_rating_vs_reader_mean": 0.09885716206367497,
+          "median_target_mae_diagnostic": 0.7642043738943488
+        },
+        "reader_observation": {
+          "target": "each valid individual LIDC reader's malignancy/suspicion rating; reader observations weighted so each nodule has total weight 1",
+          "quadratic_weighted_kappa": 0.0,
+          "mae_expected_rating_vs_reader_rating": 0.8704108680011959,
+          "accuracy_predicted_class_vs_reader_rating": 0.3903018415604228,
+          "spearman_rho_expected_rating_vs_reader_rating_unweighted": 0.0633093159153735
+        }
+      },
+      "selection_qwk": 0.0,
+      "selection_mae": 0.70176119758008,
+      "reader_observation_rows_train": 4839,
+      "reader_observation_rows_validation": 1124
+    },
+    {
+      "name": "depth4_strong_regularization",
+      "parameters": {
+        "max_depth": 4,
+        "min_child_weight": 8.0,
+        "eta": 0.02,
+        "subsample": 0.8,
+        "colsample_bytree": 0.85,
+        "reg_lambda": 12.0,
+        "reg_alpha": 0.1
+      },
+      "best_iteration_zero_based": 10,
+      "best_rounds": 11,
+      "best_validation_mlogloss": 1.4475961677244666,
+      "validation_metrics": {
+        "split": "validation",
+        "nodules_total": 437,
+        "nodules_with_valid_malignancy_labels": 437,
+        "nodules_without_valid_malignancy_labels": 0,
+        "valid_reader_observations": 1124,
+        "rating_counts_reader_observations": {
+          "1": 143,
+          "2": 269,
+          "3": 417,
+          "4": 175,
+          "5": 120
+        },
+        "nodule_consensus": {
+          "target": "mean of valid reader malignancy ratings (continuous 1..5)",
+          "quadratic_weighted_kappa": 0.0,
+          "mae": 0.7020716431041332,
+          "accuracy_rounded_consensus_vs_predicted_class": 0.482837528604119,
+          "spearman_rho_expected_rating_vs_reader_mean": 0.09818100743971286,
+          "median_target_mae_diagnostic": 0.7650858449410792
+        },
+        "reader_observation": {
+          "target": "each valid individual LIDC reader's malignancy/suspicion rating; reader observations weighted so each nodule has total weight 1",
+          "quadratic_weighted_kappa": 0.0,
+          "mae_expected_rating_vs_reader_rating": 0.8708824300261492,
+          "accuracy_predicted_class_vs_reader_rating": 0.3903018415604228,
+          "spearman_rho_expected_rating_vs_reader_rating_unweighted": 0.06988075294913867
+        }
+      },
+      "selection_qwk": 0.0,
+      "selection_mae": 0.7020716431041332,
+      "reader_observation_rows_train": 4839,
+      "reader_observation_rows_validation": 1124
+    }
+  ],
+  "interpretation_warning": "Train feature predictions are in-sample because the six frozen Stage 03 rankers were trained on the canonical train split. They are not out-of-fold predictions. Validation/test ranker predictions are on patient-disjoint held-out splits. Do not interpret reported metrics as leakage-free generalization from fully out-of-sample Stage 03 features."
+}

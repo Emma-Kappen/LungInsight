@@ -1,34 +1,16 @@
-"""
-LungInsight v2 -- Stage 03: Nodule Attribute Characterization (3D CNN, v3.0)
-============================================================================
+#!/usr/bin/env python3
+"""LungInsight v2 Stage 03: frozen spatial-hybrid nodule attribute inference.
 
-Runs the genuine 3D multi-headed nodule-attribute network
-(backend/models/nodule_ranker_3d/model_3d.py, trained by train_nodule_ranker_3d.py)
-on the Stage 02 nodule patches.
-
-    python backend/Imaging/03_nodule_classification.py LIDC-IDRI-0001 \
-        --checkpoint backend/models/nodule_ranker_3d/checkpoints/best.pth
-
-Input  : backend/output/<patient_id>/02_detect_and_patch/patches/{arrays/patch_XXX.npy, patches_manifest.json}
-         float32 HU, ZYX, exactly 64x64x64 (the shape the 3D model was trained on).
-Output : backend/output/<patient_id>/03_nodule_classification/{predictions.json, predictions.csv,
-         classification_metadata.json}
-
-Differences from the retired 2D slice-wise Stage 03 (contract changes, all deliberate):
-  * 8 attributes only. `malignancy` is NOT predicted here (reserved for a downstream stage).
-  * internal_structure uses the 1..5 scale (not 1..4); calcification 1..6; others 1..5.
-  * No slice/attribute attention is produced (the 3D CNN has none) -> no attention/ directory;
-    `auxiliary_score_0_1` is kept for CSV/JSON compatibility but is always null.
-  * Preprocessing constants are read from the checkpoint:
-        normalized = (clip(HU,-1000,400) + 1000 - 357.87565) / 288.47657
-  * score_0_1 = (rating - 1) / (K - 1) is kept as a normalised view of the rating.
-Stage 02 geometry / provenance fields are copied through unchanged.
+Reads the authoritative Stage 02 patches manifest and a separate LoG diagnostic
+patch manifest. It uses the five pre-existing hybrid checkpoints unchanged and
+writes six attribute ratings (not internal structure, calcification, or malignancy).
+Authoritative predictions stay in predictions.json; LoG proposals go to separate
+diagnostic outputs and are never Stage 04 malignancy inputs.
 """
 from __future__ import annotations
 
 import argparse
 import csv
-import importlib.util
 import json
 import sys
 from datetime import datetime, timezone
@@ -38,256 +20,477 @@ from typing import Any
 import numpy as np
 import torch
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-V2_ROOT = SCRIPT_DIR.parent.parent
-DEFAULT_OUTPUT_ROOT = V2_ROOT / "backend" / "output"
-DEFAULT_MODEL_DIR = V2_ROOT / "backend" / "models" / "nodule_ranker_3d"
-DEFAULT_CHECKPOINT = DEFAULT_MODEL_DIR / "checkpoints" / "best.pth"
+from pipeline_schema import get_required, load_schema, check_meta_schema_version, validate_stage_version
+
+SCHEMA = load_schema(__file__)
+STAGE02_SCHEMA = get_required(SCHEMA, "stage_02_detect_and_patch", expected_type=dict)
+STAGE03_SCHEMA = get_required(SCHEMA, "stage_03_nodule_classification", expected_type=dict)
+STAGE03_MODEL = get_required(STAGE03_SCHEMA, "model", expected_type=dict)
+STAGE03_OUTPUTS = get_required(STAGE03_SCHEMA, "outputs", expected_type=dict)
+STAGE03_PATHS = get_required(SCHEMA, "paths.stage_03", expected_type=dict)
+TRANSFER_IDENTITY_FIELDS = tuple(get_required(STAGE03_SCHEMA, "transfer_identity_fields", expected_type=list))
+V2_ROOT = Path(__file__).resolve().parents[2]
+MALIGNANCY_HELPERS = V2_ROOT / "backend" / "models" / "malignancy"
+if str(MALIGNANCY_HELPERS) not in sys.path:
+    sys.path.insert(0, str(MALIGNANCY_HELPERS))
+try:
+    from frozen_attribute_common import (  # noqa: E402
+        CHECKPOINT_GROUPS as HELPER_CHECKPOINT_GROUPS,
+        DEFAULT_CHECKPOINT_ROOT as HELPER_DEFAULT_CHECKPOINT_ROOT,
+        FEATURE_NAMES as HELPER_FEATURE_NAMES,
+        EXPECTED_PATCH_SHAPE as HELPER_EXPECTED_PATCH_SHAPE,
+        choose_device,
+        load_frozen_models,
+        sha256_file,
+        stage03_prediction_map,
+    )
+except ImportError as exc:
+    raise ImportError(
+        f"Stage 03 requires the existing inference helper at {MALIGNANCY_HELPERS / 'frozen_attribute_common.py'}. "
+        "Restore that project file and its compatible dependencies; the refactor does not retrain or recreate it."
+    ) from exc
+
+FEATURE_NAMES = tuple(get_required(SCHEMA, str(STAGE03_MODEL["attribute_order_ref"]), expected_type=list))
+CHECKPOINT_GROUPS = {str(k): tuple(v) for k, v in get_required(STAGE03_MODEL, "checkpoint_groups", expected_type=dict).items()}
+EXPECTED_PATCH_SHAPE = tuple(get_required(STAGE03_SCHEMA, "inputs.patch_shape_zyx", expected_type=list))
+DEFAULT_CHECKPOINT_ROOT = V2_ROOT / get_required(STAGE03_MODEL, "checkpoint_root")
+DEFAULT_OUTPUT_ROOT = V2_ROOT / get_required(SCHEMA, "paths.output_root")
+
+if tuple(HELPER_EXPECTED_PATCH_SHAPE) != EXPECTED_PATCH_SHAPE:
+    raise RuntimeError(
+        "Stage 03 patch-shape mismatch: frozen_attribute_common.EXPECTED_PATCH_SHAPE="
+        f"{tuple(HELPER_EXPECTED_PATCH_SHAPE)}, but meta_schema.json requires {EXPECTED_PATCH_SHAPE}. "
+        "Correct the schema to describe the existing checkpoints; do not resize patches or alter checkpoints."
+    )
+if tuple(HELPER_FEATURE_NAMES) != FEATURE_NAMES:
+    raise RuntimeError(
+        "Stage 03 feature-order mismatch: frozen_attribute_common.FEATURE_NAMES="
+        f"{tuple(HELPER_FEATURE_NAMES)}, but meta_schema.json requires {FEATURE_NAMES}. "
+        "Update the schema only if it accurately describes the existing checkpoint heads; do not retrain or alter checkpoints."
+    )
+if {k: tuple(v) for k, v in HELPER_CHECKPOINT_GROUPS.items()} != CHECKPOINT_GROUPS:
+    raise RuntimeError(
+        "Stage 03 checkpoint-group mismatch between frozen_attribute_common and meta_schema.json. "
+        "Correct the schema to match the existing frozen checkpoints before inference."
+    )
+if tuple(HELPER_DEFAULT_CHECKPOINT_ROOT.resolve().parts[-len(DEFAULT_CHECKPOINT_ROOT.parts):]) != tuple(DEFAULT_CHECKPOINT_ROOT.resolve().parts[-len(DEFAULT_CHECKPOINT_ROOT.parts):]):
+    # Do not fail solely on differing absolute repo prefixes; compare normalized repo-relative suffixes below.
+    helper_suffix = Path(*HELPER_DEFAULT_CHECKPOINT_ROOT.parts[-len(DEFAULT_CHECKPOINT_ROOT.parts):])
+    schema_suffix = Path(*DEFAULT_CHECKPOINT_ROOT.parts[-len(DEFAULT_CHECKPOINT_ROOT.parts):])
+    if helper_suffix != schema_suffix:
+        print(f"[warning] schema checkpoint root {DEFAULT_CHECKPOINT_ROOT} differs from helper default {HELPER_DEFAULT_CHECKPOINT_ROOT}; using schema path.", file=sys.stderr)
 
 
-def json_default(o: Any):
-    if isinstance(o, np.ndarray):
-        return o.tolist()
-    if isinstance(o, np.generic):
-        return o.item()
-    raise TypeError(f"{type(o).__name__} is not JSON serializable")
+def load_json(path: Path) -> dict[str, Any]:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        raise RuntimeError(f"Could not read JSON file {path}: {exc}") from exc
+    if not isinstance(value, dict):
+        raise ValueError(f"Expected a JSON object in {path}")
+    return value
 
 
-def save_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, default=json_default, allow_nan=False)
-
-
-def load_json(path: Path) -> Any:
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def import_model_module(model_dir: Path):
-    path = model_dir / "model_3d.py"
-    if not path.is_file():
-        raise FileNotFoundError(f"Missing 3D model definition: {path}")
-    spec = importlib.util.spec_from_file_location("lunginsight_model_3d", str(path))
-    mod = importlib.util.module_from_spec(spec) # type: ignore
-    sys.modules["lunginsight_model_3d"] = mod
-    spec.loader.exec_module(mod) # type: ignore
-    return mod
-
-
-def load_patch_manifest(stage02_dir: Path) -> dict[str, Any]:
-    p = stage02_dir / "patches" / "patches_manifest.json"
-    if not p.is_file():
-        raise FileNotFoundError(f"Missing Stage 02 patch manifest: {p}")
-    m = load_json(p)
-    if not isinstance(m, dict):
-        raise ValueError("patches_manifest.json must contain an object")
-    return m
-
-
-def load_patch_array(patch_root: Path, record: dict[str, Any]) -> tuple[Path, np.ndarray]:
-    options = []
-    if record.get("array_path"):
-        c = Path(str(record["array_path"]))
-        options = [c] if c.is_absolute() else [c, patch_root / c]
-    options.append(patch_root / "arrays" / f"patch_{int(record['patch_id']):03d}.npy")
-    for p in options:
+def resolve_patch_array(record: dict[str, Any], manifest_path: Path) -> Path:
+    raw = record.get("array_path")
+    filename = f"patch_{int(record['patch_id']):03d}.npy"
+    candidates: list[Path] = []
+    if raw:
+        p = Path(str(raw)).expanduser()
+        candidates.append(p if p.is_absolute() else manifest_path.parent / p)
+    # Standard Stage 02 layout, independent of stale absolute paths in a manifest.
+    candidates.extend([
+        manifest_path.parent / "arrays" / filename,
+        manifest_path.parent.parent / "arrays" / filename,
+    ])
+    for p in candidates:
         if p.is_file():
-            return p, np.asarray(np.load(p, allow_pickle=False), dtype=np.float32)
-    raise FileNotFoundError(f"Patch array not found. Tried: {options}")
+            return p.resolve()
+    raise FileNotFoundError(
+        f"Patch array for patch_id={record.get('patch_id')} was not found. Tried: "
+        + "; ".join(str(p) for p in candidates)
+    )
 
 
-def validate_patch(record: dict[str, Any], patch: np.ndarray, expected: tuple[int, int, int]) -> None:
-    if str(record.get("coordinate_order", "ZYX")).upper() != "ZYX":
-        raise ValueError(f"Patch {record.get('patch_id')} is not ZYX")
-    if tuple(patch.shape) != expected:
-        raise ValueError(f"Patch {record.get('patch_id')} has shape {patch.shape}; the 3D model requires {expected}.")
-    if not np.all(np.isfinite(patch)):
-        raise ValueError(f"Patch {record.get('patch_id')} contains non-finite values")
-
-
-@torch.inference_mode()
-def infer_batch(model, mm, patches_hu: list[np.ndarray], device: torch.device) -> np.ndarray:
-    x = torch.from_numpy(np.stack(patches_hu)).to(device)
-    x = mm.preprocess_hu(x).unsqueeze(1)  # (B,1,64,64,64), ZYX
-    return model.expected_rating(model(x)).cpu().numpy().astype(np.float64)  # (B,8)
-
-
-def build_attributes(ratings: np.ndarray, targets: list[str], scales: dict) -> dict[str, Any]:
-    out = {}
-    for i, name in enumerate(targets):
-        lo, hi = float(scales[name]["min"]), float(scales[name]["max"])
-        r = float(np.clip(ratings[i], lo, hi))
-        out[name] = {
-            "feature_id": i,
-            "score_0_1": (r - lo) / (hi - lo),
-            "rating_original_scale": r,
-            "rating_rounded": int(np.clip(np.floor(r + 0.5), lo, hi)),
-            "rating_scale": [lo, hi],
-            "auxiliary_score_0_1": None,
-        }
+def transfer_identity_fields(patch: dict[str, Any]) -> dict[str, Any]:
+    out = {k: patch[k] for k in TRANSFER_IDENTITY_FIELDS if k in patch}
+    out["prediction_space"] = STAGE03_SCHEMA["space"]
+    out["detection_source"] = patch.get("detection_source", "ViTDet3D")
+    out["patch_array_path"] = patch.get("array_path")
     return out
 
 
-def build_record(pr: dict[str, Any], patch_path: Path, attrs: dict[str, Any], ck_meta: dict[str, Any]) -> dict[str, Any]:
-    return {
-        "patch_id": int(pr["patch_id"]),
-        "candidate_id": pr["candidate_id"],
-        "prediction_space": pr.get("space", "patch_local_ct"),
-        "source_ct_space": pr.get("source_space", "stage01_final_cropped_ct"),
-        "coordinate_order": "ZYX",
-        "patch_size_vox_zyx": pr.get("patch_size_vox_zyx"),
-        "spacing_zyx_mm": pr.get("spacing_zyx_mm"),
-        "origin_lps_mm": pr.get("origin_lps_mm"),
-        "patch_origin_lps_mm": pr.get("patch_origin_lps_mm"),
-        "direction_lps": pr.get("direction_lps"),
-        "center_zyx": pr.get("center_zyx"),
-        "center_lps_mm": pr.get("center_lps_mm", pr.get("center_world_mm")),
-        "patch_center_local_zyx": pr.get("patch_center_local_zyx"),
-        "detector_score": pr.get("detector_score"),
-        "raw_logit": pr.get("raw_logit"),
-        "diameter_mm": pr.get("diameter_mm"),
-        "anatomical_location": pr.get("anatomical_location"),
-        "attributes": attrs,
-        "patch_array_path": str(patch_path),
-        "reference_model": ck_meta,
+def run_log_diagnostic_inference(
+    patient_dir: Path,
+    models: dict[str, torch.nn.Module],
+    checkpoint_metadata: dict[str, Any],
+    device: torch.device,
+    *,
+    output_dir: Path,
+    collect_attention: bool,
+) -> dict[str, Any]:
+    """Infer LoG-derived patches separately so they never enter Stage 04's primary input."""
+    patient_id = patient_dir.name
+    rel_manifest = Path(str(STAGE03_SCHEMA["inputs"]["log_diagnostic_patch_manifest"]))
+    manifest_path = patient_dir / rel_manifest
+    if not manifest_path.is_file():
+        raise FileNotFoundError(
+            f"Missing Stage 02 LoG diagnostic patch manifest: {manifest_path}. "
+            "Rerun Stage 02 with its default LoG diagnostic detector enabled, or explicitly skip LoG inference with --skip-log-diagnostic."
+        )
+    manifest = load_json(manifest_path)
+    check_meta_schema_version(manifest, SCHEMA, context=str(manifest_path), require=False)
+    validate_stage_version(
+        manifest.get("schema_version"), STAGE02_SCHEMA["manifest_schema_version"],
+        context="Stage 02 LoG diagnostic patch manifest",
+    )
+    patches = manifest.get("patches")
+    if not isinstance(patches, list) or not all(isinstance(patch, dict) for patch in patches):
+        raise ValueError(f"{manifest_path}: expected a list of JSON objects under 'patches'.")
+    patch_ids = [patch.get("patch_id") for patch in patches]
+    if any(not isinstance(pid, int) for pid in patch_ids) or len(patch_ids) != len(set(patch_ids)):
+        raise ValueError(f"{manifest_path}: patch_id values must be unique integers.")
+    patches = sorted(patches, key=lambda patch: int(patch["patch_id"]))
+
+    log_attention_name = str(STAGE03_OUTPUTS["log_attention_directory"]).strip("/")
+    log_attention_dir = output_dir / log_attention_name
+    if collect_attention:
+        log_attention_dir.mkdir(parents=True, exist_ok=True)
+
+    records: list[dict[str, Any]] = []
+    flat_rows: list[dict[str, Any]] = []
+    for n, patch in enumerate(patches, start=1):
+        array_path = resolve_patch_array(patch, manifest_path)
+        patch_array = np.load(array_path, allow_pickle=False)
+        if tuple(patch_array.shape) != EXPECTED_PATCH_SHAPE:
+            raise ValueError(
+                f"{array_path}: Stage 03 requires raw-HU shape {EXPECTED_PATCH_SHAPE}; "
+                f"got {patch_array.shape}. Do not silently resize/resample diagnostic patches."
+            )
+        if patch_array.dtype != np.float32:
+            raise ValueError(f"{array_path}: expected float32 patch data, got {patch_array.dtype}.")
+        predictions, attention_by_attribute = stage03_prediction_map(
+            patch_array, models, device, collect_attention=collect_attention
+        )
+        record = transfer_identity_fields(patch)
+        record["patch_array_path"] = str(array_path)
+        record["patient_id"] = patient_id
+        record["detection_source"] = "LoG"
+        record["purpose"] = "research_comparison_only"
+        record["stage04_eligible"] = False
+        record["attributes"] = {
+            name: {
+                "expected_rating": float(predictions[name]),
+                "rating_scale": list(STAGE03_SCHEMA["attribute_scales"][name]["rating_range"]),
+                "score_semantics": STAGE03_SCHEMA["attribute_scales"][name]["semantics"],
+                "checkpoint_group": next(g for g, attrs in CHECKPOINT_GROUPS.items() if name in attrs),
+            }
+            for name in FEATURE_NAMES
+        }
+        record["warnings"] = [
+            "log_proposal_is_diagnostic_not_authoritative",
+            "attribute_predictions_are_not_validated_for_LoG_proposals",
+        ]
+        if collect_attention:
+            attention_tensor = np.stack([attention_by_attribute[name] for name in FEATURE_NAMES]).astype(np.float32)
+            attention_rel = Path(log_attention_name) / f"patch_{int(patch['patch_id']):05d}_attribute_attention.npy"
+            np.save(output_dir / attention_rel, attention_tensor, allow_pickle=False)
+            record["attention"] = {
+                "attribute_spatial_attention_path": attention_rel.as_posix(),
+                "attribute_order": list(FEATURE_NAMES),
+                "grid_shape_zyx": list(STAGE03_MODEL["attention_grid_shape_zyx"]),
+                "semantics": "softmax attention over spatial tokens; not a segmentation mask",
+            }
+        records.append(record)
+        anatomical = patch.get("anatomical_location")
+        flat: dict[str, Any] = {
+            "patient_id": patient_id,
+            "patch_id": patch.get("patch_id"),
+            "candidate_id": patch.get("candidate_id"),
+            "diagnostic_id": patch.get("diagnostic_id"),
+            "detection_source": "LoG",
+            "log_response": patch.get("log_response"),
+            "scale_mm": patch.get("scale_mm"),
+            "detector_score": patch.get("detector_score"),
+            "center_lps_mm": json.dumps(patch.get("center_lps_mm")),
+            "anatomical_region": (anatomical.get("region") if isinstance(anatomical, dict) else None),
+            "warnings": ";".join(record["warnings"]),
+        }
+        flat.update({name: predictions[name] for name in FEATURE_NAMES})
+        flat_rows.append(flat)
+        if len(patches) <= 20 or n % 50 == 0 or n == len(patches):
+            print(
+                f"[{patient_id}][LoG] {n}/{len(patches)} patch={patch['patch_id']} -> "
+                + ", ".join(f"{key}={predictions[key]:.3f}" for key in FEATURE_NAMES),
+                flush=True,
+            )
+
+    output = {
+        "schema_version": STAGE03_SCHEMA["schema_version"],
+        "meta_schema_version": SCHEMA["schema_version"],
+        "stage": STAGE03_PATHS["directory"],
+        "patient_id": patient_id,
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "route": "spatial_hybrid",
+        "objective": "ordinal_reader",
+        "detection_source": "LoG",
+        "purpose": "research_comparison_only",
+        "stage04_eligible": False,
+        "prediction_space": STAGE03_SCHEMA["space"],
+        "attribute_order": list(FEATURE_NAMES),
+        "attribute_outputs": STAGE03_SCHEMA["prediction_semantics"]["expected_rating"],
+        "malignancy_prediction_included": False,
+        "unsupported_attributes_omitted": list(STAGE03_SCHEMA["unsupported_attributes"]),
+        "patch_manifest": str(manifest_path.resolve()),
+        "patch_manifest_sha256": sha256_file(manifest_path),
+        "checkpoint_metadata": checkpoint_metadata,
+        "attention_enabled": bool(collect_attention),
+        "n_patches": len(records),
+        "diagnostic_warning": (
+            "These rows originate from LoG proposals, not the authoritative ViTDet3D detector. "
+            "Their attribute outputs are exploratory and are kept separate from predictions.json, "
+            "which is the only Stage 03 input used by the primary Stage 04 malignancy-rating step."
+        ),
+        "predictions": records,
     }
+    json_path = output_dir / STAGE03_OUTPUTS["log_diagnostic_predictions_json"]
+    json_path.write_text(json.dumps(output, indent=2, allow_nan=False), encoding="utf-8")
+    csv_path = output_dir / STAGE03_OUTPUTS["log_diagnostic_predictions_csv"]
+    fieldnames = list(flat_rows[0].keys()) if flat_rows else [
+        "patient_id", "patch_id", "candidate_id", "diagnostic_id", "detection_source", "log_response", "scale_mm",
+        "detector_score", "center_lps_mm", "anatomical_region", "warnings", *FEATURE_NAMES,
+    ]
+    with csv_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(flat_rows)
+    print(f"Saved Stage 03 LoG diagnostic predictions: {json_path} ({len(records)} patches)")
+    return output
 
 
-def write_csv(path: Path, records: list[dict[str, Any]], targets: list[str]) -> None:
-    fields = ["patch_id", "candidate_id", "anatomical_primary", "anatomical_region", "laterality",
-              "compartment", "detector_score"]
-    for n in targets:
-        fields += [f"{n}_score_0_1", f"{n}_rating_original_scale", f"{n}_auxiliary_score_0_1"]
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=fields)
-        w.writeheader()
-        for r in records:
-            loc = r.get("anatomical_location") or {}
-            row = {"patch_id": r["patch_id"], "candidate_id": r["candidate_id"],
-                   "anatomical_primary": loc.get("primary"), "anatomical_region": loc.get("region"),
-                   "laterality": loc.get("laterality"), "compartment": loc.get("compartment"),
-                   "detector_score": r.get("detector_score")}
-            for n in targets:
-                a = r["attributes"][n]
-                row[f"{n}_score_0_1"] = a["score_0_1"]
-                row[f"{n}_rating_original_scale"] = a["rating_original_scale"]
-                row[f"{n}_auxiliary_score_0_1"] = a["auxiliary_score_0_1"]
-            w.writerow(row)
+def run_patient(
+    patient_dir: Path,
+    models: dict[str, torch.nn.Module],
+    checkpoint_metadata: dict[str, Any],
+    device: torch.device,
+    *,
+    output_root: Path,
+    collect_attention: bool,
+    process_log_diagnostic: bool = True,
+) -> dict[str, Any]:
+    patient_id = patient_dir.name
+    patch_manifest_path = patient_dir / STAGE02_SCHEMA["patch_outputs"]["manifest"]
+    if not patch_manifest_path.is_file():
+        raise FileNotFoundError(f"Missing Stage 02 patch manifest: {patch_manifest_path}")
+    patch_manifest = load_json(patch_manifest_path)
+    check_meta_schema_version(patch_manifest, SCHEMA, context=str(patch_manifest_path), require=False)
+    validate_stage_version(
+        patch_manifest.get("schema_version"),
+        STAGE02_SCHEMA["manifest_schema_version"],
+        context="Stage 02 patch manifest",
+    )
+    patches = patch_manifest.get("patches")
+    if not isinstance(patches, list):
+        raise ValueError(f"{patch_manifest_path}: expected a list under 'patches'")
+    if not all(isinstance(patch, dict) for patch in patches):
+        raise ValueError(f"{patch_manifest_path}: every patch record must be a JSON object.")
+    patch_ids = [p.get("patch_id") for p in patches]
+    if any(not isinstance(pid, int) for pid in patch_ids):
+        raise ValueError(f"{patch_manifest_path}: every patch requires an integer patch_id")
+    if len(patch_ids) != len(set(patch_ids)):
+        raise ValueError(f"{patch_manifest_path}: duplicate patch_id values")
+    patches = sorted(patches, key=lambda p: int(p["patch_id"]))
 
+    out_dir = patient_dir / STAGE03_PATHS["directory"]
+    attention_dir = out_dir / STAGE03_OUTPUTS["attention_directory"].strip("/")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    if collect_attention:
+        attention_dir.mkdir(parents=True, exist_ok=True)
 
-def run_pipeline(args: argparse.Namespace) -> Path:
-    output_root = Path(args.output_root).resolve()
-    patient_root = output_root / args.patient_id
-    stage02_dir = patient_root / "02_detect_and_patch"
-    stage03_dir = patient_root / "03_nodule_classification"
-    patch_root = stage02_dir / "patches"
-    if not stage02_dir.is_dir():
-        raise FileNotFoundError(f"Stage 02 output not found: {stage02_dir}")
+    records: list[dict[str, Any]] = []
+    flat_rows: list[dict[str, Any]] = []
+    for n, patch in enumerate(patches, start=1):
+        array_path = resolve_patch_array(patch, patch_manifest_path)
+        patch_array = np.load(array_path, allow_pickle=False)
+        if tuple(patch_array.shape) != EXPECTED_PATCH_SHAPE:
+            raise ValueError(
+                f"{array_path}: hybrid rankers require raw-HU shape {EXPECTED_PATCH_SHAPE}; "
+                f"got {patch_array.shape}. Do not silently resize/resample adaptive patches."
+            )
+        if patch_array.dtype != np.float32:
+            raise ValueError(f"{array_path}: expected float32 patch data, got {patch_array.dtype}.")
+        predictions, attention_by_attribute = stage03_prediction_map(
+            patch_array, models, device, collect_attention=collect_attention
+        )
+        record = transfer_identity_fields(patch)
+        record["patch_array_path"] = str(array_path)
+        record["patient_id"] = patient_id
+        record["detection_source"] = str(patch.get("detection_source", "ViTDet3D"))
+        record["stage04_eligible"] = True
+        record["attributes"] = {
+            name: {
+                "expected_rating": float(predictions[name]),
+                "rating_scale": list(STAGE03_SCHEMA["attribute_scales"][name]["rating_range"]),
+                "score_semantics": STAGE03_SCHEMA["attribute_scales"][name]["semantics"],
+                "checkpoint_group": next(g for g, attrs in CHECKPOINT_GROUPS.items() if name in attrs),
+            }
+            for name in FEATURE_NAMES
+        }
+        anatomical = patch.get("anatomical_location")
+        warnings: list[str] = []
+        if isinstance(anatomical, dict) and anatomical.get("center_inside_lung_mask") is False:
+            warnings.append("detector_center_outside_lung_mask")
+        if isinstance(anatomical, dict) and anatomical.get("region") == "outside_lung_mask":
+            warnings.append("anatomical_region_outside_lung_mask")
+        record["warnings"] = warnings
+        if collect_attention:
+            # Canonical FEATURE_NAMES order, then the model's 8x8x8 spatial grid.
+            attention_tensor = np.stack([attention_by_attribute[name] for name in FEATURE_NAMES]).astype(np.float32)
+            attention_rel = Path(str(STAGE03_OUTPUTS["attention_directory"])) / f"patch_{int(patch['patch_id']):03d}_attribute_attention.npy"
+            np.save(out_dir / attention_rel, attention_tensor, allow_pickle=False)
+            record["attention"] = {
+                "attribute_spatial_attention_path": str(attention_rel).replace("\\", "/"),
+                "attribute_order": list(FEATURE_NAMES),
+                "grid_shape_zyx": list(STAGE03_MODEL["attention_grid_shape_zyx"]),
+                "semantics": "softmax attention over the model's 512 spatial tokens; not a segmentation mask",
+            }
+        records.append(record)
+        csv_record: dict[str, Any] = {
+            "patient_id": patient_id,
+            "patch_id": patch.get("patch_id"),
+            "candidate_id": patch.get("candidate_id"),
+            "detection_source": str(patch.get("detection_source", "ViTDet3D")),
+            "detector_score": patch.get("detector_score"),
+            "center_lps_mm": json.dumps(patch.get("center_lps_mm")),
+            "anatomical_region": (anatomical.get("region") if isinstance(anatomical, dict) else None),
+            "warnings": ";".join(warnings),
+        }
+        csv_record.update({name: predictions[name] for name in FEATURE_NAMES})
+        flat_rows.append(csv_record)
+        print(f"[{patient_id}] {n}/{len(patches)} patch={patch['patch_id']} -> " + ", ".join(f"{k}={predictions[k]:.3f}" for k in FEATURE_NAMES), flush=True)
 
-    ck_path = Path(args.checkpoint).resolve()
-    if not ck_path.is_file():
-        raise FileNotFoundError(f"Checkpoint not found: {ck_path}")
-    device = torch.device(("cuda" if torch.cuda.is_available() else "cpu") if args.device in (None, "auto") else args.device)
+    log_output = None
+    if process_log_diagnostic:
+        log_output = run_log_diagnostic_inference(
+            patient_dir,
+            models,
+            checkpoint_metadata,
+            device,
+            output_dir=out_dir,
+            collect_attention=collect_attention,
+        )
 
-    mm = import_model_module(Path(args.model_dir).resolve())
-    model, ck = mm.load_trained_model(ck_path, device)
-    targets = list(ck["targets"])
-    if targets != list(mm.MODEL_TARGETS) or "malignancy" in targets:
-        raise RuntimeError(f"Checkpoint targets {targets} do not match the 8 required model targets")
-    scales = ck["rating_scales"]
-    expected_shape = tuple(ck["input_shape"][1:])
-    pre = ck["preprocessing"]
-
-    print("=" * 78)
-    print("LUNGINSIGHT STAGE 03 -- 3D NODULE ATTRIBUTE CHARACTERIZATION")
-    print("=" * 78)
-    print(f"Patient     : {args.patient_id}\nDevice      : {device}\nCheckpoint  : {ck_path} (epoch {ck.get('epoch')})")
-
-    manifest = load_patch_manifest(stage02_dir)
-    records_in = manifest.get("patches", [])
-    if not isinstance(records_in, list):
-        raise ValueError("patches_manifest.json field 'patches' must be a list")
-
-    ck_meta = {
-        "architecture": ck["architecture"].get("name", "NoduleRanker3D") + " (3D CNN, 8 ordinal heads)",
-        "module": "backend.models.nodule_ranker_3d.model_3d.NoduleRanker3D",
-        "n_features": int(ck["n_features"]), "attribute_names": targets,
-        "checkpoint": str(ck_path), "checkpoint_epoch": ck.get("epoch"),
+    output = {
+        "schema_version": STAGE03_SCHEMA["schema_version"],
+        "meta_schema_version": SCHEMA["schema_version"],
+        "stage": STAGE03_PATHS["directory"],
+        "patient_id": patient_id,
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "route": "spatial_hybrid",
+        "objective": "ordinal_reader",
+        "detection_source": "ViTDet3D",
+        "stage04_eligible": True,
+        "log_diagnostic_predictions_json": (
+            STAGE03_OUTPUTS["log_diagnostic_predictions_json"] if log_output is not None else None
+        ),
+        "n_log_diagnostic_patches_inferred": (int(log_output["n_patches"]) if log_output is not None else 0),
+        "prediction_space": STAGE03_SCHEMA["space"],
+        "attribute_order": list(FEATURE_NAMES),
+        "attribute_outputs": STAGE03_SCHEMA["prediction_semantics"]["expected_rating"],
+        "malignancy_prediction_included": False,
+        "unsupported_attributes_omitted": list(STAGE03_SCHEMA["unsupported_attributes"]),
+        "patch_manifest": str(patch_manifest_path.resolve()),
+        "patch_manifest_sha256": sha256_file(patch_manifest_path),
+        "checkpoint_metadata": checkpoint_metadata,
+        "attention_enabled": bool(collect_attention),
+        "n_patches": len(records),
+        "predictions": records,
     }
-
-    loaded = []
-    for rec in records_in:
-        p, arr = load_patch_array(patch_root, rec)
-        validate_patch(rec, arr, expected_shape)
-        loaded.append((rec, p, arr))
-
-    prediction_records: list[dict[str, Any]] = []
-    for s in range(0, len(loaded), args.batch_size):
-        chunk = loaded[s:s + args.batch_size]
-        ratings = infer_batch(model, mm, [c[2] for c in chunk], device)
-        for (rec, p, _), r in zip(chunk, ratings):
-            attrs = build_attributes(r, targets, scales)
-            prediction_records.append(build_record(rec, p, attrs, ck_meta))
-            print(f"Characterized patch_{int(rec['patch_id']):03d}: candidate={rec['candidate_id']} " +
-                  " ".join(f"{n[:4]}={attrs[n]['rating_original_scale']:.2f}" for n in targets))
-
+    json_path = out_dir / STAGE03_OUTPUTS["predictions_json"]
+    json_path.write_text(json.dumps(output, indent=2, allow_nan=False), encoding="utf-8")
+    csv_path = out_dir / STAGE03_OUTPUTS["predictions_csv"]
+    fieldnames = list(flat_rows[0].keys()) if flat_rows else [
+        "patient_id", "patch_id", "candidate_id", "detector_score", "center_lps_mm",
+        "anatomical_region", "warnings", *FEATURE_NAMES,
+    ]
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(flat_rows)
+    meta_path = out_dir / STAGE03_OUTPUTS["classification_metadata_json"]
     metadata = {
-        "schema_version": "03.2", "stage": "03", "module": "Nodule Attribute Characterization (3D CNN)",
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(), "patient_id": args.patient_id,
-        "coordinate_order": "ZYX", "coordinate_system": "DICOM_LPS",
-        "source_space": "stage01_final_cropped_ct", "prediction_space": "patch_local_ct",
-        "inputs": {"stage02_directory": str(stage02_dir),
-                   "patch_manifest": str(patch_root / "patches_manifest.json"),
-                   "patch_arrays": str(patch_root / "arrays")},
-        "model": {**ck_meta, "input_shape": ck["input_shape"], "architecture_config": ck["architecture"],
-                  "seed": ck.get("seed"), "validation_aggregate": (ck.get("validation_metrics") or {}).get("aggregate"),
-                  "pretraining": None if not ck.get("pretraining") else {
-                      "objective": ck["pretraining"]["config"].get("objective"),
-                      "epochs_completed": ck["pretraining"]["epochs_completed"]}},
-        "device": str(device),
-        "preprocessing": {**pre, "spatial_shape_requirement": list(expected_shape),
-                          "augmentation": "none (training and inference)"},
-        "attribute_scales": scales,
-        "prediction_semantics": {
-            "rating_original_scale": "Expected LIDC-scale rating under the ordinal head: 1 + sum_k P(y>k). "
-                                     "Continuous; comparable to the reader-mean rating.",
-            "score_0_1": "(rating - min) / (max - min)",
-            "rating_rounded": "floor(rating + 0.5) clipped to the scale",
-            "malignancy": "Not predicted by this stage (reserved for a downstream stage).",
-            "auxiliary_score_0_1": "Always null; retained only for output-contract compatibility.",
-        },
-        "patch_provenance": {
-            "center_authority": "Stage 02 center remains unchanged; Stage 03 never re-centers the patch.",
-            "anatomical_location": "Copied from Stage 02 without reinterpretation.",
-            "coordinate_mapping": "p_LPS_mm = patch_origin_lps_mm + direction_lps @ ([z,y,x] * spacing_zyx_mm).",
-        },
-        "outputs": {"predictions_json": str(stage03_dir / "predictions.json"),
-                    "predictions_csv": str(stage03_dir / "predictions.csv"),
-                    "classification_metadata_json": str(stage03_dir / "classification_metadata.json")},
-        "prediction_count": len(prediction_records),
+        "schema_version": output["schema_version"],
+        "meta_schema_version": SCHEMA["schema_version"],
+        "stage": STAGE03_PATHS["directory"],
+        "patient_id": patient_id,
+        "route": "spatial_hybrid",
+        "objective": "ordinal_reader",
+        "attribute_order": list(FEATURE_NAMES),
+        "n_patches": len(records),
+        "n_log_diagnostic_patches_inferred": (int(log_output["n_patches"]) if log_output is not None else 0),
+        "log_diagnostic_predictions_json": (STAGE03_OUTPUTS["log_diagnostic_predictions_json"] if log_output is not None else None),
+        "patch_shape_required": list(EXPECTED_PATCH_SHAPE),
+        "input_intensity": STAGE03_SCHEMA["preprocessing"]["source_units"],
+        "preprocessing": dict(STAGE03_SCHEMA["preprocessing"]),
+        "output_semantics": output["attribute_outputs"],
+        "checkpoint_hashes": {g: v["sha256"] for g, v in checkpoint_metadata.items()},
+        "malignancy_prediction_included": False,
     }
-    save_json(stage03_dir / "predictions.json", prediction_records)
-    write_csv(stage03_dir / "predictions.csv", prediction_records, targets)
-    save_json(stage03_dir / "classification_metadata.json", metadata)
-    print("\n" + "=" * 78 + "\nSTAGE 03 COMPLETE\n" + "=" * 78)
-    print(f"Characterized patches : {len(prediction_records)}\nOutput                : {stage03_dir}")
-    return stage03_dir
+    meta_path.write_text(json.dumps(metadata, indent=2, allow_nan=False), encoding="utf-8")
+    print(f"Saved Stage 03 predictions: {json_path}")
+    return output
 
 
-def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="LungInsight Stage 03: 3D nodule attribute characterization.")
-    p.add_argument("patient_id", help="e.g. LIDC-IDRI-0001")
+def parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    p.add_argument("--patient-id", help="Process one patient ID; default processes all output patient folders with Stage 02 manifests")
     p.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_ROOT)
-    p.add_argument("--model-dir", type=Path, default=DEFAULT_MODEL_DIR,
-                   help="directory containing model_3d.py")
-    p.add_argument("--checkpoint", type=Path, default=DEFAULT_CHECKPOINT,
-                   help="trained 3D checkpoint (best.pth). Required to exist; nothing is guessed.")
-    p.add_argument("--batch-size", type=int, default=8)
-    p.add_argument("--device", default="auto")
-    return p
+    p.add_argument("--checkpoint-root", type=Path, default=DEFAULT_CHECKPOINT_ROOT)
+    p.add_argument("--device", default="auto", help="auto, cpu, or a PyTorch device spec such as cuda:0")
+    p.add_argument("--collect-attention", action="store_true", help="Write spatial attention tensors for each processed patch")
+    p.add_argument("--skip-log-diagnostic", action="store_true", help="Skip the separate LoG diagnostic patch manifest; the default processes LoG proposals for Stage 03 attributes")
+    p.add_argument("--allow-noncanonical-checkpoint-provenance", action="store_true", help="Disable split-hash/group provenance checks only for deliberate debugging")
+    return p.parse_args()
+
+
+def main() -> int:
+    a = parse_args()
+    output_root = a.output_root.resolve()
+    if not output_root.is_dir():
+        raise FileNotFoundError(f"Stage 01/02 output root does not exist: {output_root}")
+    device = choose_device(a.device)
+    if not a.checkpoint_root.is_dir():
+        raise FileNotFoundError(
+            f"Stage 03 checkpoint directory not found: {a.checkpoint_root}. "
+            "Fix: restore the existing frozen spatial-hybrid checkpoint directory or pass --checkpoint-root. "
+            "No GPU or retraining is required if compatible checkpoints are available."
+        )
+    models, checkpoint_metadata = load_frozen_models(
+        a.checkpoint_root, device,
+        validate_provenance=not a.allow_noncanonical_checkpoint_provenance,
+    )
+    if a.patient_id:
+        patient_dirs = [output_root / a.patient_id]
+    else:
+        manifest_rel = Path(str(STAGE02_SCHEMA["patch_outputs"]["manifest"]))
+        patient_dirs = sorted(p for p in output_root.iterdir() if p.is_dir() and
+                              (p / manifest_rel).is_file())
+    if not patient_dirs:
+        raise RuntimeError(f"No patient Stage 02 patch manifests found under {output_root}")
+    for patient_dir in patient_dirs:
+        if not patient_dir.is_dir():
+            raise FileNotFoundError(f"Patient output directory not found: {patient_dir}")
+        run_patient(
+            patient_dir, models, checkpoint_metadata, device,
+            output_root=output_root,
+            collect_attention=a.collect_attention,
+            process_log_diagnostic=(
+                bool(STAGE03_SCHEMA["inputs"]["process_log_diagnostic_default"])
+                and not a.skip_log_diagnostic
+            ),
+        )
+    return 0
 
 
 if __name__ == "__main__":
-    run_pipeline(build_parser().parse_args())
+    raise SystemExit(main())

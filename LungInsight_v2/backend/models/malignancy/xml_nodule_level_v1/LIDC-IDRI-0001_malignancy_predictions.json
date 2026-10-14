@@ -1,0 +1,63 @@
+{
+  "schema_version": "stage04-xml-trained-malignancy-output-v2",
+  "model_file": "LungInsight_v2\\backend\\models\\malignancy\\xml_nodule_level_v1\\malignancy_from_nodule_level_xml.joblib",
+  "model_type": "ExtraTreesRegressor",
+  "feature_names_in_order": [
+    "subtlety",
+    "sphericity",
+    "margin",
+    "lobulation",
+    "spiculation",
+    "texture"
+  ],
+  "input_source": "existing Stage 03 predictions.json scalar ordinal attribute outputs",
+  "stage03_schema_version": "3.0-spatial-hybrid",
+  "patient_id": "LIDC-IDRI-0001",
+  "source_predictions_json": "LungInsight_v2\\backend\\output\\LIDC-IDRI-0001\\03_nodule_classification\\predictions.json",
+  "candidate_count": 2,
+  "scored_candidate_count": 2,
+  "invalid_candidates": [],
+  "target_semantics": "LIDC reader malignancy/suspicion rating, not verified cancer probability",
+  "xml_to_ranker_input_shift_warning": "Input shape compatibility does not establish predictive validity. Consult the model's training_report.json for held-out validation results.",
+  "ct_or_image_used_by_malignancy_predictor": false,
+  "predictions": [
+    {
+      "patch_id": 0,
+      "candidate_id": 0,
+      "patient_id": "LIDC-IDRI-0001",
+      "predicted_malignancy_rating_continuous": 3.0053508978921526,
+      "predicted_malignancy_rating_rounded": 3,
+      "rating_scale": "1..5",
+      "target_semantics": "LIDC reader-assigned malignancy/suspicion rating; not pathology-confirmed cancer probability",
+      "feature_values_used": {
+        "subtlety": 3.731553077697754,
+        "sphericity": 3.5408480167388916,
+        "margin": 3.853806972503662,
+        "lobulation": 1.6173696517944336,
+        "spiculation": 1.562337875366211,
+        "texture": 4.247402191162109
+      },
+      "stage03_prediction_index": 0,
+      "ct_or_image_used_by_malignancy_predictor": false
+    },
+    {
+      "patch_id": 1,
+      "candidate_id": 1,
+      "patient_id": "LIDC-IDRI-0001",
+      "predicted_malignancy_rating_continuous": 2.9301225934117006,
+      "predicted_malignancy_rating_rounded": 3,
+      "rating_scale": "1..5",
+      "target_semantics": "LIDC reader-assigned malignancy/suspicion rating; not pathology-confirmed cancer probability",
+      "feature_values_used": {
+        "subtlety": 3.738184690475464,
+        "sphericity": 3.5445728302001953,
+        "margin": 3.9683172702789307,
+        "lobulation": 1.3889902830123901,
+        "spiculation": 1.2800827026367188,
+        "texture": 4.320485591888428
+      },
+      "stage03_prediction_index": 1,
+      "ct_or_image_used_by_malignancy_predictor": false
+    }
+  ]
+}

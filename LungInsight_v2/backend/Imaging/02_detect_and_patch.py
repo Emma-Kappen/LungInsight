@@ -63,11 +63,43 @@ import numpy as np
 import torch
 import torch.nn as nn
 from matplotlib.patches import Rectangle
+from pipeline_schema import get_required, load_schema, check_meta_schema_version
+from heart_mask_review import validate_review_attestation
+from lunginsight_candidate_fusion import filter_detections_by_lung_mask
+
+SCHEMA = load_schema(__file__)
+STAGE02_SCHEMA = get_required(SCHEMA, "stage_02_detect_and_patch", expected_type=dict)
+STAGE01_SCHEMA = get_required(SCHEMA, "stage_01_hu_and_crop", expected_type=dict)
+STAGE01_FILES = get_required(STAGE01_SCHEMA, "filenames", expected_type=dict)
+STAGE02_DETECTOR = get_required(STAGE02_SCHEMA, "authoritative_detector", expected_type=dict)
+STAGE02_ACCEPTANCE_FILTER = get_required(STAGE02_SCHEMA, "candidate_acceptance_filter", expected_type=dict)
+STAGE02_LOCALIZATION = get_required(STAGE02_SCHEMA, "anatomical_localization.default_parameters", expected_type=dict)
+STAGE02_PATHS = get_required(SCHEMA, "paths.stage_02", expected_type=dict)
+STAGE02_FILES = get_required(STAGE02_SCHEMA, "filenames", expected_type=dict)
+STAGE02_PATCH_OUTPUTS = get_required(STAGE02_SCHEMA, "patch_outputs", expected_type=dict)
+STAGE02_LOG_PATCH_OUTPUTS = get_required(STAGE02_SCHEMA, "diagnostic_patch_outputs", expected_type=dict)
+STAGE02_PATCH_ARRAY_SUBDIR = Path(STAGE02_PATCH_OUTPUTS["array_directory"]).relative_to(Path(STAGE02_PATCH_OUTPUTS["root"]))
+STAGE02_PATCH_VIZ_SUBDIR = Path(STAGE02_PATCH_OUTPUTS["visualization_directory"]).relative_to(Path(STAGE02_PATCH_OUTPUTS["root"]))
+STAGE02_PATCH_ARRAY_PATTERN = str(STAGE02_FILES["patch_array_pattern"])
+STAGE02_PATCH_VIZ_PATTERN = str(STAGE02_FILES["patch_visualization_pattern"])
+PATCH_ARRAY_DTYPE = np.dtype(STAGE02_PATCH_OUTPUTS["array_dtype"])
+if PATCH_ARRAY_DTYPE != np.dtype(np.float32):
+    raise RuntimeError(
+        f"meta_schema.json Stage 02 patch array dtype must remain float32 for the existing Stage 03 checkpoints, got {PATCH_ARRAY_DTYPE}."
+    )
+STAGE01_FALLBACK_AIR_THRESHOLD_HU = float(get_required(SCHEMA, "stage_01_hu_and_crop.preprocessing.air_threshold_hu"))
 from matplotlib.widgets import Slider
 from scipy import ndimage
 from scipy.ndimage import gaussian_laplace, maximum_filter
 
-from transformers import PreTrainedModel, ViTConfig
+try:
+    from transformers import PreTrainedModel, ViTConfig
+except ImportError as exc:
+    raise ImportError(
+        "Stage 02 requires Hugging Face transformers for the existing ViTDet3D detector. "
+        "Install the repository-compatible transformers version in the active environment, then retry. "
+        "This stage runs on CPU with --device cpu and does not require a GPU."
+    ) from exc
 
 try:
     from transformers.utils import ModelOutput  # type: ignore[attr-defined, import-not-found]
@@ -80,46 +112,43 @@ except ImportError:
     ACT2FN = {"gelu": nn.GELU()}
 
 
-COORDINATE_ORDER = "ZYX"
-CT_SPACE = "stage01_final_cropped_ct"
-PATCH_SPACE = "patch_local_ct"
+COORDINATE_ORDER = str(get_required(STAGE02_SCHEMA, "coordinate_order"))
+CT_SPACE = str(get_required(SCHEMA, "coordinate_format.ct_frame_space"))
+PATCH_SPACE = str(get_required(STAGE02_SCHEMA, "patch_space"))
 
 # Heuristic anatomical-localization thresholds. These are intentionally
 # separate from detector thresholds: they describe *where* a proposal lies
 # using the Stage 01 masks and DICOM geometry; they do not alter detection/NMS.
-ANATOMY_WALL_DISTANCE_MM = 5.0
-ANATOMY_AIRWAY_PROXIMITY_MM = 4.0
-ANATOMY_LATERAL_MIDLINE_TOLERANCE_MM = 5.0
-ANATOMY_AIRWAY_CENTRAL_RADIUS_MM = 22.0
-ANATOMY_TRACHEA_CENTRAL_RADIUS_MM = 15.0
-ANATOMY_TRACHEA_Z_FRACTION = 0.55
+ANATOMY_WALL_DISTANCE_MM = float(get_required(STAGE02_LOCALIZATION, "wall_distance_mm"))
+ANATOMY_AIRWAY_PROXIMITY_MM = float(get_required(STAGE02_LOCALIZATION, "airway_proximity_mm"))
+ANATOMY_LATERAL_MIDLINE_TOLERANCE_MM = float(get_required(STAGE02_LOCALIZATION, "midline_tolerance_mm"))
+ANATOMY_AIRWAY_CENTRAL_RADIUS_MM = float(get_required(STAGE02_LOCALIZATION, "airway_central_radius_mm"))
+ANATOMY_TRACHEA_CENTRAL_RADIUS_MM = float(get_required(STAGE02_LOCALIZATION, "trachea_central_radius_mm"))
+ANATOMY_TRACHEA_Z_FRACTION = float(get_required(STAGE02_LOCALIZATION, "trachea_z_fraction"))
 
-VIT_WINDOW = np.asarray([40, 128, 128], dtype=np.int32)
-VIT_STRIDE = np.asarray([30, 96, 96], dtype=np.int32)
+VIT_WINDOW = np.asarray(STAGE02_DETECTOR["input_window_zyx_voxels"], dtype=np.int32)
+VIT_STRIDE = np.asarray(STAGE02_DETECTOR["sliding_stride_zyx_voxels"], dtype=np.int32)
+VIT_MEAN = float(get_required(STAGE02_DETECTOR, "normalization.mean"))
+VIT_STD = float(get_required(STAGE02_DETECTOR, "normalization.std"))
 
-VIT_MEAN = -775.657161489884
-VIT_STD = 962.3208802005623
+DEFAULT_VIT_LOGIT_THRESHOLD = float(STAGE02_SCHEMA["vit_logit_threshold_default"])
+DEFAULT_NMS_DISTANCE_MM = float(STAGE02_SCHEMA["nms_distance_mm_default"])
+LOG_DIAMETERS_MM = tuple(float(v) for v in get_required(STAGE02_SCHEMA, "diagnostic_log_detector.diameters_mm", expected_type=list))
+DEFAULT_LOG_THRESHOLD = float(STAGE02_SCHEMA["log_threshold_default"])
+DEFAULT_LOG_MIN_DISTANCE_MM = float(STAGE02_SCHEMA["log_min_distance_mm_default"])
+DEFAULT_DIAGNOSTIC_AGREEMENT_DISTANCE_MM = float(STAGE02_SCHEMA["diagnostic_agreement_distance_mm_default"])
 
-DEFAULT_VIT_LOGIT_THRESHOLD = -5.0
-DEFAULT_NMS_DISTANCE_MM = 10.0
-
-LOG_DIAMETERS_MM = (4.0, 6.0, 8.0, 10.0, 14.0, 18.0, 24.0)
-DEFAULT_LOG_THRESHOLD = 0.035
-DEFAULT_LOG_MIN_DISTANCE_MM = 5.0
-DEFAULT_DIAGNOSTIC_AGREEMENT_DISTANCE_MM = 10.0
-
-AIR_HU = -1000.0
+AIR_HU = float(get_required(SCHEMA, str(STAGE02_SCHEMA["patch_padding_hu_ref"])))
 # Backward-compatible alias retained by the patch-extraction implementation.
 DEFAULT_AIR_HU = AIR_HU
-
-DEFAULT_PATCH_SIZE_VOX = 64
-DEFAULT_CONTEXT_MARGIN_MM = 10.0
-DEFAULT_WINDOW_LEVEL = -600.0
-DEFAULT_WINDOW_WIDTH = 1500.0
+DEFAULT_PATCH_SIZE_VOX = int(STAGE02_SCHEMA["patch_size_vox_default"])
+DEFAULT_CONTEXT_MARGIN_MM = float(STAGE02_SCHEMA["context_margin_mm_default"])
+DEFAULT_WINDOW_LEVEL = float(STAGE02_SCHEMA["ct_display_window_hu"]["level"])
+DEFAULT_WINDOW_WIDTH = float(STAGE02_SCHEMA["ct_display_window_hu"]["width"])
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 V2_ROOT = SCRIPT_DIR.parent.parent
-DEFAULT_OUTPUT_ROOT = V2_ROOT / "backend" / "output"
+DEFAULT_OUTPUT_ROOT = V2_ROOT / get_required(SCHEMA, "paths.output_root")
 
 
 def json_default(obj: Any):
@@ -230,7 +259,7 @@ def _local_distance_to_mask(
     center_zyx: np.ndarray,
     spacing_zyx_mm: np.ndarray,
     distance_to_true: bool,
-    radius_mm: float = ANATOMY_WALL_DISTANCE_MM + 2.0,
+    radius_mm: float = ANATOMY_WALL_DISTANCE_MM + float(STAGE02_LOCALIZATION["local_distance_search_margin_mm"]),
 ) -> float | None:
     """Distance from a voxel center to the opposite side of a binary mask.
 
@@ -308,7 +337,7 @@ def _build_airway_core(
         ANATOMY_AIRWAY_CENTRAL_RADIUS_MM / float(spacing_zyx_mm[2])
     )))
     superior_offset_vox = max(1, int(np.ceil(
-        10.0 / float(spacing_zyx_mm[0])
+        float(STAGE02_LOCALIZATION["airway_superior_offset_mm"]) / float(spacing_zyx_mm[0])
     )))
     z_grid = np.arange(physical_air.shape[0], dtype=np.int64)[:, None, None]
     x_grid = np.arange(physical_air.shape[2], dtype=np.int64)[None, None, :]
@@ -366,6 +395,8 @@ def classify_anatomical_location(
     *,
     wall_distance_mm: float = ANATOMY_WALL_DISTANCE_MM,
     airway_proximity_mm: float = ANATOMY_AIRWAY_PROXIMITY_MM,
+    airway_core: np.ndarray | None = None,
+    airway_info: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     """Assign a conservative anatomical-location label to one detector center.
 
@@ -433,9 +464,10 @@ def classify_anatomical_location(
         )
         wall_distance = distance_to_lung
 
-    airway_core, airway_info = _build_airway_core(
-        lung_mask, air_mask, spacing_zyx_mm, origin_lps_mm, direction_lps
-    )
+    if airway_core is None or airway_info is None:
+        airway_core, airway_info = _build_airway_core(
+            lung_mask, air_mask, spacing_zyx_mm, origin_lps_mm, direction_lps
+        )
 
     airway_distance = None
     airway_near = False
@@ -578,9 +610,9 @@ def load_stage01(
     """Load the final Z-cropped Stage 01 CT volume, masks, and coordinate metadata."""
     stage01_dir = Path(stage01_dir)
 
-    volume_path = stage01_dir / "volume_hu_cropped.npy"
-    lung_mask_path = stage01_dir / "lung_mask.npy"
-    meta_path = stage01_dir / "meta.json"
+    volume_path = stage01_dir / STAGE01_FILES[STAGE02_SCHEMA["input_volume"]["filename_key"]]
+    lung_mask_path = stage01_dir / STAGE01_FILES["lung_mask.npy"]
+    meta_path = stage01_dir / STAGE01_FILES["meta.json"]
 
     if not volume_path.is_file():
         raise FileNotFoundError(f"Missing Stage 01 cropped CT volume:\n{volume_path}")
@@ -589,8 +621,8 @@ def load_stage01(
     if not meta_path.is_file():
         raise FileNotFoundError(f"Missing Stage 01 metadata:\n{meta_path}")
 
-    air_mask_path = stage01_dir / "air_mask.npy"
-    heart_mask_path = stage01_dir / "heart_mask.npy"
+    air_mask_path = stage01_dir / STAGE01_FILES["air_mask.npy"]
+    heart_mask_path = stage01_dir / STAGE01_FILES["heart_mask.npy"]
 
     volume = np.asarray(
         np.load(volume_path, allow_pickle=False),
@@ -600,6 +632,7 @@ def load_stage01(
         np.load(lung_mask_path, allow_pickle=False)
     ).astype(bool)
     metadata = load_json(meta_path)
+    check_meta_schema_version(metadata, SCHEMA, context=str(meta_path), require=False)
 
     # Stage 01 writes both masks. Keep safe fallbacks so older Stage 01
     # outputs remain consumable: physical air is reconstructed from the
@@ -609,7 +642,7 @@ def load_stage01(
             np.load(air_mask_path, allow_pickle=False)
         ).astype(bool)
     else:
-        air_mask = volume <= -950.0
+        air_mask = volume <= STAGE01_FALLBACK_AIR_THRESHOLD_HU
 
     if heart_mask_path.is_file():
         heart_mask = np.asarray(
@@ -620,6 +653,8 @@ def load_stage01(
 
     if volume.ndim != 3:
         raise RuntimeError(f"Expected volume shape (Z,Y,X), got {volume.shape}")
+    if not np.isfinite(volume).all():
+        raise RuntimeError(f"Stage 01 CT volume contains NaN or Inf: {volume_path}")
     if lung_mask.shape != volume.shape:
         raise RuntimeError(
             f"Volume/lung-mask shape mismatch:\n"
@@ -1357,7 +1392,7 @@ def build_detector_candidates(
         candidates.append(
             DetectorCandidate(
                 candidate_id=candidate_id,
-                source="ViTDet3D",
+                source=str(STAGE02_DETECTOR["name"]),
                 detector_score=float(det["score"]),
                 coordinate_order=COORDINATE_ORDER,
                 center_zyx=[float(v) for v in center.tolist()],
@@ -1367,7 +1402,7 @@ def build_detector_candidates(
                 spacing_zyx_mm=[float(v) for v in spacing_zyx.tolist()],
                 space=CT_SPACE,
                 model={
-                    "name": "ViTDet3D",
+                    "name": str(STAGE02_DETECTOR["name"]),
                     "checkpoint": checkpoint_ref,
                     "model_version": model_version,
                 },
@@ -1386,15 +1421,7 @@ def validate_detector_candidate_schema(
 ) -> None:
     """Validate the detector spatial contract before serialization."""
 
-    required = (
-        "candidate_id",
-        "center_zyx",
-        "bbox_start_zyx",
-        "bbox_end_zyx",
-        "coordinate_order",
-        "space",
-        "spacing_zyx_mm",
-    )
+    required = tuple(STAGE02_DETECTOR["required_candidate_fields"])
     missing = [key for key in required if key not in candidate]
     if missing:
         raise RuntimeError(f"detector candidate missing required fields: {missing}")
@@ -2590,7 +2617,12 @@ def extract_one_patch(
     fixed_size_vox: int,
     context_margin_mm: float,
     adaptive: bool,
+    render_visualization: bool = True,
+    array_subdir: Path | None = None,
+    visualization_subdir: Path | None = None,
 ) -> dict[str, Any]:
+    array_subdir = array_subdir if array_subdir is not None else STAGE02_PATCH_ARRAY_SUBDIR
+    visualization_subdir = visualization_subdir if visualization_subdir is not None else STAGE02_PATCH_VIZ_SUBDIR
     center = as_zyx(
         candidate["center_zyx"],
         "center_zyx",
@@ -2701,51 +2733,38 @@ def extract_one_patch(
             )
         )
 
-    array_dir = (
-        output_root / "arrays"
-    )
+    array_dir = output_root / array_subdir
+    viz_dir = output_root / visualization_subdir
 
-    viz_dir = (
-        output_root / "visualizations"
-    )
-
-    array_dir.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    viz_dir.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
+    array_dir.mkdir(parents=True, exist_ok=True)
+    if render_visualization:
+        viz_dir.mkdir(parents=True, exist_ok=True)
 
     array_path = (
         array_dir
-        / f"patch_{patch_id:03d}.npy"
+        / STAGE02_PATCH_ARRAY_PATTERN.format(patch_id=patch_id)
     )
 
     np.save(
         array_path,
         np.asarray(
             patch,
-            dtype=np.float32,
+            dtype=PATCH_ARRAY_DTYPE,
         ),
         allow_pickle=False,
     )
 
-    triplanar_path = (
-        viz_dir
-        / f"patch_{patch_id:03d}_triplanar.png"
-    )
-
-    render_triplanar(
-        patch,
-        candidate,
-        patch_id,
-        bbox_local_start,
-        bbox_local_end,
-        triplanar_path,
-    )
+    triplanar_path = None
+    if render_visualization:
+        triplanar_path = viz_dir / STAGE02_PATCH_VIZ_PATTERN.format(patch_id=patch_id)
+        render_triplanar(
+            patch,
+            candidate,
+            patch_id,
+            bbox_local_start,
+            bbox_local_end,
+            triplanar_path,
+        )
 
     patch_center_index = (
         np.rint(center)
@@ -2775,6 +2794,10 @@ def extract_one_patch(
     return {
         "patch_id": int(patch_id),
         "candidate_id": candidate["candidate_id"],
+        "detection_source": candidate.get("detection_source", candidate.get("source", "ViTDet3D")),
+        "diagnostic_id": candidate.get("diagnostic_id"),
+        "log_response": candidate.get("log_response"),
+        "scale_mm": candidate.get("scale_mm"),
 
         "coordinate_order": COORDINATE_ORDER,
         "space": PATCH_SPACE,
@@ -2875,20 +2898,16 @@ def extract_one_patch(
             intensity_stats
         ),
 
-        "array_path": str(
-            array_path
-        ),
+        "array_path": str(array_path),
 
-        "triplanar_path": str(
-            triplanar_path
-        ),
+        "triplanar_path": str(triplanar_path) if triplanar_path is not None else None,
 
         "source_ct_volume": (
-            "volume_hu_cropped.npy"
+            STAGE01_FILES["volume_hu_cropped.npy"]
         ),
 
-        "source_detector_candidates": (
-            "candidates.json"
+        "source_detector_candidates": candidate.get(
+            "source_candidates_file", STAGE02_FILES["candidates_json"]
         ),
 
         "padding_value_hu": (
@@ -2906,6 +2925,51 @@ def extract_one_patch(
     }
 
 
+
+def build_log_patch_candidates(
+    log_candidates: list[LogDiagnosticCandidate], spacing_zyx_mm: np.ndarray
+) -> list[dict[str, Any]]:
+    """Adapt LoG records into patch-cropping records without merging candidate authority."""
+    converted: list[dict[str, Any]] = []
+    spacing = np.asarray(spacing_zyx_mm, dtype=np.float64)
+    if spacing.shape != (3,) or not np.isfinite(spacing).all() or np.any(spacing <= 0):
+        raise ValueError(f"Invalid spacing for LoG patch extraction: {spacing.tolist()}")
+    source_file = str(STAGE02_FILES["log_diagnostic"])
+    for candidate in log_candidates:
+        center = np.asarray(candidate.center_zyx, dtype=np.float64)
+        if center.shape != (3,) or not np.isfinite(center).all():
+            raise ValueError(f"Invalid center_zyx for LoG candidate {candidate.diagnostic_id!r}")
+        diameter_mm = float(candidate.scale_mm)
+        if not np.isfinite(diameter_mm) or diameter_mm <= 0:
+            raise ValueError(f"Invalid scale_mm for LoG candidate {candidate.diagnostic_id!r}: {diameter_mm}")
+        half_extent_vox = np.maximum((diameter_mm / (2.0 * spacing)), 0.5)
+        bbox_start = np.floor(center - half_extent_vox).astype(int)
+        bbox_end = np.ceil(center + half_extent_vox).astype(int)
+        bbox_end = np.maximum(bbox_end, bbox_start + 1)
+        response = float(candidate.log_response)
+        if not np.isfinite(response):
+            raise ValueError(f"Non-finite LoG response for candidate {candidate.diagnostic_id!r}")
+        converted.append({
+            "candidate_id": str(candidate.diagnostic_id),
+            "diagnostic_id": str(candidate.diagnostic_id),
+            "detection_source": "LoG",
+            "source": "LoG",
+            "source_candidates_file": source_file,
+            "purpose": str(candidate.purpose),
+            "coordinate_order": str(candidate.coordinate_order),
+            "center_zyx": center.tolist(),
+            "center_lps_mm": list(candidate.center_lps_mm),
+            "bbox_start_zyx": bbox_start.tolist(),
+            "bbox_end_zyx": bbox_end.tolist(),
+            "detector_score": response,
+            "log_response": response,
+            "scale_mm": diameter_mm,
+            "diameter_mm": diameter_mm,
+            "anatomical_location": None,
+        })
+    return converted
+
+
 def extract_all(
     volume: np.ndarray,
     candidates: list[dict[str, Any]],
@@ -2916,6 +2980,11 @@ def extract_all(
     fixed_size_vox: int,
     context_margin_mm: float,
     adaptive: bool,
+    *,
+    render_visualization: bool = True,
+    progress_label: str = "patch",
+    array_subdir: Path | None = None,
+    visualization_subdir: Path | None = None,
 ) -> list[dict[str, Any]]:
     records: list[dict[str, Any]] = []
 
@@ -2933,16 +3002,23 @@ def extract_all(
             fixed_size_vox,
             context_margin_mm,
             adaptive,
+            render_visualization=render_visualization,
+            array_subdir=array_subdir,
+            visualization_subdir=visualization_subdir,
         )
 
         records.append(record)
-
-        print(
-            f"Extracted patch_{patch_id:03d}: "
-            f"candidate={candidate['candidate_id']} "
-            f"center={record['center_zyx']} "
-            f"shape={record['patch_size_vox_zyx']}"
-        )
+        item_number = patch_id + 1
+        should_report = (len(candidates) <= 20) or item_number % 100 == 0 or item_number == len(candidates)
+        if should_report:
+            print(
+                f"Extracted {progress_label}_{patch_id:03d}: "
+                f"candidate={candidate['candidate_id']} "
+                f"center={record['center_zyx']} "
+                f"shape={record['patch_size_vox_zyx']} "
+                f"({item_number}/{len(candidates)})",
+                flush=True,
+            )
 
     return records
 
@@ -2965,7 +3041,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "--vitdet-model",
-        default="rlsn/DeTr4LungNodule",
+        default=str(STAGE02_DETECTOR["checkpoint_default"]),
         help="Hugging Face ViTDet3D model identifier.",
     )
     parser.add_argument(
@@ -2975,11 +3051,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--model-version",
-        default="v1.0",
+        default=str(STAGE02_SCHEMA["model_version_default"]),
         help="Model version tag recorded in candidate provenance.",
     )
     parser.add_argument("--device", default=None, help="Device: cuda, cpu, or auto.")
-    parser.add_argument("--batch-size", type=int, default=4)
+    parser.add_argument("--batch-size", type=int, default=int(STAGE02_SCHEMA["batch_size_default"]))
     parser.add_argument(
         "--vit-logit-threshold",
         type=float,
@@ -2995,8 +3071,8 @@ def build_parser() -> argparse.ArgumentParser:
         "--with-log-diagnostic",
         dest="with_log_diagnostic",
         action="store_true",
-        default=True,
-        help="Run diagnostic LoG detector (default: on).",
+        default=bool(STAGE02_SCHEMA["default_log_diagnostic_enabled"]),
+        help="Run diagnostic LoG detector (default is configured in meta_schema.json).",
     )
     parser.add_argument(
         "--skip-log",
@@ -3008,6 +3084,20 @@ def build_parser() -> argparse.ArgumentParser:
         "--log-min-distance-mm",
         type=float,
         default=DEFAULT_LOG_MIN_DISTANCE_MM,
+    )
+    log_limit_group = parser.add_mutually_exclusive_group()
+    log_limit_group.add_argument(
+        "--log-patch-limit",
+        type=int,
+        default=STAGE02_SCHEMA["diagnostic_log_detector"]["patch_limit_default"],
+        help=("Maximum LoG diagnostic patches to extract (default from meta_schema.json; "
+              "the strongest post-NMS responses are first)."),
+    )
+    log_limit_group.add_argument(
+        "--all-log-patches",
+        dest="all_log_patches",
+        action="store_true",
+        help="Extract every LoG diagnostic candidate rather than applying the schema's default patch limit.",
     )
     parser.add_argument(
         "--diagnostic-agreement-distance-mm",
@@ -3048,6 +3138,8 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         raise ValueError("--patch-size-vox must be > 0")
     if args.context_margin_mm < 0:
         raise ValueError("--context-margin-mm must be >= 0")
+    if args.log_patch_limit is not None and args.log_patch_limit <= 0:
+        raise ValueError("--log-patch-limit must be a positive integer when supplied")
 
     if args.device is None or args.device == "auto":
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -3055,7 +3147,15 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         device = torch.device(args.device)
 
     patient_root = Path(args.output_root) / args.patient_id
-    output_stage = patient_root / "02_detect_and_patch"
+    output_stage = patient_root / STAGE02_PATHS["directory"]
+    declared_patch_root = Path(str(STAGE02_PATCH_OUTPUTS["root"]))
+    expected_patch_root = Path(STAGE02_PATHS["directory"]) / str(STAGE02_PATHS["patch_directory"])
+    if declared_patch_root.as_posix().rstrip("/") != expected_patch_root.as_posix():
+        raise RuntimeError(
+            "Inconsistent Stage 02 patch output paths in meta_schema.json: "
+            f"stage_02_detect_and_patch.patch_outputs.root={declared_patch_root.as_posix()!r}, "
+            f"paths.stage_02 implies {expected_patch_root.as_posix()!r}. Correct the schema so downstream stages find the manifest."
+        )
     output_stage.mkdir(parents=True, exist_ok=True)
 
     print("=" * 78)
@@ -3078,6 +3178,15 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         direction_lps,
         stage01_meta,
     ) = load_stage01(patient_root)
+
+    review_attestation = validate_review_attestation(
+        patient_root,
+        SCHEMA,
+        stage01_meta,
+        volume_hu,
+        lung_mask,
+        heart_mask,
+    )
 
     print(f"CT volume: {volume_hu.shape} (Z, Y, X)")
     print(f"Spacing : {spacing_zyx.tolist()} mm")
@@ -3116,12 +3225,18 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         spacing_zyx=spacing_zyx,
         origin_lps_mm=origin_lps_mm,
         direction_lps=direction_lps,
-        model_name="ViTDet3D",
+        model_name=str(STAGE02_DETECTOR["name"]),
         checkpoint_ref=checkpoint_ref,
         model_version=args.model_version,
     )
 
     candidate_dicts = [asdict(c) for c in vit_candidates]
+
+    # Build the central airway proxy once and reuse it for all detections. This
+    # avoids repeated full-volume connected-component labeling for every LoG point.
+    airway_core_cache, airway_info_cache = _build_airway_core(
+        lung_mask, air_mask, spacing_zyx, origin_lps_mm, direction_lps
+    )
 
     for candidate in candidate_dicts:
         validate_detector_candidate_schema(
@@ -3139,6 +3254,8 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             direction_lps,
             wall_distance_mm=ANATOMY_WALL_DISTANCE_MM,
             airway_proximity_mm=ANATOMY_AIRWAY_PROXIMITY_MM,
+            airway_core=airway_core_cache,
+            airway_info=airway_info_cache,
         )
 
     # Keep the typed candidate list in sync with the serialized records so
@@ -3146,8 +3263,53 @@ def run_pipeline(args: argparse.Namespace) -> Path:
     for c, candidate in zip(vit_candidates, candidate_dicts):
         c.anatomical_location = candidate["anatomical_location"]
 
-    save_json(output_stage / "candidates.json", candidate_dicts)
-    write_candidates_csv(output_stage / "candidates.csv", vit_candidates)
+    raw_authoritative_count = len(candidate_dicts)
+    accepted_candidates, rejected_candidates, candidate_filter_report = filter_detections_by_lung_mask(
+        candidate_dicts,
+        lung_mask,
+        heart_mask,
+        min_bbox_lung_occupancy=float(STAGE02_ACCEPTANCE_FILTER["minimum_bbox_lung_occupancy"]),
+        spacing_zyx_mm=spacing_zyx,
+        expected_space=CT_SPACE,
+        require_nonempty_heart_mask=bool(STAGE02_ACCEPTANCE_FILTER["require_nonempty_heart_mask"]),
+        require_heart_mask_reviewed=bool(STAGE02_ACCEPTANCE_FILTER["require_human_review_attestation"]),
+        heart_mask_reviewed=bool(review_attestation["verified"]),
+    )
+    if candidate_filter_report["gate_status"] != "passed":
+        raise RuntimeError(
+            "Stage 02 candidate acceptance gate blocked patch extraction: "
+            f"{candidate_filter_report['gate_status']}."
+        )
+    accepted_ids = {str(row["candidate_id"]) for row in accepted_candidates}
+    vit_candidates = [
+        candidate for candidate in vit_candidates
+        if str(candidate.candidate_id) in accepted_ids
+    ]
+    candidate_dicts = accepted_candidates
+    if len(candidate_dicts) + len(rejected_candidates) != raw_authoritative_count:
+        raise RuntimeError("Stage 02 candidate acceptance counts do not reconcile.")
+    candidate_filter_report.update(
+        {
+            "meta_schema_version": SCHEMA["schema_version"],
+            "stage": STAGE02_SCHEMA["stage"],
+            "patient_id": args.patient_id,
+            "detector": str(STAGE02_DETECTOR["name"]),
+            "review_attestation": review_attestation,
+        }
+    )
+    save_json(output_stage / STAGE02_FILES["candidate_filter_report"], candidate_filter_report)
+    save_json(
+        output_stage / STAGE02_FILES["rejected_candidates_audit"],
+        {
+            "meta_schema_version": SCHEMA["schema_version"],
+            "patient_id": args.patient_id,
+            "role": "audit_only_not_for_patch_extraction_or_inference",
+            "rejected_count": len(rejected_candidates),
+            "rejected_candidates": rejected_candidates,
+        },
+    )
+    save_json(output_stage / STAGE02_FILES["candidates_json"], candidate_dicts)
+    write_candidates_csv(output_stage / STAGE02_FILES["candidates_csv"], vit_candidates)
 
     # ------------------------------------------------------------------
     # LoG diagnostic only
@@ -3166,9 +3328,57 @@ def run_pipeline(args: argparse.Namespace) -> Path:
     else:
         print("LoG diagnostic detector: SKIPPED")
 
+    raw_log_candidate_dicts = [asdict(candidate) for candidate in log_candidates]
+    accepted_log_candidates, rejected_log_candidates, log_filter_report = filter_detections_by_lung_mask(
+        raw_log_candidate_dicts,
+        lung_mask,
+        heart_mask,
+        min_bbox_lung_occupancy=float(STAGE02_ACCEPTANCE_FILTER["minimum_bbox_lung_occupancy"]),
+        spacing_zyx_mm=spacing_zyx,
+        expected_space=CT_SPACE,
+        require_nonempty_heart_mask=bool(STAGE02_ACCEPTANCE_FILTER["require_nonempty_heart_mask"]),
+        require_heart_mask_reviewed=bool(STAGE02_ACCEPTANCE_FILTER["require_human_review_attestation"]),
+        heart_mask_reviewed=bool(review_attestation["verified"]),
+    )
+    if log_filter_report["gate_status"] != "passed":
+        raise RuntimeError(
+            "Stage 02 LoG diagnostic acceptance gate blocked patch extraction: "
+            f"{log_filter_report['gate_status']}."
+        )
+    accepted_log_ids = {
+        str(row.get("diagnostic_id", row.get("candidate_id")))
+        for row in accepted_log_candidates
+    }
+    log_candidates = [
+        candidate for candidate in log_candidates
+        if str(candidate.diagnostic_id) in accepted_log_ids
+    ]
+    if len(accepted_log_candidates) + len(rejected_log_candidates) != len(raw_log_candidate_dicts):
+        raise RuntimeError("Stage 02 LoG candidate acceptance counts do not reconcile.")
+    log_filter_report.update(
+        {
+            "meta_schema_version": SCHEMA["schema_version"],
+            "stage": STAGE02_SCHEMA["stage"],
+            "patient_id": args.patient_id,
+            "detector": "LoG",
+            "policy": "diagnostic_only_never_promoted_to_authoritative",
+            "review_attestation": review_attestation,
+        }
+    )
+    save_json(output_stage / STAGE02_FILES["log_candidate_filter_report"], log_filter_report)
     save_json(
-        output_stage / "log_candidates_diagnostic.json",
-        [asdict(c) for c in log_candidates],
+        output_stage / STAGE02_FILES["log_rejected_candidates_audit"],
+        {
+            "meta_schema_version": SCHEMA["schema_version"],
+            "patient_id": args.patient_id,
+            "role": "audit_only_not_for_patch_extraction_or_inference",
+            "rejected_count": len(rejected_log_candidates),
+            "rejected_candidates": rejected_log_candidates,
+        },
+    )
+    save_json(
+        output_stage / STAGE02_FILES["log_diagnostic"],
+        accepted_log_candidates,
     )
     agreement_report = compute_diagnostic_agreement(
         vit_candidates,
@@ -3176,14 +3386,15 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         agreement_distance_mm=args.diagnostic_agreement_distance_mm,
     )
     save_json(
-        output_stage / "candidates_diagnostic_agreement.json",
+        output_stage / STAGE02_FILES["diagnostic_agreement"],
         agreement_report,
     )
 
     # ------------------------------------------------------------------
     # Authoritative candidate patch extraction
     # ------------------------------------------------------------------
-    patch_root = output_stage / "patches"
+    # The schema stores patch root relative to the patient directory.
+    patch_root = patient_root / STAGE02_PATCH_OUTPUTS["root"]
     records = extract_all(
         volume_hu,
         candidate_dicts,
@@ -3196,34 +3407,38 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         args.adaptive,
     )
 
+    # Resolve both manifest paths before constructing metadata that references
+    # them. The LoG extraction records are filled in below, so the authoritative
+    # manifest itself is written only after both extraction branches complete.
+    patch_manifest_path = patient_root / STAGE02_PATCH_OUTPUTS["manifest"]
+    log_patch_manifest_path = patient_root / STAGE02_LOG_PATCH_OUTPUTS["manifest"]
+
     manifest = {
-        "schema_version": "02.1",
-        "stage": "02",
+        "schema_version": STAGE02_SCHEMA["manifest_schema_version"],
+        "meta_schema_version": SCHEMA["schema_version"],
+        "stage": STAGE02_SCHEMA["stage"],
         "module": "ViTDet3D Candidate Detection + 3-D Nodule Patch Extraction",
         "patient_id": args.patient_id,
         "coordinate_order": COORDINATE_ORDER,
-        "coordinate_system": "DICOM_LPS",
+        "coordinate_system": SCHEMA["coordinate_system"],
         "source_space": CT_SPACE,
         "patch_space": PATCH_SPACE,
         "inputs": {
             "stage01_directory": str(patient_root),
-            "ct_volume": "volume_hu_cropped.npy",
-            "lung_mask": "lung_mask.npy",
-            "stage01_metadata": "meta.json",
-            "authoritative_candidates": "candidates.json",
+            "ct_volume": STAGE01_FILES["volume_hu_cropped.npy"],
+            "lung_mask": STAGE01_FILES["lung_mask.npy"],
+            "stage01_metadata": STAGE01_FILES["meta.json"],
+            "authoritative_candidates": STAGE02_FILES["candidates_json"],
         },
         "ct_geometry": {
             "shape_zyx": [int(v) for v in volume_hu.shape],
             "spacing_zyx_mm": spacing_zyx.tolist(),
             "origin_lps_mm": origin_lps_mm.tolist(),
             "direction_lps": direction_lps.tolist(),
-            "index_to_physical_formula": (
-                "p_LPS_mm = origin_lps_mm + direction_lps @ "
-                "([z,y,x] * spacing_zyx_mm)"
-            ),
+            "index_to_physical_formula": STAGE02_SCHEMA["output_coordinate_formulas"]["ct_index_to_physical"],
         },
         "detector": {
-            "name": "ViTDet3D",
+            "name": str(STAGE02_DETECTOR["name"]),
             "model": args.vitdet_model,
             "checkpoint": checkpoint_ref,
             "model_version": args.model_version,
@@ -3243,6 +3458,11 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             "threshold": args.log_threshold,
             "min_distance_mm": args.log_min_distance_mm,
             "num_candidates": len(log_candidates),
+            "stage03_attribute_inference_enabled": bool(STAGE02_SCHEMA["diagnostic_log_detector"]["stage03_attribute_inference_enabled_by_default"]),
+            "separate_patch_manifest": str(log_patch_manifest_path),
+            # Updated with the actual extraction count before the manifest is saved.
+            "num_log_patches_extracted": 0,
+            "candidate_limit": args.log_patch_limit,
         },
         "patch_geometry": {
             "space": PATCH_SPACE,
@@ -3254,15 +3474,12 @@ def run_pipeline(args: argparse.Namespace) -> Path:
                 "of the CENTER of saved patch voxel [0,0,0], including "
                 "virtual air-padded coordinates outside the source CT."
             ),
-            "index_to_physical_formula": (
-                "p_LPS_mm = patch_origin_lps_mm + direction_lps @ "
-                "([z,y,x] * patch_spacing_zyx_mm)"
-            ),
+            "index_to_physical_formula": STAGE02_SCHEMA["patch_coordinate_conventions"]["index_to_physical_formula"],
             "spacing_definition": (
                 "Patch spacing equals the source CT spacing because "
                 "patches are cropped, not resampled."
             ),
-            "crop_bounds_semantics": "[start,end) exclusive in source CT ZYX",
+            "crop_bounds_semantics": STAGE02_SCHEMA["output_coordinate_formulas"]["crop_bounds_semantics"],
         },
         "anatomical_localization": {
             "enabled": True,
@@ -3293,14 +3510,85 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         "patch_count": len(records),
         "patches": records,
     }
-    save_json(patch_root / "patches_manifest.json", manifest)
+    # LoG proposals are patched for Stage 03 attribute inference, but remain in
+    # a separate manifest/array tree and are never merged into candidates.json.
+    selected_log_candidates = log_candidates
+    if args.log_patch_limit is not None:
+        selected_log_candidates = log_candidates[:args.log_patch_limit]
+    log_patch_candidates = build_log_patch_candidates(selected_log_candidates, spacing_zyx)
+    for log_candidate in log_patch_candidates:
+        log_candidate["anatomical_location"] = classify_anatomical_location(
+            np.asarray(log_candidate["center_zyx"], dtype=np.float64),
+            lung_mask, air_mask, heart_mask, spacing_zyx, origin_lps_mm, direction_lps,
+            wall_distance_mm=ANATOMY_WALL_DISTANCE_MM,
+            airway_proximity_mm=ANATOMY_AIRWAY_PROXIMITY_MM,
+            airway_core=airway_core_cache,
+            airway_info=airway_info_cache,
+        )
+    log_patch_root = patient_root / STAGE02_LOG_PATCH_OUTPUTS["root"]
+    bytes_per_patch = int(args.patch_size_vox) ** 3 * int(PATCH_ARRAY_DTYPE.itemsize)
+    estimated_gib = len(log_patch_candidates) * bytes_per_patch / (1024 ** 3)
+    print(
+        f"Preparing {len(log_patch_candidates)} LoG diagnostic patches for Stage 03 "
+        f"(detected={len(log_candidates)}; estimated array payload={estimated_gib:.2f} GiB; "
+        "visualizations disabled by default).",
+        flush=True,
+    )
+    log_records = extract_all(
+        volume_hu,
+        log_patch_candidates,
+        spacing_zyx,
+        origin_lps_mm,
+        direction_lps,
+        log_patch_root,
+        args.patch_size_vox,
+        args.context_margin_mm,
+        args.adaptive,
+        render_visualization=bool(STAGE02_LOG_PATCH_OUTPUTS["visualizations_enabled"]),
+        progress_label="log_patch",
+        array_subdir=Path(STAGE02_LOG_PATCH_OUTPUTS["array_directory"]).relative_to(Path(STAGE02_LOG_PATCH_OUTPUTS["root"])),
+        visualization_subdir=Path(STAGE02_LOG_PATCH_OUTPUTS["visualization_directory"]).relative_to(Path(STAGE02_LOG_PATCH_OUTPUTS["root"])),
+    )
+    log_manifest = {
+        "schema_version": STAGE02_SCHEMA["manifest_schema_version"],
+        "meta_schema_version": SCHEMA["schema_version"],
+        "stage": STAGE02_SCHEMA["stage"],
+        "module": "Diagnostic LoG Proposal Patch Extraction",
+        "purpose": "research_comparison_only",
+        "patient_id": args.patient_id,
+        "coordinate_order": COORDINATE_ORDER,
+        "coordinate_system": SCHEMA["coordinate_system"],
+        "source_space": CT_SPACE,
+        "patch_space": PATCH_SPACE,
+        "source_detector_candidates": STAGE02_FILES["log_diagnostic"],
+        "diagnostic_policy": STAGE02_SCHEMA["diagnostic_log_detector"]["stage03_inference_note"],
+        "detected_candidate_count": len(log_candidates),
+        "selected_candidate_count": len(selected_log_candidates),
+        "candidate_limit": args.log_patch_limit,
+        "ct_geometry": manifest["ct_geometry"],
+        "patch_geometry": manifest["patch_geometry"],
+        "patch_configuration": manifest["patch_configuration"],
+        "patch_count": len(log_records),
+        "patches": log_records,
+    }
+    log_patch_manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    save_json(log_patch_manifest_path, log_manifest)
+
+    # Record the actual number extracted and now save the authoritative manifest.
+    # Its diagnostic LoG section points to, but never merges with, the separate
+    # LoG manifest/output tree.
+    manifest["diagnostic_log_detector"]["num_log_patches_extracted"] = len(log_records)
+    patch_manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    save_json(patch_manifest_path, manifest)
 
     detector_metadata = {
         "patient_id": args.patient_id,
-        "stage": 2,
+        "stage": int(STAGE02_SCHEMA["stage"]),
+        "schema_version": STAGE02_SCHEMA["detector_metadata_schema_version"],
+        "meta_schema_version": SCHEMA["schema_version"],
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "coordinate_order": COORDINATE_ORDER,
-        "coordinate_system": "DICOM_LPS",
+        "coordinate_system": SCHEMA["coordinate_system"],
         "space": CT_SPACE,
         "volume_shape_zyx": list(volume_hu.shape),
         "spacing_zyx_mm": spacing_zyx.tolist(),
@@ -3309,7 +3597,7 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         "stage01_crop_offset_zyx": stage01_meta.get("crop_offset_zyx", [0, 0, 0]),
         "stage01_z_crop_range": stage01_meta.get("z_crop_range"),
         "authoritative_detector": {
-            "name": "ViTDet3D",
+            "name": str(STAGE02_DETECTOR["name"]),
             "model": args.vitdet_model,
             "checkpoint": checkpoint_ref,
             "model_version": args.model_version,
@@ -3339,7 +3627,7 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             "padding_value_hu": AIR_HU,
             "patch_space": PATCH_SPACE,
             "num_patches": len(records),
-            "manifest": str(patch_root / "patches_manifest.json"),
+            "manifest": str(patch_manifest_path),
         },
         "output_files": {
             "candidates.json": "AUTHORITATIVE - ViTDet3D only.",
@@ -3347,10 +3635,11 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             "detector_metadata.json": "Detector and coordinate provenance.",
             "log_candidates_diagnostic.json": "Diagnostic only.",
             "candidates_diagnostic_agreement.json": "Comparison report only.",
-            "patches/patches_manifest.json": "Patch geometry, characterization, and anatomical localization.",
+            "patches/patches_manifest.json": "Authoritative ViTDet3D patch geometry and localization.",
+            "log_diagnostic_patches/log_patches_manifest.json": "Separate diagnostic LoG patch geometry for Stage 03 inference.",
         },
     }
-    save_json(output_stage / "detector_metadata.json", detector_metadata)
+    save_json(output_stage / STAGE02_FILES["detector_metadata"], detector_metadata)
 
     print()
     print("=" * 78)
@@ -3358,13 +3647,15 @@ def run_pipeline(args: argparse.Namespace) -> Path:
     print("=" * 78)
     print(f"ViTDet3D candidates (authoritative): {len(vit_candidates)}")
     print(f"LoG diagnostic candidates          : {len(log_candidates)}")
-    print(f"Extracted patches                  : {len(records)}")
+    print(f"Extracted authoritative patches     : {len(records)}")
+    print(f"Extracted LoG diagnostic patches    : {len(log_records)}")
     print(f"Output: {output_stage}")
     print("Authoritative candidate file: candidates.json")
-    print("Patch manifest: patches/patches_manifest.json")
+    print("Authoritative patch manifest: patches/patches_manifest.json")
+    print(f"LoG diagnostic patch manifest: {log_patch_manifest_path}")
 
     if args.interactive and records:
-        viewer = PatchViewer(records, patch_root / "arrays")
+        viewer = PatchViewer(records, patch_root / Path(STAGE02_PATCH_OUTPUTS["array_directory"]).name)
         viewer.show()
 
     return output_stage
@@ -3372,6 +3663,8 @@ def run_pipeline(args: argparse.Namespace) -> Path:
 
 def main() -> None:
     args = build_parser().parse_args()
+    if getattr(args, "all_log_patches", False):
+        args.log_patch_limit = None
     run_pipeline(args)
 
 

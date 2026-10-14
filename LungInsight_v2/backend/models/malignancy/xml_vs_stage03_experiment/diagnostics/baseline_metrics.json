@@ -1,0 +1,688 @@
+{
+  "training_target_source": "Mean of valid malignancy_reader_ratings selected by malignancy_reader_mask",
+  "training_target_key": "mean(malignancy_reader_ratings[malignancy_reader_mask])",
+  "train_split_caveat": "Stage 03 train features are in-sample predictions; train-split diagnostics may be optimistic.",
+  "test_split_policy": "Report held-out test results once; do not use them for model selection or tuning.",
+  "baselines": {
+    "constant_rating_3": {
+      "value": 3
+    },
+    "training_target_mean": {
+      "value": 2.7003931965470422
+    },
+    "rounded_training_target_mode": {
+      "value": 3,
+      "training_rounded_counts": {
+        "1": 202,
+        "2": 425,
+        "3": 873,
+        "4": 284,
+        "5": 75
+      },
+      "tie_policy": "lowest integer rating wins ties"
+    }
+  },
+  "splits": {
+    "val": {
+      "n_nodules": 437,
+      "n_with_reader_target": 437,
+      "n_evaluated": 437,
+      "n_dropped_invalid_features": 0,
+      "target_key": "mean(malignancy_reader_ratings[malignancy_reader_mask])",
+      "target_semantics": "Mean of valid reader-assigned malignancy/suspicion ratings per nodule; not pathology-confirmed cancer.",
+      "methods": {
+        "constant_rating_3": {
+          "n_evaluated": 437,
+          "mae_continuous": 0.698888525661981,
+          "qwk_rounded_clipped": 0.0,
+          "accuracy_rounded_clipped": 0.482837528604119,
+          "rounding_clipping_policy": "half_up_clip_1_5",
+          "prediction_distribution_continuous": {
+            "mean": 3.0,
+            "std": 0.0,
+            "min": 3.0,
+            "max": 3.0
+          },
+          "prediction_integer_counts_1_to_5": {
+            "1": 0,
+            "2": 0,
+            "3": 437,
+            "4": 0,
+            "5": 0
+          },
+          "target_integer_counts_1_to_5": {
+            "1": 38,
+            "2": 100,
+            "3": 211,
+            "4": 65,
+            "5": 23
+          },
+          "confusion_matrix_rows_target_1_to_5_cols_prediction_1_to_5": [
+            [
+              0,
+              0,
+              38,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              100,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              211,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              65,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              23,
+              0,
+              0
+            ]
+          ]
+        },
+        "training_target_mean": {
+          "n_evaluated": 437,
+          "mae_continuous": 0.7032066595611747,
+          "qwk_rounded_clipped": 0.0,
+          "accuracy_rounded_clipped": 0.482837528604119,
+          "rounding_clipping_policy": "half_up_clip_1_5",
+          "prediction_distribution_continuous": {
+            "mean": 2.700393196547043,
+            "std": 8.881784197001252e-16,
+            "min": 2.7003931965470422,
+            "max": 2.7003931965470422
+          },
+          "prediction_integer_counts_1_to_5": {
+            "1": 0,
+            "2": 0,
+            "3": 437,
+            "4": 0,
+            "5": 0
+          },
+          "target_integer_counts_1_to_5": {
+            "1": 38,
+            "2": 100,
+            "3": 211,
+            "4": 65,
+            "5": 23
+          },
+          "confusion_matrix_rows_target_1_to_5_cols_prediction_1_to_5": [
+            [
+              0,
+              0,
+              38,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              100,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              211,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              65,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              23,
+              0,
+              0
+            ]
+          ]
+        },
+        "rounded_training_target_mode": {
+          "n_evaluated": 437,
+          "mae_continuous": 0.698888525661981,
+          "qwk_rounded_clipped": 0.0,
+          "accuracy_rounded_clipped": 0.482837528604119,
+          "rounding_clipping_policy": "half_up_clip_1_5",
+          "prediction_distribution_continuous": {
+            "mean": 3.0,
+            "std": 0.0,
+            "min": 3.0,
+            "max": 3.0
+          },
+          "prediction_integer_counts_1_to_5": {
+            "1": 0,
+            "2": 0,
+            "3": 437,
+            "4": 0,
+            "5": 0
+          },
+          "target_integer_counts_1_to_5": {
+            "1": 38,
+            "2": 100,
+            "3": 211,
+            "4": 65,
+            "5": 23
+          },
+          "confusion_matrix_rows_target_1_to_5_cols_prediction_1_to_5": [
+            [
+              0,
+              0,
+              38,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              100,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              211,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              65,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              23,
+              0,
+              0
+            ]
+          ]
+        },
+        "xml_model_stage03_continuous_inputs": {
+          "n_evaluated": 437,
+          "mae_continuous": 0.7357165028644128,
+          "qwk_rounded_clipped": 0.01047406581148913,
+          "accuracy_rounded_clipped": 0.482837528604119,
+          "rounding_clipping_policy": "half_up_clip_1_5",
+          "prediction_distribution_continuous": {
+            "mean": 3.044539380828028,
+            "std": 0.16974620671779309,
+            "min": 2.64396679181866,
+            "max": 3.534761085970889
+          },
+          "prediction_integer_counts_1_to_5": {
+            "1": 0,
+            "2": 0,
+            "3": 436,
+            "4": 1,
+            "5": 0
+          },
+          "target_integer_counts_1_to_5": {
+            "1": 38,
+            "2": 100,
+            "3": 211,
+            "4": 65,
+            "5": 23
+          },
+          "confusion_matrix_rows_target_1_to_5_cols_prediction_1_to_5": [
+            [
+              0,
+              0,
+              38,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              100,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              211,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              65,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              22,
+              1,
+              0
+            ]
+          ]
+        },
+        "xml_model_stage03_rounded_clipped_inputs": {
+          "n_evaluated": 437,
+          "mae_continuous": 0.8114929227749585,
+          "qwk_rounded_clipped": 0.020442179477354716,
+          "accuracy_rounded_clipped": 0.4233409610983982,
+          "rounding_clipping_policy": "half_up_clip_1_5",
+          "prediction_distribution_continuous": {
+            "mean": 3.1611449001019114,
+            "std": 0.2485247112219727,
+            "min": 2.5345652386244177,
+            "max": 3.917043432799453
+          },
+          "prediction_integer_counts_1_to_5": {
+            "1": 0,
+            "2": 0,
+            "3": 384,
+            "4": 53,
+            "5": 0
+          },
+          "target_integer_counts_1_to_5": {
+            "1": 38,
+            "2": 100,
+            "3": 211,
+            "4": 65,
+            "5": 23
+          },
+          "confusion_matrix_rows_target_1_to_5_cols_prediction_1_to_5": [
+            [
+              0,
+              0,
+              32,
+              6,
+              0
+            ],
+            [
+              0,
+              0,
+              96,
+              4,
+              0
+            ],
+            [
+              0,
+              0,
+              178,
+              33,
+              0
+            ],
+            [
+              0,
+              0,
+              58,
+              7,
+              0
+            ],
+            [
+              0,
+              0,
+              20,
+              3,
+              0
+            ]
+          ]
+        }
+      }
+    },
+    "test": {
+      "n_nodules": 355,
+      "n_with_reader_target": 355,
+      "n_evaluated": 355,
+      "n_dropped_invalid_features": 0,
+      "target_key": "mean(malignancy_reader_ratings[malignancy_reader_mask])",
+      "target_semantics": "Mean of valid reader-assigned malignancy/suspicion ratings per nodule; not pathology-confirmed cancer.",
+      "methods": {
+        "constant_rating_3": {
+          "n_evaluated": 355,
+          "mae_continuous": 0.7354460093896713,
+          "qwk_rounded_clipped": 0.0,
+          "accuracy_rounded_clipped": 0.4788732394366197,
+          "rounding_clipping_policy": "half_up_clip_1_5",
+          "prediction_distribution_continuous": {
+            "mean": 3.0,
+            "std": 0.0,
+            "min": 3.0,
+            "max": 3.0
+          },
+          "prediction_integer_counts_1_to_5": {
+            "1": 0,
+            "2": 0,
+            "3": 355,
+            "4": 0,
+            "5": 0
+          },
+          "target_integer_counts_1_to_5": {
+            "1": 47,
+            "2": 83,
+            "3": 170,
+            "4": 42,
+            "5": 13
+          },
+          "confusion_matrix_rows_target_1_to_5_cols_prediction_1_to_5": [
+            [
+              0,
+              0,
+              47,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              83,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              170,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              42,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              13,
+              0,
+              0
+            ]
+          ]
+        },
+        "training_target_mean": {
+          "n_evaluated": 355,
+          "mae_continuous": 0.7244523407253635,
+          "qwk_rounded_clipped": 0.0,
+          "accuracy_rounded_clipped": 0.4788732394366197,
+          "rounding_clipping_policy": "half_up_clip_1_5",
+          "prediction_distribution_continuous": {
+            "mean": 2.700393196547043,
+            "std": 8.881784197001252e-16,
+            "min": 2.7003931965470422,
+            "max": 2.7003931965470422
+          },
+          "prediction_integer_counts_1_to_5": {
+            "1": 0,
+            "2": 0,
+            "3": 355,
+            "4": 0,
+            "5": 0
+          },
+          "target_integer_counts_1_to_5": {
+            "1": 47,
+            "2": 83,
+            "3": 170,
+            "4": 42,
+            "5": 13
+          },
+          "confusion_matrix_rows_target_1_to_5_cols_prediction_1_to_5": [
+            [
+              0,
+              0,
+              47,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              83,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              170,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              42,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              13,
+              0,
+              0
+            ]
+          ]
+        },
+        "rounded_training_target_mode": {
+          "n_evaluated": 355,
+          "mae_continuous": 0.7354460093896713,
+          "qwk_rounded_clipped": 0.0,
+          "accuracy_rounded_clipped": 0.4788732394366197,
+          "rounding_clipping_policy": "half_up_clip_1_5",
+          "prediction_distribution_continuous": {
+            "mean": 3.0,
+            "std": 0.0,
+            "min": 3.0,
+            "max": 3.0
+          },
+          "prediction_integer_counts_1_to_5": {
+            "1": 0,
+            "2": 0,
+            "3": 355,
+            "4": 0,
+            "5": 0
+          },
+          "target_integer_counts_1_to_5": {
+            "1": 47,
+            "2": 83,
+            "3": 170,
+            "4": 42,
+            "5": 13
+          },
+          "confusion_matrix_rows_target_1_to_5_cols_prediction_1_to_5": [
+            [
+              0,
+              0,
+              47,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              83,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              170,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              42,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              13,
+              0,
+              0
+            ]
+          ]
+        },
+        "xml_model_stage03_continuous_inputs": {
+          "n_evaluated": 355,
+          "mae_continuous": 0.7782033529469947,
+          "qwk_rounded_clipped": 0.0016750161354767146,
+          "accuracy_rounded_clipped": 0.476056338028169,
+          "rounding_clipping_policy": "half_up_clip_1_5",
+          "prediction_distribution_continuous": {
+            "mean": 3.0309061573037828,
+            "std": 0.17280736012400777,
+            "min": 2.6269674087105725,
+            "max": 3.583336893366738
+          },
+          "prediction_integer_counts_1_to_5": {
+            "1": 0,
+            "2": 0,
+            "3": 354,
+            "4": 1,
+            "5": 0
+          },
+          "target_integer_counts_1_to_5": {
+            "1": 47,
+            "2": 83,
+            "3": 170,
+            "4": 42,
+            "5": 13
+          },
+          "confusion_matrix_rows_target_1_to_5_cols_prediction_1_to_5": [
+            [
+              0,
+              0,
+              47,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              83,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              169,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              42,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              13,
+              0,
+              0
+            ]
+          ]
+        },
+        "xml_model_stage03_rounded_clipped_inputs": {
+          "n_evaluated": 355,
+          "mae_continuous": 0.8493554768543221,
+          "qwk_rounded_clipped": -0.02146697889698479,
+          "accuracy_rounded_clipped": 0.4422535211267606,
+          "rounding_clipping_policy": "half_up_clip_1_5",
+          "prediction_distribution_continuous": {
+            "mean": 3.126516915051954,
+            "std": 0.2592434580568704,
+            "min": 2.5345652386244173,
+            "max": 3.9170434327994523
+          },
+          "prediction_integer_counts_1_to_5": {
+            "1": 0,
+            "2": 0,
+            "3": 327,
+            "4": 28,
+            "5": 0
+          },
+          "target_integer_counts_1_to_5": {
+            "1": 47,
+            "2": 83,
+            "3": 170,
+            "4": 42,
+            "5": 13
+          },
+          "confusion_matrix_rows_target_1_to_5_cols_prediction_1_to_5": [
+            [
+              0,
+              0,
+              43,
+              4,
+              0
+            ],
+            [
+              0,
+              0,
+              76,
+              7,
+              0
+            ],
+            [
+              0,
+              0,
+              155,
+              15,
+              0
+            ],
+            [
+              0,
+              0,
+              40,
+              2,
+              0
+            ],
+            [
+              0,
+              0,
+              13,
+              0,
+              0
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "limitations": []
+}

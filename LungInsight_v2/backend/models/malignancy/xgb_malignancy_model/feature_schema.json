@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "model_type": "XGBoost multi:softprob, 5 classes",
+  "feature_names_in_order": [
+    "subtlety",
+    "sphericity",
+    "margin",
+    "lobulation",
+    "spiculation",
+    "texture"
+  ],
+  "feature_count": 6,
+  "input_semantics": "Expected reader ratings from six fixed Stage 03 hybrid rankers; no reader/XML target labels used as features",
+  "feature_rating_scales": {
+    "subtlety": [
+      1,
+      5
+    ],
+    "sphericity": [
+      1,
+      5
+    ],
+    "margin": [
+      1,
+      5
+    ],
+    "lobulation": [
+      1,
+      5
+    ],
+    "spiculation": [
+      1,
+      5
+    ],
+    "texture": [
+      1,
+      5
+    ]
+  },
+  "missing_feature_policy": "Reject missing/non-finite attributes; no silent imputation",
+  "rating_class_mapping": {
+    "0": 1,
+    "1": 2,
+    "2": 3,
+    "3": 4,
+    "4": 5
+  },
+  "output_probability_semantics": "Probability distribution over LIDC reader malignancy/suspicion rating classes 1..5, not calibrated cancer probabilities",
+  "expected_rating_formula": "sum(probability[r] * r for r in 1..5)",
+  "malignancy_or_cancer_probability": false
+}

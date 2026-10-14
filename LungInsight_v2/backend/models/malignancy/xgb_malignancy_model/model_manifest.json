@@ -1,0 +1,10 @@
+{
+  "model_path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\xgb_malignancy_model\\malignancy_xgb.json",
+  "model_sha256": "3d81908ccb5ddc6bd9aa8de81ba8aa27481c52464aea6b12e39aaab55593afa9",
+  "feature_schema_path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\xgb_malignancy_model\\feature_schema.json",
+  "metrics_path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\xgb_malignancy_model\\metrics.json",
+  "training_config_path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\xgb_malignancy_model\\training_config.json",
+  "feature_directory": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\frozen_features",
+  "stage03_weights_modified": false,
+  "warning": "Training rows contain fixed-ranker train-split predictions, not OOF predictions."
+}

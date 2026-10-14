@@ -1,0 +1,22 @@
+[
+    {
+        "Path":  "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\nodule_ranker_3d_distributional_v1\\spatial_v1\\checkpoints\\hybrid\\lobulation_spiculation\\best.pth",
+        "SHA256":  "DB4C9D75D66E70DC30CD92329CC0284EFF0B7150885775D0957022D01F9A292C"
+    },
+    {
+        "Path":  "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\nodule_ranker_3d_distributional_v1\\spatial_v1\\checkpoints\\hybrid\\margin\\best.pth",
+        "SHA256":  "8CAE60E7118222D973798166684C4DAC5BA23E92F143820AD4F369FEAC95A186"
+    },
+    {
+        "Path":  "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\nodule_ranker_3d_distributional_v1\\spatial_v1\\checkpoints\\hybrid\\sphericity\\best.pth",
+        "SHA256":  "1B20A37F14D56793F44B8BA7A432698D72E035AC93DC48FE9661D02B761551C4"
+    },
+    {
+        "Path":  "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\nodule_ranker_3d_distributional_v1\\spatial_v1\\checkpoints\\hybrid\\subtlety\\best.pth",
+        "SHA256":  "4F38839E351953657AAA89DAFD99132BC9E804281ECF21F56CFB22F4E96A37A6"
+    },
+    {
+        "Path":  "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\nodule_ranker_3d_distributional_v1\\spatial_v1\\checkpoints\\hybrid\\texture\\best.pth",
+        "SHA256":  "281491C7415D3C8FC8A9BEC0F72717492321F9BED6F8D8D61AACB8112510BB1A"
+    }
+]

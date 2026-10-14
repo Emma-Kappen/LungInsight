@@ -1,0 +1,124 @@
+{
+  "experiment": "XML-rated attribute inputs used for training; frozen Stage 03 predicted attributes used for evaluation",
+  "rounding": "nearest integer, half-up via floor(x+0.5), clamped to [1,5]",
+  "feature_order": [
+    "subtlety",
+    "sphericity",
+    "margin",
+    "lobulation",
+    "spiculation",
+    "texture"
+  ],
+  "target": "mean valid LIDC reader malignancy/suspicion rating per nodule",
+  "note": "This comparison is subject to input-distribution shift. Test results should be reported once and not used for model selection.",
+  "splits": {
+    "val": {
+      "continuous": {
+        "variant": "continuous",
+        "n_nodules_with_target": 437,
+        "n_reader_ratings": 1124,
+        "target_mean_rating": 2.735120409719952,
+        "target_class_counts_from_reader_mean": {
+          "1": 38,
+          "2": 100,
+          "3": 211,
+          "4": 65,
+          "5": 23
+        },
+        "predicted_class_counts": {
+          "1": 0,
+          "2": 0,
+          "3": 436,
+          "4": 1,
+          "5": 0
+        },
+        "prediction_mean": 3.044539380828028,
+        "prediction_std": 0.16974620671779284,
+        "MAE_prediction_vs_reader_mean": 0.7357165028644127,
+        "QWK_rounded_reader_mean_vs_rounded_prediction": 0.01047406581148913,
+        "accuracy_rounded_reader_mean_vs_rounded_prediction": 0.482837528604119
+      },
+      "rounded_half_up": {
+        "variant": "rounded_half_up",
+        "n_nodules_with_target": 437,
+        "n_reader_ratings": 1124,
+        "target_mean_rating": 2.735120409719952,
+        "target_class_counts_from_reader_mean": {
+          "1": 38,
+          "2": 100,
+          "3": 211,
+          "4": 65,
+          "5": 23
+        },
+        "predicted_class_counts": {
+          "1": 0,
+          "2": 0,
+          "3": 384,
+          "4": 53,
+          "5": 0
+        },
+        "prediction_mean": 3.1611449001019114,
+        "prediction_std": 0.24852471122197273,
+        "MAE_prediction_vs_reader_mean": 0.8114929227749584,
+        "QWK_rounded_reader_mean_vs_rounded_prediction": 0.020442179477354716,
+        "accuracy_rounded_reader_mean_vs_rounded_prediction": 0.4233409610983982
+      },
+      "difference_rounded_minus_continuous_MAE": 0.07577641991054573,
+      "difference_rounded_minus_continuous_QWK": 0.009968113665865586
+    },
+    "test": {
+      "continuous": {
+        "variant": "continuous",
+        "n_nodules_with_target": 355,
+        "n_reader_ratings": 896,
+        "target_mean_rating": 2.619953051643192,
+        "target_class_counts_from_reader_mean": {
+          "1": 47,
+          "2": 83,
+          "3": 170,
+          "4": 42,
+          "5": 13
+        },
+        "predicted_class_counts": {
+          "1": 0,
+          "2": 0,
+          "3": 354,
+          "4": 1,
+          "5": 0
+        },
+        "prediction_mean": 3.0309061573037828,
+        "prediction_std": 0.17280736012400785,
+        "MAE_prediction_vs_reader_mean": 0.7782033529469945,
+        "QWK_rounded_reader_mean_vs_rounded_prediction": 0.0016750161354767146,
+        "accuracy_rounded_reader_mean_vs_rounded_prediction": 0.476056338028169
+      },
+      "rounded_half_up": {
+        "variant": "rounded_half_up",
+        "n_nodules_with_target": 355,
+        "n_reader_ratings": 896,
+        "target_mean_rating": 2.619953051643192,
+        "target_class_counts_from_reader_mean": {
+          "1": 47,
+          "2": 83,
+          "3": 170,
+          "4": 42,
+          "5": 13
+        },
+        "predicted_class_counts": {
+          "1": 0,
+          "2": 0,
+          "3": 327,
+          "4": 28,
+          "5": 0
+        },
+        "prediction_mean": 3.1265169150519547,
+        "prediction_std": 0.25924345805687043,
+        "MAE_prediction_vs_reader_mean": 0.8493554768543221,
+        "QWK_rounded_reader_mean_vs_rounded_prediction": -0.02146697889698479,
+        "accuracy_rounded_reader_mean_vs_rounded_prediction": 0.4422535211267606
+      },
+      "difference_rounded_minus_continuous_MAE": 0.07115212390732761,
+      "difference_rounded_minus_continuous_QWK": -0.023141995032461504
+    }
+  }
+}

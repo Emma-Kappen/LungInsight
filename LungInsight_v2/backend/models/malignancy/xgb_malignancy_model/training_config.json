@@ -1,0 +1,77 @@
+{
+  "created_at_utc": "2026-10-11T16:28:42.845012+00:00",
+  "xgboost_version": "3.4.1",
+  "base_parameters": {
+    "objective": "multi:softprob",
+    "num_class": 5,
+    "eval_metric": "mlogloss",
+    "tree_method": "hist",
+    "seed": 42,
+    "verbosity": 0
+  },
+  "candidate_configs": [
+    {
+      "name": "depth2_regularized",
+      "max_depth": 2,
+      "min_child_weight": 3.0,
+      "eta": 0.03,
+      "subsample": 0.9,
+      "colsample_bytree": 0.9,
+      "reg_lambda": 5.0,
+      "reg_alpha": 0.0
+    },
+    {
+      "name": "depth3_regularized",
+      "max_depth": 3,
+      "min_child_weight": 5.0,
+      "eta": 0.03,
+      "subsample": 0.85,
+      "colsample_bytree": 0.9,
+      "reg_lambda": 8.0,
+      "reg_alpha": 0.0
+    },
+    {
+      "name": "depth4_strong_regularization",
+      "max_depth": 4,
+      "min_child_weight": 8.0,
+      "eta": 0.02,
+      "subsample": 0.8,
+      "colsample_bytree": 0.85,
+      "reg_lambda": 12.0,
+      "reg_alpha": 0.1
+    }
+  ],
+  "max_rounds": 500,
+  "early_stopping_rounds": 50,
+  "seed": 42,
+  "target_observations": "one training row per valid individual reader rating, rating encoded 0..4 for XGBoost, mapped back to 1..5 for reported outputs",
+  "sample_weighting": "Each reader observation has weight 1/(number of valid malignancy readers for its nodule), so total row weight per nodule is one.",
+  "rows": {
+    "train_nodules": 1859,
+    "train_valid_reader_observations": 4839,
+    "train_nodules_without_valid_label": 0,
+    "validation_nodules": 437,
+    "validation_valid_reader_observations": 1124,
+    "validation_nodules_without_valid_label": 0,
+    "test_nodules": 355,
+    "test_valid_reader_observations": 896,
+    "test_nodules_without_valid_label": 0
+  },
+  "feature_manifest_sha256": "7a4dab8e82b192c0e9224bc430086e903680281df9afff0539e1972dc4f4dd47",
+  "h5_sha256": "971f8371c429a6dddffbd31a9d6d5b6e60447811a5a51cd04ac18c197b305e7d",
+  "split_file_sha256": "b45518bf4d5f1cd8d7c879632678a914beb0c1000a48c3c1dd9bd9dffb76a40d",
+  "canonical_split_hashes": {
+    "train": "1814147c1f1f0ccfbda73b56c5dbb392c14412b72c6b0fe316ee7a81957ad922",
+    "val": "0831f0b8e0ba4b54de794c914677e783d21197bedc5c6f93c695eb07011051f7",
+    "test": "e3ebe6f752237c58240e0888492679295ab068d6929cd75be1df83b821e4b56c"
+  },
+  "stage03_checkpoint_sha256": {
+    "lobulation_spiculation": "db4c9d75d66e70dc30cd92329cc0284eff0b7150885775d0957022d01f9a292c",
+    "subtlety": "4f38839e351953657aaa89dafd99132bc9e804281ecf21f56cfb22f4e96a37a6",
+    "sphericity": "1b20a37f14d56793f44b8ba7a432698d72e035ac93dc48fe9661d02b761551c4",
+    "margin": "8cae60e7118222d973798166684c4dac5ba23e92f143820ad4f369feac95a186",
+    "texture": "281491c7415d3c8fc8a9bec0f72717492321f9bed6f8d8d61aacb8112510bb1a"
+  },
+  "stage03_checkpoints_modified": false,
+  "stage04_inference_implemented": false
+}

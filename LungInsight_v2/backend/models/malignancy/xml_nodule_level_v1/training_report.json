@@ -1,0 +1,204 @@
+{
+  "created_at_utc": "2026-10-12T15:56:07.437375+00:00",
+  "script": "train_stage04_nodule_level_xml.py",
+  "python_version": "3.12.10",
+  "scikit_learn_version": "1.9.1",
+  "annotation_source": {
+    "metadata_csv": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\datasets\\LIDC\\metadata\\metadata.csv",
+    "xml_root": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\datasets\\LIDC\\LIDC-XML-only\\tcia-lidc-xml",
+    "dicom_root_for_headers_only": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\datasets\\LIDC\\lidc_idri"
+  },
+  "split_json": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\nodule_ranker_3d_distributional_v1\\split.json",
+  "split_json_sha256": "b45518bf4d5f1cd8d7c879632678a914beb0c1000a48c3c1dd9bd9dffb76a40d",
+  "feature_names_in_order": [
+    "subtlety",
+    "sphericity",
+    "margin",
+    "lobulation",
+    "spiculation",
+    "texture"
+  ],
+  "target": "median malignancy rating from the same spatially grouped reader annotations",
+  "grouping_distance_mm": 10.0,
+  "model_hyperparameters": {
+    "n_estimators": 500,
+    "min_samples_leaf": 8,
+    "max_features": 1.0,
+    "max_depth": null,
+    "random_state": 2026,
+    "n_jobs": -1
+  },
+  "patient_counts": {
+    "train": 613,
+    "validation": 131,
+    "overlap": 0
+  },
+  "nodule_counts": {
+    "train": 4221,
+    "validation": 905,
+    "physical_groups_before_label_filter": 14089
+  },
+  "dicom_geometry_index_stats": {
+    "dicom_files_examined_under_train_val": 182240,
+    "ct_headers_indexed_for_requested_series": 181772,
+    "series_indexed": 752,
+    "series_without_headers": 236
+  },
+  "xml_header_files_checked": 1318,
+  "parse_and_aggregation_stats": {
+    "train_val_metadata_without_xml": 236,
+    "xml_reader_nodules_seen": 16477,
+    "reader_nodules_with_roi_centroid": 16477,
+    "physical_nodule_groups_before_label_filter": 14089,
+    "train_dropped_no_valid_malignancy": 7341,
+    "train_usable_physical_nodules": 4221,
+    "val_usable_physical_nodules": 905,
+    "val_dropped_no_valid_malignancy": 1622
+  },
+  "validation_on_held_out_xml_nodule_medians": {
+    "n_nodules": 905,
+    "target_mean": 2.8613259668508286,
+    "target_std": 1.1284108068404124,
+    "prediction_mean": 2.75998282306176,
+    "prediction_std": 0.6747029667231264,
+    "mae_continuous": 0.7529175993358584,
+    "rmse_continuous": 0.9873566584293956,
+    "constant_train_median": 3.0,
+    "constant_baseline_mae": 0.8447513812154697,
+    "mae_gain_over_baseline": 0.09183378187961122,
+    "accuracy_rounded_half_up": 0.4176795580110497,
+    "qwk_rounded_half_up": 0.4326474843272786,
+    "baseline_accuracy_rounded_half_up": 0.39005524861878454,
+    "baseline_qwk_rounded_half_up": 0.0,
+    "target_class_counts": {
+      "1": 111,
+      "2": 212,
+      "3": 353,
+      "4": 134,
+      "5": 95
+    },
+    "prediction_class_counts": {
+      "1": 0,
+      "2": 388,
+      "3": 396,
+      "4": 110,
+      "5": 11
+    },
+    "constant_train_mean_mae": 0.8951155823094472
+  },
+  "validation_on_frozen_stage03_outputs": {
+    "against_nodule_median_target": {
+      "n_nodules": 437,
+      "target_mean": 2.751716247139588,
+      "target_std": 0.973694294182325,
+      "prediction_mean": 2.981077469188232,
+      "prediction_std": 0.16508344624721183,
+      "mae_continuous": 0.7583457289833188,
+      "rmse_continuous": 0.9991448231207534,
+      "constant_train_median": 3.0,
+      "constant_baseline_mae": 0.7288329519450801,
+      "mae_gain_over_baseline": -0.029512777038238625,
+      "accuracy_rounded_half_up": 0.4576659038901602,
+      "qwk_rounded_half_up": 0.016377906115800367,
+      "baseline_accuracy_rounded_half_up": 0.4645308924485126,
+      "baseline_qwk_rounded_half_up": 0.0,
+      "target_class_counts": {
+        "1": 45,
+        "2": 93,
+        "3": 203,
+        "4": 67,
+        "5": 29
+      },
+      "prediction_class_counts": {
+        "1": 0,
+        "2": 0,
+        "3": 431,
+        "4": 6,
+        "5": 0
+      }
+    },
+    "against_nodule_mean_target": {
+      "n_nodules": 437,
+      "target_mean": 2.735120409719952,
+      "target_std": 0.8989919839622509,
+      "prediction_mean": 2.981077469188232,
+      "prediction_std": 0.16508344624721183,
+      "mae_continuous": 0.7177215758903353,
+      "rmse_continuous": 0.9315623795384753,
+      "constant_train_median": 2.7918739635157546,
+      "constant_baseline_mae": 0.6993647866150342,
+      "mae_gain_over_baseline": -0.018356789275301044,
+      "accuracy_rounded_half_up": 0.4759725400457666,
+      "qwk_rounded_half_up": 0.018678452796002998,
+      "baseline_accuracy_rounded_half_up": 0.482837528604119,
+      "baseline_qwk_rounded_half_up": 0.0,
+      "target_class_counts": {
+        "1": 38,
+        "2": 100,
+        "3": 211,
+        "4": 65,
+        "5": 23
+      },
+      "prediction_class_counts": {
+        "1": 0,
+        "2": 0,
+        "3": 431,
+        "4": 6,
+        "5": 0
+      }
+    },
+    "feature_std": {
+      "subtlety": 0.005698825797699335,
+      "sphericity": 0.004651086018859868,
+      "margin": 0.10800909676353125,
+      "lobulation": 0.49409562019683545,
+      "spiculation": 0.49088027383376087,
+      "texture": 0.13355983233854643
+    },
+    "prediction_distribution": {
+      "mean": 2.981077469188232,
+      "std": 0.16508344624721183,
+      "min": 2.6678581733113593,
+      "max": 3.549506574296613
+    }
+  },
+  "stage03_validation_archive": {
+    "path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\frozen_features\\val.npz",
+    "sha256": "de2c8c641b9b621cdedfb42afde0322a9a920ae457a228f713b6087d2ebb7b87",
+    "rows_used": 437,
+    "raw_rows": 437,
+    "reader_observations": 1124,
+    "patient_count": 131,
+    "patient_overlap_with_xml_train": 0
+  },
+  "test_archive_opened": false,
+  "test_patient_annotations_parsed": false,
+  "h5_read": false,
+  "dicom_pixel_data_read": false,
+  "stage03_rankers_loaded_or_modified": false,
+  "patient_split_changed": false,
+  "inference_contract": {
+    "six_scalar_features_only": [
+      "subtlety",
+      "sphericity",
+      "margin",
+      "lobulation",
+      "spiculation",
+      "texture"
+    ],
+    "ct_or_h5_required": false,
+    "reader_rating_target_not_pathology_truth": true
+  },
+  "outputs": {
+    "model": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\xml_nodule_level_v1\\malignancy_from_nodule_level_xml.joblib",
+    "table": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\xml_nodule_level_v1\\nodule_level_xml_table.csv",
+    "xml_val_predictions": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\xml_nodule_level_v1\\xml_nodule_validation_predictions.csv",
+    "stage03_val_predictions": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\models\\malignancy\\xml_nodule_level_v1\\stage03_validation_predictions.csv"
+  },
+  "limitations": [
+    "Spatial groups use a deterministic greedy 10 mm ROI-centroid heuristic; compare group counts to the fixed dataset before interpreting metrics.",
+    "Only nodules with a median for all six attributes and malignancy are used.",
+    "Human XML feature medians and model-predicted Stage 03 outputs may remain distributionally different.",
+    "Ratings estimate LIDC reader-assigned malignancy/suspicion, not pathology-confirmed cancer probability."
+  ]
+}

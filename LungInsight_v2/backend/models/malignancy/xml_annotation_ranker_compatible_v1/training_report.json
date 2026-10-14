@@ -1,0 +1,145 @@
+{
+  "created_at_utc": "2026-10-12T14:53:39.898079+00:00",
+  "script": "train_malignancy_from_xml_ranker_compatible.py",
+  "python_version": "3.12.10",
+  "scikit_learn_version": "1.9.1",
+  "annotation_json": "datasets\\LIDC\\lidc_all_annotations_match.json",
+  "annotation_json_sha256": "15cd6a865cf161a477ed336193a7e6f0648ef0ead1fad8bd4a32408c99d0de75",
+  "split_json": "LungInsight_v2\\backend\\models\\nodule_ranker_3d_distributional_v1\\split.json",
+  "split_json_sha256": "b45518bf4d5f1cd8d7c879632678a914beb0c1000a48c3c1dd9bd9dffb76a40d",
+  "features_in_order": [
+    "subtlety",
+    "sphericity",
+    "margin",
+    "lobulation",
+    "spiculation",
+    "texture"
+  ],
+  "training_rows_are_individual_reader_annotations": true,
+  "model_hyperparameters": {
+    "n_estimators": 400,
+    "min_samples_leaf": 8,
+    "max_depth": null,
+    "random_state": 2026,
+    "n_jobs": -1
+  },
+  "counts": {
+    "train_patient_ids_in_split": 613,
+    "validation_patient_ids_in_split": 131,
+    "patient_overlap_train_validation": 0,
+    "train_xml_annotation_rows_used": 4840,
+    "validation_xml_annotation_rows_used": 1124,
+    "train_xml_annotation_rows_dropped": 8525,
+    "validation_xml_annotation_rows_dropped": 1988
+  },
+  "xml_parse_stats": {
+    "train_unmatched_studies": 195,
+    "train_annotation_records_seen": 13365,
+    "train_usable_reader_rows": 4840,
+    "train_target_class_5": 490,
+    "train_dropped_bad_target": 8525,
+    "train_target_class_4": 683,
+    "train_target_class_3": 1838,
+    "train_target_class_2": 1111,
+    "train_target_class_1": 718,
+    "val_annotation_records_seen": 3112,
+    "val_usable_reader_rows": 1124,
+    "val_target_class_2": 269,
+    "val_target_class_3": 417,
+    "val_dropped_bad_target": 1988,
+    "val_target_class_4": 175,
+    "val_unmatched_studies": 41,
+    "val_target_class_5": 120,
+    "val_target_class_1": 143,
+    "train_patients_with_xml_records": 613,
+    "val_patients_with_xml_records": 131,
+    "train_patients_without_xml_records": 0,
+    "val_patients_without_xml_records": 0
+  },
+  "validation_on_held_out_xml_reader_rows": {
+    "n_rows": 1124,
+    "target_mean": 2.8754448398576513,
+    "target_std": 1.1469293204790088,
+    "prediction_mean": 2.7939431099030925,
+    "prediction_std": 0.681367270764842,
+    "mae_continuous": 0.7373362779208534,
+    "rmse_continuous": 0.9734198218525584,
+    "constant_train_mean": 2.8173553719008266,
+    "constant_baseline_mae": 0.911737890062057,
+    "mae_gain_over_baseline": 0.17440161214120353,
+    "accuracy_rounded_half_up": 0.4386120996441281,
+    "qwk_rounded_half_up": 0.46317009854575686,
+    "baseline_accuracy_rounded_half_up": 0.3709964412811388,
+    "baseline_qwk_rounded_half_up": 0.0,
+    "target_integer_counts": {
+      "1": 143,
+      "2": 269,
+      "3": 417,
+      "4": 175,
+      "5": 120
+    },
+    "prediction_integer_counts": {
+      "1": 0,
+      "2": 458,
+      "3": 498,
+      "4": 147,
+      "5": 21
+    }
+  },
+  "ranker_output_validation": {
+    "n_rows": 437,
+    "target_mean": 2.735120409719952,
+    "target_std": 0.8989919839622509,
+    "prediction_mean": 3.044539380828028,
+    "prediction_std": 0.16974620671779317,
+    "mae_continuous": 0.7357165028644128,
+    "rmse_continuous": 0.9499787365474632,
+    "constant_train_mean": 2.8173553719008266,
+    "constant_baseline_mae": 0.6993064767560295,
+    "mae_gain_over_baseline": -0.03641002610838329,
+    "accuracy_rounded_half_up": 0.482837528604119,
+    "qwk_rounded_half_up": 0.01047406581148913,
+    "baseline_accuracy_rounded_half_up": 0.482837528604119,
+    "baseline_qwk_rounded_half_up": 0.0,
+    "target_integer_counts": {
+      "1": 38,
+      "2": 100,
+      "3": 211,
+      "4": 65,
+      "5": 23
+    },
+    "prediction_integer_counts": {
+      "1": 0,
+      "2": 0,
+      "3": 436,
+      "4": 1,
+      "5": 0
+    }
+  },
+  "ranker_validation_archive": {
+    "path": "LungInsight_v2\\backend\\models\\malignancy\\frozen_features\\val.npz",
+    "sha256": "de2c8c641b9b621cdedfb42afde0322a9a920ae457a228f713b6087d2ebb7b87",
+    "raw_rows": 437,
+    "rows_used": 437,
+    "valid_reader_observations": 1124,
+    "patient_count": 131,
+    "patient_overlap_with_xml_train": 0,
+    "target_unit": "per-nodule mean of valid XML malignancy reader ratings"
+  },
+  "outputs": {
+    "model": "LungInsight_v2\\backend\\models\\malignancy\\xml_annotation_ranker_compatible_v1\\malignancy_from_xml_annotations.joblib",
+    "xml_validation_predictions": "LungInsight_v2\\backend\\models\\malignancy\\xml_annotation_ranker_compatible_v1\\xml_annotation_validation_predictions.csv",
+    "ranker_validation_predictions": "LungInsight_v2\\backend\\models\\malignancy\\xml_annotation_ranker_compatible_v1\\stage03_validation_predictions.csv"
+  },
+  "test_feature_archive_opened": false,
+  "test_annotations_used_for_training_or_model_selection": false,
+  "h5_or_ct_read": false,
+  "stage03_rankers_loaded_or_modified": false,
+  "patient_split_changed": false,
+  "limitations": [
+    "Target is a radiologist's LIDC malignancy/suspicion rating, not pathology-confirmed cancer.",
+    "Rows are individual reader-nodule annotations; reader-specific attribute scores at validation are not the same input distribution as one model score per nodule.",
+    "The model can consume Stage 03 scalar outputs, but the ranker-output validation metrics\u2014not XML-input validation metrics\u2014are the closer estimate of deployment behavior.",
+    "No test split was used for model selection or evaluation."
+  ]
+}
