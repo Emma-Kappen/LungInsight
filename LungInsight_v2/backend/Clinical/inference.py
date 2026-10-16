@@ -42,19 +42,21 @@ def validate_request(request: dict[str, Any]) -> dict[str, Any]:
         raise ClinicalInferenceError(f"Clinical input validation failed: {details}")
     if not isinstance(request["patient_id"], str) or not request["patient_id"].strip():
         raise ClinicalInferenceError("patient_id must be a non-empty string.")
-    baseline = datetime.fromisoformat(request["baseline_at"].replace("Z", "+00:00"))
-    if baseline.tzinfo is None or baseline.utcoffset() is None:
-        raise ClinicalInferenceError("baseline_at must include a timezone.")
     try:
         clinician = validate_clinician_inputs(request["clinician_inputs"])
         imaging = validate_imaging_evidence(
             request["imaging_evidence"],
             patient_id=request["patient_id"],
-            baseline_at=request["baseline_at"],
         )
     except (ClinicalValidationError, ImagingEvidenceError) as exc:
         raise ClinicalInferenceError(str(exc)) from exc
-    return {"clinician": clinician, "imaging": imaging}
+    requested_method = request.get("requested_malignancy_method")
+    if requested_method is not None and requested_method not in imaging["malignancy_methods"]:
+        raise ClinicalInferenceError(
+            f"Requested malignancy method {requested_method!r} was not selected in the supplied "
+            "Imaging contract; regenerate Stage 04 with --malignancy-method and resubmit its contract."
+        )
+    return {"clinician": clinician, "imaging": imaging, "requested_malignancy_method": requested_method}
 
 
 def _feature_frame(
@@ -64,7 +66,6 @@ def _feature_frame(
     values = {
         "age_at_baseline_years": clinician.get("age_at_baseline_years"),
         "sex_at_baseline": clinician.get("sex_at_baseline"),
-        "stage_at_baseline": clinician.get("stage_at_baseline"),
         "kps_category": clinician.get("kps_category"),
     }
     unknown = set(feature_order) - set(values)
@@ -95,6 +96,106 @@ def _feature_applicability(
 
 def _unavailable_model(status: str, reason: str) -> dict[str, Any]:
     return {"status": status, "prediction": None, "reason": reason}
+
+
+def _classifier_explanation(
+    estimator: Any,
+    features: pd.DataFrame,
+    class_order: list[str],
+    probabilities: np.ndarray,
+) -> dict[str, Any]:
+    contributions = []
+    try:
+        for feature in features.columns:
+            ablated = features.copy()
+            ablated.loc[:, feature] = None
+            ablated_probabilities = estimator.predict_proba(ablated)[0]
+            contributions.append({
+                "feature": feature,
+                "method": "missingness_ablation",
+                "contribution_to_probability": {
+                    label: float(actual - ablated)
+                    for label, actual, ablated in zip(
+                        class_order, probabilities, ablated_probabilities
+                    )
+                },
+                "direction": (
+                    "positive values indicate the observed value raises the class probability "
+                    "relative to the fitted missing-value representation"
+                ),
+            })
+    except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
+        return {
+            "status": "unsupported",
+            "method": "missingness_ablation",
+            "failure_reason": type(exc).__name__,
+            "feature_contributions": [],
+            "limitations": [
+                "SHAP is not applied to the calibrated composite estimator; this is not a causal attribution."
+            ],
+        }
+    return {
+        "status": "available",
+        "method": "missingness_ablation",
+        "target": "LUAD/LUSC conditional probability",
+        "features_used": list(features.columns),
+        "feature_contributions": contributions,
+        "limitations": [
+            "This is a local model ablation, not a causal explanation.",
+            "SHAP is not applied to the calibrated composite estimator.",
+        ],
+    }
+
+
+def _survival_explanation(
+    estimator: Any,
+    features: pd.DataFrame,
+    horizons: list[int],
+    base_probabilities: dict[str, float],
+) -> dict[str, Any]:
+    contributions = []
+    try:
+        for feature in features.columns:
+            ablated = features.copy()
+            ablated.loc[:, feature] = None
+            function = estimator.predict_survival_function(ablated)[0]
+            horizon_contributions = {}
+            for horizon in horizons:
+                if function.x[0] <= horizon <= function.x[-1]:
+                    ablated_value = float(function(horizon))
+                    horizon_contributions[str(horizon)] = {
+                        "observed_minus_ablated": float(
+                            base_probabilities[str(horizon)] - ablated_value
+                        ),
+                        "observed_survival_probability": base_probabilities[str(horizon)],
+                        "ablated_survival_probability": ablated_value,
+                    }
+            contributions.append({
+                "feature": feature,
+                "method": "missingness_ablation",
+                "horizons_days": horizon_contributions,
+            })
+    except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
+        return {
+            "status": "unsupported",
+            "method": "missingness_ablation",
+            "failure_reason": type(exc).__name__,
+            "feature_contributions": [],
+            "limitations": [
+                "Survival explanation is unavailable for the fitted estimator/input combination."
+            ],
+        }
+    return {
+        "status": "available",
+        "method": "missingness_ablation",
+        "target": "survival probability at each reported horizon",
+        "features_used": list(features.columns),
+        "feature_contributions": contributions,
+        "limitations": [
+            "Ablation differences are not causal effects and do not alter censoring or endpoint definitions.",
+            "This does not claim absolute survival calibration.",
+        ],
+    }
 
 
 def _run_model_independently(
@@ -161,6 +262,12 @@ def _predict_cancer_type(
         "calibration_status": metadata.get("calibration_status", "not_calibrated"),
         "applicability": "within_declared_training_feature_support",
         "model_version": metadata.get("model_version"),
+        "explanation": _classifier_explanation(
+            estimator,
+            features,
+            class_order,
+            probabilities,
+        ),
         "warnings": [],
     }
 
@@ -244,6 +351,12 @@ def _predict_survival(
         "uncertainty_status": "not_estimated",
         "evaluation": metadata.get("evaluation", {}),
         "model_version": metadata.get("model_version"),
+        "explanation": _survival_explanation(
+            estimator,
+            features,
+            supported_horizons,
+            horizon_probabilities,
+        ),
         "warnings": [
             "Research-cohort estimates are not clinically validated or calibrated for the target-care population.",
             "Source-specific and cross-cohort performance is heterogeneous; transportability is not established.",
@@ -261,14 +374,17 @@ def run_inference(
     clinician = normalized["clinician"]
     clinician["prediction_baseline_definition"] = request["baseline_definition"]
     imaging = normalized["imaging"]
-    timestamp = datetime.now(timezone.utc).isoformat()
+    try:
+        prediction_baseline_datetime = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    except (OSError, OverflowError, ValueError) as exc:
+        raise ClinicalInferenceError("Could not generate the prediction baseline timestamp from the system clock.") from exc
     result = {
         "schema_version": "1.0.0",
         "patient_id": request["patient_id"],
         "study_id": imaging["study_id"],
-        "prediction_timestamp": timestamp,
-        "baseline_at": request["baseline_at"],
+        "prediction_baseline_datetime": prediction_baseline_datetime,
         "baseline_definition": request["baseline_definition"],
+        "requested_malignancy_method": normalized["requested_malignancy_method"],
         "input_validation": {
             "status": "passed",
             "baseline_definition_status": request["baseline_definition"],
@@ -297,6 +413,8 @@ def run_inference(
             "imaging_contract_version": imaging["contract_version"],
             "imaging_pipeline_version": imaging["imaging_pipeline_version"],
             "imaging_model_versions": imaging["imaging_model_versions"],
+            "scan_datetime": imaging["scan_datetime"],
+            "prediction_baseline_datetime": prediction_baseline_datetime,
         },
         "limitations": [
             "Research-only clinical decision support; not a replacement for pathology, clinician judgment, or established prediction instruments.",

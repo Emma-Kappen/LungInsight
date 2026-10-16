@@ -654,106 +654,27 @@
   },
   "stage_04_malignancy_prediction": {
     "stage": "04",
-    "role": "primary_six_feature_malignancy_rating_inference",
+    "role": "brock_only_research_risk_inference",
+    "model_name": "Brock_PanCan_full",
+    "model_version": "published-coefficients-verified-v1",
     "enabled_by_default": true,
-    "model_path": "backend/models/malignancy/xml_nodule_level_v1/malignancy_from_nodule_level_xml.joblib",
-    "model_bundle_format": "joblib_dictionary_with_feature_names_and_model",
-    "ranking_model": {
-      "optional_path": "backend/models/malignancy/pairwise_ranker_v1.joblib",
-      "bundle_format": "joblib_dictionary_with_feature_names_model_and_training_metadata",
-      "model_type": "pairwise_linear_ranker_v1",
-      "selection_policy": "Optional only; the compatibility rating model remains authoritative unless patient-grouped validation demonstrates improvement.",
-      "score_semantics": "Relative malignancy-priority score learned from within-patient ordering of LIDC reader-assigned ratings. It is not a probability, diagnosis, or pathology outcome.",
-      "pair_policy": {
-        "within_patient_only": true,
-        "ties_excluded": true,
-        "minimum_rating_difference": 1.0,
-        "max_pairs_per_patient": 2000,
-        "deterministic_seed": 2026
-      }
-    },
-    "input_rating_range": [
-      1,
-      5
-    ],
-    "target_rating_range": [
-      1,
-      5
-    ],
-    "prediction_transform": {
-      "clip_to_target_range": true,
-      "target_range_ref": "stage_04_malignancy_prediction.target_rating_range",
-      "rounding_method": "floor_plus_half",
-      "rounding_formula": "floor(prediction + 0.5)"
-    },
-    "shap_explanations": {
-      "enabled": true,
-      "training_table_path": "backend/models/malignancy/xml_nodule_level_v1/nodule_level_xml_table.csv",
-      "split_column": "split",
-      "training_split_value": "train",
-      "background_sample_size": 100,
-      "background_random_seed": 2026,
-      "additivity_tolerance": 0.00001,
-      "feature_perturbation": "interventional",
-      "explainer": "shap.TreeExplainer",
-      "model_output": "raw_regression_rating",
-      "explanation_semantics": "SHAP contributions explain the frozen ExtraTreesRegressor raw rating as contributions from the six Stage 03 expected-rating features relative to a deterministic sample of training-split XML nodule medians. Contributions are not probabilities, causal effects, or voxel localization. The published rating is clipped and rounded after raw-score explanation.",
-      "limitations": [
-        "The training-table feature distribution may differ from Stage 03 predicted attributes.",
-        "The target is an LIDC reader-assigned suspicion rating, not pathology-confirmed cancer probability.",
-        "SHAP values explain model behavior, not clinical causality or image regions."
-      ]
-    },
     "output_schema_version": "stage04-malignancy-output-v2",
-    "semantics": "LIDC reader-assigned malignancy/suspicion rating, not cancer probability or diagnosis.",
-    "ranking_score_field": "malignancy_priority_score",
-    "ranking_score_semantics": "Optional relative priority score; higher means higher learned malignancy-related priority. Never report as a cancer probability.",
-    "feature_names_ref": "attribute_contracts.stage03_ranked_attributes",
+    "semantics": "Brock/PanCan research malignancy-risk estimate; not a cancer probability, histological classification, or diagnosis.",
+    "input_feature_order": [
+      "age_years",
+      "sex",
+      "family_history_lung_cancer",
+      "emphysema",
+      "nodule_size_mm",
+      "nodule_type",
+      "upper_lobe",
+      "nodule_count",
+      "spiculation"
+    ],
+    "formula_version": "mcwilliams-nejmoa1214726-full-v1",
+    "explanation_semantics": "Analytical Brock formula contributions on the logit scale; not SHAP, causal effects, or percentage-point probability changes.",
     "diagnostic_input_predictions_ref": "stage_03_nodule_classification.outputs.log_diagnostic_predictions_json",
     "diagnostic_output_path_ref": "paths.stage_04.log_diagnostic_output_json"
-  },
-  "stage_04_malignancy_classifier": {
-    "stage": "04-alternative",
-    "role": "optional_ordinal_rating_distribution_inference",
-    "checkpoint_format": "JSON ordinal_v1 checkpoint; path required through --checkpoint",
-    "input_rating_range": [
-      1,
-      5
-    ],
-    "rating_classes": [
-      1,
-      2,
-      3,
-      4,
-      5
-    ],
-    "transformation_formula": "standardize each feature using checkpoint feature_mean and feature_scale; transformation implementation is backend.models.malignancy.features.transform_features",
-    "semantics": "Distribution of LIDC-style reader malignancy ratings, not cancer probability or diagnosis.",
-    "feature_names_ref": "attribute_contracts.stage03_ranked_attributes",
-    "model_version": "ordinal_v1",
-    "confidence_threshold": 0.6,
-    "limitations": [
-      "Estimates the distribution of LIDC-style radiologist malignancy ratings, not cancer probability or diagnosis.",
-      "Compatibility with Stage 03-predicted attributes must be independently validated.",
-      "Only six Stage 03 attributes are used; calcification and internalStructure are unavailable."
-    ],
-    "rating_groups": {
-      "low_1_2": [
-        1,
-        2
-      ],
-      "intermediate_3": [
-        3
-      ],
-      "high_4_5": [
-        4,
-        5
-      ]
-    },
-    "confidence_flags": {
-      "uncertain": "uncertain_group",
-      "dominant": "dominant_group"
-    }
   },
   "stage_05_gradcam": {
     "stage": "05",
@@ -924,8 +845,6 @@
       "excluded_outside_lung_csv_ref": "paths.stage_07.excluded_csv",
       "nodule_visualization_directory": "nodule_visualizations"
     },
-    "malignancy_rating_threshold": 4,
-    "malignancy_threshold_semantics": "Operational report count only: predicted LIDC reader-suspicion rating >= 4; this is not a confirmed cancer diagnosis or probability.",
     "center_in_mask_rule": "Round center_zyx to nearest voxel and sample the Stage 01 lung_mask.npy at that voxel; out-of-volume or false mask samples are excluded from the visible candidate list and accepted CSV.",
     "anatomical_location_source": "Stage 02 anatomical_location heuristic; when unavailable, derive wall-versus-parenchyma from lung-mask distance transform and report airway category as unclassified.",
     "display_window_ref": "stage_02_detect_and_patch.ct_display_window_hu",
@@ -936,7 +855,7 @@
     },
     "clinical_limitations": [
       "Candidate counts are detected proposals whose rounded centers lie in lung_mask.npy, not adjudicated unique nodules; overlapping ViTDet3D and LoG proposals may represent the same lesion.",
-      "Stage 04 outputs are LIDC reader-assigned malignancy/suspicion ratings, not cancer probabilities or diagnoses.",
+      "Stage 04 Brock outputs are research/POC malignancy-risk estimates, not cancer probabilities, histological classifications, or diagnoses.",
       "Bronchus/trachea/wall/parenchyma labels are heuristic, not a dedicated anatomical segmentation or clinical ground truth."
     ],
     "report_schema_version": "stage07-nodule-report-v1",
@@ -950,8 +869,8 @@
       "slice_label": "axial_z",
       "viTdet3d_marker": "o",
       "log_marker": "s",
-      "rating_below_threshold_color": "cyan",
-      "rating_at_or_above_threshold_color": "red"
+      "brock_unavailable_color": "cyan",
+      "brock_available_color": "red"
     },
     "csv_columns_order": [
       "patient_id",
@@ -976,10 +895,9 @@
       "log_response",
       "scale_mm",
       "{attribute_columns}",
-      "predicted_malignancy_rating_continuous",
-      "predicted_malignancy_rating_rounded",
-      "high_suspicion_rating_ge_threshold",
-      "malignancy_threshold_used",
+      "brock_status",
+      "brock_probability",
+      "brock_failure_reason",
       "center_inside_air_mask",
       "center_inside_heart_mask",
       "location_primary",
@@ -1012,9 +930,7 @@
       "nodule_count_localization_blocked",
       "localization_gate",
       "localization_gate_status",
-      "high_suspicion_or_malignancy_rating_count_inside_lung_mask",
-      "malignancy_rating_threshold",
-      "malignancy_count_interpretation",
+      "brock_available_count_inside_lung_mask",
       "counts_by_source",
       "accepted_csv",
       "excluded_outside_lung_csv",

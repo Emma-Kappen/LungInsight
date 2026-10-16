@@ -3,81 +3,94 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>LungInsight Clinical Research</title>
+    <title>LungInsight clinical research workflow</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <main>
-      <header>
+      <header class="hero">
         <p class="eyebrow">LungInsight v2 · Research interface</p>
-        <h1>Clinical research decision support</h1>
-        <p class="notice">
-          Not clinically validated. This tool does not diagnose cancer, replace pathology,
-          or replace clinician judgment or established prediction instruments.
+        <h1>Review a lung CT and clinical prediction</h1>
+        <p class="notice" role="note">
+          Research/POC only. This tool does not diagnose cancer, replace pathology,
+          clinician judgement, or established prediction instruments.
         </p>
       </header>
 
-      <form id="clinical-form">
-        <fieldset>
-          <legend>Patient and prediction baseline</legend>
-          <label>Patient identifier
-            <input name="patient_id" autocomplete="off" required maxlength="128">
-          </label>
-          <label>Prediction baseline (local time)
-            <input name="baseline_at" type="datetime-local" required>
-          </label>
-          <label>Prediction baseline definition
-            <select name="baseline_definition" required>
-              <option value="other_or_unverified" selected>Other / unverified</option>
-              <option value="initial_pathologic_diagnosis">Initial pathologic diagnosis (confirmed)</option>
-            </select>
-          </label>
-        </fieldset>
+      <form id="clinical-form" novalidate>
+        <ol class="workflow">
+          <li>
+            <fieldset>
+              <legend><span class="step-number">1</span> Patient and baseline</legend>
+              <div class="field-grid">
+                <label>Patient identifier
+                  <input name="patient_id" autocomplete="off" required maxlength="128">
+                </label>
+              </div>
+              <p class="hint">The prediction timestamp is generated automatically in UTC when the run starts. This interface does not collect pathology-confirmed diagnosis as an inference input.</p>
+            </fieldset>
+          </li>
 
-        <fieldset>
-          <legend>Clinician-entered clinical inputs</legend>
-          <label>Age at baseline (years)
-            <input name="age" type="number" min="18" max="120" step="1">
-          </label>
-          <label>Sex as recorded
-            <select name="sex">
-              <option value="">Not supplied</option>
-              <option value="female">Female</option>
-              <option value="male">Male</option>
-              <option value="other_or_unspecified">Other / unspecified</option>
-            </select>
-          </label>
-          <label>Pathologic stage at baseline
-            <input name="stage" autocomplete="off" placeholder="For example, Stage IIA">
-          </label>
-          <div class="row">
-            <label>KPS (preferred)
-              <input name="kps" type="number" min="0" max="100" step="1">
-            </label>
-            <label>ECOG (approximate KPS interval only)
-              <input name="ecog" type="number" min="0" max="5" step="1">
-            </label>
-          </div>
-          <p class="hint">If both KPS and ECOG are entered, direct KPS takes precedence and discrepancies are flagged.</p>
-        </fieldset>
+          <li>
+            <fieldset>
+              <legend><span class="step-number">2</span> CT scan</legend>
+              <p class="hint">Choose one CT series as a folder or select its DICOM files together.</p>
+              <div class="upload-actions">
+                <label class="button secondary" for="dicom-folder">Select DICOM folder
+                  <input id="dicom-folder" type="file" webkitdirectory directory multiple hidden>
+                </label>
+                <label class="button secondary" for="dicom-files">Select DICOM files
+                  <input id="dicom-files" type="file" multiple accept=".dcm,application/dicom" hidden>
+                </label>
+              </div>
+              <div id="scan-selection" class="selection empty" aria-live="polite">No CT scan selected.</div>
+              <button id="remove-scan" class="text-button" type="button" hidden>Remove selected scan</button>
+              <div id="upload-status" class="status" role="status" aria-live="polite"></div>
+            </fieldset>
+          </li>
 
-        <fieldset>
-          <legend>Validated Imaging evidence</legend>
-          <p class="hint">
-            Select the trusted Imaging evidence envelope. It must contain the v1 Imaging contract,
-            passed gate status, model versions, and timezone-aware timestamps matching this baseline.
-            Ranking scores are never interpreted as malignant status.
-          </p>
-          <label>Imaging evidence JSON
-            <input id="imaging-file" type="file" accept="application/json,.json" required>
-          </label>
-        </fieldset>
+          <li>
+            <fieldset>
+              <legend><span class="step-number">3</span> Clinical information</legend>
+              <div class="field-grid">
+                <label>Age at baseline (years)
+                  <input name="age" type="number" min="18" max="120" step="1">
+                </label>
+                <label>Sex as recorded
+                  <select name="sex">
+                    <option value="">Not supplied</option>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                    <option value="other_or_unspecified">Other / unspecified</option>
+                  </select>
+                </label>
+              </div>
+              <label>Karnofsky Performance Status (KPS)
+                <input name="kps" type="number" min="0" max="100" step="10" inputmode="numeric">
+              </label>
+              <p class="hint">Use a standard KPS value in 10-point increments. Leave blank if unavailable; no value will be guessed. KPS is used only where supported by the selected clinical model.</p>
+            </fieldset>
+          </li>
 
-        <button type="submit">Request research prediction</button>
+          <li>
+            <fieldset>
+              <legend><span class="step-number">4</span> Review and analyse</legend>
+              <div id="review-summary" class="review-box">Complete the scan and clinical fields to review the request.</div>
+              <button id="analyse-button" type="submit" disabled>Upload and analyse CT</button>
+              <div id="form-error" class="error" role="alert"></div>
+            </fieldset>
+          </li>
+        </ol>
       </form>
-      <section aria-live="polite" aria-labelledby="result-heading">
-        <h2 id="result-heading">Result</h2>
-        <pre id="result">No prediction requested.</pre>
+
+      <section id="results" aria-labelledby="results-heading" hidden>
+        <h2 id="results-heading">5. Results</h2>
+        <div id="result-summary" class="summary"></div>
+        <div id="result-sections" class="result-sections"></div>
+        <details>
+          <summary>Technical details</summary>
+          <pre id="technical-result"></pre>
+        </details>
       </section>
     </main>
     <script src="app.js" defer></script>

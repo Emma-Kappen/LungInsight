@@ -120,7 +120,7 @@ def sample_mask(mask: np.ndarray, center_zyx: Any) -> tuple[bool, tuple[int, int
 
 def _score_row(
     prediction: dict[str, Any], score_lookup: dict[tuple[str, int], dict[str, Any]],
-    stage06_record: dict[str, Any], *, source: str, malignancy_threshold: int,
+    stage06_record: dict[str, Any], *, source: str,
 ) -> dict[str, Any]:
     candidate_id = str(prediction.get("candidate_id"))
     try:
@@ -159,10 +159,8 @@ def _score_row(
         "detector_score": prediction.get("detector_score"),
         "log_response": prediction.get("log_response"),
         "scale_mm": prediction.get("scale_mm"),
-        "predicted_malignancy_rating_continuous": score.get("predicted_malignancy_rating_continuous"),
-        "predicted_malignancy_rating_rounded": score.get("predicted_malignancy_rating_rounded"),
-        "high_suspicion_rating_ge_threshold": False,
-        "malignancy_threshold_used": malignancy_threshold,
+        "brock_probability": (score.get("selected_prediction") or {}).get("probability"),
+        "brock_status": (score.get("selected_prediction") or {}).get("status", "unavailable"),
         "center_inside_lung_mask": True,
         "center_inside_air_mask": None,
         "center_inside_heart_mask": anatomy.get("center_inside_heart_mask"),
@@ -183,11 +181,6 @@ def _score_row(
     }
     for name in ATTRIBUTES:
         row[name] = rating_value(attrs.get(name))
-    rounded = score.get("predicted_malignancy_rating_rounded")
-    try:
-        row["high_suspicion_rating_ge_threshold"] = int(rounded) >= malignancy_threshold
-    except (TypeError, ValueError):
-        pass
     return row
 
 
@@ -250,7 +243,7 @@ def validate_localization_bbox(geometry: Any, ct_shape: tuple[int, int, int]) ->
 
 
 def load_candidate_rows(patient_root: Path, lung_mask: np.ndarray, air_mask: np.ndarray,
-                       heart_mask: np.ndarray, spacing_zyx: np.ndarray, malignancy_threshold: int):
+                       heart_mask: np.ndarray, spacing_zyx: np.ndarray):
     stage3_dir = patient_root / get_required(PATHS, "stage_03.directory")
     stage4_dir = patient_root / get_required(PATHS, "stage_04.directory")
     primary_path = stage3_dir / get_required(STAGE03, "outputs.predictions_json")
@@ -312,7 +305,7 @@ def load_candidate_rows(patient_root: Path, lung_mask: np.ndarray, air_mask: np.
         source = str(stage06_record.get("detector", {}).get("source", ""))
         row = _score_row(
             prediction, primary_scores, stage06_record,
-            source=source, malignancy_threshold=malignancy_threshold,
+            source=source,
         )
         row["stage06_record_path"] = str(primary_stage06_path)
         row["candidate_in_lung_mask"] = bool(inside)
@@ -356,8 +349,8 @@ def load_candidate_rows(patient_root: Path, lung_mask: np.ndarray, air_mask: np.
         all_source_rows.append(row)
     accepted_rows.sort(
         key=lambda row: (
-            -float(row["predicted_malignancy_rating_continuous"])
-            if isinstance(row.get("predicted_malignancy_rating_continuous"), (int, float))
+            -float(row["brock_probability"])
+            if isinstance(row.get("brock_probability"), (int, float))
             else float("inf"),
             str(row["stable_nodule_id"]),
         )
@@ -378,7 +371,7 @@ def render_nodule_visualizations(
     level: float,
     width: float,
 ) -> list[str]:
-    """Write a headless, identity-bound CT/CAM/SHAP summary for each in-lung record."""
+    """Write a headless, identity-bound CT/CAM/Brock summary for each in-lung record."""
     output_dir.mkdir(parents=True, exist_ok=True)
     written: list[str] = []
     for row in rows:
@@ -460,22 +453,22 @@ def render_nodule_visualizations(
             ax.set_xticks([])
             ax.set_yticks([])
 
-        shap_ax = fig.add_subplot(grid[2, 1:])
-        contributions = record["explanations"]["shap"].get("feature_contributions") or {}
-        shap_names = [name for name in ATTRIBUTES if name in contributions]
-        if shap_names:
-            shap_values = [float(contributions[name]) for name in shap_names]
-            shap_ax.barh(shap_names, shap_values, color=["#d95f02" if value >= 0 else "#1b9e77" for value in shap_values])
-            shap_ax.axvline(0.0, color="black", linewidth=0.8)
-            shap_ax.set_title("SHAP contributions to raw Stage 04 rating (not probabilities)")
+        brock_ax = fig.add_subplot(grid[2, 1:])
+        contributions = record["malignancy"].get("brock", {}).get("feature_contributions") or []
+        names = [str(item.get("feature")) for item in contributions if isinstance(item, dict)]
+        values = [float(item.get("contribution_logit")) for item in contributions if isinstance(item, dict)]
+        if names:
+            brock_ax.barh(names, values, color=["#d95f02" if value >= 0 else "#1b9e77" for value in values])
+            brock_ax.axvline(0.0, color="black", linewidth=0.8)
+            brock_ax.set_title("Brock formula logit contributions")
         else:
-            shap_ax.text(0.5, 0.5, "SHAP explanation unavailable", ha="center", va="center", transform=shap_ax.transAxes)
-        rating = row.get("predicted_malignancy_rating_continuous")
-        shap_ax.set_xlabel(f"rating contribution | raw model score; displayed rating={rating}")
+            brock_ax.text(0.5, 0.5, "Brock explanation unavailable", ha="center", va="center", transform=brock_ax.transAxes)
+        brock_ax.set_xlabel(f"Brock probability={row.get('brock_probability', 'unavailable')}")
 
         fig.suptitle(
             f"{patient_id} | nodule {record['nodule_id']} | {record['detection_source']} | "
-            f"LIDC reader-rating estimate={rating}",
+            f"Brock probability={row.get('brock_probability', 'unavailable')} "
+            f"({row.get('brock_status', 'unavailable')})",
             fontsize=13,
         )
         fig.tight_layout(rect=(0, 0, 1, 0.96))
@@ -519,7 +512,7 @@ def window_ct(slice_hu: np.ndarray, level: float, width: float) -> np.ndarray:
 
 def launch_viewer(ct: np.ndarray, lung_mask: np.ndarray, air_mask: np.ndarray, heart_mask: np.ndarray,
                   rows: list[dict[str, Any]], patient_id: str, level: float, width: float,
-                  malignancy_threshold: int) -> None:
+                  ) -> None:
     """Open slider-controlled axial viewer; only in-lung rows are passed here."""
     if ct.ndim != 3:
         raise ValueError(f"Expected 3D CT volume, got shape={ct.shape}")
@@ -555,19 +548,19 @@ def launch_viewer(ct: np.ndarray, lung_mask: np.ndarray, air_mask: np.ndarray, h
 
         visible = [(row, idx) for row, idx in valid_rows if idx[0] == z]
         for row, (_, y, x) in visible:
-            high = row.get("high_suspicion_rating_ge_threshold") is True
+            available = row.get("brock_status") == "available"
             source = row.get("detection_source")
             marker = str(VIEWER_SCHEMA["viTdet3d_marker"]) if source == "ViTDet3D" else str(VIEWER_SCHEMA["log_marker"])
-            color = str(VIEWER_SCHEMA["rating_at_or_above_threshold_color"]) if high else str(VIEWER_SCHEMA["rating_below_threshold_color"])
+            color = str(VIEWER_SCHEMA["brock_available_color"]) if available else str(VIEWER_SCHEMA["brock_unavailable_color"])
             ax.scatter([x], [y], marker=marker, s=75, c=[color], edgecolors="white", linewidths=0.8)
             prefix = "V" if source == "ViTDet3D" else "L"
             label = f"{prefix}{row.get('patch_id')}"
             nodule_id = str(row.get("stable_nodule_id") or "")
             if nodule_id:
                 label += f" {nodule_id[:8]}"
-            rating = row.get("predicted_malignancy_rating_rounded")
-            if rating is not None:
-                label += f" R{rating}"
+            probability = row.get("brock_probability")
+            if probability is not None:
+                label += f" Brock {float(probability):.3f}"
             ax.annotate(label, (x, y), xytext=(5, 5), textcoords="offset points", fontsize=7,
                         color="white", bbox={"boxstyle": "round,pad=0.15", "fc": "black", "alpha": 0.6})
         ax.set_title(f"{patient_id} — axial z={z}/{z_count - 1} | in-lung candidates on slice: {len(visible)}")
@@ -576,10 +569,10 @@ def launch_viewer(ct: np.ndarray, lung_mask: np.ndarray, air_mask: np.ndarray, h
         ax.set_xlim(-0.5, ct.shape[2] - 0.5)
         ax.set_ylim(ct.shape[1] - 0.5, -0.5)
         legend_items = [
-            Line2D([0], [0], marker="o", color="w", markerfacecolor="cyan", markeredgecolor="white", label="ViTDet3D: rating below threshold", markersize=7),
-            Line2D([0], [0], marker="o", color="w", markerfacecolor="red", markeredgecolor="white", label=f"ViTDet3D: rating ≥ {malignancy_threshold}", markersize=7),
-            Line2D([0], [0], marker="s", color="w", markerfacecolor="cyan", markeredgecolor="white", label="LoG: rating below threshold", markersize=7),
-            Line2D([0], [0], marker="s", color="w", markerfacecolor="red", markeredgecolor="white", label=f"LoG: rating ≥ {malignancy_threshold}", markersize=7),
+            Line2D([0], [0], marker="o", color="w", markerfacecolor="red", markeredgecolor="white", label="ViTDet3D: Brock available", markersize=7),
+            Line2D([0], [0], marker="o", color="w", markerfacecolor="cyan", markeredgecolor="white", label="ViTDet3D: Brock unavailable", markersize=7),
+            Line2D([0], [0], marker="s", color="w", markerfacecolor="red", markeredgecolor="white", label="LoG: Brock available", markersize=7),
+            Line2D([0], [0], marker="s", color="w", markerfacecolor="cyan", markeredgecolor="white", label="LoG: Brock unavailable", markersize=7),
         ]
         ax.legend(handles=legend_items, loc="upper right", fontsize=7)
         fig.canvas.draw_idle()
@@ -602,9 +595,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--gui", dest="open_gui", action="store_true", help="Open the optional interactive slider viewer after writing reports.")
     parser.add_argument("--no-gui", dest="open_gui", action="store_false", help="Write reports without opening the slider viewer.")
     parser.set_defaults(open_gui=False)
-    parser.add_argument("--malignancy-rating-threshold", type=int,
-                        default=int(STAGE07["malignancy_rating_threshold"]),
-                        help="Operational high-suspicion rating threshold; not a cancer diagnosis.")
     add_verbose_argument(parser)
     return parser
 
@@ -617,8 +607,6 @@ def main() -> int:
             plt.switch_backend("TkAgg")
         except (ImportError, RuntimeError) as exc:
             raise RuntimeError("The optional --gui viewer requires a working Tk GUI backend.") from exc
-    if not 1 <= args.malignancy_rating_threshold <= 5:
-        raise ValueError("--malignancy-rating-threshold must be in [1,5].")
     patient_root = DEFAULT_OUTPUT_ROOT / args.patient_id
     output_dir = args.output_dir.resolve() if args.output_dir else patient_root / STAGE07_PATHS["directory"]
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -644,7 +632,7 @@ def main() -> int:
         raise ValueError(f"{metadata_path}: invalid/missing spacing_zyx_mm required for anatomical location report.")
 
     accepted, excluded, _all_rows, input_paths = load_candidate_rows(
-        patient_root, lung_mask, air_mask, heart_mask, spacing, args.malignancy_rating_threshold
+        patient_root, lung_mask, air_mask, heart_mask, spacing
     )
     visualization_root = output_dir / str(STAGE07["outputs"]["nodule_visualization_directory"])
     visualization_paths = render_nodule_visualizations(
@@ -669,7 +657,7 @@ def main() -> int:
             "input_candidates": len([row for row in _all_rows if row["detection_source"] == source]),
             "accepted_center_inside_lung_mask": len(source_rows),
             "excluded_center_outside_lung_mask": len([row for row in excluded if row["detection_source"] == source]),
-            "high_suspicion_rating_ge_threshold": sum(bool(row["high_suspicion_rating_ge_threshold"]) for row in source_rows),
+            "brock_available_count": sum(row["brock_status"] == "available" for row in source_rows),
         }
     summary = {
         "schema_version": STAGE07["report_schema_version"],
@@ -694,9 +682,7 @@ def main() -> int:
             if not any(row.get("localization_status") == "BLOCKED" for row in excluded)
             else "passed_with_blocked_candidates"
         ),
-        "high_suspicion_or_malignancy_rating_count_inside_lung_mask": sum(bool(row["high_suspicion_rating_ge_threshold"]) for row in accepted),
-        "malignancy_rating_threshold": args.malignancy_rating_threshold,
-        "malignancy_count_interpretation": STAGE07["malignancy_threshold_semantics"],
+        "brock_available_count_inside_lung_mask": sum(row["brock_status"] == "available" for row in accepted),
         "counts_by_source": count_by_source,
         "accepted_csv": str(report_csv.resolve()),
         "excluded_outside_lung_csv": str(excluded_csv.resolve()),
@@ -717,12 +703,11 @@ def main() -> int:
     print(f"Report JSON: {report_json}")
     print(f"Accepted in-lung candidates CSV: {report_csv}")
     print(f"Excluded outside-lung candidates CSV: {excluded_csv}")
-    print(f"Per-nodule CT/CAM/SHAP visualizations: {len(visualization_paths)} in {visualization_root}")
+    print(f"Per-nodule CT/CAM/Brock visualizations: {len(visualization_paths)} in {visualization_root}")
     print(f"Candidates inspected: {len(_all_rows)}")
     print(f"Candidates accepted (rounded center inside lung_mask): {len(accepted)}")
     print(f"Candidates excluded (center outside lung_mask or CT): {len(excluded)}")
-    print(f"High-suspicion rating >= {args.malignancy_rating_threshold} within lung mask: {summary['high_suspicion_or_malignancy_rating_count_inside_lung_mask']}")
-    print("Interpretation: Stage 04 reader-suspicion rating threshold; not cancer probability or a clinical diagnosis.")
+    print(f"Brock probabilities available within lung mask: {summary['brock_available_count_inside_lung_mask']}")
     html_report_dir = DEFAULT_OUTPUT_ROOT / "reports" / args.patient_id
     report_pages = generate_patient_report(
         patient_id=args.patient_id,
@@ -740,7 +725,7 @@ def main() -> int:
     if args.open_gui:
         launch_viewer(ct, lung_mask, air_mask, heart_mask, accepted, args.patient_id,
                       float(DISPLAY_WINDOW["level"]), float(DISPLAY_WINDOW["width"]),
-                      args.malignancy_rating_threshold)
+                      )
     stage_complete(7, "07")
     return 0
 

@@ -7,7 +7,13 @@ from typing import Any
 
 import pandas as pd
 
-from .ingestion import load_msk_tables, load_tcga_survival_cohort, msk_lung_patient_labels
+from .ingestion import (
+    load_msk_cancer_type_cohort,
+    load_msk_tables,
+    load_tcga_survival_cohort,
+    msk_lung_patient_labels,
+)
+from .training import CANCER_FEATURE_ORDER, build_cancer_type_eligibility_report
 
 
 def _missingness(frame: pd.DataFrame, columns: list[str]) -> dict[str, float]:
@@ -123,7 +129,7 @@ def _tcga_summary(root: Path, cohort: str) -> dict[str, Any]:
                 for key, value in manifest["state"].fillna("<missing>").value_counts().items()
             }
     xml_paths = list((root / cohort).rglob("*.xml"))
-    stages = frame["stage_at_baseline"].dropna().value_counts()
+    stages = frame["pathologic_stage_ground_truth"].dropna().value_counts()
     histologies = frame["histological_type_raw"].fillna("<missing>").value_counts()
     return {
         "dataset": cohort,
@@ -148,6 +154,7 @@ def _tcga_summary(root: Path, cohort: str) -> dict[str, Any]:
         ),
         "unique_patients": int(frame["patient_id"].nunique()),
         "histological_type_patient_counts": {str(key): int(value) for key, value in histologies.items()},
+        "explicit_histology_mapping_patient_counts": _category_counts(frame, "histology"),
         "source_cohort_label_patient_count": {
             str(key): int(value) for key, value in frame["cohort_label"].value_counts().items()
         },
@@ -171,7 +178,7 @@ def _tcga_summary(root: Path, cohort: str) -> dict[str, Any]:
             [
                 "age_at_baseline_years",
                 "sex_at_baseline",
-                "stage_at_baseline",
+                "pathologic_stage_ground_truth",
                 "kps_direct",
                 "smoking_history_raw",
             ],
@@ -231,6 +238,7 @@ def build_baseline_report(datasets_root: str | Path) -> dict[str, Any]:
         "datasets": {},
     }
     msk_root = root / "msk_chord_2024"
+    classifier_candidates: list[pd.DataFrame] = []
     if msk_root.is_dir():
         patients, samples = load_msk_tables(msk_root)
         labels = msk_lung_patient_labels(samples)
@@ -338,15 +346,28 @@ def build_baseline_report(datasets_root: str | Path) -> dict[str, Any]:
             "license": {
                 "identifier": "CC BY-NC-ND 4.0",
                 "local_license_mentions_no_derivatives": explicit_nd,
-                "training_status": "blocked pending legal/data-governance review of adaptation and model-training permission",
+                "training_status": "authorized by the project operator for local research model fitting",
             },
             "feature_compatibility": {
+                "sex": "GENDER is source-recorded sex at birth and is the sole shared classifier predictor.",
                 "stage": "STAGE_HIGHEST_RECORDED excluded; timing relative to prediction baseline is unknown.",
                 "smoking": "SMOKING_PREDICTIONS_3_CLASSES excluded; derived prediction is not an observed, harmonized history.",
                 "age": "CURRENT_AGE_DEID excluded; relation to diagnosis baseline is not established.",
                 "kps": "ECOG timeline is not baseline-aligned and is not an exact KPS measurement.",
             },
         }
+        msk_classifier = load_msk_cancer_type_cohort(msk_root)
+        classifier_candidates.append(
+            msk_classifier[
+                [
+                    "patient_id",
+                    "histology",
+                    "label_status",
+                    "source",
+                    *CANCER_FEATURE_ORDER,
+                ]
+            ]
+        )
     else:
         report["datasets"]["MSK-CHORD"] = {"status": "not_found"}
 
@@ -355,8 +376,26 @@ def build_baseline_report(datasets_root: str | Path) -> dict[str, Any]:
             report["datasets"][cohort] = _tcga_summary(root, cohort)
         else:
             report["datasets"][cohort] = {"status": "not_found"}
+    if classifier_candidates:
+        classifier_frame = pd.concat(classifier_candidates, ignore_index=True)
+        report["classifier_eligibility"] = build_cancer_type_eligibility_report(
+            classifier_frame,
+            authorization_status="authorized",
+            source_label_provenance="source_recorded",
+        )
+    else:
+        report["classifier_eligibility"] = {
+            "report_schema_version": "1.0.0",
+            "model_task": "LUAD-versus-LUSC histology probability",
+            "eligible_for_training": False,
+            "blockers": ["no_local_classifier_source_data"],
+            "privacy": {
+                "patient_identifiers_included": False,
+                "patient_level_records_included": False,
+            },
+        }
     report["cross_cohort_assessment"] = {
-        "classifier": "TCGA cohort membership equals the cohort histology label and is therefore a source shortcut; TCGA alone is unsuitable for classifier fitting. MSK labels are richer, but training is blocked by license review and uncertain baseline feature semantics.",
+        "classifier": "MSK-CHORD explicit sample histology labels support authorized, MSK-scoped research fitting with source-recorded sex only. TCGA recorded histology remains source-siloed: its LUAD/LUSC cohorts are target-associated and are retained for descriptive diagnostics, not pooled classifier fitting or external validation.",
         "survival": "TCGA-only OS endpoint/time origin are sufficiently explicit for research development after data-use confirmation. MSK OS semantics and prediction baseline are not established; do not pool.",
         "imaging": "No patient-linked LungInsight Imaging features occur in these training tables; imaging summaries cannot be learned as predictors from the inspected cohorts.",
     }

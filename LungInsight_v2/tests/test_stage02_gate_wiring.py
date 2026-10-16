@@ -37,14 +37,14 @@ class Stage02GateWiringTests(unittest.TestCase):
         self.assertNotEqual(filenames["log_diagnostic"], filenames["log_rejected_candidates_audit"])
         self.assertTrue(stage2["candidate_acceptance_filter"]["require_nonempty_heart_mask"])
         self.assertTrue(stage2["candidate_acceptance_filter"]["require_human_review_attestation"])
-        self.assertEqual(self.schema["schema_version"], "2.12")
-        self.assertIn("2.11", self.schema["metadata_policy"]["supported_schema_versions"])
+        self.assertEqual(self.schema["schema_version"], "2.13")
+        self.assertIn("2.12", self.schema["metadata_policy"]["supported_schema_versions"])
 
     def test_log_gate_precedes_log_patch_extraction(self):
         filter_call = self.source.index(
             "accepted_log_candidates, rejected_log_candidates, log_filter_report = filter_detections_by_lung_mask("
         )
-        accepted_selection = self.source.index("selected_log_candidates = log_candidates", filter_call)
+        accepted_selection = self.source.index("log_candidates = [", filter_call)
         extraction = self.source.index("log_records = extract_all(", accepted_selection)
         manifest_write = self.source.index("save_json(log_patch_manifest_path, log_manifest)", extraction)
         self.assertLess(filter_call, accepted_selection)

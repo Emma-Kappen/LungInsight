@@ -28,8 +28,8 @@
           "LUSC": "LUSC or CANCER_TYPE_DETAILED exactly Lung Squamous Cell Carcinoma",
           "excluded": "Broad NSCLC, ambiguous/multiple sample diagnoses, non-lung cancer"
         },
-        "TCGA-LUAD": "Cohort membership; not a discriminative predictor",
-        "TCGA-LUSC": "Cohort membership; not a discriminative predictor"
+        "TCGA-LUAD": "patient/histological_type mapped only when the recorded text explicitly identifies an adenocarcinoma family diagnosis",
+        "TCGA-LUSC": "patient/histological_type mapped only when the recorded text explicitly identifies a squamous cell carcinoma family diagnosis"
       },
       "missing": "Exclude uncertain/conflicting target labels; never infer from survival or imaging."
     },
@@ -38,13 +38,13 @@
       "type": "number",
       "units": "years",
       "allowed": "18 through 120 inclusive; other values are not model eligible",
-      "role": "predictor",
+      "role": "survival_predictor_not_classifier_predictor",
       "inference_available": true,
       "measurement_time": "At initial pathologic diagnosis",
       "mappings": {
         "TCGA-LUAD": "patient/age_at_initial_pathologic_diagnosis",
         "TCGA-LUSC": "patient/age_at_initial_pathologic_diagnosis",
-        "MSK-CHORD": "CURRENT_AGE_DEID is not mapped: its relation to diagnosis/baseline is not established"
+        "MSK-CHORD": "CURRENT_AGE_DEID is not mapped to the classifier: it is current age, de-identified, and not established at the classifier baseline"
       },
       "missing": "Preserve as missing; fitted training-only median imputation is model-specific."
     },
@@ -58,15 +58,15 @@
       "mappings": {
         "TCGA-LUAD": "patient/gender",
         "TCGA-LUSC": "patient/gender",
-        "MSK-CHORD": "GENDER; excluded from the TCGA-only survival model"
+        "MSK-CHORD": "GENDER; source-recorded sex at birth and the MSK classifier's sole predictor"
       },
       "missing": "Preserve missingness; no inference from patient identifiers."
     },
-    "stage_at_baseline": {
-      "meaning": "Pathologic stage documented at initial diagnosis; retain substage distinctions.",
+    "pathologic_stage_ground_truth": {
+      "meaning": "Pathologic stage documented at initial diagnosis; retained only as source ground truth and never used for inference.",
       "type": "categorical",
-      "role": "predictor",
-      "inference_available": true,
+      "role": "ground_truth_label",
+      "inference_available": false,
       "measurement_time": "Stage event at diagnosis",
       "mappings": {
         "TCGA-LUAD": "patient/stage_event/pathologic_stage",
@@ -158,9 +158,22 @@
     }
   },
   "model_feature_sets": {
-    "tcga_os_v1": {
-      "features": ["age_at_baseline_years", "sex_at_baseline", "stage_at_baseline"],
+    "msk_chord_histology_v1": {
+      "feature_contract_version": "msk-chord-sex-at-birth-v1",
+      "features": ["sex_at_baseline"],
+      "population": "MSK-CHORD patients with one explicit LUAD or LUSC patient-level label resolved from sample ONCOTREE_CODE and CANCER_TYPE_DETAILED",
       "excluded": [
+        "age_at_baseline_years: CURRENT_AGE_DEID is current age and not baseline-aligned",
+        "pathologic_stage_ground_truth: source stage is retained only as a ground-truth label",
+        "kps_category: ECOG timeline is longitudinal and not baseline-aligned",
+        "smoking_history: MSK source field is NLP-derived rather than observed smoking history",
+        "imaging_candidate_count and largest_reported_nodule_diameter_mm: no patient-linked training measurements"
+      ]
+    },
+    "tcga_os_v1": {
+      "features": ["age_at_baseline_years", "sex_at_baseline"],
+      "excluded": [
+        "pathologic_stage_ground_truth: excluded to prevent target leakage",
         "kps_category: observed in only a small minority at baseline",
         "smoking_history: source numeric codes lack a verified codebook",
         "imaging_candidate_count and largest_reported_nodule_diameter_mm: no patient-linked, harmonized training measurements"

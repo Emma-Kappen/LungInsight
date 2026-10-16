@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -14,18 +15,26 @@ from LungInsight_v2.backend.Clinical.harmonization import (
 from LungInsight_v2.backend.Clinical.api import create_app
 from LungInsight_v2.backend.Clinical.imaging import ImagingEvidenceError, validate_imaging_evidence
 from LungInsight_v2.backend.Clinical.ingestion import (
+    classify_tcga_histology,
     load_tcga_survival_cohort,
     msk_lung_patient_labels,
     parse_tcga_patient_xml,
 )
-from LungInsight_v2.backend.Clinical.inference import ClinicalInferenceError, run_inference
+from LungInsight_v2.backend.Clinical.inference import (
+    ClinicalInferenceError,
+    load_artifacts,
+    run_inference,
+)
 from LungInsight_v2.backend.Clinical.training import (
     ModelEligibilityError,
+    SURVIVAL_FEATURE_ORDER,
     _grouped_three_way_split,
     _supported_horizons,
+    build_cancer_type_eligibility_report,
     fit_cancer_type_model,
     fit_survival_model,
     evaluate_cross_cohort_survival,
+    save_artifact_bundle,
     source_target_shortcut_report,
 )
 
@@ -74,7 +83,28 @@ def _valid_imaging_contract(patient_id: str = "synthetic-patient") -> dict:
                         "texture",
                     )
                 },
-                "malignancy": {"ranking_score": 0.99, "rank": 1},
+                "malignancy": {
+                    "brock": {
+                        "status": "incomplete",
+                        "method": "brock_formula_decomposition",
+                        "model_name": "Brock_PanCan_full",
+                        "model_version": "published-coefficients-verified-v1",
+                        "target": "pulmonary_nodule_malignancy_probability",
+                        "probability": None,
+                        "features_missing": ["age_years"],
+                        "feature_contributions": [],
+                        "limitations": ["Required input was not supplied."],
+                    },
+                    "selected_prediction": {
+                        "method": "brock",
+                        "model_version": "published-coefficients-verified-v1",
+                        "status": "incomplete",
+                        "probability": None,
+                        "value": None,
+                        "missing_inputs": ["age_years"],
+                        "limitations": ["Required input was not supplied."],
+                    },
+                },
                 "uncertainty": {},
                 "quality_flags": [],
                 "model_versions": {"stage04": "synthetic-v1"},
@@ -86,11 +116,11 @@ def _valid_imaging_contract(patient_id: str = "synthetic-patient") -> dict:
     }
 
 
-def _imaging_evidence(patient_id: str = "synthetic-patient", baseline: str = "2026-01-01T12:00:00+00:00") -> dict:
+def _imaging_evidence(patient_id: str = "synthetic-patient", scan_datetime: str | None = None) -> dict:
     return {
         "contract": _valid_imaging_contract(patient_id),
-        "source_timestamp": baseline,
-        "baseline_at": baseline,
+        "source_timestamp": "2026-01-01T12:00:00+00:00",
+        "scan_datetime": scan_datetime,
         "gate_status": "passed",
         "imaging_pipeline_version": "synthetic-imaging-v1",
         "imaging_model_versions": {"stage06": "synthetic-v1"},
@@ -98,20 +128,17 @@ def _imaging_evidence(patient_id: str = "synthetic-patient", baseline: str = "20
 
 
 def _request() -> dict:
-    baseline = "2026-01-01T12:00:00+00:00"
     return {
         "schema_version": "1.0.0",
         "patient_id": "synthetic-patient",
-        "baseline_at": baseline,
         "baseline_definition": "initial_pathologic_diagnosis",
         "clinician_inputs": {
             "age_at_baseline_years": 64,
             "sex_at_baseline": "female",
-            "stage_at_baseline": "Stage IIA",
             "kps": None,
             "ecog": 1,
         },
-        "imaging_evidence": _imaging_evidence(baseline=baseline),
+        "imaging_evidence": _imaging_evidence(),
     }
 
 
@@ -139,7 +166,30 @@ def test_clinician_input_ranges_and_whitespace_validation() -> None:
     with pytest.raises(ClinicalValidationError):
         validate_clinician_inputs({"age_at_baseline_years": 121})
     with pytest.raises(ClinicalValidationError):
-        validate_clinician_inputs({"stage_at_baseline": "   "})
+        validate_clinician_inputs({"stage_at_baseline": "Stage IIA"})
+
+
+def test_prediction_uses_system_utc_timestamp_without_pathological_stage() -> None:
+    request = _request()
+    output = run_inference(request)
+    timestamp = output["prediction_baseline_datetime"]
+    assert timestamp.endswith("Z")
+    assert datetime.fromisoformat(timestamp.replace("Z", "+00:00")).tzinfo is not None
+    assert output["provenance"]["prediction_baseline_datetime"] == timestamp
+    assert output["imaging_context"]["scan_datetime"] is None
+    assert "stage_at_baseline" not in output["input_validation"]["clinician_fields_supplied"]
+
+
+def test_pathological_stage_is_not_an_inference_feature() -> None:
+    assert "stage_at_baseline" not in SURVIVAL_FEATURE_ORDER
+    with pytest.raises(ClinicalInferenceError, match="stage_at_baseline"):
+        run_inference({
+            **_request(),
+            "clinician_inputs": {
+                **_request()["clinician_inputs"],
+                "stage_at_baseline": "Stage IIA",
+            },
+        })
 
 
 def test_msk_only_assigns_explicit_histology_and_flags_conflicts() -> None:
@@ -160,6 +210,24 @@ def test_msk_only_assigns_explicit_histology_and_flags_conflicts() -> None:
     assert result.loc["p2", "label_status"] == "ambiguous_or_other"
     assert result.loc["p3", "label_status"] == "conflicting"
     assert result.loc["p4", "label_status"] == "conflicting"
+
+
+@pytest.mark.parametrize(
+    ("recorded_histology", "expected"),
+    [
+        ("Lung Adenocarcinoma- Not Otherwise Specified (NOS)", "LUAD"),
+        ("Lung Bronchioloalveolar Carcinoma Nonmucinous", "LUAD"),
+        ("Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS)", "LUSC"),
+        ("Lung Papillary Squamous Cell Caricnoma", "LUSC"),
+        ("Non-Small Cell Lung Cancer", None),
+        (None, None),
+    ],
+)
+def test_tcga_histology_mapping_requires_explicit_supported_diagnosis(
+    recorded_histology: str | None,
+    expected: str | None,
+) -> None:
+    assert classify_tcga_histology(recorded_histology) == expected
 
 
 def test_tcga_patient_xml_right_censoring_and_followup_only(tmp_path) -> None:
@@ -230,7 +298,6 @@ def test_imaging_evidence_requires_passed_gate_and_never_counts_rank_as_malignan
     summary = validate_imaging_evidence(
         _imaging_evidence(),
         patient_id="synthetic-patient",
-        baseline_at="2026-01-01T12:00:00+00:00",
     )
     assert summary["imaging_candidate_count"] == 1
     assert summary["largest_reported_nodule_diameter_mm"] == 12.5
@@ -242,29 +309,18 @@ def test_imaging_evidence_requires_passed_gate_and_never_counts_rank_as_malignan
         validate_imaging_evidence(
             blocked,
             patient_id="synthetic-patient",
-            baseline_at="2026-01-01T12:00:00+00:00",
         )
 
 
-def test_imaging_timestamp_must_match_prediction_baseline() -> None:
+def test_missing_scan_datetime_is_not_substituted() -> None:
     evidence = _imaging_evidence()
-    with pytest.raises(ImagingEvidenceError, match="timestamps"):
-        validate_imaging_evidence(
-            evidence,
-            patient_id="synthetic-patient",
-            baseline_at="2026-01-02T12:00:00+00:00",
-        )
+    assert validate_imaging_evidence(evidence, patient_id="synthetic-patient")["scan_datetime"] is None
 
 
-def test_future_imaging_baseline_is_rejected() -> None:
-    future = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
-    evidence = _imaging_evidence(baseline=future)
-    with pytest.raises(ImagingEvidenceError, match="future"):
-        validate_imaging_evidence(
-            evidence,
-            patient_id="synthetic-patient",
-            baseline_at=future,
-        )
+def test_scan_datetime_requires_an_aware_timestamp() -> None:
+    evidence = _imaging_evidence(scan_datetime="2026-01-01T12:00:00")
+    with pytest.raises(ImagingEvidenceError, match="timezone"):
+        validate_imaging_evidence(evidence, patient_id="synthetic-patient")
 
 
 def test_unverified_prediction_baseline_blocks_survival_output() -> None:
@@ -304,6 +360,14 @@ def test_api_serves_frontend_and_reports_no_models_as_untrained() -> None:
     assert status.json()["survival_model"] == "not_trained"
     assert page.status_code == 200
     assert b"clinical-form" in page.content
+    assert b'name="baseline_at"' not in page.content
+    assert b'Pathologic stage at baseline' not in page.content
+    frontend_script = (Path(__file__).resolve().parents[3] / "frontend" / "app.js").read_text(
+        encoding="utf-8"
+    )
+    assert "!uploadResult" not in frontend_script.split("analyseButton.disabled =", 1)[1].split(";", 1)[0]
+    assert "selected; not uploaded" in frontend_script
+    assert "uploaded and DICOM validation completed" in frontend_script
 
 
 def test_model_failure_does_not_invalidate_independent_survival_output() -> None:
@@ -311,7 +375,6 @@ def test_model_failure_does_not_invalidate_independent_survival_output() -> None
     request["clinician_inputs"].update({
         "age_at_baseline_years": 65,
         "sex_at_baseline": "female",
-        "stage_at_baseline": "Stage I",
         "ecog": None,
     })
     rng = np.random.default_rng(29)
@@ -392,12 +455,68 @@ def test_classifier_uses_grouped_holdouts_and_returns_valid_calibrated_probs() -
         random_state=11,
     )
     assert report["test_patient_ids_used_for_fitting"] is False
+    assert artifact["metadata"]["feature_order"] == ["sex_at_baseline"]
+    assert artifact["metadata"]["feature_contract_version"] == "msk-chord-sex-at-birth-v1"
+    assert set(report["model_selection"]["candidates"]) == {
+        "regularized_logistic_regression",
+        "random_forest",
+    }
     assert artifact["metadata"]["calibration_status"].startswith("sigmoid_calibrated")
     probabilities = artifact["estimator"].predict_proba(frame.iloc[:5][[
-        "age_at_baseline_years", "sex_at_baseline", "stage_at_baseline"
+        "sex_at_baseline"
     ]])
     assert np.allclose(probabilities.sum(axis=1), 1.0)
     assert np.isfinite(probabilities).all()
+
+
+def test_cancer_artifact_round_trip_preserves_probabilities(tmp_path) -> None:
+    frame = pd.DataFrame({
+        "patient_id": [f"round-trip-{index}" for index in range(200)],
+        "source": ["authorized-cohort"] * 200,
+        "histology": ["LUAD", "LUSC"] * 100,
+        "label_status": ["eligible"] * 200,
+        "sex_at_baseline": np.where(np.arange(200) % 3, "female", "male"),
+    })
+    artifact, _ = fit_cancer_type_model(
+        frame,
+        prediction_baseline_definition="initial_pathologic_diagnosis",
+        use_authorized=True,
+        random_state=31,
+    )
+    examples = pd.DataFrame({"sex_at_baseline": ["female", "male"]})
+    expected = artifact["estimator"].predict_proba(examples)
+    artifact_path = tmp_path / "clinical.joblib"
+    save_artifact_bundle(artifact_path, cancer_type=artifact)
+    reloaded = load_artifacts(artifact_path)
+    assert reloaded["cancer_type"] is not None
+    actual = reloaded["cancer_type"]["estimator"].predict_proba(examples)
+    assert np.array_equal(expected, actual)
+    request = _request()
+    request["clinician_inputs"]["sex_at_baseline"] = None
+    output = run_inference(request, artifacts=reloaded)
+    assert output["cancer_type"]["status"] == "abstained"
+    assert output["cancer_type"]["missing_features"] == ["sex_at_baseline"]
+
+
+def test_classifier_eligibility_report_is_aggregate_and_requires_authorization() -> None:
+    frame = pd.DataFrame({
+        "patient_id": ["p1", "p2", "p3", "p4"],
+        "source": ["approved-cohort"] * 4,
+        "histology": ["LUAD", "LUSC", "LUAD", "other"],
+        "label_status": ["eligible", "eligible", "eligible", "ambiguous_or_other"],
+        "age_at_baseline_years": [60, 61, 62, 63],
+        "sex_at_baseline": ["female", "male", "female", "male"],
+        "stage_at_baseline": ["Stage I", "Stage II", "Stage I", "Stage II"],
+    })
+    report = build_cancer_type_eligibility_report(
+        frame,
+        authorization_status="not_confirmed",
+        source_label_provenance="source_recorded",
+    )
+    assert report["supported_class_patient_counts"] == {"LUAD": 2, "LUSC": 1}
+    assert report["eligible_for_training"] is False
+    assert "source_data_use_authorization_not_confirmed" in report["blockers"]
+    assert report["privacy"]["patient_identifiers_included"] is False
 
 
 def test_grouped_split_never_separates_a_patient() -> None:

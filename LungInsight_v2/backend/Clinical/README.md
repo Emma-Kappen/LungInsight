@@ -11,9 +11,8 @@ hard-coded. In the inspected workspace:
 
 - `datasets/msk_chord_2024` has 24,950 patient rows and 25,040 sample rows. Its
   sample table identifies LUAD and LUSC, but also 499 broad NSCLC labels and
-  other lung histologies that are not assigned to either class. The source
-  license file states CC BY-NC-ND 4.0. Training is blocked pending a review of
-  whether model fitting/adaptation is permitted. `CURRENT_AGE_DEID`,
+  other lung histologies that are not assigned to either class. Project
+  authorization permits local research fitting. `CURRENT_AGE_DEID`,
   `STAGE_HIGHEST_RECORDED`, and predicted smoking fields are not treated as
   baseline observations. The ECOG timeline is longitudinal, not baseline KPS.
 - The local TCGA-LUAD and TCGA-LUSC GDC XML trees contain patient and
@@ -24,10 +23,10 @@ hard-coded. In the inspected workspace:
   re-evaluates those values from the files and records current exclusions.
   GDC metadata marks listed files `open`; applicable TCGA/GDC data-use and
   publication terms still require operator confirmation before training.
-- A TCGA-only LUAD/LUSC classifier is prohibited by the implementation:
-  cohort identity reveals its histology label and would be a source shortcut.
-  MSK-CHORD has more useful class mixture but is not used unless licensing and
-  baseline feature compatibility have been resolved.
+- TCGA-only LUAD/LUSC classifier fitting is prohibited: its cohort identity is
+  target-associated and would be a source shortcut. The authorized MSK-CHORD
+  classifier uses only source-recorded sex, the sole feature with a defensible
+  shared inference meaning in the inspected release.
 - None of the inspected source files has patient-linked LungInsight Imaging
   measurements. Imaging nodule summaries are therefore provenance-bearing
   context only, not cancer-type or survival predictors.
@@ -68,10 +67,9 @@ report destination:
   --output C:\approved\reports\clinical-audit.json
 ```
 
-Review and record source-specific use permissions before fitting. Training
-functions require `use_authorized=True`; this is an explicit operator
-attestation, not an automated legal determination. Never put raw clinical
-files or patient-level manifests into source control or model reports.
+The authorized classifier workflow records authorization in its aggregate
+report. Never put raw clinical files or patient-level manifests into source
+control or model reports.
 
 ## Survival development
 
@@ -86,8 +84,9 @@ in days from initial pathologic diagnosis:
 - Unknown status, negative/invalid time, contradictory alive/death data, and
   missing event/follow-up time are excluded, not imputed.
 
-The initial predictor set is diagnosis age, recorded sex, and pathologic stage
-at diagnosis. Direct KPS is sparse; ECOG is not silently treated as exact KPS;
+The initial predictor set is diagnosis age and recorded sex. Pathologic stage
+is retained only as a source ground-truth label and is excluded from inference
+to prevent target leakage. Direct KPS is sparse; ECOG is not silently treated as exact KPS;
 smoking source codes lack a verified codebook. Treatment and future events are
 not predictors. The endpoint compatibility is specific to TCGA; MSK OS is not
 pooled.
@@ -131,14 +130,50 @@ validation.
 
 ## Cancer-type classifier
 
-`fit_cancer_type_model` is available for a future legally authorized and
-baseline-compatible patient-level cohort with explicit LUAD/LUSC diagnoses.
-It uses regularized logistic regression with training-only class weighting,
-patient-grouped natural-prevalence calibration and a test set held out from all
-fitting. It rejects source/target confounding, ambiguous labels, and infeasible
-class splits. It returns probabilities conditional on LUAD/LUSC cancer cases,
-not cancer-versus-benign probabilities. No cancer-type model is trained from
-the currently inspected data.
+`build_cancer_type_eligibility_report` creates an aggregate, identifier-free
+eligibility report before fitting. The audit writes the current decision to
+`datasets/.clinical-audit/baseline-report.json`; it includes source-specific
+class counts, required-feature completeness, repeated-patient counts,
+source-target shortcut diagnostics, authorization status, and explicit
+blockers.
+
+`train_cancer_type` trains the authorized MSK-scoped classifier reproducibly:
+
+```powershell
+.\LungInsight_v2\l-env\Scripts\python.exe -m `
+  LungInsight_v2.backend.Clinical.train_cancer_type --datasets-root datasets
+```
+
+It maps only patient-level labels resolved from explicit MSK sample
+`ONCOTREE_CODE` and `CANCER_TYPE_DETAILED` fields, excludes broad NSCLC,
+conflicting, and other lung histologies, and trains one row per patient. The
+current compact contract contains only `sex_at_baseline` from MSK `GENDER`;
+current de-identified age, highest-recorded stage, NLP smoking prediction, and
+longitudinal ECOG are excluded because they are not diagnosis-baseline-aligned.
+
+The workflow compares a regularized logistic-regression baseline and a random
+forest in grouped development folds, selects by grouped log loss, calibrates the
+selected estimator on a separate natural-prevalence patient partition, and
+reports final held-out metrics. It atomically saves the classifier beside the
+existing survival artifact, reloads it, and requires identical fixed-example
+probabilities before success. The report is written to
+`backend/Clinical/reports/cancer-type-evaluation.json`.
+
+The saved probabilities are conditional on LUAD/LUSC cancer cases in the
+MSK-CHORD research population; they are not cancer-versus-benign probabilities.
+The single-feature model has limited discrimination and is research-only, not
+an externally validated or clinically deployable histology classifier.
+
+## Clinical explainability
+
+Classifier explanations use the fitted feature contract and report
+training-fitted missingness-ablation deltas for each LUAD/LUSC probability.
+Survival explanations are reported separately at each supported horizon as
+observed-minus-ablated survival-probability deltas. These are local
+model-sensitivity explanations, not causal effects and not SHAP values; the
+calibrated composite classifier is not silently presented as a SHAP-compatible
+estimator. Each explanation identifies the prediction target, model version,
+features used or missing, and its limitations.
 
 ## KPS handling
 
@@ -192,9 +227,34 @@ untrusted networks or use it with identifiable data outside an approved
 environment.
 
 The static clinician intake is under [`frontend/`](../../frontend/). It posts
-to the local API and shows explicit model-unavailable or abstention statuses;
-it does not fabricate results.
+raw DICOM folder/file selections to `/api/v1/imaging/dicom/upload` through the
+local API, shows explicit preprocessing and model-unavailable/abstention
+statuses, and does not fabricate results. The upload endpoint validates one
+CT series, applies DICOM rescale slope/intercept to reconstruct an HU volume,
+and stores only the minimum hashed study/series provenance. It deliberately
+reports analysis as blocked until the existing staged Imaging runner completes
+its review and model gates; preprocessing success is not an analysis result.
 Open `http://127.0.0.1:8010/` after starting the local API to use the intake.
+
+The upload route does not invoke the staged runner. Its response supplies an
+exact `runner_command` using the preserved, validated DICOM input tree. For an
+authorized operator workflow, run that command (or the equivalent):
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass `
+  -File .\LungInsight_v2\run_pipeline.ps1 `
+  -PatientId "<patient-id>" `
+  -InputPatientPath ".\backend\output\<patient-id>\dicom_uploads\<job-id>\stage01_input\<patient-id>" `
+  -NoGui
+```
+
+Stage 02 is intentionally blocked until the Stage 01 review montage has been
+inspected and a hash-bound attestation has been created with
+`backend\Imaging\attest_heart_mask_review.py`. The validated DICOM instances
+are preserved under
+`dicom_uploads\<job_id>\stage01_input\<patient-id>` for this explicit handoff.
+The derived `dicom_uploads\<job_id>\volume_hu.npy` artifact remains
+preprocessing evidence and is not treated as a completed Stage 01 result.
 
 ## Validation
 

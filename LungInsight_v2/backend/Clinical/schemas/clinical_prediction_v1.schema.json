@@ -7,8 +7,7 @@
     "schema_version",
     "patient_id",
     "study_id",
-    "prediction_timestamp",
-    "baseline_at",
+    "prediction_baseline_datetime",
     "baseline_definition",
     "input_validation",
     "imaging_context",
@@ -21,10 +20,12 @@
     "schema_version": {"const": "1.0.0"},
     "patient_id": {"type": "string"},
     "study_id": {"type": "string"},
-    "prediction_timestamp": {"type": "string", "format": "date-time"},
-    "baseline_at": {"type": "string", "format": "date-time"},
+    "prediction_baseline_datetime": {"type": "string", "format": "date-time"},
     "baseline_definition": {
       "enum": ["initial_pathologic_diagnosis", "other_or_unverified"]
+    },
+    "requested_malignancy_method": {
+      "enum": ["brock", null]
     },
     "input_validation": {"type": "object"},
     "imaging_context": {"type": "object"},

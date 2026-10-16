@@ -10,11 +10,21 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import balanced_accuracy_score, f1_score, log_loss
+from sklearn.metrics import (
+    average_precision_score,
+    balanced_accuracy_score,
+    brier_score_loss,
+    confusion_matrix,
+    f1_score,
+    log_loss,
+    precision_recall_fscore_support,
+    roc_auc_score,
+)
 from sklearn.model_selection import StratifiedGroupKFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.calibration import CalibratedClassifierCV
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.frozen import FrozenEstimator
 from sksurv.ensemble import RandomSurvivalForest
 from sksurv.metrics import (
@@ -24,18 +34,126 @@ from sksurv.metrics import (
 )
 from sksurv.util import Surv
 
-CANCER_FEATURE_ORDER = [
+CANCER_FEATURE_ORDER = ["sex_at_baseline"]
+SURVIVAL_FEATURE_ORDER = [
     "age_at_baseline_years",
     "sex_at_baseline",
-    "stage_at_baseline",
 ]
-SURVIVAL_FEATURE_ORDER = list(CANCER_FEATURE_ORDER)
 DEFAULT_HORIZONS_DAYS = [365, 1096, 1826]
 MODEL_VERSION = "clinical-research-v1"
+CLASSIFIER_TARGET_MAPPING_VERSION = "histology-luad-lusc-v1"
+CLASSIFIER_FEATURE_CONTRACT_VERSION = "msk-chord-sex-at-birth-v1"
 
 
 class ModelEligibilityError(ValueError):
     """Raised when a cohort or target cannot support the requested model."""
+
+
+def build_cancer_type_eligibility_report(
+    frame: pd.DataFrame,
+    *,
+    feature_order: list[str] | None = None,
+    target_col: str = "histology",
+    group_col: str = "patient_id",
+    source_col: str = "source",
+    label_status_col: str | None = "label_status",
+    authorization_status: str = "not_confirmed",
+    source_label_provenance: str = "source_recorded",
+) -> dict[str, Any]:
+    """Create aggregate eligibility evidence without retaining patient identifiers."""
+    feature_order = list(feature_order or CANCER_FEATURE_ORDER)
+    required_columns = {target_col, group_col, source_col, *feature_order}
+    missing_columns = sorted(required_columns - set(frame.columns))
+    if missing_columns:
+        raise ModelEligibilityError(
+            f"Classifier eligibility is missing fields: {missing_columns}."
+        )
+    unique_patients = int(frame[group_col].nunique(dropna=True))
+    duplicate_rows = int(len(frame) - unique_patients)
+    target_values = frame[target_col].astype("string")
+    supported = target_values.isin(["LUAD", "LUSC"])
+    eligible = frame.loc[supported].copy()
+    class_counts = {
+        label: int((eligible[target_col] == label).sum())
+        for label in ("LUAD", "LUSC")
+    }
+    completeness: dict[str, dict[str, int | float]] = {}
+    for source, records in frame.groupby(source_col, dropna=False, sort=True):
+        source_name = str(source) if pd.notna(source) else "<missing>"
+        source_complete = records[feature_order].notna().all(axis=1)
+        completeness[source_name] = {
+            "candidate_patients": int(records[group_col].nunique(dropna=True)),
+            "complete_required_feature_rows": int(source_complete.sum()),
+            "required_feature_completeness_fraction": round(
+                float(source_complete.mean()) if len(records) else 0.0,
+                4,
+            ),
+        }
+    shortcut = source_target_shortcut_report(
+        frame.loc[supported],
+        target_col,
+        source_col,
+    ) if not eligible.empty else None
+    sources_with_both_classes = []
+    if not eligible.empty:
+        by_source = eligible.groupby(source_col, dropna=False)[target_col].nunique()
+        sources_with_both_classes = [
+            str(source) if pd.notna(source) else "<missing>"
+            for source, count in by_source.items()
+            if count == 2
+        ]
+    excluded_counts: dict[str, int] = {
+        "unsupported_or_missing_histology": int((~supported).sum()),
+    }
+    if label_status_col and label_status_col in frame:
+        excluded_counts["non_eligible_label_status"] = int(
+            (frame[label_status_col].astype("string") != "eligible").sum()
+        )
+    complete_required = (
+        eligible[feature_order].notna().all(axis=1)
+        if not eligible.empty
+        else pd.Series(dtype=bool)
+    )
+    blockers: list[str] = []
+    if authorization_status != "authorized":
+        blockers.append("source_data_use_authorization_not_confirmed")
+    if source_label_provenance != "source_recorded":
+        blockers.append("target_labels_are_source_derived_or_not_independent")
+    if not sources_with_both_classes:
+        blockers.append("no_single_source_contains_both_supported_classes")
+    if complete_required.empty or not bool(complete_required.all()):
+        blockers.append("required_feature_completeness_is_insufficient")
+    if shortcut and shortcut["perfect_source_target_shortcut"]:
+        blockers.append("target_is_perfectly_confounded_with_source")
+    if frame[group_col].isna().any():
+        blockers.append("missing_patient_grouping_keys")
+    if frame[group_col].duplicated().any():
+        blockers.append("repeated_patient_rows_require_resolution_before_fit")
+    return {
+        "report_schema_version": "1.0.0",
+        "model_task": "LUAD-versus-LUSC histology probability",
+        "target_mapping_version": CLASSIFIER_TARGET_MAPPING_VERSION,
+        "target_provenance": source_label_provenance,
+        "feature_order": feature_order,
+        "candidate_patient_count": unique_patients,
+        "candidate_record_count": int(len(frame)),
+        "repeated_patient_record_count": duplicate_rows,
+        "supported_class_patient_counts": class_counts,
+        "excluded_record_counts": excluded_counts,
+        "required_feature_completeness_by_source": completeness,
+        "sources_containing_both_supported_classes": sources_with_both_classes,
+        "source_target_shortcut": shortcut,
+        "authorization_status": authorization_status,
+        "patient_grouped_partitions_possible": not (
+            frame[group_col].isna().any() or frame[group_col].duplicated().any()
+        ),
+        "eligible_for_training": not blockers,
+        "blockers": blockers,
+        "privacy": {
+            "patient_identifiers_included": False,
+            "patient_level_records_included": False,
+        },
+    }
 
 
 def _grouped_three_way_split(
@@ -150,13 +268,153 @@ def _classification_metrics(
     probabilities = estimator.predict_proba(features)
     prediction = estimator.predict(features)
     one_hot = np.column_stack([labels.to_numpy() == label for label in classes]).astype(float)
+    precision, recall, f1, support = precision_recall_fscore_support(
+        labels,
+        prediction,
+        labels=classes,
+        zero_division=0,
+    )
+    per_class = {
+        label: {
+            "precision": float(precision[index]),
+            "recall": float(recall[index]),
+            "f1": float(f1[index]),
+            "support": int(support[index]),
+            "roc_auc_ovr": float(roc_auc_score(one_hot[:, index], probabilities[:, index])),
+            "pr_auc": float(average_precision_score(one_hot[:, index], probabilities[:, index])),
+            "brier_score": float(brier_score_loss(one_hot[:, index], probabilities[:, index])),
+            "mean_predicted_probability": float(probabilities[:, index].mean()),
+            "observed_prevalence": float(one_hot[:, index].mean()),
+        }
+        for index, label in enumerate(classes)
+    }
+    prevalence = np.asarray([(labels == label).mean() for label in classes], dtype=float)
+    prevalence_probabilities = np.tile(prevalence, (len(labels), 1))
+    prevalence_prediction = np.asarray(classes)[np.argmax(prevalence_probabilities, axis=1)]
+    rng = np.random.default_rng(20261016)
+    bootstrap_log_loss = []
+    bootstrap_balanced_accuracy = []
+    for _ in range(300):
+        indices = rng.integers(0, len(labels), len(labels))
+        sampled_labels = labels.iloc[indices]
+        bootstrap_log_loss.append(
+            float(log_loss(sampled_labels, probabilities[indices], labels=classes))
+        )
+        bootstrap_balanced_accuracy.append(
+            float(balanced_accuracy_score(sampled_labels, np.asarray(prediction)[indices]))
+        )
     return {
         "n_patients": int(len(labels)),
         "class_counts": {label: int((labels == label).sum()) for label in classes},
+        "class_prevalence": {label: float((labels == label).mean()) for label in classes},
         "balanced_accuracy": float(balanced_accuracy_score(labels, prediction)),
         "macro_f1": float(f1_score(labels, prediction, labels=classes, average="macro", zero_division=0)),
         "log_loss": float(log_loss(labels, probabilities, labels=classes)),
         "multiclass_brier_score": float(np.mean(np.sum((probabilities - one_hot) ** 2, axis=1))),
+        "confusion_matrix": {
+            "class_order": classes,
+            "counts": confusion_matrix(labels, prediction, labels=classes).tolist(),
+        },
+        "per_class": per_class,
+        "prevalence_only_baseline": {
+            "balanced_accuracy": float(balanced_accuracy_score(labels, prevalence_prediction)),
+            "log_loss": float(log_loss(labels, prevalence_probabilities, labels=classes)),
+            "multiclass_brier_score": float(
+                np.mean(np.sum((prevalence_probabilities - one_hot) ** 2, axis=1))
+            ),
+        },
+        "bootstrap_95_confidence_intervals": {
+            "method": "300 deterministic patient-level nonparametric bootstrap resamples",
+            "log_loss": [
+                float(np.quantile(bootstrap_log_loss, 0.025)),
+                float(np.quantile(bootstrap_log_loss, 0.975)),
+            ],
+            "balanced_accuracy": [
+                float(np.quantile(bootstrap_balanced_accuracy, 0.025)),
+                float(np.quantile(bootstrap_balanced_accuracy, 0.975)),
+            ],
+        },
+    }
+
+
+def _classifier_pipeline(
+    feature_order: list[str],
+    *,
+    model_name: str,
+    random_state: int,
+) -> Pipeline:
+    if model_name == "regularized_logistic_regression":
+        classifier: Any = LogisticRegression(
+            class_weight="balanced",
+            max_iter=2000,
+            random_state=random_state,
+        )
+    elif model_name == "random_forest":
+        classifier = RandomForestClassifier(
+            n_estimators=300,
+            class_weight="balanced",
+            min_samples_leaf=20,
+            n_jobs=1,
+            random_state=random_state,
+        )
+    else:
+        raise ValueError(f"Unsupported classifier candidate {model_name!r}.")
+    return Pipeline(
+        [
+            ("preprocessor", _clinical_preprocessor(feature_order)),
+            ("classifier", classifier),
+        ]
+    )
+
+
+def _compare_classifier_candidates(
+    features: pd.DataFrame,
+    labels: pd.Series,
+    groups: pd.Series,
+    feature_order: list[str],
+    *,
+    random_state: int,
+) -> tuple[str, dict[str, Any]]:
+    """Use development-only grouped folds for model-family selection."""
+    candidate_names = ["regularized_logistic_regression", "random_forest"]
+    splitter = StratifiedGroupKFold(n_splits=4, shuffle=True, random_state=random_state + 2)
+    results: dict[str, Any] = {}
+    for candidate_index, name in enumerate(candidate_names):
+        fold_log_losses = []
+        fold_balanced_accuracy = []
+        for train_indices, validation_indices in splitter.split(features, labels, groups):
+            model = _classifier_pipeline(
+                feature_order,
+                model_name=name,
+                random_state=random_state + candidate_index,
+            )
+            model.fit(features.iloc[train_indices], labels.iloc[train_indices])
+            probabilities = model.predict_proba(features.iloc[validation_indices])
+            prediction = model.predict(features.iloc[validation_indices])
+            fold_log_losses.append(
+                float(log_loss(labels.iloc[validation_indices], probabilities, labels=sorted(labels.unique())))
+            )
+            fold_balanced_accuracy.append(
+                float(balanced_accuracy_score(labels.iloc[validation_indices], prediction))
+            )
+        results[name] = {
+            "mean_log_loss": float(np.mean(fold_log_losses)),
+            "mean_balanced_accuracy": float(np.mean(fold_balanced_accuracy)),
+            "folds": 4,
+            "selection_data": "patient-grouped development training partition only",
+        }
+    selected = min(
+        candidate_names,
+        key=lambda name: (results[name]["mean_log_loss"], candidate_names.index(name)),
+    )
+    return selected, {
+        "candidates": results,
+        "selected_model": selected,
+        "selection_rule": "lowest mean grouped development log loss; ties select regularized logistic regression",
+        "limitations": [
+            "Only source-recorded sex is available in the authorized shared feature contract.",
+            "The nonlinear candidate cannot learn interactions from this one-feature contract.",
+        ],
     }
 
 
@@ -181,7 +439,10 @@ def fit_cancer_type_model(
     feature_order = list(feature_order or CANCER_FEATURE_ORDER)
     if target_col not in frame or not set(feature_order).issubset(frame.columns):
         raise ModelEligibilityError("Cancer-type target or required features are unavailable.")
-    eligible = frame.loc[frame[target_col].isin(["LUAD", "LUSC"])].copy().reset_index(drop=True)
+    eligible_mask = frame[target_col].isin(["LUAD", "LUSC"])
+    if "label_status" in frame:
+        eligible_mask &= frame["label_status"].eq("eligible")
+    eligible = frame.loc[eligible_mask].copy().reset_index(drop=True)
     if eligible.empty or eligible[target_col].nunique() != 2:
         raise ModelEligibilityError("The classifier requires verified LUAD and LUSC target labels.")
     if source_col not in eligible:
@@ -200,15 +461,17 @@ def fit_cancer_type_model(
     x = eligible[feature_order]
     y = eligible[target_col].astype(str)
     classes = sorted(y.unique())
-    base = Pipeline(
-        [
-            ("preprocessor", _clinical_preprocessor(feature_order)),
-            ("classifier", LogisticRegression(
-                class_weight="balanced",
-                max_iter=2000,
-                random_state=random_state,
-            )),
-        ]
+    selected_model, model_selection = _compare_classifier_candidates(
+        x.iloc[train_idx].reset_index(drop=True),
+        y.iloc[train_idx].reset_index(drop=True),
+        eligible.iloc[train_idx][group_col].reset_index(drop=True),
+        feature_order,
+        random_state=random_state,
+    )
+    base = _classifier_pipeline(
+        feature_order,
+        model_name=selected_model,
+        random_state=random_state,
     )
     base.fit(x.iloc[train_idx], y.iloc[train_idx])
     if set(y.iloc[calibration_idx]) != set(classes):
@@ -247,16 +510,30 @@ def fit_cancer_type_model(
         "source_target_shortcut": shortcut,
         "imbalance_strategy": "class_weight=balanced fitted on training data only",
         "calibration": "sigmoid calibration fitted on separate naturally distributed patient groups",
+        "model_selection": model_selection,
         "test_patient_ids_used_for_fitting": False,
     }
     artifact = {
         "estimator": calibrated,
         "metadata": {
             "model_version": MODEL_VERSION,
+            "target_mapping_version": CLASSIFIER_TARGET_MAPPING_VERSION,
             "software_versions": _software_versions(),
-            "model_type": "calibrated_regularized_logistic_regression",
+            "model_type": f"calibrated_{selected_model}",
             "target": "histology conditional on LUAD/LUSC cancer patients",
+            "feature_contract_version": CLASSIFIER_FEATURE_CONTRACT_VERSION,
             "prediction_baseline_definition": prediction_baseline_definition,
+            "label_definition": {
+                "LUAD": "explicit source-recorded LUAD diagnosis",
+                "LUSC": "explicit source-recorded LUSC diagnosis",
+                "excluded": "ambiguous, conflicting, non-lung, and unsupported histology records",
+            },
+            "training_source_patient_counts": {
+                str(source): int((eligible[source_col] == source).sum())
+                for source in sorted(eligible[source_col].dropna().unique())
+            },
+            "random_state": random_state,
+            "split_strategy": "stratified patient-grouped train/calibration/test",
             "class_order": classes,
             "feature_order": feature_order,
             "required_features": list(feature_order),
@@ -483,7 +760,7 @@ def fit_survival_model(
         }
     categories = {
         name: sorted(str(value) for value in final_features[name].dropna().unique())
-        for name in ("sex_at_baseline", "stage_at_baseline")
+        for name in ("sex_at_baseline",)
     }
     metadata = {
         "model_version": MODEL_VERSION,
@@ -645,7 +922,13 @@ def save_artifact_bundle(
         "survival": survival,
         "provenance": provenance or {},
     }
-    joblib.dump(bundle, path)
+    temporary_path = path.with_suffix(f"{path.suffix}.tmp")
+    try:
+        joblib.dump(bundle, temporary_path)
+        temporary_path.replace(path)
+    finally:
+        if temporary_path.exists():
+            temporary_path.unlink()
     return path
 
 

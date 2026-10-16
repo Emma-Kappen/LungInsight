@@ -49,38 +49,68 @@ class Stage06RecordTests(unittest.TestCase):
             candidate = {
                 "candidate_id": "candidate-abc",
                 "patch_id": 7,
+                "stable_nodule_id": "candidate-abc",
                 "detection_source": "ViTDet3D",
                 "patient_id": "patient",
                 "stage04_eligible": True,
                 "checkpoint_metadata": {"group": "test"},
-                "attributes": {"subtlety": {"expected_rating": 3.0}},
+                "center_zyx": [10, 20, 30],
+                "center_lps_mm": [1.0, 2.0, 3.0],
+                "bbox_start_zyx": [9, 19, 29],
+                "bbox_end_zyx": [11, 21, 31],
+                "crop_start_zyx": [0, 0, 0],
+                "crop_end_zyx": [64, 64, 64],
+                "patch_size_vox_zyx": [64, 64, 64],
+                "attributes": {
+                    name: {"expected_rating": 3.0}
+                    for name in self.stage06.ATTRIBUTES
+                },
             }
             score = {
                 "candidate_id": "candidate-abc",
                 "patch_id": 7,
-                "predicted_malignancy_rating_continuous": 3.2,
-                "predicted_malignancy_rating_rounded": 3,
-                "model_raw_prediction_before_rating_clip": 3.2,
-                "rating_scale": "1..5",
-                "target_semantics": "reader rating",
-                "model_type": "ExtraTreesRegressor",
-                "model_file": "model.joblib",
-                "feature_names_in_order": ["subtlety"],
-                "shap": {"model_sha256": "model-hash", "preprocessing": "none", "limitations": []},
-                "shap_explanation": {
-                    "base_value_raw": 3.0,
-                    "feature_contributions": {"subtlety": 0.2},
-                    "explained_output": "raw",
-                    "model_sha256": "model-hash",
+                "patient_id": "patient",
+                "stable_nodule_id": "candidate-abc",
+                "model_version": "published-coefficients-verified-v1",
+                "brock": {
+                    "status": "incomplete",
+                    "method": "brock_formula_decomposition",
+                    "model_name": "Brock_PanCan_full",
+                    "model_version": "published-coefficients-verified-v1",
+                    "target": "pulmonary_nodule_malignancy_probability",
+                    "probability": None,
+                    "features_missing": ["age_years"],
+                    "feature_contributions": [],
+                    "limitations": ["Required inputs were not supplied."],
                 },
+                "selected_prediction": {
+                    "method": "brock",
+                    "model_version": "published-coefficients-verified-v1",
+                    "status": "incomplete",
+                    "probability": None,
+                    "value": None,
+                    "missing_inputs": ["age_years"],
+                    "limitations": ["Required inputs were not supplied."],
+                },
+                "target_semantics": "research-only pulmonary nodule malignancy-risk probability",
             }
             self._write_json(stage02 / "candidate_filter_report.json", {"gate_status": "passed"})
             self._write_json(stage02 / "candidates.json", [candidate])
-            self._write_json(stage03 / "predictions.json", {"schema_version": "3", "checkpoint_metadata": {}, "predictions": [candidate]})
+            support_audit = {
+                name: {"status": "supported"}
+                for name in self.stage06.ATTRIBUTES
+            }
+            self._write_json(stage03 / "predictions.json", {
+                "schema_version": "3.0-spatial-hybrid",
+                "checkpoint_metadata": {},
+                "attribute_support_audit": support_audit,
+                "predictions": [candidate],
+            })
             self._write_json(stage04 / "malignancy_predictions.json", {"predictions": [score]})
             patch = {
                 "candidate_id": "candidate-abc",
                 "patch_id": 7,
+                "stable_nodule_id": "candidate-abc",
                 "detection_source": "ViTDet3D",
                 "coordinate_order": ["z", "y", "x"],
                 "source_space": "stage01_final_cropped_ct",
@@ -104,9 +134,10 @@ class Stage06RecordTests(unittest.TestCase):
         record = result["records"][0]
         self.assertEqual(record["nodule_id"], "candidate-abc")
         self.assertEqual(record["geometry"]["bbox_start_zyx"], [9, 19, 29])
-        self.assertEqual(record["malignancy"]["predicted_malignancy_rating_rounded"], 3)
-        self.assertEqual(record["explanations"]["shap"]["feature_contributions"]["subtlety"], 0.2)
-        self.assertFalse(record["malignancy"]["is_cancer_probability"])
+        self.assertEqual(record["malignancy"]["selected_prediction"]["method"], "brock")
+        self.assertEqual(record["malignancy"]["selected_prediction"]["status"], "incomplete")
+        self.assertIsNone(record["malignancy"]["selected_prediction"]["probability"])
+        self.assertEqual(record["explanations"]["shap"]["status"], "not_applicable")
         self.assertEqual(json.loads(json.dumps(result))["records"][0]["geometry"]["crop_start_zyx"], [0, 0, 0])
 
     def test_stage06_fails_closed_when_candidate_filter_is_blocked(self):
@@ -122,7 +153,7 @@ class Stage06RecordTests(unittest.TestCase):
                     {},
                 )
 
-    def test_stage07_writes_candidate_bound_ct_cam_and_shap_image(self):
+    def test_stage07_writes_candidate_bound_ct_cam_and_brock_image(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             root = Path(temporary_directory)
             patient_root = root / "patient"
@@ -150,10 +181,25 @@ class Stage06RecordTests(unittest.TestCase):
                 },
                 "explanations": {
                     "gradcam": cam_refs,
-                    "shap": {"feature_contributions": {name: index / 10 for index, name in enumerate(self.stage07.ATTRIBUTES)}},
+                },
+                "malignancy": {
+                    "brock": {
+                        "status": "incomplete",
+                        "probability": None,
+                        "feature_contributions": [],
+                    },
+                    "selected_prediction": {
+                        "method": "brock",
+                        "status": "incomplete",
+                        "probability": None,
+                    },
                 },
             }
-            row = {"stage06_record": record, "predicted_malignancy_rating_continuous": 3.2}
+            row = {
+                "stage06_record": record,
+                "brock_status": "incomplete",
+                "brock_probability": None,
+            }
             paths = self.stage07.render_nodule_visualizations(
                 np.zeros((6, 10, 10), dtype=np.float32),
                 [row],

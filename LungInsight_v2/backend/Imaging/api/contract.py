@@ -161,7 +161,9 @@ def build_contract(
                 raise ValueError(
                     f"Stage 06 record {stable_id} is missing patch/CT-space Grad-CAM references for {name!r}."
                 )
-        if shap.get("status") == "complete":
+        if shap.get("status") == "not_applicable":
+            pass
+        elif shap.get("status") == "complete":
             if not isinstance(shap.get("features"), list) or not isinstance(shap.get("feature_contributions"), dict):
                 raise ValueError(f"Stage 06 record {stable_id} has an incomplete successful SHAP explanation.")
         elif shap.get("status") == "failed":
@@ -183,6 +185,13 @@ def build_contract(
             }
         malignancy = record.get("malignancy")
         malignancy = malignancy if isinstance(malignancy, dict) else {}
+        if set(malignancy) - {"brock", "selected_prediction"}:
+            raise ValueError(f"Stage 06 record {stable_id} contains unsupported malignancy fields.")
+        if not isinstance(malignancy.get("brock"), dict):
+            raise ValueError(f"Stage 06 record {stable_id} is missing its Brock result.")
+        selected_prediction = malignancy.get("selected_prediction")
+        if not isinstance(selected_prediction, dict) or selected_prediction.get("method") != "brock":
+            raise ValueError(f"Stage 06 record {stable_id} is missing a Brock selected_prediction.")
         quality_flags = record.get("quality_flags") or []
         if not isinstance(quality_flags, list) or any(not isinstance(flag, str) for flag in quality_flags):
             raise ValueError(f"Stage 06 record {stable_id} quality_flags must be a string list.")

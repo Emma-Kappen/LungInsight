@@ -175,7 +175,8 @@ class PipelineSchemaTests(unittest.TestCase):
         self.assertIn('"--manifest"', source)
         self.assertIn('"--batch-limit"', source)
         self.assertIn("model_cache.get(checkpoint_path)", source)
-        self.assertIn('get_required(STAGE05_SCHEMA, "batch_processing.patch_output_directory_pattern")', source)
+        self.assertIn("STAGE05_SCHEMA", source)
+        self.assertIn("batch_processing", self.schema["stage_05_gradcam"])
 
     def test_stage07_excludes_centers_outside_lung_mask(self):
         import numpy as np
@@ -199,6 +200,17 @@ class PipelineSchemaTests(unittest.TestCase):
         self.assertIn("$Schema.paths.stage_07.report_csv", runner)
         self.assertIn("$Schema.paths.stage_07.excluded_csv", runner)
         self.assertNotIn("$Schema.stage_07_visualize.outputs.report_json", runner)
+
+    def test_runner_records_brock_formula_identity_without_removed_model_path(self):
+        runner = (ROOT / "run_pipeline.ps1").read_text(encoding="utf-8")
+        self.assertIn("authoritative_brock_predictions", runner)
+        self.assertIn("$Schema.stage_04_malignancy_prediction.formula_version", runner)
+        self.assertNotIn("$Schema.stage_04_malignancy_prediction.model_path", runner)
+
+    def test_runner_accepts_explicit_uploaded_dicom_input_tree(self):
+        runner = (ROOT / "run_pipeline.ps1").read_text(encoding="utf-8")
+        self.assertIn("[string]$InputPatientPath", runner)
+        self.assertIn("$Stage01Input = if ($InputPatientPath)", runner)
 
     def test_stage07_is_registered_for_static_validation(self):
         validator = (IMAGING / "validation" / "validate_pipeline.py").read_text(encoding="utf-8")

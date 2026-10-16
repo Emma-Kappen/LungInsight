@@ -23,20 +23,17 @@ SCRIPT_FILES = (
     "02_detect_and_patch.py",
     "03_nodule_classification.py",
     "04_malignancy_prediction.py",
-    "04_malignancy_classifier.py",
     "05_gradcam.py",
     "06_full_ct_gradcam.py",
     "07_visualize.py",
     "attest_heart_mask_review.py",
     "heart_mask_review.py",
-    "stage04_shap.py",
 )
 SCRIPT_SUBDIRECTORIES = {
     "01_hu_and_crop.py": "stages",
     "02_detect_and_patch.py": "stages",
     "03_nodule_classification.py": "stages",
     "04_malignancy_prediction.py": "stages",
-    "04_malignancy_classifier.py": "stages",
     "05_gradcam.py": "inference",
     "06_full_ct_gradcam.py": "visualization",
     "07_visualize.py": "visualization",
@@ -70,8 +67,6 @@ def validate_schema_contracts(schema: dict[str, Any]) -> list[str]:
     _assert(len(attributes) == len(set(attributes)), "The canonical Stage 03 attribute list contains duplicate feature names.")
     consumers = (
         "stage_03_nodule_classification.model.attribute_order_ref",
-        "stage_04_malignancy_prediction.feature_names_ref",
-        "stage_04_malignancy_classifier.feature_names_ref",
         "stage_05_gradcam.attributes_ref",
         "stage_06_full_ct_gradcam.attributes_ref",
     )
@@ -173,35 +168,15 @@ def validate_schema_contracts(schema: dict[str, Any]) -> list[str]:
     passed.append(f"Patch contract consistent: shape={stage3_shape}, axes=ZYX, dtype={patch_dtype}.")
 
     stage4 = get_required(schema, "stage_04_malignancy_prediction", expected_type=dict)
-    target_range = get_required(stage4, "target_rating_range", expected_type=list)
-    range_ref = get_required(stage4, "prediction_transform.target_range_ref", expected_type=str)
-    _assert(get_required(schema, range_ref, expected_type=list) == target_range,
-            "Stage 04 prediction transform target_range_ref does not resolve to its target_rating_range.")
-    _assert(target_range[0] < target_range[1], f"Invalid Stage 04 target rating range: {target_range}.")
-    _assert(get_required(stage4, "model_path", expected_type=str), "Stage 04 joblib model_path is empty.")
-    shap = get_required(stage4, "shap_explanations", expected_type=dict)
-    _assert(shap.get("enabled") is True, "Stage 04 SHAP explanations must be enabled for the selected model.")
-    _assert(int(shap.get("background_sample_size", 0)) > 0, "Stage 04 SHAP background sample size must be positive.")
-    _assert(shap.get("feature_perturbation") == "interventional",
-            "Stage 04 SHAP feature perturbation must match the documented interventional background.")
-    shap_table = get_required(shap, "training_table_path", expected_type=str)
-    _assert(bool(get_required(shap, "split_column", expected_type=str))
-            and bool(get_required(shap, "training_split_value", expected_type=str)),
-            "Stage 04 SHAP background must select an explicit training split.")
-    ordinal = get_required(schema, "stage_04_malignancy_classifier", expected_type=dict)
-    ordinal_range = get_required(ordinal, "input_rating_range", expected_type=list)
-    classes = get_required(ordinal, "rating_classes", expected_type=list)
-    groups = get_required(ordinal, "rating_groups", expected_type=dict)
-    group_values = [rating for values in groups.values() for rating in values]
-    _assert(len(ordinal_range) == 2 and ordinal_range[0] < ordinal_range[1], "Invalid Stage 04 ordinal input_rating_range.")
-    _assert(classes and len(classes) == len(set(classes)), "Stage 04 ordinal rating_classes must be unique and non-empty.")
-    _assert(set(classes) == set(group_values) and len(group_values) == len(set(group_values)),
-            "Stage 04 ordinal rating_groups must partition the rating_classes without omissions or duplicates.")
-    threshold = float(get_required(ordinal, "confidence_threshold"))
-    _assert(0.0 <= threshold <= 1.0, "Stage 04 ordinal confidence_threshold must be within [0,1].")
+    _assert(stage4.get("role") == "brock_only_research_risk_inference",
+            "Stage 04 must be configured as Brock-only research risk inference.")
+    _assert(get_required(stage4, "model_name", expected_type=str) == "Brock_PanCan_full",
+            "Stage 04 must identify the Brock/PanCan model.")
+    _assert(get_required(stage4, "model_version", expected_type=str),
+            "Stage 04 Brock model version is missing.")
     paths4 = get_required(schema, "paths.stage_04", expected_type=dict)
     _assert(paths4["directory"] and paths4["output_json"].endswith(".json"), "Stage 04 output path config is invalid.")
-    passed.append("Stage 04 feature order and primary/alternative rating transforms are valid; no checkpoint is changed.")
+    passed.append("Stage 04 is configured for Brock-only research risk inference; no reader-rating model or fallback is configured.")
 
     stage06_fields = get_required(schema, "stage_06_full_ct_gradcam.record_required_fields", expected_type=list)
     _assert(
@@ -209,7 +184,7 @@ def validate_schema_contracts(schema: dict[str, Any]) -> list[str]:
          "malignancy", "model_identity", "uncertainty_and_limitations", "explanations"}.issubset(stage06_fields),
         "Stage 06 nodule records do not define the required identity, geometry, model, and explanation fields.",
     )
-    passed.append("Stage 06 schema defines stable nodule records and Stage 04 SHAP provenance/configuration.")
+    passed.append("Stage 06 schema defines stable nodule records and Brock formula provenance/configuration.")
 
     # Visualization contracts are shared; only Stage 06 adds the detector bounding-box color.
     palette = get_required(schema, "visualization.rainbow_palette", expected_type=list)
@@ -241,7 +216,6 @@ def check_artifacts(schema: dict[str, Any]) -> list[str]:
         "torch": "torch",
         "pydicom": "pydicom",
         "transformers": "transformers",
-        "shap": "shap",
         "scipy": "scipy",
         "matplotlib": "matplotlib",
         "PIL": "pillow",
@@ -259,7 +233,6 @@ def check_artifacts(schema: dict[str, Any]) -> list[str]:
     helper_paths = [
         ROOT / "backend" / "models" / "malignancy" / "frozen_attribute_common.py",
         ROOT / "backend" / "models" / "nodule_ranker_3d_distributional_v1" / "spatial_v1" / "model_objective.py",
-        ROOT / get_required(schema, "stage_04_malignancy_prediction.shap_explanations.training_table_path", expected_type=str),
     ]
     missing.extend(str(p.relative_to(ROOT)) for p in helper_paths if not p.is_file())
     stage5 = get_required(schema, "stage_05_gradcam.checkpoint_by_attribute", expected_type=dict)
@@ -267,9 +240,6 @@ def check_artifacts(schema: dict[str, Any]) -> list[str]:
         path = checkpoint_root / checkpoint_rel
         if not path.is_file():
             missing.append(str(path.relative_to(ROOT)))
-    model_path = ROOT / get_required(schema, "stage_04_malignancy_prediction.model_path", expected_type=str)
-    if not model_path.is_file():
-        missing.append(str(model_path.relative_to(ROOT)))
     if missing or missing_dependencies:
         details = []
         if missing_dependencies:
@@ -372,8 +342,6 @@ def main() -> int:
     default_log_limit = get_required(schema, "stage_02_detect_and_patch.diagnostic_log_detector.patch_limit_default")
     _assert(type(default_log_limit) is int and default_log_limit > 0, "The canonical LoG patch limit must be a positive integer (use --all-log-patches for all proposals).")
     stage7 = get_required(schema, "stage_07_visualize", expected_type=dict)
-    threshold = int(get_required(stage7, "malignancy_rating_threshold"))
-    _assert(1 <= threshold <= 5, "Stage 07 malignancy-rating threshold must be in [1,5].")
     stage7_outputs = get_required(stage7, "outputs", expected_type=dict)
     for output_key in ("report_json_ref", "report_csv_ref", "excluded_outside_lung_csv_ref"):
         ref = get_required(stage7_outputs, output_key, expected_type=str)

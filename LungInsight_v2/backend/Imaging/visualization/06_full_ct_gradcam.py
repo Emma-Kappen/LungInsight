@@ -190,14 +190,15 @@ def validate_stage06_record(record: dict[str, Any]) -> None:
         if value.shape != (3,) or not np.isfinite(value).all() or np.any(value <= 0):
             raise ValueError(f"Stage 06 geometry.{name} must contain three positive finite values.")
     malignancy = record["malignancy"]
-    score = malignancy.get("predicted_malignancy_rating_continuous")
-    if not isinstance(score, (int, float)) or not math.isfinite(float(score)):
-        raise ValueError("Stage 06 malignancy rating must be finite.")
-    if malignancy.get("is_cancer_probability") is not False:
-        raise ValueError("Stage 06 reader-rating output must not be labeled as a cancer probability.")
-    explanation = record["explanations"].get("shap")
-    if not isinstance(explanation, dict) or not isinstance(explanation.get("feature_contributions"), dict):
-        raise ValueError("Stage 06 record must contain linked Stage 04 SHAP feature contributions.")
+    selected = malignancy.get("selected_prediction")
+    if not isinstance(selected, dict) or selected.get("method") != "brock":
+        raise ValueError("Stage 06 record must contain a Brock selected_prediction.")
+    if selected.get("status") == "available":
+        probability = selected.get("probability")
+        if not isinstance(probability, (int, float)) or not math.isfinite(float(probability)):
+            raise ValueError("Available Brock output must contain a finite probability.")
+    elif selected.get("probability") is not None:
+        raise ValueError("Unavailable Brock output must not contain a probability.")
     if not isinstance(record["explanations"].get("gradcam"), dict):
         raise ValueError("Stage 06 record must contain its attribute-specific Grad-CAM references.")
 
@@ -281,9 +282,6 @@ def build_stage06_nodule_records(
         if not isinstance(bbox_start, list) or not isinstance(bbox_end, list):
             raise ValueError(f"Stage 02 patch record {identity} is missing its detector bounding box.")
         raw_cam_refs = cam_artifacts_by_patch.get(patch_id, {})
-        shap_explanation = stage04.get("shap_explanation")
-        if not isinstance(shap_explanation, dict):
-            raise RuntimeError(f"Stage 04 prediction {identity} is missing its SHAP explanation.")
         record = {
             "nodule_id": candidate_id,
             "stable_nodule_id": stable_id,
@@ -322,54 +320,33 @@ def build_stage06_nodule_records(
             "attributes": stage03.get("attributes"),
             "anatomical_location": stage03.get("anatomical_location"),
             "malignancy": {
-                "predicted_malignancy_rating_continuous": stage04.get("predicted_malignancy_rating_continuous"),
-                "predicted_malignancy_rating_rounded": stage04.get("predicted_malignancy_rating_rounded"),
-                "model_raw_prediction_before_rating_clip": stage04.get("model_raw_prediction_before_rating_clip"),
-                "rating_scale": stage04.get("rating_scale"),
-                "target_semantics": stage04.get("target_semantics"),
-                "is_cancer_probability": False,
+                "brock": stage04.get("brock", {}),
+                "selected_prediction": stage04.get("selected_prediction", {}),
             },
             "model_identity": {
                 "stage03_prediction_json": _relative_artifact(stage03_path, patient_root),
                 "stage03_checkpoint_metadata": stage03_payload.get("checkpoint_metadata"),
                 "stage03_attribute_support_audit": stage03_payload.get("attribute_support_audit"),
                 "stage03_schema_version": stage03_payload.get("schema_version"),
-                "stage04_model_type": stage04.get("model_type"),
+                "stage04_model_type": "Brock_PanCan_full",
                 "stage04_model_version": stage04.get("model_version"),
                 "stage04_model_file": stage04.get("model_file"),
-                "stage04_model_sha256": (stage04.get("shap") or {}).get("model_sha256"),
-                "stage04_input_feature_order": stage04.get("feature_names_in_order"),
-                "stage04_preprocessing": (stage04.get("shap") or {}).get("preprocessing"),
+                "stage04_input_feature_order": [
+                    "age_years", "sex", "family_history_lung_cancer", "emphysema",
+                    "nodule_size_mm", "nodule_type", "upper_lobe", "nodule_count", "spiculation",
+                ],
+                "stage04_preprocessing": "Validated Brock input envelope; no LIDC-derived inputs.",
             },
             "uncertainty_and_limitations": {
                 "stage04_validation_warning": stage04.get("validation_warning"),
-                "stage04_rating_semantics": stage04.get("target_semantics"),
-                "shap_limitations": (stage04.get("shap") or {}).get("limitations", []),
+                "stage04_target_semantics": stage04.get("target_semantics"),
                 "cam_semantics": "Relative per-patch Grad-CAM display; raw signed map is separately preserved and color is not voxelwise attribute probability.",
             },
             "explanations": {
                 "gradcam": raw_cam_refs,
                 "shap": {
-                    "source_prediction_json": _relative_artifact(stage04_path, patient_root),
-                    "feature_contributions": shap_explanation.get("feature_contributions"),
-                    "features": shap_explanation.get("features", []),
-                    "top_positive_features": shap_explanation.get("top_positive_features", []),
-                    "top_negative_features": shap_explanation.get("top_negative_features", []),
-                    "status": shap_explanation.get("status"),
-                    "failure_reason": shap_explanation.get("failure_reason"),
-                    "failure_artifact": shap_explanation.get("failure_artifact"),
-                    "base_value_raw": shap_explanation.get("base_value_raw"),
-                    "explained_output": shap_explanation.get("explained_output"),
-                    "model_sha256": shap_explanation.get("model_sha256"),
-                    "explainer": (stage04.get("shap") or {}).get("explainer"),
-                    "feature_order": stage04.get("feature_names_in_order"),
-                    "background": {
-                        "path": ((stage04.get("shap") or {}).get("background_data") or {}).get("path"),
-                        "sha256": ((stage04.get("shap") or {}).get("background_data") or {}).get("sha256"),
-                        "split_value": ((stage04.get("shap") or {}).get("background_data") or {}).get("split_value"),
-                        "sample_size": ((stage04.get("shap") or {}).get("background_data") or {}).get("sample_size"),
-                        "random_seed": ((stage04.get("shap") or {}).get("background_data") or {}).get("random_seed"),
-                    },
+                    "status": "not_applicable",
+                    "reason": "Brock uses analytical formula decomposition, not SHAP.",
                 },
             },
         }

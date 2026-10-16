@@ -11,7 +11,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 
-PAGES = ("index.html", "masks.html", "nodules.html", "gradcam.html", "shap.html", "lineage.html")
+PAGES = ("index.html", "masks.html", "nodules.html", "gradcam.html", "brock.html", "lineage.html")
 
 
 def _href(value: Any) -> str:
@@ -224,40 +224,25 @@ def _write_interactive_viewer_assets(
                     "target_scalar": refs.get("target_scalar_definition"),
                 }
 
-        shap = record.get("explanations", {}).get("shap", {})
-        features = shap.get("features", []) if isinstance(shap, dict) else []
-        shap_features = [
-            {
-                "name": item.get("feature_name"),
-                "value": item.get("feature_value"),
-                "contribution": item.get("shap_value"),
-            }
-            for item in features
-            if isinstance(item, dict)
-            and isinstance(item.get("feature_name"), str)
-            and isinstance(item.get("shap_value"), (int, float))
-        ]
+        brock = record.get("malignancy", {}).get("brock", {})
         nodules.append(
             {
                 "id": stable_id,
                 "source": record.get("detector", {}).get("source"),
-                "rating": record.get("malignancy", {}).get(
-                    "predicted_malignancy_rating_continuous"
-                ),
+                "probability": brock.get("probability") if isinstance(brock, dict) else None,
+                "brock": brock,
                 "center_zyx": center,
                 "bbox_start_zyx": bbox_start,
                 "bbox_end_zyx_exclusive": bbox_end,
                 "crop_start_zyx": crop_start,
                 "patch_shape_zyx": patch_shape,
                 "cams": cams,
-                "shap_status": shap.get("status") if isinstance(shap, dict) else "unavailable",
-                "shap_failure_reason": shap.get("failure_reason") if isinstance(shap, dict) else None,
-                "shap_features": shap_features,
+                "formula_contributions": brock.get("feature_contributions", []) if isinstance(brock, dict) else [],
             }
         )
     nodules.sort(
         key=lambda nodule: (
-            -float(nodule["rating"]) if isinstance(nodule["rating"], (int, float)) else float("inf"),
+            -float(nodule["probability"]) if isinstance(nodule["probability"], (int, float)) else float("inf"),
             nodule["id"],
         )
     )
@@ -278,7 +263,7 @@ def _interactive_viewer_body(viewer_data: dict[str, Any] | None, *, tab: str) ->
     return (
         "<section class='viewer'>"
         f"<h2>Interactive {html.escape(tab.title())} viewer</h2>"
-        "<p>Nodules are ordered by predicted malignancy rating, highest first. Check one or more nodules to display their bounding boxes and Grad-CAM overlays; the last checked nodule supplies the SHAP explanation.</p>"
+        "<p>Nodules with available Brock probabilities are ordered highest first. Check one or more nodules to display their bounding boxes, Grad-CAM overlays, and Brock formula decomposition.</p>"
         "<div class='viewer-controls'>"
         "<label>Grad-CAM attribute <select id='viewer-attribute'></select></label>"
         "<label>Z slice <input id='viewer-z' type='range' step='1'><output id='viewer-z-value'></output></label>"
@@ -288,7 +273,7 @@ def _interactive_viewer_body(viewer_data: dict[str, Any] | None, *, tab: str) ->
         "<fieldset class='nodule-checklist'><legend>Show nodule Grad-CAM</legend><div id='viewer-nodules'></div></fieldset>"
         "<p id='viewer-status' class='viewer-status'></p>"
         "<canvas id='viewer-canvas' width='512' height='512' aria-label='Axial CT slice with selected nodule Grad-CAM overlay'></canvas>"
-        "<section class='shap-panel'><h3>Last checked nodule SHAP explanation</h3><p id='viewer-rating'></p><div id='viewer-shap'></div></section>"
+        "<section class='shap-panel'><h3>Last checked nodule Brock explanation</h3><p id='viewer-rating'></p><div id='viewer-shap'></div></section>"
         "</section>"
         f"<script id='viewer-data' type='application/json'>{payload}</script>"
         "<script>"
@@ -299,18 +284,15 @@ def _interactive_viewer_body(viewer_data: dict[str, Any] | None, *, tab: str) ->
         "const ctImages=data.ct_slices.map(src=>{const image=new Image();image.src=src;return image}),lungImages=(data.lung_mask_slices||[]).map(src=>{const image=new Image();image.src=src;return image}),heartImages=(data.heart_mask_slices||[]).map(src=>{const image=new Image();image.src=src;return image}),sprites=new Map();"
         "for(const nodule of data.nodules){for(const [attribute,cam] of Object.entries(nodule.cams)){const image=new Image();image.src=cam.sprite;sprites.set(nodule.id+'|'+attribute,image)}}"
         "let activeId=data.nodules[0].id;for(const [index,nodule] of data.nodules.entries()){const label=document.createElement('label'),box=document.createElement('input');box.type='checkbox';box.value=nodule.id;box.checked=index===0;box.dataset.noduleId=nodule.id;"
-        "label.append(box,document.createTextNode(' '+(index+1)+'. '+nodule.id+' | rating '+(nodule.rating??'unavailable')+' | '+(nodule.source||'unknown source')));checklist.append(label)}"
+        "label.append(box,document.createTextNode(' '+(index+1)+'. '+nodule.id+' | Brock '+(nodule.brock?.probability??'unavailable')+' | '+(nodule.source||'unknown source')));checklist.append(label)}"
         "zInput.min='0';zInput.max=String(data.ct_shape_zyx[0]-1);"
         "function selected(){return data.nodules.find(nodule=>nodule.id===activeId)||data.nodules[0]}function checked(){return [...checklist.querySelectorAll('input:checked')].map(box=>data.nodules.find(nodule=>nodule.id===box.value)).filter(Boolean)}"
         "function populateAttributes(){const nodule=selected(),current=attributeSelect.value;attributeSelect.replaceChildren();const attributes=Object.keys(nodule.cams);"
         "for(const attribute of attributes){const option=document.createElement('option');option.value=attribute;option.textContent=attribute;attributeSelect.append(option)}"
         "if(attributes.includes(current))attributeSelect.value=current;zInput.value=String(Math.round(nodule.center_zyx[0]));renderShap();}"
-        "function renderShap(){const nodule=selected();rating.textContent='Stage 04 predicted malignancy rating: '+(nodule.rating??'unavailable')+'.';shap.replaceChildren();"
-        "if(nodule.shap_status!=='complete'||!nodule.shap_features.length){shap.textContent='SHAP unavailable: '+(nodule.shap_failure_reason||'no contribution values recorded')+'.';return}"
-        "const maximum=Math.max(...nodule.shap_features.map(item=>Math.abs(item.contribution)),1e-12);"
-        "for(const item of [...nodule.shap_features].sort((a,b)=>Math.abs(b.contribution)-Math.abs(a.contribution))){const row=document.createElement('div');row.className='shap-row';"
-        "const label=document.createElement('span');label.textContent=item.name+' ('+Number(item.contribution).toFixed(3)+')';"
-        "const bar=document.createElement('span');bar.className='shap-bar '+(item.contribution>=0?'positive':'negative');bar.style.width=(Math.abs(item.contribution)/maximum*48)+'%';row.append(label,bar);shap.append(row)}}"
+        "function renderShap(){const nodule=selected();rating.textContent='Brock probability: '+(nodule.brock?.probability??'unavailable')+' ('+(nodule.brock?.status||'unavailable')+').';shap.replaceChildren();"
+        "if(!nodule.formula_contributions.length){shap.textContent='Brock formula explanation unavailable.';return}"
+        "for(const item of nodule.formula_contributions){const row=document.createElement('div');row.className='shap-row';row.textContent=item.feature+': '+(item.contribution_logit??'unavailable');shap.append(row)}}"
         "function render(){const z=Number(zInput.value),attribute=attributeSelect.value,ctImage=ctImages[z],selectedNodules=checked();"
         "document.getElementById('viewer-z-value').textContent=String(z);document.getElementById('viewer-alpha-value').textContent=Number(alphaInput.value).toFixed(2);"
         "ctx.clearRect(0,0,canvas.width,canvas.height);if(ctImage.complete)ctx.drawImage(ctImage,0,0,canvas.width,canvas.height);else ctImage.onload=render;"
@@ -397,6 +379,8 @@ def generate_patient_report(
             raise ValueError("Accepted report row lacks stable_nodule_id.")
         detector = record.get("detector", {})
         malignancy = record.get("malignancy", {})
+        brock = malignancy.get("brock", {}) if isinstance(malignancy, dict) else {}
+        selected = malignancy.get("selected_prediction", {}) if isinstance(malignancy, dict) else {}
         bbox_preview = _write_nodule_box(ct, record, stable_id, report_root)
         preview_cell = (
             f"<img src='{_href(bbox_preview)}' alt='CT bounding box for {html.escape(stable_id)}'>"
@@ -407,7 +391,10 @@ def generate_patient_report(
             f"<td><code>{html.escape(stable_id)}</code></td>"
             f"<td>{html.escape(str(detector.get('source', row.get('source', 'Unavailable'))))}</td>"
             f"<td>ViTDet3D: {html.escape(str(detector.get('vitdet_score')))}<br>LoG: {html.escape(str(detector.get('log_score')))}</td>"
-            f"<td>{html.escape(str(malignancy.get('predicted_malignancy_rating_continuous', row.get('predicted_malignancy_rating_continuous'))))}</td>"
+            f"<td>Selected: {html.escape(str(selected.get('method', 'not specified')))} "
+            f"({html.escape(str(selected.get('status', 'unavailable')))})"
+            f"<br>Selected value: {html.escape(str(selected.get('value', 'unavailable')))}"
+            f"<br>Brock probability: {html.escape(str(brock.get('probability', 'unavailable')))}</td>"
             f"<td>{html.escape(str(row.get('center_lps_x_mm')))}, {html.escape(str(row.get('center_lps_y_mm')))}, {html.escape(str(row.get('center_lps_z_mm')))}</td>"
             f"<td>{preview_cell}</td>"
             "</tr>"
@@ -472,59 +459,25 @@ def generate_patient_report(
         gradcam_sections.append(
             f"<section><h2>{html.escape(stable_id)}</h2>{''.join(cam_lines) or '<p class=\"unavailable\">No CAM references.</p>'}</section>"
         )
-        shap = explanations.get("shap", {}) if isinstance(explanations, dict) else {}
-        contributions = shap.get("feature_contributions", {})
-        rating = malignancy.get("predicted_malignancy_rating_continuous")
-        semantics = malignancy.get("target_semantics", "model semantics unavailable")
+        contributions = brock.get("feature_contributions", [])
         limitations = record.get("uncertainty_and_limitations", {})
         rating_content = (
-            f"<p>Stage 04 output: {html.escape(str(rating))}; "
-            f"semantics: {html.escape(str(semantics))}.</p>"
+            f"<p>Selected malignancy method: {html.escape(str(malignancy.get('selected_prediction', {}).get('method', 'not specified')))}; "
+            f"status: {html.escape(str(malignancy.get('selected_prediction', {}).get('status', 'unavailable')))}; "
+            f"value: {html.escape(str(malignancy.get('selected_prediction', {}).get('value', 'unavailable')))}.</p>"
+            f"<p>Brock/PanCan probability: {html.escape(str(brock.get('probability', 'unavailable')))}; "
+            f"status: {html.escape(str(brock.get('status', 'unavailable')))}. "
+            "This is a research/POC risk estimate, not a pathology diagnosis.</p>"
+            f"<p>Brock formula contributions: {html.escape(json.dumps(brock.get('feature_contributions', []), ensure_ascii=False))}</p>"
             f"<p>Uncertainty: {html.escape(json.dumps(record.get('uncertainty', {'status': 'not_estimated'}), ensure_ascii=False))}</p>"
             f"<p>Limitations: {html.escape(json.dumps(limitations, ensure_ascii=False))}</p>"
         )
-        if shap.get("status") == "failed" or not isinstance(contributions, dict) or not contributions:
-            shap_content = (
-                rating_content
-                + f'<p class="unavailable">SHAP unavailable: {html.escape(str(shap.get("failure_reason", "no contribution values recorded")))}<br>'
-                + f"Failure artifact: {artifact_link(shap.get('failure_artifact'))}</p>"
-            )
-        else:
-            features = shap.get("features")
-            if isinstance(features, list) and features:
-                contribution_rows = "".join(
-                    "<tr>"
-                    f"<td>{html.escape(str(item.get('feature_name')))}</td>"
-                    f"<td>{html.escape(str(item.get('feature_value')))}</td>"
-                    f"<td>{html.escape(str(item.get('shap_value')))}</td>"
-                    "</tr>"
-                    for item in features if isinstance(item, dict)
-                )
-                contribution_table = (
-                    "<table><thead><tr><th>Feature</th><th>Feature value</th><th>SHAP value</th></tr></thead>"
-                    f"<tbody>{contribution_rows}</tbody></table>"
-                )
-            else:
-                contribution_table = "<ul>" + "".join(
-                    f"<li>{html.escape(str(name))}: {html.escape(str(value))}</li>"
-                    for name, value in sorted(contributions.items(), key=lambda item: -abs(float(item[1])))
-                ) + "</ul>"
-            ranked = []
-            for group, label in (
-                ("top_positive_features", "Top positive contributors"),
-                ("top_negative_features", "Top negative contributors"),
-            ):
-                items = shap.get(group)
-                if isinstance(items, list) and items:
-                    ranked.append(
-                        f"<h3>{label}</h3><ol>" + "".join(
-                            f"<li>{html.escape(str(item.get('feature_name')))} "
-                            f"(value={html.escape(str(item.get('feature_value')))}, "
-                            f"SHAP={html.escape(str(item.get('shap_value')))})</li>"
-                            for item in items if isinstance(item, dict)
-                        ) + "</ol>"
-                    )
-            shap_content = rating_content + contribution_table + "".join(ranked)
+        contribution_rows = "".join(
+            f"<li>{html.escape(str(item.get('feature')))}: "
+            f"logit contribution {html.escape(str(item.get('contribution_logit')))}</li>"
+            for item in contributions if isinstance(item, dict)
+        )
+        shap_content = rating_content + "<h3>Brock formula decomposition</h3><ul>" + contribution_rows + "</ul>"
         shap_sections.append(f"<section><h2>{html.escape(stable_id)}</h2>{shap_content}</section>")
         lineage_sections.append(
             f"<section><h2>{html.escape(stable_id)}</h2><p>Detection → Stage 03 → Stage 04 → Stage 05 → Stage 06 → Stage 07</p>"
@@ -555,13 +508,13 @@ def generate_patient_report(
     viewer_data = _write_interactive_viewer_assets(
         report_root, patient_root, accepted, ct, lung_mask, heart_mask
     )
-    index_body = _interactive_viewer_body(viewer_data, tab="CT, Grad-CAM, and SHAP") + f"<h2>Report summary</h2><pre>{html.escape(json.dumps(summary, indent=2))}</pre>"
+    index_body = _interactive_viewer_body(viewer_data, tab="CT, Grad-CAM, and Brock") + f"<h2>Report summary</h2><pre>{html.escape(json.dumps(summary, indent=2))}</pre>"
     pages = {
         "index.html": page(f"LungInsight imaging report — {patient_id}", index_body),
         "masks.html": page(f"Masks — {patient_id}", _interactive_viewer_body(viewer_data, tab="masks") + "".join(masks_body)),
         "nodules.html": page(f"Accepted nodules — {patient_id}", _interactive_viewer_body(viewer_data, tab="nodules") + nodules_body),
         "gradcam.html": page(f"Grad-CAM — {patient_id}", _interactive_viewer_body(viewer_data, tab="Grad-CAM") + gradcam_body),
-        "shap.html": page(f"SHAP and rating — {patient_id}", _interactive_viewer_body(viewer_data, tab="SHAP and rating") + shap_body),
+        "brock.html": page(f"Brock formula explanation — {patient_id}", _interactive_viewer_body(viewer_data, tab="Brock") + shap_body),
         "lineage.html": page(f"Nodule lineage — {patient_id}", lineage_body),
     }
     written = []

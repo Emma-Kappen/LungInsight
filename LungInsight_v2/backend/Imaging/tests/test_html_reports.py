@@ -28,7 +28,10 @@ class HtmlReportTests(unittest.TestCase):
                     "vitdet_score": 0.8,
                     "log_score": 2.3,
                 },
-                "malignancy": {"predicted_malignancy_rating_continuous": 3.2},
+                "malignancy": {
+                    "brock": {"status": "incomplete", "probability": None, "feature_contributions": []},
+                    "selected_prediction": {"method": "brock", "status": "incomplete", "probability": None, "value": None},
+                },
                 "explanations": {
                     "gradcam": {
                         "subtlety": {
@@ -128,7 +131,7 @@ class HtmlReportTests(unittest.TestCase):
             self.assertTrue((report_root / "assets" / "nodule_cam_Subtlety_patch.png").is_file())
             self.assertTrue((report_root / "assets" / "nodule_cam_Subtlety_ct.png").is_file())
 
-    def test_index_includes_interactive_ct_gradcam_and_shap_viewer(self):
+    def test_index_includes_interactive_ct_gradcam_and_brock_viewer(self):
         with TemporaryDirectory() as temporary:
             root = Path(temporary)
             patient_root = root / "patient"
@@ -146,7 +149,10 @@ class HtmlReportTests(unittest.TestCase):
                     "patch_size_vox_zyx": [2, 2, 2],
                 },
                 "detector": {"source": "LoG"},
-                "malignancy": {"predicted_malignancy_rating_continuous": 3.5},
+                "malignancy": {
+                    "brock": {"status": "incomplete", "probability": None, "feature_contributions": []},
+                    "selected_prediction": {"method": "brock", "status": "incomplete", "probability": None, "value": None},
+                },
                 "explanations": {
                     "gradcam": {
                         "subtlety": {
@@ -178,11 +184,11 @@ class HtmlReportTests(unittest.TestCase):
             self.assertIn("viewer-alpha", index)
             self.assertIn("viewer-nodules", index)
             self.assertNotIn("id='viewer-nodule'", index)
-            self.assertIn("Last checked nodule SHAP explanation", index)
+            self.assertIn("Last checked nodule Brock explanation", index)
             self.assertTrue(
                 (report_root / "assets" / "viewer" / "nodule_interactive_subtlety_cam_sprite.png").is_file()
             )
-            for page in ("masks.html", "nodules.html", "gradcam.html", "shap.html"):
+            for page in ("masks.html", "nodules.html", "gradcam.html", "brock.html"):
                 self.assertIn(
                     "viewer-z",
                     (report_root / page).read_text(encoding="utf-8"),

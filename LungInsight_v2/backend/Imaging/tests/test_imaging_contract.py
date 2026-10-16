@@ -47,7 +47,28 @@ def sample_inputs():
                 "spiculation": {"expected_rating": 2.8},
                 "texture": {"expected_rating": 3.2},
             },
-            "malignancy": {"target_semantics": "LIDC reader-rating estimate"},
+            "malignancy": {
+                "brock": {
+                    "status": "incomplete",
+                    "method": "brock_formula_decomposition",
+                    "model_name": "Brock_PanCan_full",
+                    "model_version": "published-coefficients-verified-v1",
+                    "target": "pulmonary_nodule_malignancy_probability",
+                    "probability": None,
+                    "features_missing": ["age_years"],
+                    "feature_contributions": [],
+                    "limitations": ["Required input was not supplied."],
+                },
+                "selected_prediction": {
+                    "method": "brock",
+                    "model_version": "published-coefficients-verified-v1",
+                    "status": "incomplete",
+                    "probability": None,
+                    "value": None,
+                    "missing_inputs": ["age_years"],
+                    "limitations": ["Required input was not supplied."],
+                },
+            },
             "uncertainty_and_limitations": {"status": "model_output"},
             "model_identity": {
                 "stage04_model_version": "rating-v1",
@@ -119,6 +140,68 @@ class ImagingContractTests(unittest.TestCase):
         }
         contract = build_contract(patient_id="patient-001", meta=meta, stage06=stage06)
         self.assertEqual(contract["nodules"][0]["shap_refs"]["status"], "failed")
+
+    def test_contract_accepts_selected_brock_result(self):
+        meta, stage06 = sample_inputs()
+        stage06["records"][0]["malignancy"] = {
+            "brock": {
+                "status": "incomplete",
+                "method": "brock_formula_decomposition",
+                "model_name": "Brock_PanCan_full",
+                "model_version": "published-coefficients-verified-v1",
+                "target": "pulmonary_nodule_malignancy_probability",
+                "probability": None,
+                "features_missing": ["age_years"],
+                "feature_contributions": [],
+                "limitations": ["Required input was not supplied."],
+            },
+            "selected_prediction": {
+                "method": "brock",
+                "model_version": "published-coefficients-verified-v1",
+                "status": "incomplete",
+                "probability": None,
+                "value": None,
+                "missing_inputs": ["age_years"],
+                "limitations": ["Required input missing."],
+            }
+        }
+        contract = build_contract(patient_id="patient-001", meta=meta, stage06=stage06)
+        self.assertEqual(
+            contract["nodules"][0]["malignancy"]["selected_prediction"]["method"],
+            "brock",
+        )
+
+    def test_contract_preserves_brock_explanation_status_and_probability(self):
+        meta, stage06 = sample_inputs()
+        stage06["records"][0]["malignancy"]["brock"] = {
+            "status": "available",
+            "method": "brock_formula_decomposition",
+            "model_name": "Brock_PanCan_full",
+            "model_version": "published-coefficients-verified-v1",
+            "target": "pulmonary_nodule_malignancy_probability",
+            "probability": 0.42,
+            "features_missing": [],
+            "feature_contributions": [{"feature": "intercept", "contribution_logit": -6.7892}],
+            "limitations": ["Research risk estimate; not a pathology diagnosis."],
+        }
+        contract = build_contract(patient_id="patient-001", meta=meta, stage06=stage06)
+        self.assertEqual(contract["nodules"][0]["malignancy"]["brock"]["probability"], 0.42)
+
+    def test_contract_accepts_incomplete_brock_abstention(self):
+        meta, stage06 = sample_inputs()
+        stage06["records"][0]["malignancy"]["brock"] = {
+            "status": "incomplete",
+            "method": "brock_formula_decomposition",
+            "model_name": "Brock_PanCan_full",
+            "model_version": "published-coefficients-verified-v1",
+            "target": "pulmonary_nodule_malignancy_probability",
+            "probability": None,
+            "features_missing": ["spiculation"],
+            "feature_contributions": [],
+            "limitations": ["Required input was not supplied."],
+        }
+        contract = build_contract(patient_id="patient-001", meta=meta, stage06=stage06)
+        self.assertEqual(contract["nodules"][0]["malignancy"]["brock"]["status"], "incomplete")
 
     def test_missing_supported_cam_reference_blocks_contract(self):
         meta, stage06 = sample_inputs()

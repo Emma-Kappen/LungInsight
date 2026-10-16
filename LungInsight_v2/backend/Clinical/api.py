@@ -4,11 +4,17 @@ import os
 from pathlib import Path
 from typing import Any, Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import File, Form, FastAPI, HTTPException, UploadFile
 from pydantic import BaseModel, ConfigDict, Field
 from fastapi.staticfiles import StaticFiles
 
 from .inference import ClinicalInferenceError, load_artifacts, run_inference
+from ..Imaging.api.app import OUTPUT_ROOT as IMAGING_OUTPUT_ROOT
+from ..Imaging.api.dicom_upload import (
+    DicomUploadError,
+    get_dicom_job,
+    process_dicom_upload,
+)
 
 
 class ClinicalRequest(BaseModel):
@@ -16,8 +22,8 @@ class ClinicalRequest(BaseModel):
 
     schema_version: str = Field(pattern=r"^1\.0\.0$")
     patient_id: str = Field(min_length=1, max_length=128)
-    baseline_at: str
     baseline_definition: Literal["initial_pathologic_diagnosis", "other_or_unverified"]
+    requested_malignancy_method: Literal["brock"] | None = None
     clinician_inputs: dict[str, Any]
     imaging_evidence: dict[str, Any]
 
@@ -54,6 +60,29 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
             )
         except ClinicalInferenceError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    @app.post("/api/v1/imaging/dicom/upload", status_code=202)
+    async def upload_dicom(
+        patient_id: str = Form(..., min_length=1, max_length=128),
+        files: list[UploadFile] = File(...),
+    ) -> dict[str, Any]:
+        try:
+            return await process_dicom_upload(
+                files,
+                patient_id=patient_id,
+                output_root=IMAGING_OUTPUT_ROOT,
+            )
+        except DicomUploadError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        except OSError as exc:
+            raise HTTPException(status_code=500, detail="The CT upload could not be stored safely.") from exc
+
+    @app.get("/api/v1/imaging/dicom/jobs/{job_id}")
+    def imaging_dicom_job_status(job_id: str) -> dict[str, Any]:
+        try:
+            return get_dicom_job(job_id)
+        except DicomUploadError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
 
     frontend_dir = Path(__file__).resolve().parents[2] / "frontend"
     app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="clinical-frontend")

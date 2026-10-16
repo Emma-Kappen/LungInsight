@@ -39,7 +39,28 @@ def stage06_record():
             "spiculation": {"expected_rating": 3.0},
             "texture": {"expected_rating": 3.0},
         },
-        "malignancy": {"target_semantics": "LIDC rating"},
+        "malignancy": {
+            "brock": {
+                "status": "incomplete",
+                "method": "brock_formula_decomposition",
+                "model_name": "Brock_PanCan_full",
+                "model_version": "published-coefficients-verified-v1",
+                "target": "pulmonary_nodule_malignancy_probability",
+                "probability": None,
+                "features_missing": ["age_years"],
+                "feature_contributions": [],
+                "limitations": ["Required input was not supplied."],
+            },
+            "selected_prediction": {
+                "method": "brock",
+                "model_version": "published-coefficients-verified-v1",
+                "status": "incomplete",
+                "probability": None,
+                "value": None,
+                "missing_inputs": ["age_years"],
+                "limitations": ["Required input was not supplied."],
+            },
+        },
         "uncertainty_and_limitations": {},
         "model_identity": {
             "stage03_attribute_support_audit": {
@@ -61,12 +82,7 @@ def stage06_record():
                 }
                 for name in ("subtlety", "sphericity", "margin", "lobulation", "spiculation", "texture")
             },
-            "shap": {
-                "status": "complete",
-                "source_prediction_json": "04/predictions.json",
-                "features": [{"feature_name": "subtlety", "feature_value": 3.0, "shap_value": 0.2}],
-                "feature_contributions": {"subtlety": 0.2},
-            },
+            "shap": {"status": "not_applicable", "reason": "Brock formula decomposition is not SHAP."},
         },
     }
 

@@ -14,7 +14,7 @@ TCGA_COHORT_LABELS = {"TCGA-LUAD": "LUAD", "TCGA-LUSC": "LUSC"}
 TCGA_BASELINE_FEATURES = (
     "age_at_baseline_years",
     "sex_at_baseline",
-    "stage_at_baseline",
+    "pathologic_stage_ground_truth",
 )
 
 
@@ -150,6 +150,8 @@ def parse_tcga_patient_xml(path: Path, cohort: str) -> dict[str, Any] | None:
     except ValueError:
         kps = None
 
+    recorded_histology = _direct_text(patient, "histological_type")
+    histology = classify_tcga_histology(recorded_histology)
     return {
         "bcr_patient_barcode": _direct_raw(patient, "bcr_patient_barcode"),
         "vital_status": _direct_raw(patient, "vital_status"),
@@ -169,10 +171,12 @@ def parse_tcga_patient_xml(path: Path, cohort: str) -> dict[str, Any] | None:
         "patient_id": patient_id,
         "source": cohort,
         "cohort_label": TCGA_COHORT_LABELS[cohort],
-        "histological_type_raw": _direct_text(patient, "histological_type"),
+        "histological_type_raw": recorded_histology,
+        "histology": histology,
+        "histology_label_status": "eligible" if histology is not None else "unsupported_or_missing",
         "age_at_baseline_years": age,
         "sex_at_baseline": normalize_sex(_direct_text(patient, "gender")),
-        "stage_at_baseline": _pathologic_stage(patient),
+        "pathologic_stage_ground_truth": _pathologic_stage(patient),
         "kps_direct": kps,
         "smoking_history_raw": _direct_text(patient, "tobacco_smoking_history"),
         "vital_status_raw": vital_status,
@@ -248,6 +252,18 @@ def classify_msk_histology(row: pd.Series) -> str | None:
     return code_label or detail_label
 
 
+def classify_tcga_histology(recorded_histology: str | None) -> str | None:
+    """Map only explicit TCGA recorded histology text to supported classes."""
+    if recorded_histology is None:
+        return None
+    normalized = recorded_histology.strip().casefold()
+    if "adenocarcinoma" in normalized or "bronchioloalveolar carcinoma" in normalized:
+        return "LUAD"
+    if "squamous cell" in normalized:
+        return "LUSC"
+    return None
+
+
 def _msk_field_conflict(row: pd.Series) -> bool:
     code = str(row.get("ONCOTREE_CODE", "") or "").strip().upper()
     detailed = str(row.get("CANCER_TYPE_DETAILED", "") or "").strip().casefold()
@@ -278,3 +294,37 @@ def msk_lung_patient_labels(samples: pd.DataFrame) -> pd.DataFrame:
         else:
             records.append({"patient_id": patient_id, "histology": None, "label_status": "ambiguous_or_other"})
     return pd.DataFrame.from_records(records, columns=["patient_id", "histology", "label_status"])
+
+
+def load_msk_cancer_type_cohort(root: str | Path) -> pd.DataFrame:
+    """Build one explicit-label, patient-level MSK LUAD/LUSC classifier cohort."""
+    patients, samples = load_msk_tables(root)
+    labels = msk_lung_patient_labels(samples)
+    cohort = labels.merge(
+        patients[["PATIENT_ID", "GENDER"]],
+        left_on="patient_id",
+        right_on="PATIENT_ID",
+        how="left",
+        validate="one_to_one",
+    )
+    cohort["sex_at_baseline"] = cohort["GENDER"].map(
+        lambda value: None if pd.isna(value) else normalize_sex(value)
+    )
+    cohort["source"] = "MSK-CHORD"
+    cohort["label_provenance"] = "sample/ONCOTREE_CODE_and_CANCER_TYPE_DETAILED"
+    cohort = cohort[
+        [
+            "patient_id",
+            "source",
+            "histology",
+            "label_status",
+            "label_provenance",
+            "sex_at_baseline",
+        ]
+    ].copy()
+    cohort.attrs["source_patient_rows"] = int(len(patients))
+    cohort.attrs["source_sample_rows"] = int(len(samples))
+    cohort.attrs["patients_with_multiple_samples"] = int(
+        (samples.groupby("PATIENT_ID").size() > 1).sum()
+    )
+    return cohort

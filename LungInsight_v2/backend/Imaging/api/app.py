@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.openapi.utils import get_openapi
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -25,6 +25,7 @@ from .contract import (
     validate_contract,
 )
 from pipeline_schema import get_required, load_schema
+from .dicom_upload import DicomUploadError, get_dicom_job, process_dicom_upload
 
 V2_ROOT = IMAGING_DIR.parent.parent
 PIPELINE_SCHEMA = load_schema(IMAGING_DIR / "stages" / "01_hu_and_crop.py")
@@ -94,6 +95,28 @@ class StudyRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     patient_id: str = Field(min_length=1, max_length=128)
+
+
+@app.post("/api/v1/imaging/dicom/upload", status_code=202)
+async def upload_dicom(
+    patient_id: str = Form(..., min_length=1, max_length=128),
+    files: list[UploadFile] = File(...),
+) -> dict[str, Any]:
+    """Validate one uploaded CT series and persist a HU volume for pipeline execution."""
+    try:
+        return await process_dicom_upload(files, patient_id=patient_id, output_root=OUTPUT_ROOT)
+    except DicomUploadError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except OSError as exc:
+        raise HTTPException(status_code=500, detail="The CT upload could not be stored safely.") from exc
+
+
+@app.get("/api/v1/imaging/dicom/jobs/{job_id}")
+def dicom_job_status(job_id: str) -> dict[str, Any]:
+    try:
+        return get_dicom_job(job_id)
+    except DicomUploadError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 def _patient_root(patient_id: str) -> Path:

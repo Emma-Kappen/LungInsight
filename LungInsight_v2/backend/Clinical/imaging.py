@@ -33,12 +33,11 @@ def validate_imaging_evidence(
     evidence: dict[str, Any],
     *,
     patient_id: str,
-    baseline_at: str,
 ) -> dict[str, Any]:
     required = {
         "contract",
         "source_timestamp",
-        "baseline_at",
+        "scan_datetime",
         "gate_status",
         "imaging_pipeline_version",
         "imaging_model_versions",
@@ -75,18 +74,30 @@ def validate_imaging_evidence(
     if not isinstance(versions, dict) or not versions:
         raise ImagingEvidenceError("Imaging model version provenance is required.")
 
-    source_time = _parse_aware_timestamp(evidence["source_timestamp"], "source_timestamp")
-    evidence_baseline = _parse_aware_timestamp(evidence["baseline_at"], "imaging baseline_at")
-    request_baseline = _parse_aware_timestamp(baseline_at, "Clinical baseline_at")
-    if request_baseline > datetime.now(timezone.utc):
-        raise ImagingEvidenceError("Clinical prediction baseline cannot be in the future.")
-    if source_time != evidence_baseline or evidence_baseline != request_baseline:
-        raise ImagingEvidenceError(
-            "Imaging source time and baseline timestamps must match the Clinical prediction baseline; "
-            "no approved image-freshness interval is defined."
-        )
+    _parse_aware_timestamp(evidence["source_timestamp"], "source_timestamp")
+    scan_datetime = evidence["scan_datetime"]
+    if scan_datetime is not None:
+        _parse_aware_timestamp(scan_datetime, "scan_datetime")
 
     nodules = contract["nodules"]
+    malignancy_methods: set[str] = set()
+    for nodule in nodules:
+        malignancy = nodule.get("malignancy", {})
+        selected = malignancy.get("selected_prediction", {}) if isinstance(malignancy, dict) else {}
+        method = selected.get("method") if isinstance(selected, dict) else None
+        if method != "brock":
+            raise ImagingEvidenceError(
+                "Every nodule must carry a Brock selected_prediction; unsupported malignancy methods are rejected."
+            )
+        status = selected.get("status")
+        probability = selected.get("probability")
+        if status == "available" and not isinstance(probability, (int, float)):
+            raise ImagingEvidenceError("An available Brock prediction must contain a numeric probability.")
+        if status != "available" and probability is not None:
+            raise ImagingEvidenceError(
+                "Incomplete or invalid Brock predictions must not contain a numeric probability."
+            )
+        malignancy_methods.add(method)
     diameters = [
         float(nodule["diameter_mm"])
         for nodule in nodules
@@ -99,7 +110,7 @@ def validate_imaging_evidence(
         "series_uid": contract["series_uid"],
         "contract_version": contract["contract_version"],
         "source_timestamp": evidence["source_timestamp"],
-        "baseline_at": evidence["baseline_at"],
+        "scan_datetime": scan_datetime,
         "gate_status": evidence["gate_status"],
         "imaging_pipeline_version": pipeline_version,
         "imaging_model_versions": versions,
@@ -109,4 +120,5 @@ def validate_imaging_evidence(
         "malignant_nodule_count_status": "unavailable_no_validated_malignant_status_field",
         "ranking_scores_used_as_malignancy": False,
         "training_feature_status": "context_only_not_available_in_development_cohorts",
+        "malignancy_methods": sorted(malignancy_methods),
     }

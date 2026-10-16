@@ -11,6 +11,8 @@ param(
     [Parameter()]
     [switch]$RegenerateStage01,
     [Parameter()]
+    [string]$InputPatientPath,
+    [Parameter()]
     [switch]$NoGui
 )
 
@@ -94,7 +96,8 @@ try {
             }
             Write-Host "Backed up existing Stage 01 files to $BackupDirectory" -ForegroundColor Yellow
         }
-        Invoke-PythonStep 'Stage 01 - HU conversion, masks, crop, and review overlays' @('.\backend\Imaging\01_hu_and_crop.py', $PatientId)
+        $Stage01Input = if ($InputPatientPath) { $InputPatientPath } else { $PatientId }
+        Invoke-PythonStep 'Stage 01 - HU conversion, masks, crop, and review overlays' @('.\backend\Imaging\01_hu_and_crop.py', $Stage01Input)
     } else {
         Write-Host 'Resume requested: Stage 01 will not be rerun; existing files must match the saved review attestation.' -ForegroundColor Yellow
     }
@@ -127,7 +130,7 @@ try {
     Require-File $PrimaryStage03
     Require-File $LogStage03
 
-    Invoke-PythonStep 'Stage 04 - primary frozen malignancy-rating inference' @('.\backend\Imaging\04_malignancy_prediction.py', $PatientId)
+    Invoke-PythonStep 'Stage 04 - primary Brock/PanCan malignancy-risk inference' @('.\backend\Imaging\04_malignancy_prediction.py', $PatientId)
     $Stage04Dir = Join-Path $PatientOutput ([string]$Schema.paths.stage_04.directory)
     $PrimaryStage04 = Join-Path $Stage04Dir ([string]$Schema.paths.stage_04.output_json)
     Require-File $PrimaryStage04
@@ -135,7 +138,7 @@ try {
     $LogStage04Name = [string]$Schema.paths.stage_04.log_diagnostic_output_json
     if ([string]::IsNullOrWhiteSpace($LogStage04Name)) { throw 'meta_schema.json paths.stage_04.log_diagnostic_output_json is missing.' }
     $LogStage04 = Join-Path $Stage04Dir $LogStage04Name
-    Invoke-PythonStep 'Stage 04 - frozen malignancy-rating inference for LoG diagnostics' @('.\backend\Imaging\04_malignancy_prediction.py', '--predictions', $LogStage03, '--output', $LogStage04)
+    Invoke-PythonStep 'Stage 04 - Brock/PanCan malignancy-risk inference for LoG diagnostics' @('.\backend\Imaging\04_malignancy_prediction.py', '--predictions', $LogStage03, '--output', $LogStage04)
     Require-File $LogStage04
 
     $PrimaryManifest = Join-Path $PatientOutput ([string]$Schema.stage_02_detect_and_patch.patch_outputs.manifest)
@@ -228,7 +231,13 @@ finally {
         $Stage04Path = Join-Path $Stage04Root ([string]$Schema.paths.stage_04.output_json)
         if (Test-Path -LiteralPath $Stage04Path -PathType Leaf) {
             $Stage04Data = Get-Content -LiteralPath $Stage04Path -Raw -Encoding UTF8 | ConvertFrom-Json
-            $Counters.authoritative_malignancy_ratings = $Stage04Data.scored_candidate_count
+            $BrockPredictions = @($Stage04Data.predictions)
+            $Counters.authoritative_brock_predictions = $BrockPredictions.Count
+            foreach ($Status in @('available', 'incomplete', 'invalid_input', 'error')) {
+                $Counters["authoritative_brock_$Status"] = @(
+                    $BrockPredictions | Where-Object { $_.brock.status -eq $Status }
+                ).Count
+            }
         }
         $Stage06RecordPath = Join-Path $Stage06Root ([string]$Schema.stage_06_full_ct_gradcam.record_filename)
         if (Test-Path -LiteralPath $Stage06RecordPath -PathType Leaf) {
@@ -252,12 +261,13 @@ finally {
             }
             $ModelIdentities.Add($CheckpointIdentity)
         }
-        $Stage04ModelPath = Join-Path $RepoRoot ([string]$Schema.stage_04_malignancy_prediction.model_path)
-        $Stage04ModelIdentity = [ordered]@{ model = 'Stage 04 primary LIDC rating model'; path = $Stage04ModelPath; sha256 = $null }
-        if (Test-Path -LiteralPath $Stage04ModelPath -PathType Leaf) {
-            $Stage04ModelIdentity.sha256 = (Get-FileHash -LiteralPath $Stage04ModelPath -Algorithm SHA256).Hash.ToLowerInvariant()
-        }
-        $ModelIdentities.Add($Stage04ModelIdentity)
+        $ModelIdentities.Add([ordered]@{
+            model = [string]$Schema.stage_04_malignancy_prediction.model_name
+            model_version = [string]$Schema.stage_04_malignancy_prediction.model_version
+            formula_version = [string]$Schema.stage_04_malignancy_prediction.formula_version
+            path = $null
+            sha256 = $null
+        })
 
         $RunSummary = [ordered]@{
             schema_version = 'pipeline-run-summary-v1'

@@ -116,7 +116,6 @@ def validate_clinician_inputs(values: dict[str, Any]) -> dict[str, Any]:
     allowed = {
         "age_at_baseline_years",
         "sex_at_baseline",
-        "stage_at_baseline",
         "kps",
         "ecog",
     }
@@ -139,15 +138,6 @@ def validate_clinician_inputs(values: dict[str, Any]) -> dict[str, Any]:
     sex = result.get("sex_at_baseline")
     if sex is not None and sex not in {"female", "male", "other_or_unspecified"}:
         raise ClinicalValidationError("Unsupported sex_at_baseline category.")
-    stage = result.get("stage_at_baseline")
-    if stage is not None and (not isinstance(stage, str) or not stage.strip()):
-        raise ClinicalValidationError("stage_at_baseline must be a non-empty string or null.")
-    if isinstance(stage, str):
-        stage = stage.strip()
-        if not stage:
-            raise ClinicalValidationError("stage_at_baseline must be a non-empty string or null.")
-        result["stage_at_baseline"] = stage
-
     status = normalize_performance_status(kps=result.get("kps"), ecog=result.get("ecog"))
     result["performance_status"] = status.to_dict()
     result["kps_category"] = status.kps_category
