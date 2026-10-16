@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lunginsight.invalid/schemas/clinical_inference_v1.schema.json",
+  "title": "LungInsight Clinical Inference Input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "patient_id", "baseline_at", "baseline_definition", "clinician_inputs", "imaging_evidence"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "patient_id": {"type": "string", "minLength": 1},
+    "baseline_at": {"type": "string", "format": "date-time"},
+    "baseline_definition": {
+      "enum": ["initial_pathologic_diagnosis", "other_or_unverified"]
+    },
+    "clinician_inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "age_at_baseline_years": {"type": ["number", "null"], "minimum": 18, "maximum": 120},
+        "sex_at_baseline": {"enum": ["female", "male", "other_or_unspecified", null]},
+        "stage_at_baseline": {"type": ["string", "null"], "minLength": 1},
+        "kps": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+        "ecog": {"type": ["integer", "null"], "minimum": 0, "maximum": 5}
+      }
+    },
+    "imaging_evidence": {
+      "type": "object",
+      "required": [
+        "contract",
+        "source_timestamp",
+        "baseline_at",
+        "gate_status",
+        "imaging_pipeline_version",
+        "imaging_model_versions"
+      ],
+      "properties": {
+        "contract": {"type": "object"},
+        "source_timestamp": {"type": "string", "format": "date-time"},
+        "baseline_at": {"type": "string", "format": "date-time"},
+        "gate_status": {"const": "passed"},
+        "imaging_pipeline_version": {"type": "string", "minLength": 1},
+        "imaging_model_versions": {"type": "object"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

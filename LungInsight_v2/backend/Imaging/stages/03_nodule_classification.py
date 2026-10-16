@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-"""LungInsight v2 Stage 03: frozen spatial-hybrid nodule attribute inference.
-
-Reads the authoritative Stage 02 patches manifest and a separate LoG diagnostic
-patch manifest. It uses the five pre-existing hybrid checkpoints unchanged and
-writes six attribute ratings (not internal structure, calcification, or malignancy).
-Authoritative predictions stay in predictions.json; LoG proposals go to separate
-diagnostic outputs and are never Stage 04 malignancy inputs.
-"""
+"""LungInsight v2 Stage 03: frozen spatial-hybrid nodule attribute inference."""
 from __future__ import annotations
 
 import argparse
@@ -27,6 +20,8 @@ import numpy as np
 import torch
 
 from pipeline_schema import get_required, load_schema, check_meta_schema_version, validate_stage_version
+from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+from attribute_contract import build_attribute_support_audit
 
 SCHEMA = load_schema(__file__)
 STAGE02_SCHEMA = get_required(SCHEMA, "stage_02_detect_and_patch", expected_type=dict)
@@ -61,6 +56,20 @@ CHECKPOINT_GROUPS = {str(k): tuple(v) for k, v in get_required(STAGE03_MODEL, "c
 EXPECTED_PATCH_SHAPE = tuple(get_required(STAGE03_SCHEMA, "inputs.patch_shape_zyx", expected_type=list))
 DEFAULT_CHECKPOINT_ROOT = V2_ROOT / get_required(STAGE03_MODEL, "checkpoint_root")
 DEFAULT_OUTPUT_ROOT = V2_ROOT / get_required(SCHEMA, "paths.output_root")
+SPATIAL_MODEL_ROOT = V2_ROOT / "backend" / "models" / "nodule_ranker_3d_distributional_v1" / "spatial_v1"
+if str(SPATIAL_MODEL_ROOT) not in sys.path:
+    sys.path.insert(0, str(SPATIAL_MODEL_ROOT))
+try:
+    from model_objective import MODEL_TARGETS as MODEL_TARGET_ORDER
+except ImportError as exc:
+    raise ImportError(f"Stage 03 requires the frozen output contract at {SPATIAL_MODEL_ROOT / 'model_objective.py'}.") from exc
+
+ATTRIBUTE_SUPPORT_AUDIT = build_attribute_support_audit(
+    model_targets=MODEL_TARGET_ORDER,
+    supported_attributes=FEATURE_NAMES,
+    checkpoint_groups=CHECKPOINT_GROUPS,
+    attribute_scales=STAGE03_SCHEMA["attribute_scales"],
+)
 
 if tuple(HELPER_EXPECTED_PATCH_SHAPE) != EXPECTED_PATCH_SHAPE:
     raise RuntimeError(
@@ -120,6 +129,17 @@ def resolve_patch_array(record: dict[str, Any], manifest_path: Path) -> Path:
 
 def transfer_identity_fields(patch: dict[str, Any]) -> dict[str, Any]:
     out = {k: patch[k] for k in TRANSFER_IDENTITY_FIELDS if k in patch}
+    stable_id = patch.get("stable_nodule_id", patch.get("nodule_id"))
+    if not isinstance(stable_id, str) or not stable_id.strip():
+        raise ValueError(
+            f"Accepted Stage 02 patch {patch.get('patch_id')} lacks stable_nodule_id; "
+            "rerun Stage 02 fusion before inference."
+        )
+    out["stable_nodule_id"] = stable_id
+    out["nodule_id"] = stable_id
+    for key in ("source", "source_members", "vitdet_score", "log_score", "study_uid", "series_uid"):
+        if key in patch:
+            out[key] = patch[key]
     out["prediction_space"] = STAGE03_SCHEMA["space"]
     out["detection_source"] = patch.get("detection_source", "ViTDet3D")
     out["patch_array_path"] = patch.get("array_path")
@@ -190,6 +210,8 @@ def run_log_diagnostic_inference(
                 "rating_scale": list(STAGE03_SCHEMA["attribute_scales"][name]["rating_range"]),
                 "score_semantics": STAGE03_SCHEMA["attribute_scales"][name]["semantics"],
                 "checkpoint_group": next(g for g, attrs in CHECKPOINT_GROUPS.items() if name in attrs),
+                "head_output": ATTRIBUTE_SUPPORT_AUDIT[name]["head_output"],
+                "target_index": ATTRIBUTE_SUPPORT_AUDIT[name]["target_index"],
             }
             for name in FEATURE_NAMES
         }
@@ -204,6 +226,7 @@ def run_log_diagnostic_inference(
             record["attention"] = {
                 "attribute_spatial_attention_path": attention_rel.as_posix(),
                 "attribute_order": list(FEATURE_NAMES),
+                "attribute_support_audit": ATTRIBUTE_SUPPORT_AUDIT,
                 "grid_shape_zyx": list(STAGE03_MODEL["attention_grid_shape_zyx"]),
                 "semantics": "softmax attention over spatial tokens; not a segmentation mask",
             }
@@ -213,6 +236,12 @@ def run_log_diagnostic_inference(
             "patient_id": patient_id,
             "patch_id": patch.get("patch_id"),
             "candidate_id": patch.get("candidate_id"),
+            "stable_nodule_id": record["stable_nodule_id"],
+            "source": patch.get("source"),
+            "source_members": patch.get("source_members"),
+            "vitdet_score": patch.get("vitdet_score"),
+            "log_score": patch.get("log_score"),
+            "stable_nodule_id": record["stable_nodule_id"],
             "diagnostic_id": patch.get("diagnostic_id"),
             "detection_source": "LoG",
             "log_response": patch.get("log_response"),
@@ -244,6 +273,7 @@ def run_log_diagnostic_inference(
         "stage04_eligible": False,
         "prediction_space": STAGE03_SCHEMA["space"],
         "attribute_order": list(FEATURE_NAMES),
+        "attribute_support_audit": ATTRIBUTE_SUPPORT_AUDIT,
         "attribute_outputs": STAGE03_SCHEMA["prediction_semantics"]["expected_rating"],
         "malignancy_prediction_included": False,
         "unsupported_attributes_omitted": list(STAGE03_SCHEMA["unsupported_attributes"]),
@@ -305,6 +335,11 @@ def run_patient(
         raise ValueError(f"{patch_manifest_path}: every patch requires an integer patch_id")
     if len(patch_ids) != len(set(patch_ids)):
         raise ValueError(f"{patch_manifest_path}: duplicate patch_id values")
+    stable_ids = [p.get("stable_nodule_id", p.get("nodule_id")) for p in patches]
+    if any(not isinstance(nodule_id, str) or not nodule_id.strip() for nodule_id in stable_ids):
+        raise ValueError(f"{patch_manifest_path}: every accepted patch requires a non-empty stable_nodule_id.")
+    if len(stable_ids) != len(set(stable_ids)):
+        raise ValueError(f"{patch_manifest_path}: stable_nodule_id values must be unique.")
     patches = sorted(patches, key=lambda p: int(p["patch_id"]))
 
     out_dir = patient_dir / STAGE03_PATHS["directory"]
@@ -339,6 +374,8 @@ def run_patient(
                 "rating_scale": list(STAGE03_SCHEMA["attribute_scales"][name]["rating_range"]),
                 "score_semantics": STAGE03_SCHEMA["attribute_scales"][name]["semantics"],
                 "checkpoint_group": next(g for g, attrs in CHECKPOINT_GROUPS.items() if name in attrs),
+                "head_output": ATTRIBUTE_SUPPORT_AUDIT[name]["head_output"],
+                "target_index": ATTRIBUTE_SUPPORT_AUDIT[name]["target_index"],
             }
             for name in FEATURE_NAMES
         }
@@ -402,6 +439,7 @@ def run_patient(
         "n_log_diagnostic_patches_inferred": (int(log_output["n_patches"]) if log_output is not None else 0),
         "prediction_space": STAGE03_SCHEMA["space"],
         "attribute_order": list(FEATURE_NAMES),
+        "attribute_support_audit": ATTRIBUTE_SUPPORT_AUDIT,
         "attribute_outputs": STAGE03_SCHEMA["prediction_semantics"]["expected_rating"],
         "malignancy_prediction_included": False,
         "unsupported_attributes_omitted": list(STAGE03_SCHEMA["unsupported_attributes"]),
@@ -456,11 +494,13 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--collect-attention", action="store_true", help="Write spatial attention tensors for each processed patch")
     p.add_argument("--skip-log-diagnostic", action="store_true", help="Skip the separate LoG diagnostic patch manifest; the default processes LoG proposals for Stage 03 attributes")
     p.add_argument("--allow-noncanonical-checkpoint-provenance", action="store_true", help="Disable split-hash/group provenance checks only for deliberate debugging")
+    add_verbose_argument(p)
     return p.parse_args()
 
 
 def main() -> int:
     a = parse_args()
+    configure_console(a.verbose)
     output_root = a.output_root.resolve()
     if not output_root.is_dir():
         raise FileNotFoundError(f"Stage 01/02 output root does not exist: {output_root}")
@@ -495,6 +535,7 @@ def main() -> int:
                 and not a.skip_log_diagnostic
             ),
         )
+    stage_complete(3, "03")
     return 0
 
 

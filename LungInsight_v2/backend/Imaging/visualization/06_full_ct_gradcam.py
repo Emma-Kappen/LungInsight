@@ -22,6 +22,9 @@ from matplotlib.cm import ScalarMappable
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from pipeline_schema import get_required, load_schema, check_meta_schema_version, validate_stage_version
+from gradcam_projection import project_patch_cam_to_ct
+from api.contract import create_contract_file
+from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
 
 SCHEMA = load_schema(__file__)
 STAGE06_SCHEMA = get_required(SCHEMA, "stage_06_full_ct_gradcam", expected_type=dict)
@@ -107,8 +110,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--require-all-patches", action="store_true",
-        help="Fail if any manifest patch has no CAM for any selected attribute.",
+        default=True,
+        help="Require CAM coverage for every accepted manifest patch (the production default).",
     )
+    parser.add_argument(
+        "--allow-missing-cams", dest="require_all_patches", action="store_false",
+        help="Allow partial CAM artifacts for diagnostic runs; no complete clinical contract is generated.",
+    )
+    add_verbose_argument(parser)
     return parser.parse_args()
 
 
@@ -201,24 +210,18 @@ def build_stage06_nodule_records(
 ) -> dict[str, Any]:
     """Join only accepted Stage 02 patches to their Stage 03/04 outputs."""
     stage02_root = patient_root / str(STAGE02_PATHS["directory"])
-    source_values = {
-        str(row.get("detection_source", "ViTDet3D"))
-        for row in patch_records
-    }
-    if len(source_values) != 1 or not source_values.issubset({"ViTDet3D", "LoG"}):
-        raise ValueError(f"Stage 06 requires one recognized detector source per manifest; got {sorted(source_values)}.")
-    source = next(iter(source_values))
-    is_log = source == "LoG"
-    filter_key = "log_candidate_filter_report" if is_log else "candidate_filter_report"
-    candidates_key = "log_diagnostic" if is_log else "candidates_json"
-    filter_path = stage02_root / str(STAGE02_FILES[filter_key])
+    source_values = {str(row.get("source", row.get("detection_source", ""))) for row in patch_records}
+    if not source_values.issubset({"ViTDet3D", "LoG", "Merged"}):
+        raise ValueError(f"Stage 06 requires recognized fused detector provenance; got {sorted(source_values)}.")
+    is_log = False
+    filter_path = stage02_root / str(STAGE02_FILES["candidate_filter_report"])
     filter_report = read_json(filter_path)
     if filter_report.get("gate_status") != "passed":
         raise RuntimeError(
-            f"Stage 06 refused {source} records because the Stage 02 acceptance gate did not pass: "
+            f"Stage 06 refused fused records because the Stage 02 acceptance gate did not pass: "
             f"{filter_report.get('gate_status')!r} in {filter_path}."
         )
-    accepted_path = stage02_root / str(STAGE02_FILES[candidates_key])
+    accepted_path = stage02_root / str(STAGE02_FILES["candidates_json"])
     try:
         accepted_payload = json.loads(accepted_path.read_text(encoding="utf-8-sig"))
     except json.JSONDecodeError as exc:
@@ -262,6 +265,9 @@ def build_stage06_nodule_records(
             raise RuntimeError(
                 f"Stage 06 refused candidate {candidate_id}: it is absent from the accepted Stage 02 candidate file."
             )
+        stable_id = patch.get("stable_nodule_id", patch.get("nodule_id"))
+        if not isinstance(stable_id, str) or not stable_id.strip() or stable_id != candidate_id:
+            raise ValueError(f"Stage 02 patch {identity} has a missing or inconsistent stable_nodule_id.")
         stage03 = stage03_lookup.get(identity)
         stage04 = stage04_lookup.get(identity)
         if stage03 is None or stage04 is None:
@@ -280,11 +286,12 @@ def build_stage06_nodule_records(
             raise RuntimeError(f"Stage 04 prediction {identity} is missing its SHAP explanation.")
         record = {
             "nodule_id": candidate_id,
+            "stable_nodule_id": stable_id,
             "candidate_id": candidate_id,
             "patch_id": patch_id,
             "patient_id": str(stage03.get("patient_id") or patient_root.name),
-            "detection_source": source,
-            "purpose": "research_comparison_only" if is_log else "authoritative_detection",
+            "detection_source": str(patch.get("source", patch.get("detection_source"))),
+            "purpose": "accepted_fused_candidate",
             "geometry": {
                 "coordinate_order": patch.get("coordinate_order"),
                 "coordinate_system": SCHEMA["coordinate_system"],
@@ -299,15 +306,21 @@ def build_stage06_nodule_records(
                 "crop_end_zyx_exclusive": patch.get("crop_end_zyx"),
                 "patch_size_vox_zyx": patch.get("patch_size_vox_zyx"),
                 "spacing_zyx_mm": manifest_data.get("ct_geometry", {}).get("spacing_zyx_mm"),
+                "diameter_mm": patch.get("diameter_mm"),
+                "volume_mm3": patch.get("volume_mm3"),
             },
             "detector": {
-                "source": source,
+                "source": patch.get("source", patch.get("detection_source")),
                 "score": patch.get("detector_score"),
                 "log_response": patch.get("log_response"),
+                "vitdet_score": patch.get("vitdet_score"),
+                "log_score": patch.get("log_score"),
+                "source_members": patch.get("source_members", []),
                 "scale_mm": patch.get("scale_mm"),
-                "purpose": "diagnostic_only" if is_log else "authoritative",
+                "purpose": "accepted_fused_candidate",
             },
             "attributes": stage03.get("attributes"),
+            "anatomical_location": stage03.get("anatomical_location"),
             "malignancy": {
                 "predicted_malignancy_rating_continuous": stage04.get("predicted_malignancy_rating_continuous"),
                 "predicted_malignancy_rating_rounded": stage04.get("predicted_malignancy_rating_rounded"),
@@ -319,6 +332,7 @@ def build_stage06_nodule_records(
             "model_identity": {
                 "stage03_prediction_json": _relative_artifact(stage03_path, patient_root),
                 "stage03_checkpoint_metadata": stage03_payload.get("checkpoint_metadata"),
+                "stage03_attribute_support_audit": stage03_payload.get("attribute_support_audit"),
                 "stage03_schema_version": stage03_payload.get("schema_version"),
                 "stage04_model_type": stage04.get("model_type"),
                 "stage04_model_version": stage04.get("model_version"),
@@ -338,10 +352,17 @@ def build_stage06_nodule_records(
                 "shap": {
                     "source_prediction_json": _relative_artifact(stage04_path, patient_root),
                     "feature_contributions": shap_explanation.get("feature_contributions"),
+                    "features": shap_explanation.get("features", []),
+                    "top_positive_features": shap_explanation.get("top_positive_features", []),
+                    "top_negative_features": shap_explanation.get("top_negative_features", []),
+                    "status": shap_explanation.get("status"),
+                    "failure_reason": shap_explanation.get("failure_reason"),
+                    "failure_artifact": shap_explanation.get("failure_artifact"),
                     "base_value_raw": shap_explanation.get("base_value_raw"),
                     "explained_output": shap_explanation.get("explained_output"),
                     "model_sha256": shap_explanation.get("model_sha256"),
                     "explainer": (stage04.get("shap") or {}).get("explainer"),
+                    "feature_order": stage04.get("feature_names_in_order"),
                     "background": {
                         "path": ((stage04.get("shap") or {}).get("background_data") or {}).get("path"),
                         "sha256": ((stage04.get("shap") or {}).get("background_data") or {}).get("sha256"),
@@ -363,8 +384,8 @@ def build_stage06_nodule_records(
         "meta_schema_version": SCHEMA["schema_version"],
         "stage": "06_full_ct_gradcam",
         "patient_id": patient_root.name,
-        "detection_source": source,
-        "purpose": "research_comparison_only" if is_log else "authoritative_detection",
+        "detection_source": "fused_candidate_set",
+        "purpose": "accepted_fused_candidates",
         "source_manifest": _relative_artifact(Path(str(manifest_data.get("_manifest_path", ""))), patient_root)
         if manifest_data.get("_manifest_path") else None,
         "source_filter_report": _relative_artifact(filter_path, patient_root),
@@ -382,9 +403,14 @@ def _cam_filenames(attribute: str, kind: str) -> list[str]:
 
 
 def find_patch_cam(
-    cam_root: Path, patch_id: int, attribute: str
+    cam_root: Path, patch_id: int, attribute: str, stable_nodule_id: str | None = None
 ) -> tuple[Path | None, str | None]:
     """Find one patch's CAM without ever reusing patch 000 for another patch."""
+    if stable_nodule_id:
+        attribute_dir = cam_root / stable_nodule_id / f"GradCAM_{attribute.title().replace('_', '')}"
+        candidate = attribute_dir / "attribute_patch_cam.npy"
+        if candidate.is_file():
+            return candidate, "raw"
     pid3 = f"{patch_id:03d}"
     patch_dirs = [cam_root / pattern.format(patch_id=patch_id) for pattern in STAGE06_SCHEMA["patch_directory_patterns"]]
 
@@ -636,6 +662,7 @@ def create_montage(slice_paths: list[Path], out_path: Path, columns: int = 5) ->
 
 def main() -> None:
     args = parse_args()
+    configure_console(args.verbose)
     if not 0.0 <= args.alpha <= 1.0:
         raise ValueError("--alpha must be in [0,1].")
     if args.window_width <= 0:
@@ -678,8 +705,6 @@ def main() -> None:
     check_meta_schema_version(manifest_data, SCHEMA, context=str(manifest_path), require=False)
     validate_stage_version(manifest_data.get("schema_version"), STAGE02_SCHEMA["manifest_schema_version"], context="Stage 02 patch manifest")
     records = prepare_records(manifest_data)
-    if not records:
-        raise ValueError("No patch records were found in the manifest.")
     manifest_data["_manifest_path"] = str(manifest_path.resolve())
     build_stage06_nodule_records(patient_root, manifest_data, records, {})
 
@@ -720,13 +745,16 @@ def main() -> None:
 
         for record in records:
             pid = int(record["patch_id"])
-            cam_path, cam_kind = find_patch_cam(cam_root, pid, attribute)
+            stable_id = str(record.get("stable_nodule_id", record.get("nodule_id", "")))
+            if not stable_id:
+                raise ValueError(f"Stage 02 patch {pid} lacks stable_nodule_id.")
+            cam_path, cam_kind = find_patch_cam(cam_root, pid, attribute, stable_id)
             if cam_path is None:
                 missing_patch_ids.append(pid)
                 print(f"  [SKIP] patch {pid}: no attribute CAM found.")
                 continue
 
-            cam = np.load(cam_path).astype(np.float32)
+            cam = np.load(cam_path, allow_pickle=False).astype(np.float32)
             if cam.ndim != 3:
                 raise ValueError(f"CAM must be 3D: {cam_path} shape={cam.shape}")
             cam_shape = (
@@ -736,6 +764,7 @@ def main() -> None:
             )
             if not np.isfinite(cam).all():
                 raise ValueError(f"CAM contains NaN/Inf: {cam_path}")
+            projection_cam = cam.copy()
             if cam_kind == "raw":
                 cam = normalize_raw_cam(cam)
             else:
@@ -781,11 +810,18 @@ def main() -> None:
             if cam_metadata and cam_metadata.get("attribute") != attribute:
                 raise ValueError(f"Grad-CAM metadata attribute mismatch at {metadata_path}.")
             cam_artifacts_by_patch.setdefault(pid, {})[attribute] = {
+                "attribute": attribute,
                 "scaled_path": _relative_artifact(scaled_path, patient_root) if scaled_path.is_file() else None,
                 "raw_signed_path": _relative_artifact(raw_path, patient_root) if raw_path.is_file() else None,
                 "metadata_path": _relative_artifact(metadata_path, patient_root) if metadata_path.is_file() else None,
+                "patch_cam_path": _relative_artifact(cam_path, patient_root),
+                "cam_path": _relative_artifact(cam_path, patient_root),
+                "target_scalar": cam_metadata.get("target_scalar"),
                 "target_output_index": cam_metadata.get("target_output_index"),
+                "target_index": cam_metadata.get("target_index", cam_metadata.get("target_output_index")),
                 "target_scalar_definition": cam_metadata.get("target_scalar_definition"),
+                "checkpoint": cam_metadata.get("checkpoint"),
+                "target_layer": cam_metadata.get("target_layer"),
                 "target_rating_range": cam_metadata.get("target_rating_range"),
                 "raw_cam_formula": cam_metadata.get("raw_cam_formula"),
                 "gradient_polarity_semantics": cam_metadata.get("gradient_polarity_semantics"),
@@ -810,10 +846,18 @@ def main() -> None:
             sum_cam[ct_slices] += cam[patch_slices]
             coverage_count[ct_slices] += 1
             loaded_records.append((record, cam_shape))
+            ct_cam = project_patch_cam_to_ct(projection_cam, crop_start, ct_shape)
+            per_nodule_attribute_dir = output_dir / stable_id / f"GradCAM_{attribute.title().replace('_', '')}"
+            per_nodule_attribute_dir.mkdir(parents=True, exist_ok=True)
+            ct_cam_path = per_nodule_attribute_dir / "attribute_ct_cam.npy"
+            np.save(ct_cam_path, ct_cam, allow_pickle=False)
+            cam_artifacts_by_patch[pid][attribute]["ct_cam_path"] = _relative_artifact(ct_cam_path, patient_root)
             used_patch_data.append({
                 "patch_id": pid,
                 "candidate_id": record.get("candidate_id"),
+                "stable_nodule_id": stable_id,
                 "cam_file": str(cam_path),
+                "ct_cam_file": _relative_artifact(ct_cam_path, patient_root),
                 "cam_kind": cam_kind,
                 "crop_start_zyx": crop_start.tolist(),
                 "cam_shape_zyx": list(cam.shape),
@@ -901,10 +945,17 @@ def main() -> None:
     record_path.write_text(json.dumps(nodule_records, indent=2, allow_nan=False), encoding="utf-8")
     report["nodule_record_file"] = str(record_path)
     report["nodule_record_count"] = len(nodule_records["records"])
+    if args.attribute == "all" and args.require_all_patches:
+        contract_path = create_contract_file(patient_root, args.patient_id, record_path)
+        report["imaging_clinical_contract"] = str(contract_path)
+    else:
+        report["imaging_clinical_contract"] = None
+        print("WARNING: Partial Grad-CAM run; the imaging contract was not generated.")
     report_path = output_dir / STAGE06_SCHEMA["report_filename"]
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"\nReport: {report_path}")
     print("Done. The script only read the CT, manifest and CAM arrays; it did not alter model or Stage 01/02 outputs.")
+    stage_complete(6, "06")
 
 
 if __name__ == "__main__":

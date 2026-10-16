@@ -140,7 +140,7 @@ def validate_schema_contracts(schema: dict[str, Any]) -> list[str]:
     _assert(bool(get_required(schema, "stage_02_detect_and_patch.diagnostic_log_detector.stage03_attribute_inference_enabled_by_default", expected_type=bool))
             == bool(get_required(schema, "stage_03_nodule_classification.inputs.process_log_diagnostic_default", expected_type=bool)),
             "Stage 02 LoG-to-Stage 03 default settings disagree.")
-    passed.append("LoG patch manifest and Stage 03 diagnostic outputs are configured separately from authoritative predictions.")
+    passed.append("Optional LoG audit artifacts remain isolated while validated LoG proposals enter the fused production manifest.")
 
     stage2_filter = get_required(schema, "stage_02_detect_and_patch.candidate_acceptance_filter", expected_type=dict)
     _assert(stage2_filter.get("require_nonempty_heart_mask") is True,
@@ -247,6 +247,9 @@ def check_artifacts(schema: dict[str, Any]) -> list[str]:
         "PIL": "pillow",
         "joblib": "joblib",
         "sklearn": "scikit-learn",
+        "jsonschema": "jsonschema",
+        "fastapi": "fastapi",
+        "uvicorn": "uvicorn",
     }
     for module_name, package_name in required_modules.items():
         if importlib.util.find_spec(module_name) is None:
@@ -359,13 +362,13 @@ def main() -> int:
     _assert(log_gate < log_patch_call, "Stage 02 must gate LoG proposals before diagnostic patch extraction.")
     messages.append("Stage 02 review, authoritative-candidate, and LoG gates precede detector/patch downstream boundaries.")
 
-    # The LoG diagnostic branch must continue through separate Stage 04-06 artifacts and then Stage 07 reporting.
+    # Optional LoG-specific paths remain for audit compatibility; production inference uses the fused Stage 02 manifest.
     stage4_log_output = get_required(schema, "paths.stage_04.log_diagnostic_output_json", expected_type=str)
     stage3_log_input = get_required(schema, "stage_03_nodule_classification.outputs.log_diagnostic_predictions_json", expected_type=str)
     _assert(stage4_log_output.endswith(".json") and stage3_log_input.endswith(".json"), "Stage 04 diagnostic JSON paths must be JSON filenames.")
     stage5_batch = get_required(schema, "stage_05_gradcam.batch_processing", expected_type=dict)
     _assert(bool(stage5_batch.get("reuse_loaded_checkpoints")), "Stage 05 diagnostic batch processing must reuse loaded checkpoint models.")
-    _assert("{patch_id" in str(stage5_batch.get("patch_output_directory_pattern", "")), "Stage 05 batch output directory pattern must include patch_id.")
+    _assert("{patch_id" in str(stage5_batch.get("patch_output_directory_pattern", "")), "Stage 05 batch patch provenance pattern must include patch_id.")
     default_log_limit = get_required(schema, "stage_02_detect_and_patch.diagnostic_log_detector.patch_limit_default")
     _assert(type(default_log_limit) is int and default_log_limit > 0, "The canonical LoG patch limit must be a positive integer (use --all-log-patches for all proposals).")
     stage7 = get_required(schema, "stage_07_visualize", expected_type=dict)
@@ -387,8 +390,10 @@ def main() -> int:
     stage7_source = pipeline_script_path("07_visualize.py").read_text(encoding="utf-8-sig")
     _assert("sample_mask(lung_mask, center)" in stage7_source, "Stage 07 must directly sample lung_mask.npy before accepting/displaying centers.")
     _assert('get_required(STAGE07, "csv_columns_order", expected_type=list)' in stage7_source, "Stage 07 CSV columns must be sourced from meta_schema.json.")
-    _assert("accepted_rows.append(row)" in stage7_source and "excluded_rows.append(row)" in stage7_source,
-            "Stage 07 must separate in-lung accepted records from outside-lung candidates.")
+    _assert("accepted_rows.append(row)" in stage7_source and "excluded_rows.append(row)" in stage7_source
+            and "validate_localization_bbox(" in stage7_source
+            and 'row["localization_status"] = "VERIFIED"' in stage7_source,
+            "Stage 07 must separate in-lung records and block candidates without valid aligned boxes.")
     stage6_source = pipeline_script_path("06_full_ct_gradcam.py").read_text(encoding="utf-8-sig")
     _assert('filter_report.get("gate_status") != "passed"' in stage6_source,
             "Stage 06 must require a passing Stage 02 review/filter gate.")
@@ -398,7 +403,33 @@ def main() -> int:
             "Stage 07 must load the Stage 06 identity-linked nodule record set.")
     _assert("set(prediction_lookup) != set(stage06_lookup)" in stage7_source,
             "Stage 07 must reject identity-set drift from Stage 06.")
-    messages.append("LoG malignancy/CAM outputs are separately configured; Stage 07 strictly filters centers by lung_mask and writes accepted/excluded reports.")
+    fusion_source = (IMAGING / "lunginsight_candidate_fusion.py").read_text(encoding="utf-8-sig")
+    _assert("def select_fused_candidates(" in fusion_source and "def merge_detections(" in fusion_source,
+            "Candidate fusion must deduplicate the detector union and select from the fused set.")
+    merge_at = stage2_source.index("fused_candidates, fusion_report = merge_detections(")
+    select_at = stage2_source.index("candidate_dicts = select_fused_candidates(fused_candidates, limit=50)")
+    _assert(merge_at < select_at, "Stage 02 must select Top-50 only after detector fusion and deduplication.")
+    _assert("DETECTION_FUSION_AUDIT.md" in stage2_source and "stable_nodule_id" in fusion_source,
+            "Stage 02 fusion audit and stable nodule identity must be present.")
+    _assert("filter_accepted_patches(" in stage5_source and "stage05_acceptance_audit.json" in stage5_source,
+            "Stage 05 must block Grad-CAM inference for candidates not accepted by Stage 04.")
+    _assert("create_contract_file(patient_root, args.patient_id, record_path)" in stage6_source,
+            "Stage 06 must generate the validated imaging contract from its actual records.")
+    _assert("generate_patient_report(" in stage7_source,
+            "Stage 07 must generate static patient HTML reports.")
+    contract_schema_path = IMAGING / "schemas" / "imaging_clinical_contract_v1.schema.json"
+    openapi_path = IMAGING / "api" / "openapi.json"
+    _assert(contract_schema_path.is_file() and openapi_path.is_file(),
+            "The versioned imaging contract schema and OpenAPI document must exist.")
+    openapi = json.loads(openapi_path.read_text(encoding="utf-8"))
+    for api_path in (
+        "/api/v1/imaging/study",
+        "/api/v1/imaging/study/{study_id}",
+        "/api/v1/imaging/nodule/{nodule_id}",
+        "/api/v1/imaging/artifact/{artifact_id}",
+    ):
+        _assert(api_path in openapi.get("paths", {}), f"OpenAPI is missing endpoint {api_path}.")
+    messages.append("Fused LoG + ViTDet3D candidates, accepted-only CAM inference, validated contract/API, HTML reports, and Stage 07 box/lung localization gating are wired.")
     if args.check_artifacts:
         messages.extend(check_artifacts(schema))
     for message in messages:

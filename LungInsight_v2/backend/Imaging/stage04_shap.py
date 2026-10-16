@@ -145,3 +145,29 @@ def explain_regression(
         "max_abs_additivity_error": max_abs_error,
         "shap_version": str(shap.__version__),
     }
+
+
+def explain_linear_ranker(
+    model: Any,
+    values: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
+    """Explain the ranker's decision score with exact linear attributions."""
+    if not hasattr(model, "shap_values"):
+        raise TypeError("The selected ranking model does not expose linear SHAP values.")
+    shap_values, base_values = model.shap_values(values)
+    shap_values = np.asarray(shap_values, dtype=np.float64)
+    base_values = np.asarray(base_values, dtype=np.float64).reshape(-1)
+    if shap_values.shape != values.shape or not np.isfinite(shap_values).all():
+        raise ValueError("Ranking SHAP values have an invalid shape or contain non-finite values.")
+    if base_values.shape != (values.shape[0],) or not np.isfinite(base_values).all():
+        raise ValueError("Ranking SHAP base values have an invalid shape or contain non-finite values.")
+    predictions = np.asarray(model.predict(values), dtype=np.float64).reshape(-1)
+    residuals = base_values + shap_values.sum(axis=1) - predictions
+    max_abs_error = float(np.max(np.abs(residuals))) if residuals.size else 0.0
+    if max_abs_error > 1e-10:
+        raise RuntimeError(f"Ranking SHAP additivity check failed: {max_abs_error:.8g}")
+    return shap_values, base_values, {
+        "explainer": "exact_linear_attribution",
+        "model_output": "raw_malignancy_priority_score",
+        "max_abs_additivity_error": max_abs_error,
+    }

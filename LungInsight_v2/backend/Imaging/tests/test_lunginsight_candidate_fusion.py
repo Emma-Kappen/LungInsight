@@ -15,6 +15,8 @@ from lunginsight_candidate_fusion import (  # noqa: E402
     filter_detections_by_lung_mask,
     load_canonical_contract,
     merge_detections,
+    rank_filtered_log_candidates,
+    select_fused_candidates,
 )
 
 
@@ -117,6 +119,64 @@ class MergeTests(unittest.TestCase):
         second, _ = self.merge(list(reversed(logs)), list(reversed(vits)))
         self.assertEqual([x["nodule_id"] for x in first], [x["nodule_id"] for x in second])
         self.assertEqual([x["center_zyx"] for x in first], [x["center_zyx"] for x in second])
+
+    def test_physical_stable_id_and_source_members_survive_deduplication(self):
+        kwargs = {
+            "patient_id": "p1",
+            "study_uid": "study1",
+            "series_uid": "series1",
+            "origin_lps_mm": [-100.0, -200.0, -300.0],
+            "direction_lps": [[0, 1, 0], [0, 0, 1], [1, 0, 0]],
+        }
+        first, _ = self.merge(
+            [log("log-1", (10, 20, 30), response=2.5)],
+            [vit("vit-1", (10.2, 20, 30), score=0.9)],
+            **kwargs,
+        )
+        second, _ = self.merge(
+            [log("log-1", (10, 20, 30), response=2.5)],
+            [vit("vit-1", (10.2, 20, 30), score=0.9)],
+            **kwargs,
+        )
+        self.assertEqual(first[0]["stable_nodule_id"], second[0]["stable_nodule_id"])
+        self.assertEqual(first[0]["candidate_id"], first[0]["stable_nodule_id"])
+        self.assertEqual(first[0]["source"], "Merged")
+        self.assertEqual({item["candidate_id"] for item in first[0]["source_members"]}, {"vit-1", "log-1"})
+        self.assertEqual(first[0]["vitdet_score"], 0.9)
+        self.assertEqual(first[0]["log_score"], 2.5)
+
+    def test_partial_stable_identity_context_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "requires patient_id"):
+            self.merge(
+                [],
+                [vit("v1", (4, 10, 10))],
+                patient_id="p1",
+            )
+
+    def test_filtered_log_candidates_are_ranked_before_limit(self):
+        rows = [log(f"l{score}", (score, 10, 10), response=score) for score in range(60)]
+        selected = rank_filtered_log_candidates(rows, limit=50)
+        self.assertEqual(len(selected), 50)
+        self.assertEqual(selected[0]["log_response"], 59)
+        self.assertEqual(selected[-1]["log_response"], 10)
+        self.assertEqual(rank_filtered_log_candidates(list(reversed(rows)), limit=50), selected)
+
+    def test_log_ranking_rejects_missing_score(self):
+        with self.assertRaisesRegex(ValueError, "no finite log_response"):
+            rank_filtered_log_candidates([{"diagnostic_id": "missing"}])
+
+    def test_selection_is_applied_after_fusion_without_cross_source_score_comparison(self):
+        fused, _ = self.merge(
+            [log("log-only", (30, 30, 30), response=100.0)],
+            [
+                vit("vit-only-1", (4, 4, 4), score=0.2),
+                vit("vit-only-2", (8, 8, 8), score=0.1),
+            ],
+        )
+        selected = select_fused_candidates(fused, limit=2)
+        self.assertEqual(len(selected), 2)
+        self.assertEqual({row["source"] for row in selected}, {"ViTDet3D"})
+        self.assertNotIn("log-only", {row["source_members"][0]["candidate_id"] for row in selected})
 
 
 class FilterTests(unittest.TestCase):

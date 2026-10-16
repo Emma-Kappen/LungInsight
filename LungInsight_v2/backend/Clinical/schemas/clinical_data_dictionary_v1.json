@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.0.0",
+  "status": "research_harmonization_specification",
+  "time_unit": "days",
+  "prediction_baseline_definition": "TCGA OS development is indexed at initial pathologic diagnosis. Clinical inference must explicitly attest that the imaging study timestamp and clinical prediction baseline correspond to that same diagnosis baseline; otherwise survival inference is blocked.",
+  "variables": {
+    "patient_id": {
+      "meaning": "Source patient key used only for linkage and grouped validation.",
+      "type": "string",
+      "role": "metadata",
+      "inference_available": true,
+      "mappings": {
+        "MSK-CHORD": "PATIENT_ID",
+        "TCGA-LUAD": "patient/bcr_patient_barcode",
+        "TCGA-LUSC": "patient/bcr_patient_barcode"
+      },
+      "missing": "Reject records without a source patient identifier."
+    },
+    "histology": {
+      "meaning": "Pathologically recorded lung cancer histology.",
+      "type": "categorical",
+      "role": "classifier_target",
+      "inference_available": false,
+      "mappings": {
+        "MSK-CHORD": {
+          "preferred": "sample/ONCOTREE_CODE",
+          "LUAD": "LUAD or CANCER_TYPE_DETAILED exactly Lung Adenocarcinoma",
+          "LUSC": "LUSC or CANCER_TYPE_DETAILED exactly Lung Squamous Cell Carcinoma",
+          "excluded": "Broad NSCLC, ambiguous/multiple sample diagnoses, non-lung cancer"
+        },
+        "TCGA-LUAD": "Cohort membership; not a discriminative predictor",
+        "TCGA-LUSC": "Cohort membership; not a discriminative predictor"
+      },
+      "missing": "Exclude uncertain/conflicting target labels; never infer from survival or imaging."
+    },
+    "age_at_baseline_years": {
+      "meaning": "Age at initial pathologic diagnosis, used as the TCGA OS time origin.",
+      "type": "number",
+      "units": "years",
+      "allowed": "18 through 120 inclusive; other values are not model eligible",
+      "role": "predictor",
+      "inference_available": true,
+      "measurement_time": "At initial pathologic diagnosis",
+      "mappings": {
+        "TCGA-LUAD": "patient/age_at_initial_pathologic_diagnosis",
+        "TCGA-LUSC": "patient/age_at_initial_pathologic_diagnosis",
+        "MSK-CHORD": "CURRENT_AGE_DEID is not mapped: its relation to diagnosis/baseline is not established"
+      },
+      "missing": "Preserve as missing; fitted training-only median imputation is model-specific."
+    },
+    "sex_at_baseline": {
+      "meaning": "Sex field as recorded by the source, not a broader gender identity construct.",
+      "type": "categorical",
+      "allowed": ["female", "male", "other_or_unspecified"],
+      "role": "predictor",
+      "inference_available": true,
+      "measurement_time": "At diagnosis/source baseline",
+      "mappings": {
+        "TCGA-LUAD": "patient/gender",
+        "TCGA-LUSC": "patient/gender",
+        "MSK-CHORD": "GENDER; excluded from the TCGA-only survival model"
+      },
+      "missing": "Preserve missingness; no inference from patient identifiers."
+    },
+    "stage_at_baseline": {
+      "meaning": "Pathologic stage documented at initial diagnosis; retain substage distinctions.",
+      "type": "categorical",
+      "role": "predictor",
+      "inference_available": true,
+      "measurement_time": "Stage event at diagnosis",
+      "mappings": {
+        "TCGA-LUAD": "patient/stage_event/pathologic_stage",
+        "TCGA-LUSC": "patient/stage_event/pathologic_stage",
+        "MSK-CHORD": "STAGE_HIGHEST_RECORDED is excluded because its measurement time is unknown"
+      },
+      "missing": "Preserve missingness; do not substitute clinical stage or latest/future stage."
+    },
+    "kps_category": {
+      "meaning": "Karnofsky Performance Status category; direct measurements preferred.",
+      "type": "categorical",
+      "allowed": ["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "10-20", "30-40", "50-60", "70-80", "90-100"],
+      "role": "optional_predictor",
+      "inference_available": true,
+      "measurement_time": "Prediction baseline",
+      "mappings": {
+        "TCGA-LUAD": "patient/karnofsky_performance_score",
+        "TCGA-LUSC": "patient/karnofsky_performance_score",
+        "MSK-CHORD": "data_timeline_performance_status.txt/ECOG; longitudinal and not baseline-aligned"
+      },
+      "missing": "Missing if neither valid direct KPS nor an approved ECOG conversion is available."
+    },
+    "smoking_history": {
+      "meaning": "Source-recorded tobacco smoking history; original value retained.",
+      "type": "source_specific_categorical",
+      "role": "not_currently_a_predictor",
+      "inference_available": false,
+      "mappings": {
+        "TCGA-LUAD": "patient/tobacco_smoking_history; numeric source coding requires a verified codebook",
+        "TCGA-LUSC": "patient/tobacco_smoking_history; numeric source coding requires a verified codebook",
+        "MSK-CHORD": "SMOKING_PREDICTIONS_3_CLASSES is a derived prediction, not an observed smoking history"
+      },
+      "missing": "Do not decode or combine values without source documentation."
+    },
+    "overall_survival_time_days": {
+      "meaning": "Days from initial pathologic diagnosis to death or last known alive.",
+      "type": "number",
+      "units": "days",
+      "role": "survival_target_time",
+      "inference_available": false,
+      "mappings": {
+        "TCGA-LUAD": {
+          "event": "patient/vital_status == Dead",
+          "event_time": "patient/days_to_death",
+          "censor_time": "patient/days_to_last_followup, otherwise patient/days_to_last_known_alive"
+        },
+        "TCGA-LUSC": {
+          "event": "patient/vital_status == Dead",
+          "event_time": "patient/days_to_death",
+          "censor_time": "patient/days_to_last_followup, otherwise patient/days_to_last_known_alive"
+        },
+        "MSK-CHORD": "OS_MONTHS/OS_STATUS; excluded pending verified endpoint origin/definitions and permitted use"
+      },
+      "missing": "No event/time imputation. Exclude invalid, negative, unknown, or contradictory endpoint records."
+    },
+    "overall_survival_event": {
+      "meaning": "Death event indicator for the OS endpoint; 1=death, 0=right censored.",
+      "type": "boolean",
+      "role": "survival_target_event",
+      "inference_available": false,
+      "mappings": {
+        "TCGA-LUAD": "patient/vital_status",
+        "TCGA-LUSC": "patient/vital_status",
+        "MSK-CHORD": "OS_STATUS; not harmonized in this release"
+      },
+      "missing": "Never infer event from a missing follow-up field."
+    },
+    "imaging_candidate_count": {
+      "meaning": "Number of records in the validated Imaging contract nodules array.",
+      "type": "integer",
+      "units": "nodule candidates",
+      "role": "imaging_context_only",
+      "inference_available": true,
+      "mappings": {
+        "LungInsight-Imaging-v1": "contract.nodules.length"
+      },
+      "missing": "Not imputed. Not a malignant-nodule count and not currently a trained predictor."
+    },
+    "largest_reported_nodule_diameter_mm": {
+      "meaning": "Largest non-null diameter_mm among Imaging contract nodule records.",
+      "type": "number",
+      "units": "mm",
+      "role": "imaging_context_only",
+      "inference_available": true,
+      "mappings": {
+        "LungInsight-Imaging-v1": "contract.nodules[*].diameter_mm"
+      },
+      "missing": "Missing if no nodule has a reported diameter; not currently a trained predictor."
+    }
+  },
+  "model_feature_sets": {
+    "tcga_os_v1": {
+      "features": ["age_at_baseline_years", "sex_at_baseline", "stage_at_baseline"],
+      "excluded": [
+        "kps_category: observed in only a small minority at baseline",
+        "smoking_history: source numeric codes lack a verified codebook",
+        "imaging_candidate_count and largest_reported_nodule_diameter_mm: no patient-linked, harmonized training measurements"
+      ]
+    }
+  },
+  "transformations": {
+    "version": "1.0.0",
+    "time": "TCGA source durations already expressed in days; no unit conversion.",
+    "stage": "Trim surrounding whitespace only; preserve original stage distinctions.",
+    "performance_status": "See performance_status_mapping_version in harmonization.py; ECOG conversion is an approximate interval, never an exact KPS score.",
+    "source_pooling": "Only the two TCGA cohorts may enter the initial OS development workflow, using the same GDC XML endpoint definition. MSK-CHORD is not pooled."
+  }
+}

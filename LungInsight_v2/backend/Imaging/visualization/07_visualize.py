@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Stage 07: interactive axial CT viewer and lung-mask-filtered nodule report.
+"""Stage 07: interactive axial CT viewer and validated nodule QC report.
 
-Reports are written before the GUI opens. Only candidate centers that sample
-True in Stage 01 lung_mask.npy are included in the visible accepted list and
-nodule_report.csv. Rejected/outside centers are kept in a separate audit CSV.
+Reports are written before the GUI opens. Only candidates with an in-lung
+center and a valid, aligned 3-D Stage 02 bounding box are included in the
+visible localized list. Missing or invalid boxes are blocked and retained in
+the separate audit CSV.
 """
 from __future__ import annotations
 
@@ -21,6 +22,8 @@ if IMAGING_DIR.name in {"stages", "inference", "visualization", "validation"}:
 if str(IMAGING_DIR) not in sys.path:
     sys.path.insert(0, str(IMAGING_DIR))
 
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.lines import Line2D
@@ -29,6 +32,8 @@ from matplotlib.widgets import CheckButtons, Slider
 from scipy import ndimage
 
 from pipeline_schema import get_required, load_schema, check_meta_schema_version, validate_stage_version
+from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+from html_reports import generate_patient_report
 
 SCHEMA = load_schema(__file__)
 STAGE01 = get_required(SCHEMA, "stage_01_hu_and_crop", expected_type=dict)
@@ -136,6 +141,10 @@ def _score_row(
     row: dict[str, Any] = {
         "patient_id": prediction.get("patient_id"),
         "detection_source": source,
+        "source": stage06_record.get("detector", {}).get("source", source),
+        "source_members": stage06_record.get("detector", {}).get("source_members", []),
+        "vitdet_score": stage06_record.get("detector", {}).get("vitdet_score"),
+        "log_score": stage06_record.get("detector", {}).get("log_score"),
         "purpose": stage06_record["purpose"],
         "patch_id": patch_id,
         "candidate_id": prediction.get("candidate_id"),
@@ -219,117 +228,144 @@ def classify_fallback_location(
     row["airway_proximity_mm"] = None
 
 
+def validate_localization_bbox(geometry: Any, ct_shape: tuple[int, int, int]) -> tuple[bool, str | None]:
+    if not isinstance(geometry, dict):
+        return False, "missing_geometry"
+    try:
+        start = np.asarray(geometry["bbox_start_zyx"], dtype=np.float64)
+        end = np.asarray(geometry["bbox_end_zyx_exclusive"], dtype=np.float64)
+    except (KeyError, TypeError, ValueError):
+        return False, "missing_or_non_numeric_bbox"
+    if start.shape != (3,) or end.shape != (3,) or not np.isfinite(start).all() or not np.isfinite(end).all():
+        return False, "bbox_coordinates_not_finite_or_three_dimensional"
+    if np.any(end <= start):
+        return False, "bbox_has_non_positive_extent"
+    shape = np.asarray(ct_shape, dtype=np.float64)
+    if np.any(start < 0) or np.any(end > shape):
+        return False, "bbox_outside_displayed_ct"
+    frame = geometry.get("space", geometry.get("coordinate_frame", "stage01_final_cropped_ct"))
+    if frame != "stage01_final_cropped_ct":
+        return False, f"bbox_coordinate_frame_mismatch:{frame}"
+    return True, None
+
+
 def load_candidate_rows(patient_root: Path, lung_mask: np.ndarray, air_mask: np.ndarray,
                        heart_mask: np.ndarray, spacing_zyx: np.ndarray, malignancy_threshold: int):
     stage3_dir = patient_root / get_required(PATHS, "stage_03.directory")
     stage4_dir = patient_root / get_required(PATHS, "stage_04.directory")
     primary_path = stage3_dir / get_required(STAGE03, "outputs.predictions_json")
-    log_path = stage3_dir / get_required(STAGE03, "outputs.log_diagnostic_predictions_json")
     primary_mal_path = stage4_dir / get_required(PATHS, "stage_04.output_json")
-    log_mal_path = stage4_dir / get_required(PATHS, "stage_04.log_diagnostic_output_json")
     stage06_paths = get_required(PATHS, "stage_06", expected_type=dict)
     primary_stage06_path = patient_root / stage06_paths["directory"] / STAGE06["record_filename"]
-    log_stage06_path = patient_root / stage06_paths["log_diagnostic_directory"] / STAGE06["record_filename"]
-    for path in (primary_path, log_path, primary_mal_path, log_mal_path, primary_stage06_path, log_stage06_path):
+    for path in (primary_path, primary_mal_path, primary_stage06_path):
         if not path.is_file():
             raise FileNotFoundError(
-                f"Required Stage 03/04 report input is missing: {path}. Run Stages 03 and 04 for both authoritative and LoG predictions first."
+                f"Required fused-pipeline report input is missing: {path}. Run Stages 03 through 06 first."
             )
     primary_records, _ = unwrap_records(read_json(primary_path), primary_path)
-    log_records, _ = unwrap_records(read_json(log_path), log_path)
     primary_scores = build_score_lookup(read_json(primary_mal_path), primary_mal_path)
-    log_scores = build_score_lookup(read_json(log_mal_path), log_mal_path)
-    stage06_lookups: dict[str, dict[tuple[str, int], dict[str, Any]]] = {}
-    for source, path in (("ViTDet3D", primary_stage06_path), ("LoG", log_stage06_path)):
-        payload = read_json(path)
-        validate_stage_version(
-            payload.get("schema_version"),
-            STAGE06["record_schema_version"],
-            context=f"Stage 06 {source} records",
+    stage06_payload = read_json(primary_stage06_path)
+    validate_stage_version(
+        stage06_payload.get("schema_version"),
+        STAGE06["record_schema_version"],
+        context="Stage 06 fused records",
+    )
+    stage06_records = stage06_payload.get("records")
+    if not isinstance(stage06_records, list) or any(not isinstance(record, dict) for record in stage06_records):
+        raise ValueError(f"{primary_stage06_path}: Stage 06 records must be a list of objects.")
+    stage06_lookup: dict[tuple[str, int], dict[str, Any]] = {}
+    for record in stage06_records:
+        try:
+            key = (str(record["candidate_id"]), int(record["patch_id"]))
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"{primary_stage06_path}: invalid stable candidate/patch identity.") from exc
+        if record.get("stable_nodule_id", record.get("nodule_id")) != key[0]:
+            raise ValueError(f"{primary_stage06_path}: stable_nodule_id mismatch for {key}.")
+        if key in stage06_lookup:
+            raise ValueError(f"{primary_stage06_path}: duplicate candidate/patch identity {key}.")
+        stage06_lookup[key] = record
+    if int(stage06_payload.get("accepted_record_count", -1)) != len(stage06_lookup):
+        raise ValueError(f"{primary_stage06_path}: accepted_record_count does not reconcile with records.")
+
+    prediction_lookup = {
+        (str(row.get("candidate_id")), int(row["patch_id"])): row
+        for row in primary_records
+        if row.get("candidate_id") is not None and row.get("patch_id") is not None
+    }
+    if set(prediction_lookup) != set(stage06_lookup):
+        raise ValueError(
+            "Stage 03 and Stage 06 fused candidate identities differ; "
+            f"missing_in_stage06={sorted(set(prediction_lookup) - set(stage06_lookup))[:10]}, "
+            f"missing_in_stage03={sorted(set(stage06_lookup) - set(prediction_lookup))[:10]}."
         )
-        if payload.get("detection_source") != source:
-            raise ValueError(f"{path}: expected Stage 06 source {source!r}, got {payload.get('detection_source')!r}.")
-        records = payload.get("records")
-        if not isinstance(records, list) or any(not isinstance(record, dict) for record in records):
-            raise ValueError(f"{path}: Stage 06 records must be a list of objects.")
-        lookup: dict[tuple[str, int], dict[str, Any]] = {}
-        for record in records:
-            try:
-                key = (str(record["candidate_id"]), int(record["patch_id"]))
-            except (KeyError, TypeError, ValueError) as exc:
-                raise ValueError(f"{path}: invalid Stage 06 candidate/patch identity.") from exc
-            if key in lookup:
-                raise ValueError(f"{path}: duplicate Stage 06 candidate/patch identity {key}.")
-            lookup[key] = record
-        if int(payload.get("accepted_record_count", -1)) != len(lookup):
-            raise ValueError(f"{path}: accepted_record_count does not reconcile with records.")
-        stage06_lookups[source] = lookup
     all_source_rows = []
     accepted_rows = []
     excluded_rows = []
     lung_distance_inside = ndimage.distance_transform_edt(lung_mask.astype(bool), sampling=tuple(float(v) for v in spacing_zyx))
 
-    for source, predictions, score_lookup in (
-        ("ViTDet3D", primary_records, primary_scores),
-        ("LoG", log_records, log_scores),
-    ):
-        stage06_lookup = stage06_lookups[source]
-        prediction_lookup = {
-            (str(row.get("candidate_id")), int(row["patch_id"])): row
-            for row in predictions
-            if row.get("candidate_id") is not None and row.get("patch_id") is not None
-        }
-        if set(prediction_lookup) != set(stage06_lookup):
-            raise ValueError(
-                f"Stage 03 and Stage 06 {source} candidate identities differ; "
-                f"missing_in_stage06={sorted(set(prediction_lookup) - set(stage06_lookup))[:10]}, "
-                f"missing_in_stage03={sorted(set(stage06_lookup) - set(prediction_lookup))[:10]}."
-            )
-        for key, stage06_record in stage06_lookup.items():
-            prediction = prediction_lookup[key]
-            center = prediction.get("center_zyx")
-            inside, index, reason = sample_mask(lung_mask, center)
-            if index is None:
-                center_list = None
-                dist = None
+    for key, stage06_record in stage06_lookup.items():
+        prediction = prediction_lookup[key]
+        center = prediction.get("center_zyx")
+        inside, index, reason = sample_mask(lung_mask, center)
+        center_list = list(index) if index is not None else None
+        dist = float(lung_distance_inside[index]) if inside and index is not None else None
+        source = str(stage06_record.get("detector", {}).get("source", ""))
+        row = _score_row(
+            prediction, primary_scores, stage06_record,
+            source=source, malignancy_threshold=malignancy_threshold,
+        )
+        row["stage06_record_path"] = str(primary_stage06_path)
+        row["candidate_in_lung_mask"] = bool(inside)
+        row["center_inside_lung_mask"] = bool(inside)
+        row["center_index_zyx_rounded"] = json.dumps(center_list)
+        row["exclusion_reason"] = reason
+        bbox_valid, bbox_reason = validate_localization_bbox(
+            stage06_record.get("geometry"), tuple(int(v) for v in lung_mask.shape)
+        )
+        row["localization_status"] = "VERIFIED" if bbox_valid else "BLOCKED"
+        row["bbox_validation_reason"] = bbox_reason
+        anatomy = prediction.get("anatomical_location") if isinstance(prediction.get("anatomical_location"), dict) else {}
+        inside_heart = bool(heart_mask[index]) if index is not None else False
+        row["center_inside_heart_mask"] = inside_heart
+        if inside and not inside_heart and index is not None and bbox_valid:
+            classify_fallback_location(row, index, lung_distance_mm=dist or 0.0, anatomy=anatomy,
+                                       air_mask=air_mask, heart_mask=heart_mask)
+            accepted_rows.append(row)
+        else:
+            if index is not None:
+                row["center_inside_air_mask"] = bool(air_mask[index])
+            if inside_heart:
+                row["exclusion_reason"] = "center_inside_heart_mask"
+                fallback_location = "heart_mask"
+            elif not inside:
+                fallback_location = "outside_lung"
             else:
-                center_list = list(index)
-                dist = float(lung_distance_inside[index]) if inside else None
-            row = _score_row(
-                prediction, score_lookup, stage06_record,
-                source=source, malignancy_threshold=malignancy_threshold,
-            )
-            row["candidate_in_lung_mask"] = bool(inside)
-            row["center_inside_lung_mask"] = bool(inside)
-            row["center_index_zyx_rounded"] = json.dumps(center_list)
-            row["exclusion_reason"] = reason
-            anatomy = prediction.get("anatomical_location") if isinstance(prediction.get("anatomical_location"), dict) else {}
-            if inside and index is not None:
-                classify_fallback_location(row, index, lung_distance_mm=dist or 0.0, anatomy=anatomy,
-                                           air_mask=air_mask, heart_mask=heart_mask)
-                accepted_rows.append(row)
-            else:
-                if index is not None:
-                    row["center_inside_air_mask"] = bool(air_mask[index])
-                    row["center_inside_heart_mask"] = bool(heart_mask[index])
-                row["location_primary"] = anatomy.get("primary", "outside_lung")
-                row["location_region"] = anatomy.get("region", "outside_lung_mask")
-                row["location_compartment"] = anatomy.get("compartment", "outside_lung")
-                row["laterality"] = anatomy.get("laterality", "unknown")
-                row["vertical_region"] = anatomy.get("vertical_region", "unknown")
-                row["wall_relationship"] = anatomy.get("wall_relationship", "outside_lung_mask")
-                row["distance_to_lung_mask_mm"] = anatomy.get("distance_to_lung_mask_mm")
-                row["airway_type"] = anatomy.get("airway_type")
-                row["airway_proximity_mm"] = anatomy.get("airway_proximity_mm")
-                excluded_rows.append(row)
-            all_source_rows.append(row)
+                fallback_location = "localization_blocked"
+            row["location_primary"] = anatomy.get("primary", fallback_location)
+            row["location_region"] = anatomy.get("region", fallback_location)
+            row["location_compartment"] = anatomy.get("compartment", fallback_location)
+            row["laterality"] = anatomy.get("laterality", "unknown")
+            row["vertical_region"] = anatomy.get("vertical_region", "unknown")
+            row["wall_relationship"] = anatomy.get("wall_relationship", fallback_location)
+            row["distance_to_lung_mask_mm"] = anatomy.get("distance_to_lung_mask_mm")
+            row["airway_type"] = anatomy.get("airway_type")
+            row["airway_proximity_mm"] = anatomy.get("airway_proximity_mm")
+            if not bbox_valid and inside:
+                row["exclusion_reason"] = f"missing_or_invalid_bbox:{bbox_reason}"
+            excluded_rows.append(row)
+        all_source_rows.append(row)
+    accepted_rows.sort(
+        key=lambda row: (
+            -float(row["predicted_malignancy_rating_continuous"])
+            if isinstance(row.get("predicted_malignancy_rating_continuous"), (int, float))
+            else float("inf"),
+            str(row["stable_nodule_id"]),
+        )
+    )
     return accepted_rows, excluded_rows, all_source_rows, {
         "primary_predictions_json": str(primary_path.resolve()),
-        "log_predictions_json": str(log_path.resolve()),
         "primary_malignancy_json": str(primary_mal_path.resolve()),
-        "log_malignancy_json": str(log_mal_path.resolve()),
         "primary_stage06_records": str(primary_stage06_path.resolve()),
-        "log_stage06_records": str(log_stage06_path.resolve()),
     }
 
 
@@ -563,15 +599,24 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--patient-id", default=str(get_required(SCHEMA, "defaults.patient_id")))
     parser.add_argument("--output-dir", type=Path, default=None,
                         help="Output directory for the JSON/CSV report; defaults from meta_schema.json.")
-    parser.add_argument("--no-gui", dest="open_gui", action="store_false", default=bool(VIEWER_SCHEMA["default_open_gui"]), help="Write reports without opening the slider viewer.")
+    parser.add_argument("--gui", dest="open_gui", action="store_true", help="Open the optional interactive slider viewer after writing reports.")
+    parser.add_argument("--no-gui", dest="open_gui", action="store_false", help="Write reports without opening the slider viewer.")
+    parser.set_defaults(open_gui=False)
     parser.add_argument("--malignancy-rating-threshold", type=int,
                         default=int(STAGE07["malignancy_rating_threshold"]),
                         help="Operational high-suspicion rating threshold; not a cancer diagnosis.")
+    add_verbose_argument(parser)
     return parser
 
 
 def main() -> int:
     args = build_parser().parse_args()
+    configure_console(args.verbose)
+    if args.open_gui:
+        try:
+            plt.switch_backend("TkAgg")
+        except (ImportError, RuntimeError) as exc:
+            raise RuntimeError("The optional --gui viewer requires a working Tk GUI backend.") from exc
     if not 1 <= args.malignancy_rating_threshold <= 5:
         raise ValueError("--malignancy-rating-threshold must be in [1,5].")
     patient_root = DEFAULT_OUTPUT_ROOT / args.patient_id
@@ -618,7 +663,7 @@ def main() -> int:
     write_csv(excluded_csv, excluded)
 
     count_by_source: dict[str, dict[str, int]] = {}
-    for source in ("ViTDet3D", "LoG"):
+    for source in ("ViTDet3D", "LoG", "Merged"):
         source_rows = [row for row in accepted if row["detection_source"] == source]
         count_by_source[source] = {
             "input_candidates": len([row for row in _all_rows if row["detection_source"] == source]),
@@ -640,6 +685,15 @@ def main() -> int:
         "input_candidate_count": len(_all_rows),
         "nodule_count_center_inside_lung_mask": len(accepted),
         "nodule_count_center_outside_lung_mask_excluded": len(excluded),
+        "nodule_count_localization_blocked": sum(
+            row.get("localization_status") == "BLOCKED" for row in excluded
+        ),
+        "localization_gate": "GATE_06_TO_07",
+        "localization_gate_status": (
+            "passed"
+            if not any(row.get("localization_status") == "BLOCKED" for row in excluded)
+            else "passed_with_blocked_candidates"
+        ),
         "high_suspicion_or_malignancy_rating_count_inside_lung_mask": sum(bool(row["high_suspicion_rating_ge_threshold"]) for row in accepted),
         "malignancy_rating_threshold": args.malignancy_rating_threshold,
         "malignancy_count_interpretation": STAGE07["malignancy_threshold_semantics"],
@@ -669,11 +723,25 @@ def main() -> int:
     print(f"Candidates excluded (center outside lung_mask or CT): {len(excluded)}")
     print(f"High-suspicion rating >= {args.malignancy_rating_threshold} within lung mask: {summary['high_suspicion_or_malignancy_rating_count_inside_lung_mask']}")
     print("Interpretation: Stage 04 reader-suspicion rating threshold; not cancer probability or a clinical diagnosis.")
+    html_report_dir = DEFAULT_OUTPUT_ROOT / "reports" / args.patient_id
+    report_pages = generate_patient_report(
+        patient_id=args.patient_id,
+        patient_root=patient_root,
+        report_root=html_report_dir,
+        accepted=accepted,
+        excluded=excluded,
+        ct=np.asarray(ct),
+        lung_mask=lung_mask,
+        heart_mask=heart_mask,
+        input_paths=input_paths,
+    )
+    print(f"HTML report: {html_report_dir / 'index.html'} ({len(report_pages)} pages)")
 
     if args.open_gui:
         launch_viewer(ct, lung_mask, air_mask, heart_mask, accepted, args.patient_id,
                       float(DISPLAY_WINDOW["level"]), float(DISPLAY_WINDOW["width"]),
                       args.malignancy_rating_threshold)
+    stage_complete(7, "07")
     return 0
 
 

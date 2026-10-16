@@ -54,7 +54,7 @@
     "heart_mask_review_attestation.json": "Optional JSON operator attestation after visual review of the new Stage 01 central-rod mask QC montage; not an automated clinical validation.",
     "volume_hu_heart_excluded.npy": "float32, final Z-cropped HU volume with heart/central-mediastinal exclusion-mask voxels replaced by configured physical-air HU; same ZYX geometry as volume_hu_cropped.npy"
   },
-  "schema_version": "2.12",
+  "schema_version": "2.13",
   "stage_02_detect_and_patch": {
     "stage": "02",
     "space": "stage01_final_cropped_ct",
@@ -71,6 +71,12 @@
     },
     "authoritative_detector": {
       "name": "ViTDet3D",
+      "sources": [
+        "ViTDet3D",
+        "LoG"
+      ],
+      "authority_policy": "validated_union_after_deduplication",
+      "fusion_method": "configured_physical_center_distance_or_3d_bbox_iou",
       "checkpoint_default": "rlsn/DeTr4LungNodule",
       "input_window_zyx_voxels": [
         40,
@@ -110,9 +116,9 @@
       "model_version_default": "v1.0"
     },
     "diagnostic_log_detector": {
-      "role": "research_comparison_only",
-      "authoritative": false,
-      "note": "LoG records must never be merged into candidates.json.",
+      "role": "candidate_source",
+      "authoritative": true,
+      "note": "LoG candidates are validated with the same anatomical gates, fused with ViTDet3D candidates, and retained with source provenance.",
       "diameters_mm": [
         4.0,
         6.0,
@@ -123,8 +129,8 @@
         24.0
       ],
       "stage03_attribute_inference_enabled_by_default": true,
-      "patches_are_separate_from_authoritative_candidates": true,
-      "stage03_inference_note": "LoG proposals are patch-extracted into a separate manifest and passed through the frozen Stage 03 attribute rankers. They remain diagnostic/research proposals and are not merged into candidates.json or the primary Stage 04 malignancy input.",
+      "patches_are_separate_from_authoritative_candidates": false,
+      "stage03_inference_note": "Selected LoG proposals are represented in the fused primary patch manifest and pass through the same Stage 03 and Stage 04 gates as ViTDet3D candidates. An optional separate LoG manifest is audit-only.",
       "patch_limit_default": 100,
       "patch_limit_description": "By default extract the first 100 candidates from the descending post-NMS LoG response ranking. Use --all-log-patches to select every LoG candidate."
     },
@@ -189,25 +195,25 @@
       "array_path": "Path to float32 patch .npy array.",
       "triplanar_path": "Path to tri-planar visualization.",
       "anatomical_location": "Heuristic anatomical localization object copied from the authoritative candidate; uses the same detector center and CT geometry.",
-      "detection_source": "Proposal source, either ViTDet3D or LoG; LoG records are diagnostic-only.",
-      "diagnostic_id": "Original LoG diagnostic identifier when detection_source is LoG.",
-      "log_response": "Raw LoG detector response for diagnostic proposals; not calibrated as a probability.",
-      "scale_mm": "LoG Gaussian scale/diameter metadata in millimetres for diagnostic proposals."
+      "detection_source": "Proposal source, either ViTDet3D, LoG, or Merged; both sources are eligible for downstream inference.",
+      "diagnostic_id": "Original LoG detector identifier when a LoG source record is present.",
+      "log_response": "Raw LoG detector response; not calibrated as a probability.",
+      "scale_mm": "LoG Gaussian scale/diameter metadata in millimetres."
     },
     "outputs": {
-      "candidates.json": "Authoritative ViTDet3D-only candidate list.",
+      "candidates.json": "Authoritative validated, deduplicated LoG + ViTDet3D candidate union.",
       "candidates.csv": "Flat human-readable mirror of candidates.json.",
       "detector_metadata.json": "Detector, CT-frame, patch-frame, and provenance metadata.",
       "candidate_filter_report.json": "Counts and rejection reasons for the pre-patch lung/heart acceptance gate.",
       "candidates_rejected_audit.json": "Rejected ViTDet3D detections for audit only; never input to patch extraction or downstream stages.",
-      "log_candidates_diagnostic.json": "Diagnostic LoG records only.",
+      "log_candidates_diagnostic.json": "Validated LoG source records retained as an audit mirror; authoritative fusion is in candidates.json.",
       "log_candidate_filter_report.json": "Counts and rejection reasons for mask-filtered LoG diagnostic proposals.",
       "log_candidates_rejected_audit.json": "Rejected LoG proposals for audit only; never input to patch extraction or downstream stages.",
       "candidates_diagnostic_agreement.json": "Read-only ViTDet3D-vs-LoG comparison.",
       "patches/arrays/patch_000.npy": "Float32 ZYX nodule patch.",
       "patches/visualizations/patch_000_triplanar.png": "Tri-planar patch visualization.",
       "patches/patches_manifest.json": "Per-patch geometry, coordinates, provenance, and characterization.",
-      "log_diagnostic_patches/log_patches_manifest.json": "Patch records for the diagnostic LoG proposals; separate from the authoritative ViTDet3D patch manifest.",
+      "log_diagnostic_patches/log_patches_manifest.json": "Optional audit patch records for LoG source proposals; authoritative selected candidates use the primary patch manifest.",
       "log_diagnostic_patches/arrays/patch_000.npy": "Float32 ZYX patch for a LoG diagnostic proposal (patch IDs are local to the diagnostic manifest)."
     },
     "anatomical_localization": {
@@ -328,8 +334,8 @@
       "minimum_bbox_lung_occupancy": 0.0,
       "require_nonempty_heart_mask": true,
       "require_human_review_attestation": true,
-      "authoritative_source": "ViTDet3D",
-      "diagnostic_source_policy": "LoG candidates pass the same mask gate but remain in their own diagnostic manifest and are never promoted to authoritative candidates."
+      "authoritative_source": "validated_fused_LoG_and_ViTDet3D",
+      "diagnostic_source_policy": "LoG candidates pass the same mask gate and contribute to the authoritative fused candidate manifest; optional separate LoG artifacts are audit-only."
     },
     "default_log_diagnostic_enabled": true,
     "patch_padding_hu_ref": "stage_01_hu_and_crop.preprocessing.default_blank_value_hu",
@@ -652,6 +658,20 @@
     "enabled_by_default": true,
     "model_path": "backend/models/malignancy/xml_nodule_level_v1/malignancy_from_nodule_level_xml.joblib",
     "model_bundle_format": "joblib_dictionary_with_feature_names_and_model",
+    "ranking_model": {
+      "optional_path": "backend/models/malignancy/pairwise_ranker_v1.joblib",
+      "bundle_format": "joblib_dictionary_with_feature_names_model_and_training_metadata",
+      "model_type": "pairwise_linear_ranker_v1",
+      "selection_policy": "Optional only; the compatibility rating model remains authoritative unless patient-grouped validation demonstrates improvement.",
+      "score_semantics": "Relative malignancy-priority score learned from within-patient ordering of LIDC reader-assigned ratings. It is not a probability, diagnosis, or pathology outcome.",
+      "pair_policy": {
+        "within_patient_only": true,
+        "ties_excluded": true,
+        "minimum_rating_difference": 1.0,
+        "max_pairs_per_patient": 2000,
+        "deterministic_seed": 2026
+      }
+    },
     "input_rating_range": [
       1,
       5
@@ -684,8 +704,10 @@
         "SHAP values explain model behavior, not clinical causality or image regions."
       ]
     },
-    "output_schema_version": "stage04-malignancy-output-v1",
+    "output_schema_version": "stage04-malignancy-output-v2",
     "semantics": "LIDC reader-assigned malignancy/suspicion rating, not cancer probability or diagnosis.",
+    "ranking_score_field": "malignancy_priority_score",
+    "ranking_score_semantics": "Optional relative priority score; higher means higher learned malignancy-related priority. Never report as a cancer probability.",
     "feature_names_ref": "attribute_contracts.stage03_ranked_attributes",
     "diagnostic_input_predictions_ref": "stage_03_nodule_classification.outputs.log_diagnostic_predictions_json",
     "diagnostic_output_path_ref": "paths.stage_04.log_diagnostic_output_json"
@@ -834,7 +856,8 @@
       "2.8",
       "2.10",
       "2.11",
-      "2.12"
+      "2.12",
+      "2.13"
     ],
     "legacy_behavior": "If a Stage 01/02 artifact lacks meta_schema_version, scripts may accept it with an explicit warning; if present and mismatched, fail fast. Stage 07 report outputs are tagged with the schema version and excluded-outside-lung candidates are kept in a separate audit CSV.",
     "model_artifacts_mutable": false
@@ -986,6 +1009,9 @@
       "input_candidate_count",
       "nodule_count_center_inside_lung_mask",
       "nodule_count_center_outside_lung_mask_excluded",
+      "nodule_count_localization_blocked",
+      "localization_gate",
+      "localization_gate_status",
       "high_suspicion_or_malignancy_rating_count_inside_lung_mask",
       "malignancy_rating_threshold",
       "malignancy_count_interpretation",

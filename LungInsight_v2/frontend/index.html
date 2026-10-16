@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LungInsight Clinical Research</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">LungInsight v2 · Research interface</p>
+        <h1>Clinical research decision support</h1>
+        <p class="notice">
+          Not clinically validated. This tool does not diagnose cancer, replace pathology,
+          or replace clinician judgment or established prediction instruments.
+        </p>
+      </header>
+
+      <form id="clinical-form">
+        <fieldset>
+          <legend>Patient and prediction baseline</legend>
+          <label>Patient identifier
+            <input name="patient_id" autocomplete="off" required maxlength="128">
+          </label>
+          <label>Prediction baseline (local time)
+            <input name="baseline_at" type="datetime-local" required>
+          </label>
+          <label>Prediction baseline definition
+            <select name="baseline_definition" required>
+              <option value="other_or_unverified" selected>Other / unverified</option>
+              <option value="initial_pathologic_diagnosis">Initial pathologic diagnosis (confirmed)</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Clinician-entered clinical inputs</legend>
+          <label>Age at baseline (years)
+            <input name="age" type="number" min="18" max="120" step="1">
+          </label>
+          <label>Sex as recorded
+            <select name="sex">
+              <option value="">Not supplied</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other_or_unspecified">Other / unspecified</option>
+            </select>
+          </label>
+          <label>Pathologic stage at baseline
+            <input name="stage" autocomplete="off" placeholder="For example, Stage IIA">
+          </label>
+          <div class="row">
+            <label>KPS (preferred)
+              <input name="kps" type="number" min="0" max="100" step="1">
+            </label>
+            <label>ECOG (approximate KPS interval only)
+              <input name="ecog" type="number" min="0" max="5" step="1">
+            </label>
+          </div>
+          <p class="hint">If both KPS and ECOG are entered, direct KPS takes precedence and discrepancies are flagged.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Validated Imaging evidence</legend>
+          <p class="hint">
+            Select the trusted Imaging evidence envelope. It must contain the v1 Imaging contract,
+            passed gate status, model versions, and timezone-aware timestamps matching this baseline.
+            Ranking scores are never interpreted as malignant status.
+          </p>
+          <label>Imaging evidence JSON
+            <input id="imaging-file" type="file" accept="application/json,.json" required>
+          </label>
+        </fieldset>
+
+        <button type="submit">Request research prediction</button>
+      </form>
+      <section aria-live="polite" aria-labelledby="result-heading">
+        <h2 id="result-heading">Result</h2>
+        <pre id="result">No prediction requested.</pre>
+      </section>
+    </main>
+    <script src="app.js" defer></script>
+  </body>
+</html>

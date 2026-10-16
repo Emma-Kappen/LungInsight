@@ -1,0 +1,32 @@
+{
+  "model": "PairwiseLinearRanker",
+  "target_semantics": "relative malignancy-priority score from LIDC reader-assigned ratings",
+  "feature_names": [
+    "subtlety",
+    "sphericity",
+    "margin",
+    "lobulation",
+    "spiculation",
+    "texture"
+  ],
+  "training_config": {
+    "learning_rate": 0.03,
+    "epochs": 500,
+    "l2": 0.01,
+    "min_rating_difference": 1.0,
+    "max_pairs_per_patient": 2000,
+    "random_seed": 2026,
+    "split_policy": "existing frozen train/val patient split; no patient appears in both"
+  },
+  "train": {
+    "n_nodules": 1859,
+    "n_ordered_within_patient_pairs": 3247,
+    "pairwise_accuracy": 0.5740683708038189
+  },
+  "validation": {
+    "n_nodules": 437,
+    "n_ordered_within_patient_pairs": 909,
+    "pairwise_accuracy": 0.4961496149614962
+  },
+  "patient_overlap": 0
+}

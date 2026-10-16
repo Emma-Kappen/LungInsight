@@ -25,6 +25,8 @@ from typing import Any, Iterable, Sequence
 
 import numpy as np
 
+from nodule_identity import stable_nodule_id
+
 
 def read_json(path: Path) -> Any:
     try:
@@ -247,6 +249,63 @@ def _matches(
     return matched, distance, iou
 
 
+def rank_filtered_log_candidates(
+    filtered_candidates: Sequence[dict[str, Any]], *, limit: int = 50
+) -> list[dict[str, Any]]:
+    """Rank already quality-filtered LoG records by native response only."""
+    if limit < 0:
+        raise ValueError("limit must be non-negative.")
+    ranked: list[tuple[float, str, dict[str, Any]]] = []
+    for row in filtered_candidates:
+        if not isinstance(row, dict):
+            raise ValueError("Every filtered LoG candidate must be a dictionary.")
+        value = row.get("log_response", row.get("detector_score"))
+        try:
+            score = float(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Filtered LoG candidate {row.get('diagnostic_id', row.get('candidate_id'))!r} "
+                "has no finite log_response for ranking."
+            ) from exc
+        if not math.isfinite(score):
+            raise ValueError(
+                f"Filtered LoG candidate {row.get('diagnostic_id', row.get('candidate_id'))!r} "
+                "has no finite log_response for ranking."
+            )
+        identity = str(row.get("diagnostic_id", row.get("candidate_id", "")))
+        ranked.append((-score, identity, copy.deepcopy(row)))
+    ranked.sort(key=lambda item: (item[0], item[1]))
+    return [row for _, _, row in ranked[:limit]]
+
+
+def select_fused_candidates(
+    fused_candidates: Sequence[dict[str, Any]], *, limit: int = 50
+) -> list[dict[str, Any]]:
+    """Select a deterministic, source-aware top-N from the fused set.
+
+    Detector scores retain their native semantics. ViTDet3D candidates are
+    ordered by detector score, followed by LoG-only candidates ordered by
+    LoG response; scores are never compared across detector types.
+    """
+    if limit < 0:
+        raise ValueError("limit must be non-negative.")
+    rows = [copy.deepcopy(row) for row in fused_candidates]
+    for row in rows:
+        source = str(row.get("source", row.get("detection_source", "")))
+        if source not in {"ViTDet3D", "LoG", "Merged"}:
+            raise ValueError(f"Fused candidate has unsupported source {source!r}.")
+        row["_fusion_source"] = "ViTDet3D" if source in {"ViTDet3D", "Merged"} else "LoG"
+        score = row.get("vitdet_score") if source in {"ViTDet3D", "Merged"} else row.get("log_score")
+        try:
+            value = float(score)
+        except (TypeError, ValueError):
+            value = None
+        row["_fusion_score_value"] = value if value is not None and math.isfinite(value) else None
+        row["_fusion_identity"] = str(row.get("stable_nodule_id", row.get("nodule_id", row.get("candidate_id", ""))))
+    rows.sort(key=_rank_key)
+    return [{key: value for key, value in row.items() if not key.startswith("_fusion_")} for row in rows[:limit]]
+
+
 def merge_detections(
     log_detections: Sequence[dict[str, Any]],
     vitdet_detections: Sequence[dict[str, Any]],
@@ -256,6 +315,11 @@ def merge_detections(
     max_center_distance_mm: float = 8.0,
     min_overlap_iou: float = 0.25,
     expected_space: str | None = None,
+    patient_id: str | None = None,
+    study_uid: str | None = None,
+    series_uid: str | None = None,
+    origin_lps_mm: Sequence[float] | None = None,
+    direction_lps: Sequence[Sequence[float]] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     """Merge two detector lists and return (deduplicated records, count report).
 
@@ -320,25 +384,60 @@ def merge_detections(
         sources = sorted({item["_fusion_source"] for item in cluster})
         center = winner["_fusion_center"]
         bbox = winner["_fusion_bbox"]
-        id_payload = {
-            "center_zyx": [round(float(v), 3) for v in center],
-            "bbox": None if bbox is None else {
-                "start": [round(float(v), 3) for v in bbox[0]],
-                "end": [round(float(v), 3) for v in bbox[1]],
-            },
-        }
-        stable_id = "nodule_" + hashlib.sha256(json.dumps(id_payload, sort_keys=True).encode("utf-8")).hexdigest()[:12]
+        if all(value is not None for value in (patient_id, study_uid, series_uid, origin_lps_mm, direction_lps)):
+            origin = _finite_vec(origin_lps_mm, "origin_lps_mm")
+            direction = np.asarray(direction_lps, dtype=np.float64)
+            if direction.shape != (3, 3) or not np.isfinite(direction).all():
+                raise ValueError("direction_lps must be a finite 3x3 matrix.")
+            center_lps = origin + direction @ (center * spacing)
+            stable_id = stable_nodule_id(
+                str(patient_id), str(study_uid), str(series_uid), center_lps,
+                "Merged" if len(sources) > 1 else sources[0],
+            )
+        elif any(value is not None for value in (patient_id, study_uid, series_uid, origin_lps_mm, direction_lps)):
+            raise ValueError(
+                "Stable identity requires patient_id, study_uid, series_uid, origin_lps_mm, and direction_lps together."
+            )
+        else:
+            # Compatibility for existing standalone callers that only use
+            # this geometry utility. Production Stage 02 always supplies the
+            # full physical study identity above.
+            legacy_identity = {
+                "center_zyx": [round(float(v), 3) for v in center],
+                "bbox": None if bbox is None else {
+                    "start": [round(float(v), 3) for v in bbox[0]],
+                    "end": [round(float(v), 3) for v in bbox[1]],
+                },
+            }
+            stable_id = "nodule_" + hashlib.sha256(
+                json.dumps(legacy_identity, sort_keys=True).encode("utf-8")
+            ).hexdigest()[:12]
         detector_scores: dict[str, Any] = {}
         provenance = []
+        source_members = []
+        vitdet_score = None
+        log_score = None
         for item in sorted(cluster, key=lambda r: (r["_fusion_source"], r["_fusion_identity"])):
             src = item["_fusion_source"]
             score_name = item["_fusion_score_name"]
             score_value = item["_fusion_score_value"]
             src_key = "ViTDet3D" if src == "ViTDet3D" else "LoG"
             detector_scores.setdefault(src_key, []).append({"field": score_name, "value": score_value})
+            member_id = str(item.get("candidate_id", item.get("diagnostic_id", item["_fusion_identity"])))
+            source_members.append({
+                "candidate_id": member_id,
+                "source": src,
+                "score_field": score_name,
+                "score": score_value,
+                "original_purpose": item.get("purpose"),
+            })
+            if src == "ViTDet3D" and vitdet_score is None:
+                vitdet_score = score_value
+            if src == "LoG" and log_score is None:
+                log_score = score_value
             provenance.append({
                 "detector": src,
-                "candidate_id": item.get("candidate_id", item.get("diagnostic_id", item["_fusion_identity"])),
+                "candidate_id": member_id,
                 "center_zyx": item["_fusion_center"].tolist(),
                 "bbox_start_zyx": None if item["_fusion_bbox"] is None else item["_fusion_bbox"][0].tolist(),
                 "bbox_end_zyx": None if item["_fusion_bbox"] is None else item["_fusion_bbox"][1].tolist(),
@@ -346,12 +445,27 @@ def merge_detections(
                 "score": score_value,
             })
         output["nodule_id"] = stable_id
+        output["stable_nodule_id"] = stable_id
+        output["candidate_id"] = stable_id
+        output["source"] = "Merged" if len(sources) > 1 else sources[0]
+        output["source_members"] = source_members
+        output["vitdet_score"] = vitdet_score
+        output["log_score"] = log_score
         output["detector_provenance"] = sources
         output["detector_scores"] = detector_scores
         output["provenance_records"] = provenance
         output["primary_geometry_source"] = winner["_fusion_source"]
         output["merged_member_count"] = len(cluster)
-        output["detection_source"] = "+".join(sources) if len(sources) > 1 else sources[0]
+        output["detection_source"] = output["source"]
+        output["center_lps_mm"] = (
+            center_lps.tolist()
+            if all(value is not None for value in (patient_id, study_uid, series_uid, origin_lps_mm, direction_lps))
+            else output.get("center_lps_mm")
+        )
+        if bbox is not None:
+            output.setdefault("bbox_start_zyx", np.floor(bbox[0]).astype(int).tolist())
+            output.setdefault("bbox_end_zyx", np.ceil(bbox[1]).astype(int).tolist())
+        output["detection_source"] = output["source"]
         results.append(output)
 
     results.sort(key=lambda row: (

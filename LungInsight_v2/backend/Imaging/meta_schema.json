@@ -51,7 +51,7 @@
     "anatomical_location": "Heuristic anatomical localization attached to each detector candidate and extracted patch; not a new segmentation mask.",
     "03_nodule_classification": "Stage 03 per-patch nodule attribute predictions, attention weights, and provenance."
   },
-  "schema_version": "2.3",
+  "schema_version": "2.4",
   "stage_02_detect_and_patch": {
     "stage": "02",
     "space": "stage01_final_cropped_ct",
@@ -68,6 +68,12 @@
     },
     "authoritative_detector": {
       "name": "ViTDet3D",
+      "sources": [
+        "ViTDet3D",
+        "LoG"
+      ],
+      "authority_policy": "validated_union_after_deduplication",
+      "fusion_method": "configured_physical_center_distance_or_3d_bbox_iou",
       "checkpoint_default": "rlsn/DeTr4LungNodule",
       "input_window_zyx_voxels": [
         40,
@@ -106,9 +112,9 @@
       "candidate_anatomical_location_field": "anatomical_location"
     },
     "diagnostic_log_detector": {
-      "role": "research_comparison_only",
-      "authoritative": false,
-      "note": "LoG records must never be merged into candidates.json."
+      "role": "candidate_source",
+      "authoritative": true,
+      "note": "LoG candidates are validated with the same anatomical gates, fused with ViTDet3D candidates, and retained with source provenance."
     },
     "patch_outputs": {
       "root": "02_detect_and_patch/patches/",
@@ -173,7 +179,7 @@
       "anatomical_location": "Heuristic anatomical localization object copied from the authoritative candidate; uses the same detector center and CT geometry."
     },
     "outputs": {
-      "candidates.json": "Authoritative ViTDet3D-only candidate list.",
+      "candidates.json": "Authoritative validated, deduplicated LoG + ViTDet3D candidate union.",
       "candidates.csv": "Flat human-readable mirror of candidates.json.",
       "detector_metadata.json": "Detector, CT-frame, patch-frame, and provenance metadata.",
       "log_candidates_diagnostic.json": "Diagnostic LoG records only.",

@@ -24,13 +24,16 @@ V2_ROOT = IMAGING_DIR.parent.parent
 if str(V2_ROOT) not in sys.path:
     sys.path.insert(0, str(V2_ROOT))
 from pipeline_schema import get_required, load_schema, check_meta_schema_version, validate_stage_version
+from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
 
 SCHEMA = load_schema(__file__)
 STAGE05_SCHEMA = get_required(SCHEMA, "stage_05_gradcam", expected_type=dict)
 STAGE03_SCHEMA = get_required(SCHEMA, "stage_03_nodule_classification", expected_type=dict)
+STAGE04_SCHEMA = get_required(SCHEMA, "stage_04_malignancy_prediction", expected_type=dict)
 STAGE03_MODEL_SCHEMA = get_required(STAGE03_SCHEMA, "model", expected_type=dict)
 VISUALIZATION_SCHEMA = get_required(SCHEMA, "visualization", expected_type=dict)
 STAGE02_PATHS = get_required(SCHEMA, "paths.stage_02", expected_type=dict)
+STAGE04_PATHS = get_required(SCHEMA, "paths.stage_04", expected_type=dict)
 STAGE02_SCHEMA = get_required(SCHEMA, "stage_02_detect_and_patch", expected_type=dict)
 STAGE05_PATHS = get_required(SCHEMA, "paths.stage_05", expected_type=dict)
 STAGE02_PATCH_OUTPUTS = get_required(SCHEMA, "stage_02_detect_and_patch.patch_outputs", expected_type=dict)
@@ -160,6 +163,7 @@ def parse_args():
         default=float(STAGE05_SCHEMA["default_alpha"]),
         help="Heatmap opacity from 0 to 1 (default from meta_schema.json).",
     )
+    add_verbose_argument(parser)
     return parser.parse_args()
 
 
@@ -296,6 +300,7 @@ def draw_attribute(
     output_dir,
     alpha,
     checkpoint_path,
+    stable_nodule_id=None,
 ):
     # Arrays are ordered Z,Y,X. All displayed slices are central slices.
     z = patch_hu.shape[0] // 2
@@ -389,11 +394,19 @@ def draw_attribute(
     display_path = output_dir / STAGE05_SCHEMA["filenames"]["scaled_cam_pattern"].format(attribute=attribute)
     np.save(raw_path, raw_cam.astype(np.float32))
     np.save(display_path, display_cam.astype(np.float32))
+    attribute_dir = output_dir / f"GradCAM_{attribute.title().replace('_', '')}"
+    attribute_dir.mkdir(parents=True, exist_ok=True)
+    patch_cam_path = attribute_dir / "attribute_patch_cam.npy"
+    np.save(patch_cam_path, raw_cam.astype(np.float32), allow_pickle=False)
 
     metadata = {
         "meta_schema_version": SCHEMA["schema_version"],
         "attribute": attribute,
+        "artifact_name": f"GradCAM_{attribute.title().replace('_', '')}",
+        "stable_nodule_id": stable_nodule_id,
         "target_output_index": int(MODEL_TARGET_INDEX[attribute]),
+        "target_index": int(MODEL_TARGET_INDEX[attribute]),
+        "target_scalar": STAGE05_SCHEMA["target_scalar_definition"],
         "target_scalar_definition": STAGE05_SCHEMA["target_scalar_definition"],
         "target_rating_range": get_required(
             SCHEMA, f"stage_03_nodule_classification.attribute_scales.{attribute}.rating_range", expected_type=list
@@ -403,6 +416,7 @@ def draw_attribute(
         "attribute_specific_polarity_inversion": False,
         "expected_ordinal_rating": score,
         "checkpoint": str(checkpoint_path),
+        "cam_path": str(patch_cam_path.relative_to(output_dir)).replace("\\", "/"),
         "target_layer": TARGET_LAYER,
         "activation_shape": list(layer_shape),
         "patch_shape_zyx": list(patch_hu.shape),
@@ -422,11 +436,16 @@ def draw_attribute(
             "image": png_path.name,
             "raw_signed_cam": raw_path.name,
             "rainbow_scaled_cam": display_path.name,
+            "attribute_patch_cam": str(patch_cam_path.relative_to(output_dir)).replace("\\", "/"),
         },
     }
 
     metadata_path = output_dir / STAGE05_SCHEMA["filenames"]["metadata_pattern"].format(attribute=attribute)
     metadata_path.write_text(
+        json.dumps(metadata, indent=2),
+        encoding="utf-8",
+    )
+    (attribute_dir / metadata_path.name).write_text(
         json.dumps(metadata, indent=2),
         encoding="utf-8",
     )
@@ -459,9 +478,67 @@ def _resolve_manifest_patch(record: dict, manifest_path: Path) -> Path:
     )
 
 
+def filter_accepted_patches(
+    manifest_patches: list[dict],
+    stage04_predictions: list[dict],
+    invalid_candidates: list[dict],
+) -> tuple[list[dict], list[dict]]:
+    """Restrict CAM inference to stable candidate/patch IDs scored by Stage 04."""
+    scored: dict[tuple[str, int], str] = {}
+    for prediction in stage04_predictions:
+        try:
+            candidate_id = str(prediction["candidate_id"])
+            patch_id = int(prediction["patch_id"])
+            stable_id = str(prediction["stable_nodule_id"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("Stage 04 prediction lacks valid candidate, patch, or stable nodule identity.") from exc
+        if not stable_id or stable_id != candidate_id:
+            raise ValueError(f"Stage 04 stable identity mismatch for candidate {candidate_id!r}.")
+        identity = (candidate_id, patch_id)
+        if identity in scored:
+            raise ValueError(f"Stage 04 contains duplicate accepted candidate identity {identity}.")
+        scored[identity] = stable_id
+
+    invalid_by_candidate = {
+        str(item.get("candidate_id")): item.get("reason")
+        for item in invalid_candidates
+        if isinstance(item, dict) and item.get("candidate_id") is not None
+    }
+    accepted: list[dict] = []
+    rejected: list[dict] = []
+    seen: set[tuple[str, int]] = set()
+    for patch in manifest_patches:
+        try:
+            candidate_id = str(patch["candidate_id"])
+            patch_id = int(patch["patch_id"])
+            stable_id = str(patch["stable_nodule_id"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("Stage 02 manifest patch lacks valid stable candidate identity.") from exc
+        identity = (candidate_id, patch_id)
+        if identity in seen:
+            raise ValueError(f"Stage 02 manifest contains duplicate candidate identity {identity}.")
+        seen.add(identity)
+        if stable_id != candidate_id:
+            raise ValueError(f"Stage 02 stable identity mismatch for candidate {candidate_id!r}.")
+        if scored.get(identity) == stable_id:
+            accepted.append(patch)
+        else:
+            rejected.append({
+                "stable_nodule_id": stable_id,
+                "candidate_id": candidate_id,
+                "patch_id": patch_id,
+                "reason": invalid_by_candidate.get(
+                    candidate_id,
+                    "not_scored_by_stage04_or_not_stage04_eligible",
+                ),
+            })
+    return accepted, rejected
+
+
 def _generate_for_patch(
     patch_path: Path, output_dir: Path, checkpoint_root: Path, selected: tuple[str, ...],
     alpha: float, device: torch.device, model_cache: dict[Path, torch.nn.Module],
+    stable_nodule_id: str | None = None,
 ) -> None:
     try:
         patch_hu = np.load(patch_path, allow_pickle=False).astype(np.float32)
@@ -497,11 +574,13 @@ def _generate_for_patch(
             output_dir=output_dir,
             alpha=alpha,
             checkpoint_path=checkpoint_path,
+            stable_nodule_id=stable_nodule_id,
         )
 
 
 def main():
     args = parse_args()
+    configure_console(args.verbose)
     if not 0.0 <= args.alpha <= 1.0:
         raise ValueError("--alpha must be between 0 and 1.")
     if args.batch_limit < 0:
@@ -509,13 +588,9 @@ def main():
     if args.manifest and args.patch:
         raise ValueError("Use either --manifest (batch mode) or --patch (single-patch mode), not both.")
 
-    default_patch = (
-        DEFAULT_OUTPUT_ROOT / args.patient_id / STAGE02_PATCH_OUTPUTS["array_directory"]
-        / STAGE02_FILES["patch_array_pattern"].format(patch_id=0)
-    )
-    patch_path = Path(args.patch).expanduser().resolve() if args.patch else default_patch.resolve()
     checkpoint_root = Path(args.checkpoint_root).expanduser().resolve()
-    default_output = DEFAULT_OUTPUT_ROOT / args.patient_id / STAGE05_PATHS["directory"]
+    patient_root = DEFAULT_OUTPUT_ROOT / args.patient_id
+    default_output = patient_root / STAGE05_PATHS["directory"]
     output_dir = Path(args.output_dir).expanduser().resolve() if args.output_dir else default_output.resolve()
     device = torch.device("cpu")
     selected = ATTRIBUTES if args.attribute == "all" else (args.attribute,)
@@ -528,44 +603,94 @@ def main():
     print("Targets: " + ", ".join(selected))
     print("Palette: " + " -> ".join(str(item["name"]) for item in PALETTE))
 
-    if args.manifest:
-        manifest_path = Path(args.manifest).expanduser().resolve()
-        if not manifest_path.is_file():
-            raise FileNotFoundError(f"Stage 02 manifest not found: {manifest_path}")
-        try:
-            manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
-        except json.JSONDecodeError as exc:
-            raise ValueError(f"Malformed Stage 02 manifest {manifest_path}: {exc}") from exc
-        if not isinstance(manifest, dict) or not isinstance(manifest.get("patches"), list):
-            raise ValueError(f"{manifest_path}: expected an object with a 'patches' list.")
-        check_meta_schema_version(manifest, SCHEMA, context=str(manifest_path), require=False)
-        validate_stage_version(
-            manifest.get("schema_version"), STAGE02_SCHEMA["manifest_schema_version"],
-            context="Stage 02 diagnostic patch manifest",
-        )
-        patches = manifest["patches"]
-        ids = [item.get("patch_id") for item in patches if isinstance(item, dict)]
-        if len(ids) != len(patches) or any(not isinstance(pid, int) for pid in ids) or len(ids) != len(set(ids)):
-            raise ValueError(f"{manifest_path}: each patch must be an object with a unique integer patch_id.")
-        patches = sorted(patches, key=lambda item: int(item["patch_id"]))
-        if args.batch_limit:
-            patches = patches[:args.batch_limit]
-        if not patches:
-            raise ValueError(f"No patch records selected from {manifest_path}.")
-        print(f"Batch manifest: {manifest_path}; processing {len(patches)} patch(es).")
-        for index, record in enumerate(patches, start=1):
-            record_path = _resolve_manifest_patch(record, manifest_path)
-            patch_id = int(record["patch_id"])
-            patch_dir_pattern = str(get_required(STAGE05_SCHEMA, "batch_processing.patch_output_directory_pattern"))
-            per_patch_output = output_dir / patch_dir_pattern.format(patch_id=patch_id)
-            print(f"\n[LoG Grad-CAM] {index}/{len(patches)} patch_id={patch_id}", flush=True)
-            _generate_for_patch(record_path, per_patch_output, checkpoint_root, selected, args.alpha, device, model_cache)
-        print(f"\nBatch Grad-CAM complete: {len(patches)} patch(es); loaded {len(model_cache)} unique checkpoint file(s).")
+    manifest_path = (
+        Path(args.manifest).expanduser().resolve()
+        if args.manifest
+        else patient_root / STAGE02_PATHS["directory"] / STAGE02_PATCH_OUTPUTS["manifest"]
+    )
+    manifest_path = manifest_path.resolve()
+    if not manifest_path.is_file():
+        raise FileNotFoundError(f"Stage 02 manifest not found: {manifest_path}")
+    if manifest_path.parent.parent.parent.resolve() != patient_root.resolve():
+        raise ValueError(f"Stage 02 manifest must belong to --patient-id {args.patient_id!r}: {manifest_path}")
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Malformed Stage 02 manifest {manifest_path}: {exc}") from exc
+    if not isinstance(manifest, dict) or not isinstance(manifest.get("patches"), list):
+        raise ValueError(f"{manifest_path}: expected an object with a 'patches' list.")
+    check_meta_schema_version(manifest, SCHEMA, context=str(manifest_path), require=False)
+    validate_stage_version(
+        manifest.get("schema_version"), STAGE02_SCHEMA["manifest_schema_version"],
+        context="Stage 02 accepted patch manifest",
+    )
+    manifest_patches = manifest["patches"]
+    ids = [item.get("patch_id") for item in manifest_patches if isinstance(item, dict)]
+    if len(ids) != len(manifest_patches) or any(not isinstance(pid, int) for pid in ids) or len(ids) != len(set(ids)):
+        raise ValueError(f"{manifest_path}: each patch must be an object with a unique integer patch_id.")
+    manifest_patches = sorted(manifest_patches, key=lambda item: int(item["patch_id"]))
+    if any(not isinstance(item.get("stable_nodule_id"), str) or not item["stable_nodule_id"] for item in manifest_patches):
+        raise ValueError(f"{manifest_path}: accepted patch records must carry stable_nodule_id.")
+    if len({item["stable_nodule_id"] for item in manifest_patches}) != len(manifest_patches):
+        raise ValueError(f"{manifest_path}: stable_nodule_id values must be unique.")
+
+    if args.patch:
+        requested_patch = Path(args.patch).expanduser().resolve()
+        manifest_patches = [
+            record for record in manifest_patches
+            if _resolve_manifest_patch(record, manifest_path) == requested_patch
+        ]
+        if len(manifest_patches) != 1:
+            raise ValueError(f"--patch must resolve to exactly one accepted Stage 02 manifest entry: {requested_patch}")
+
+    stage04_path = patient_root / STAGE04_PATHS["directory"] / STAGE04_PATHS["output_json"]
+    if not stage04_path.is_file():
+        raise FileNotFoundError(f"Stage 04 accepted predictions are required before Grad-CAM inference: {stage04_path}")
+    try:
+        stage04_payload = json.loads(stage04_path.read_text(encoding="utf-8-sig"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Malformed Stage 04 predictions {stage04_path}: {exc}") from exc
+    if not isinstance(stage04_payload, dict) or not isinstance(stage04_payload.get("predictions"), list):
+        raise ValueError(f"{stage04_path}: expected a predictions list.")
+    accepted_patches, rejected_patches = filter_accepted_patches(
+        manifest_patches,
+        stage04_payload["predictions"],
+        stage04_payload.get("invalid_candidates", []),
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+    audit_path = output_dir / "stage05_acceptance_audit.json"
+    if args.batch_limit:
+        selected_patches = accepted_patches[:args.batch_limit]
     else:
-        if not patch_path.is_file():
-            raise FileNotFoundError(f"Patch not found: {patch_path}")
-        _generate_for_patch(patch_path, output_dir, checkpoint_root, selected, args.alpha, device, model_cache)
-        print("\nAll requested Grad-CAM maps generated.")
+        selected_patches = accepted_patches
+    audit_path.write_text(json.dumps({
+        "schema_version": SCHEMA["schema_version"],
+        "stage": "05_gradcam",
+        "patient_id": args.patient_id,
+        "stage02_manifest": str(manifest_path),
+        "stage04_predictions": str(stage04_path.resolve()),
+        "accepted_candidate_count": len(accepted_patches),
+        "selected_for_cam_count": len(selected_patches),
+        "batch_limit": args.batch_limit,
+        "rejected_candidates": rejected_patches,
+        "accepted_nodule_ids": [record["stable_nodule_id"] for record in selected_patches],
+    }, indent=2, allow_nan=False), encoding="utf-8")
+    if not selected_patches:
+        print(f"No Stage 04-accepted nodules require Grad-CAM. Audit: {audit_path}")
+        stage_complete(5, "05")
+        return
+
+    print(f"Accepted manifest: {manifest_path}; generating CAMs for {len(selected_patches)} nodule(s).")
+    for index, record in enumerate(selected_patches, start=1):
+        record_path = _resolve_manifest_patch(record, manifest_path)
+        stable_id = str(record["stable_nodule_id"])
+        print(f"\n[Grad-CAM] {index}/{len(selected_patches)} stable_nodule_id={stable_id}", flush=True)
+        _generate_for_patch(
+            record_path, output_dir / stable_id, checkpoint_root, selected,
+            args.alpha, device, model_cache, stable_nodule_id=stable_id,
+        )
+    print(f"\nBatch Grad-CAM complete: {len(selected_patches)} accepted nodule(s); loaded {len(model_cache)} unique checkpoints.")
+    stage_complete(5, "05")
     print("No checkpoint, H5, split, or existing CAM output was modified.")
 
 

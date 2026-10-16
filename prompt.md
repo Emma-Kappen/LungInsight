@@ -54,7 +54,7 @@ Stage 02 previously ran successfully on CPU:
 - 2 authoritative patches extracted.
 - 100 LoG diagnostic patches extracted.
 
-The existing pipeline/schema treats LoG as diagnostic-only. Do not silently promote LoG proposals to authoritative candidates.
+The historical pipeline/schema treated LoG as diagnostic-only. This is a baseline observation, not the target policy: the requested implementation must explicitly migrate the active detector-authority contract to the validated, deduplicated union of LoG and ViTDet3D.
 
 A separate candidate-fusion audit reported 4,933 records before deduplication, 4,923 after deduplication, and zero accepted records because the heart mask was empty. This is a safety block, not proof that the candidates represent valid nodules.
 
@@ -173,38 +173,33 @@ Test synthetic cases representing valid central soft tissue, air/fat false paths
 
 The final masks and derived CT volume must be saved as NPY arrays. Add validation that checks shape, dtype, finite values, coordinate alignment, metadata and output existence.
 
-## 5. Stage 02 — detector policy, merging, filtering and strict gating
+## 5. Stage 02 — authoritative LoG + ViTDet3D union, deduplication and gating
 
-The existing contract makes ViTDet3D authoritative and LoG diagnostic-only. Preserve this policy unless the user approves a documented schema migration.
+Both existing detectors are active candidate sources. LoG is not diagnostic-only. Run each detector with its compatible model/configuration and validate its raw output independently. Convert valid detections to the same canonical frame and representation before fusion. The authoritative Stage 02 candidate artifact must be the validated union of both detectors after deduplication.
 
-Implement any research fusion as an optional audit mode, separated from production candidate generation.
+Each canonical detector record must preserve, where supported by the versioned schema:
 
-A reusable merge function must:
+- Stable fused candidate ID, original detector candidate IDs, source detector(s), patient/study/series identity, and fusion relationships.
+- Detector-specific scores and documented score semantics; never compare or average unlike scores without a documented calibration/fusion method.
+- Centre and 3D bounding box, explicit ZYX voxel axis order, coordinate frame, physical units, relevant scale/size metadata, validation/filtering status, and box source/method.
+- Anatomical decisions, deduplication decision, patch reference, manifest reference, and downstream links.
 
-- Have deterministic behaviour and unit tests.
-- Normalize detector records to a verified common coordinate frame.
-- Use physical spacing for millimetre distances, accounting for anisotropic voxels.
-- Support configurable overlap and/or centre-distance thresholds.
-- Avoid merging distinct nodules solely due to small box overlap.
-- Preserve separate detector scores and provenance. Never average unlike scores or compare unlike score scales.
-- Retain original candidate IDs, metadata, and representative geometry.
-- Document conflict resolution, preferring authoritative ViTDet3D geometry where the existing contract requires it.
-- Report input, union, deduplication and rejection counts.
+Fusion and filtering requirements:
 
-Implement a separate `filter_detections_by_lung_mask()` operation:
+- Use the repository's validated matching/NMS method where available, adapted and tested for both detectors. Normalize coordinates before geometric comparison and account for anisotropic spacing when using physical distances.
+- Make matching policy configurable and documented if no established criterion exists. Do not silently introduce an arbitrary clinical threshold.
+- A match found by both detectors becomes one fused candidate with both provenance records and original IDs. Single-detector candidates remain eligible; agreement is not required.
+- Do not merge distinct nearby nodules solely because boxes overlap or scores are similar. Make fusion deterministic and retain an audit of merged, retained, rejected, and superseded detections.
+- Apply the same lung, heart, mediastinal, anatomical, and candidate-quality gates to both sources. A lung mask used during LoG generation does not replace final mask validation.
+- Validate mask presence, geometry, and QC status. If a required mask is empty, malformed, or unverified, fail closed for the affected path; never disable a required filter to retain candidates.
+- Select up to 50 candidates only after validation, anatomical filtering, and deduplication, using the established selection policy. Do not pad the list or admit invalid candidates. Do not rank unlike detector scores as though they were comparable.
+- Record raw counts by detector, union/fused counts, deduplicated count, eligible count, selected count, and rejection reasons.
 
-- Validate CT and mask dimensions/alignment.
-- Apply the canonical centre-in-lung criterion and any optional box occupancy criterion.
-- Explicitly reject candidates whose centres are inside the heart exclusion mask.
-- Keep rejection reasons and counts.
-- Fail closed if heart exclusion is unverified or empty.
-- Preserve the LoG diagnostic-only policy.
+Every candidate selected for downstream inference must have a valid 3D box and patch plus a manifest entry. Generate a box only with the detector's valid box or an existing, explicit, validated repository method; record its method and source. Validate finite coordinates, positive dimensions, volume containment/boundary handling, and alignment among original CT, cropped CT, voxel and physical frames. Do not invent an arbitrary box. A box encloses the represented detected candidate region, not necessarily the biological nodule.
 
-Most importantly, apply the acceptance gate **before patch extraction and manifest creation**, or make patch extraction consume only the accepted list. Rejected candidates must never reach Stage 03, Stage 04, Grad-CAM, SHAP, Stage 06, or Stage 07 as surviving nodules.
+Update the active schema's detector-authority policy to explicitly authorize the fused LoG + ViTDet3D candidate set before treating this workflow as valid. This is a deliberate, explicit, versioned schema migration—not a silent loader bypass or a weakening of unrelated validation. Update loaders/consumers only as required, preserve backward compatibility where supported, and test strict rejection of incompatible artifacts.
 
-The audit JSON is not a replacement for the Stage 02 patch manifest. Never direct Stage 03 at an incompatible audit file.
-
-Or ask the user if LoG within Lung tissue can be forwarded to later stages.
+`GATE_02_TO_03` must verify fused identity, source provenance, geometry/box, coordinate frame, required anatomical checks, deduplication and selection status, valid patch data, and manifest references. It must accept eligible candidates from either detector alone as well as candidates supported by both. Apply the gate before patch extraction/manifest creation or ensure only accepted candidates can be extracted. Rejected detections may appear in audit artifacts but must never proceed as surviving nodules. An audit JSON is not a replacement for the Stage 02 patch manifest.
 
 ## 6. Stage 03 — preserve the actual five-checkpoint design
 
@@ -224,9 +219,9 @@ Preserve the existing trained architectures. Do not replace them with a new mode
 
 If a required model definition or checkpoint is missing, report its exact path and block inference. Do not fabricate outputs.
 
-Keep authoritative predictions separate from LoG diagnostic predictions.
+Keep predictions linked to the authoritative fused candidate identity and preserve detector-source provenance.
 
-## 7. Stage 04 — malignancy inference, rating semantics and SHAP
+## 7. Stage 04 — malignancy inference and rating semantics
 
 Inspect both Stage 04 variants and determine which is canonical from the schema, actual model artifacts, entry points and project imports. Do not mix the joblib model interface and the alternative ordinal model interface.
 
@@ -236,13 +231,31 @@ Do not invent a binary malignancy threshold. If the available model only predict
 
 If a validated binary classifier or schema/model-defined threshold is missing, ask for clarification before generating `malignant` and `benign` labels.
 
-For every surviving nodule, the Stage 06 record must include the stable nodule ID, geometry, detector provenance/scores, supported attribute predictions, actual malignancy output, model/version identity, uncertainty/limitations, required schema fields, and explanation artifact references.
+For every surviving nodule, preserve the stable nodule ID, fused Stage 02 candidate/provenance, valid box and geometry, Stage 02 patch/input, supported attribute predictions, actual Stage 04 malignancy output, model/checkpoint identity, uncertainty/limitations, and explanation references. Do not call an ordinal rating or uncalibrated score a cancer probability.
 
-SHAP must explain the actual selected malignancy model, with its feature order, preprocessing, explainer configuration, and background data documented. Missing SHAP dependencies must be reported explicitly.
+## 8. Stage 05 — per-nodule Grad-CAM and required malignancy SHAP
 
-## 8. Stages 05–06 — Grad-CAM polarity and spatial projection
+For every eligible nodule with a valid Stage 04 prediction, independently attempt (a) per-nodule Grad-CAM when the selected model supports it and (b) SHAP for the actual Stage 04 malignancy model. SHAP is a required capability to implement, not an optional feature to omit. If the model or input cannot support a valid explanation, record a method-specific unavailable/blocked status and the exact reason. Never fabricate attributions or substitute another model, input, or nodule.
 
-Inspect the actual trained model's forward output, score definitions, attribute directions, target indices, checkpoint metadata, and Grad-CAM scalar before changing map polarity.
+Use stable IDs and validated input-to-prediction mappings, never list position, to associate each explanation with the same nodule, fused candidate/provenance, Stage 02 patch or actual model input, Stage 04 prediction, checkpoint, preprocessing/feature schema, target, explainer configuration, and bounding box/frame where spatially applicable.
+
+For Grad-CAM, inspect the trained model's forward output, score semantics, target index/layer, checkpoint, and scalar target. Validate input and attribution dimensions, finite values, normalization and spatial alignment. Map the result to the correct patch, cropped CT and original CT; use the validated Stage 02 box for localized overlays. Record model, layer, target, preprocessing, normalization and artifact references. A code path that executes is not proof of a valid explanation.
+
+For SHAP, inspect the malignancy model's real input contract (image, LIDC ratings, tabular vector, or supported combination) and select a compatible explainer. Use the exact input/features that produced that nodule's Stage 04 prediction. Validate feature names/order/types, missing values, preprocessing, explainer compatibility, reference/background provenance, output dimensions, feature alignment and finite values. Explain the actual selected model output:
+
+- Preserve whether the output is an ordinal LIDC malignancy rating, uncalibrated score, or calibrated probability. Do not relabel a rating or score as cancer probability.
+- Preserve feature names/order; do not invent meanings for opaque indices. Record output target, baseline, explainer semantics, software/configuration and background/reference method.
+- Do not interpret attributions as causal proof or describe positive/negative values without their output and baseline semantics.
+- Save a structured per-nodule artifact linking nodule ID, Stage 04 prediction, model/checkpoint, input, target semantics, ordered features/SHAP values, base value where supported, explainer/configuration, reference data, preprocessing/schema versions, validation, limitations and artifact URI. Follow active artifact conventions; version strict schema changes explicitly.
+- Generate a visualization/summary only where supported by the representation. Tabular SHAP is associated with the nodule and prediction; it is not spatially localized inside its box.
+
+If SHAP fails or is unsupported, preserve a valid Stage 04 prediction, record a precise reason/status, create no fake successful artifact, and do not pass an explanation-required gate. A failure blocks only deliverables whose release contract requires successful SHAP, unless the final release contract explicitly makes it mandatory.
+
+`GATE_04_TO_05` must validate prediction, identity, model target, input mapping and compatibility. Track Grad-CAM and SHAP statuses independently. The Stage 05 report must include eligible nodule and valid-prediction counts, per-method success/failure/unavailable counts, reasons, artifact references, gate state and downstream eligibility. Stage 05 is not fully successful for a nodule that requires both methods if either required method failed.
+
+## 9. Stages 05–06 — Grad-CAM polarity and spatial projection
+
+For attribute Grad-CAM, inspect the actual trained model's forward output, score definitions, attribute directions, target indices, checkpoint metadata, and scalar before changing map polarity. The malignancy explanation requirements above do not replace these attribute-specific checks.
 
 Lobulation and Spiculation maps have been reported to highlight low-score regions rather than areas supporting high ratings. Determine the reason from the model's actual semantics; do not blindly invert the maps.
 
@@ -262,25 +275,27 @@ Add tests for target selection, polarity, unchanged polarity for other attribute
 
 If the relevant model implementation/checkpoint is missing, report the blocker rather than fabricating a polarity correction.
 
-## 9. Stage 06 records and Stage 07 visualization
+## 10. Stage 06 records and Stage 07 visualization
 
-Every accepted nodule must have one stable identifier linking its detector record, patch manifest, attributes, malignancy output, Grad-CAM maps, SHAP results and visualization.
+Every accepted nodule must have one stable identifier linking its fused detector record and provenance, validated 3D box, patch manifest, attributes, malignancy prediction, independent Grad-CAM/SHAP statuses and artifacts, and visualization. Preserve box/frame metadata through Stages 02–07; any adjusted box must be separately identified with its method while retaining the original detector box.
 
 Stage 07 must read the same accepted records used by Stage 06. For each nodule, show:
 
-- CT slices with the correct bounding box and stable ID.
+- CT slices with the correct valid 3D bounding box and stable ID.
 - Feature-specific CAM overlays with verified polarity.
 - The supported malignancy label and confidence/probabilities.
-- The matching SHAP explanation.
+- The matching SHAP explanation or its explicit unavailable/blocked status.
 - Relevant physical/voxel coordinates and links to the record/artifacts.
 
-Rejected records may appear in a clearly separated audit report only. They must not appear as surviving nodules or receive downstream explanation artifacts.
+Before displaying a nodule in any QC montage, overlay, 3D view or report, validate stable identity, box geometry (finite coordinates and positive dimensions), coordinate frame, conversion to display voxels, alignment with the displayed CT/crop, and artifact provenance. Render that candidate's own box, not a box selected by list position. Display gate and explanation statuses. `GATE_06_TO_07` must distinguish verified localized candidates, invalid/missing-box candidates, anatomical/model rejections, explanation-unavailable candidates, and candidates eligible for final imaging release.
+
+If a box is missing or invalid, do not present that nodule as successfully localized or invent a replacement. Mark it `BLOCKED` for localization-dependent visualization, report its stable ID and exact reason, and allow other valid candidates to render independently. Do not release it when the final Imaging-to-Clinical contract requires a valid box. Rejected records may appear in a clearly separated audit report only; they must not appear as surviving nodules or receive downstream explanation artifacts.
 
 Ensure output generation can run headlessly; an interactive GUI must be optional. Avoid filename fallback logic that associates one nodule's CAM or SHAP result with another nodule.
 
 Validate Stage 06 records against `meta_schema.json` before writing them.
 
-## 10. Build an orchestrator for Stages 01–07
+## 11. Build an orchestrator for Stages 01–07
 
 Create or repair a coherent orchestration/entry point that runs the enabled stages in dependency order for a single patient.
 
@@ -298,7 +313,7 @@ It must:
 
 PowerShell commands must work from the actual Windows workspace. Verify paths and preserve exit codes. Present complete `if`/`elseif` blocks in one executable block.
 
-## 11. Testing and validation requirements
+## 12. Testing and validation requirements
 
 Write and execute tests for:
 
@@ -317,7 +332,12 @@ Write and execute tests for:
 
 **Candidates and gating**
 - Empty detector lists, duplicates, distinct nearby nodules, anisotropic distances, provenance, stable ordering and score retention.
-- LoG remains diagnostic-only.
+- A valid ViTDet3D-only candidate and a valid LoG-only candidate can independently reach downstream stages.
+- A candidate found by both detectors is fused once with both source records and original IDs.
+- Distinct nearby nodules are not incorrectly merged; coordinate conversion and cropping preserve geometry.
+- Every selected Stage 02 candidate has a valid box and patch/manifest reference.
+- Stage 07 presents only candidates with valid, aligned boxes; a missing/invalid box is explicitly blocked and reported.
+- Detector authority schema migration, strict validation, old/new compatibility policy and final-release validation of fused candidates.
 - Rejected candidates never enter patch extraction or any downstream inference/explanation stage.
 - Counts and rejection reasons reconcile exactly.
 
@@ -326,8 +346,12 @@ Write and execute tests for:
 - Feature/target order and input preprocessing match actual checkpoints.
 - Lobulation/Spiculation CAM polarity follows actual score semantics; other attributes remain unchanged.
 - CAM projection uses correct geometry and IDs.
-- SHAP explains the actual Stage 04 model.
+- A valid malignancy prediction yields SHAP for a supported configured model/explainer; SHAP values map to the correct nodule, input/features and actual malignancy output.
+- Unsupported SHAP, invalid mappings and explainer failures produce explicit unavailable/blocked results and never fabricated or successful-shaped artifacts.
+- Grad-CAM and SHAP statuses are independent per nodule; a failed SHAP artifact is never reported as successful.
+- Final release validation covers fused-candidate, bounding-box and explanation artifacts.
 - No binary label is invented when no validated threshold exists.
+- Existing coordinate, rating, detector-score-semantics and schema-compatibility tests continue to pass.
 
 **Integration**
 - Stage 06 records satisfy the schema.
@@ -337,7 +361,7 @@ Write and execute tests for:
 
 Report actual test commands and results. Distinguish synthetic tests from real CT/checkpoint validation. Never claim tests passed unless they were executed.
 
-## 12. Required file deliverables
+## 13. Required file deliverables
 
 Create a downloadable ZIP with workspace-relative paths containing:
 
@@ -355,7 +379,7 @@ The README must specify files changed and why, destination paths, dependencies, 
 
 Verify the actual ZIP contents and internal directory structure before linking it. Do not claim an artifact exists without checking it.
 
-## 13. Engineering rules
+## 14. Engineering rules
 
 - Correctness and anatomical safety take priority over apparent completeness.
 - Work against the actual active workspace rather than trusting previous patch bundles.
@@ -368,7 +392,7 @@ Verify the actual ZIP contents and internal directory structure before linking i
 - Ask targeted questions if a critical artifact or validated threshold is missing.
 - Never claim clinical validation from software or synthetic testing alone.
 
-## 14. Required final response
+## 15. Required final response
 
 Return:
 
@@ -379,5 +403,11 @@ Return:
 5. Exact PowerShell commands to back up/install, activate `l-env`, run tests, preprocess LIDC and run the supported pipeline.
 6. Actual tests/results, separated into synthetic and real end-to-end tests.
 7. Missing dependencies, unresolved assumptions, clinical limitations and remaining blockers.
+8. Explicitly identify which SHAP/Grad-CAM tests used mocks versus actual checkpoints/data, and report any blocked or unavailable explanations and box/localization failures.
 
 The goal is one coherent, traceable and tested Imaging pipeline—not a sequence of disconnected patches. Begin by inventorying the actual workspace and auditing the baseline. Then fix and test the interfaces incrementally and deliver the complete replacement bundle.
+python .\LungInsight_v2\backend\Imaging\inference\05_gradcam.py `
+    --patient-id $Patient `
+    --manifest "$PatientRoot\02_detect_and_patch\patches\patches_manifest.json" `
+    --attribute all `
+    --verbose

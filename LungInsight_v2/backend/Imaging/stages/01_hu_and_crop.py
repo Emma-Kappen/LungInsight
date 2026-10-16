@@ -75,6 +75,7 @@ if str(IMAGING_DIR) not in sys.path:
 import numpy as np
 
 from pipeline_schema import get_required, load_schema, resolve_template
+from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
 from heart_mask_review import write_heart_mask_review_montages
 
 SCHEMA = load_schema(__file__)
@@ -384,6 +385,7 @@ def extract_metadata(ordered_datasets, slice_spacing_mm: float) -> dict:
     return {
         "_z_step_sign": z_step_sign,
         "patient_id": str(getattr(first, "PatientID", "UNKNOWN")),
+        "study_instance_uid": str(getattr(first, "StudyInstanceUID", "UNKNOWN")),
         "series_instance_uid": str(getattr(first, "SeriesInstanceUID", "UNKNOWN")),
         "num_slices": len(ordered_datasets),
         "rows": int(first.Rows),
@@ -1477,11 +1479,13 @@ def parse_args():
         "--no-z-crop", action="store_true",
         help="Disable Z-cropping and keep every source slice.",
     )
+    add_verbose_argument(parser)
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
+    configure_console(args.verbose)
     run_pipeline(
         args.patient,
         air_threshold=args.air_threshold,
@@ -1493,6 +1497,7 @@ def main():
         apply_z_crop=(not args.no_z_crop) and bool(STAGE01_PREPROCESS["z_crop_enabled_by_default"]),
         blank_value=args.blank_value,
     )
+    stage_complete(1, "01")
 
 
 if __name__ == "__main__":

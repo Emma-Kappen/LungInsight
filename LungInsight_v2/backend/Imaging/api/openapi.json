@@ -1,0 +1,540 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "LungInsight Imaging API",
+    "description": "Imaging-only, schema-validated endpoints. Clinical history and clinical inference are intentionally outside this service.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/imaging/study": {
+      "post": {
+        "summary": "Create Study",
+        "operationId": "create_study_api_v1_imaging_study_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagingClinicalContractV1"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/imaging/study/{study_id}": {
+      "get": {
+        "summary": "Get Study",
+        "operationId": "get_study_api_v1_imaging_study__study_id__get",
+        "parameters": [
+          {
+            "name": "study_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Study Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImagingClinicalContractV1"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/imaging/nodule/{nodule_id}": {
+      "get": {
+        "summary": "Get Nodule",
+        "operationId": "get_nodule_api_v1_imaging_nodule__nodule_id__get",
+        "parameters": [
+          {
+            "name": "nodule_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Nodule Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "nodule"
+                  ],
+                  "properties": {
+                    "nodule": {
+                      "$ref": "#/components/schemas/ImagingClinicalContractV1_nodule"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/imaging/artifact/{artifact_id}": {
+      "get": {
+        "summary": "Get Artifact",
+        "operationId": "get_artifact_api_v1_imaging_artifact__artifact_id__get",
+        "parameters": [
+          {
+            "name": "artifact_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Artifact Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "artifact"
+                  ],
+                  "properties": {
+                    "artifact": {
+                      "type": "object"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "StudyRequest": {
+        "properties": {
+          "patient_id": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Patient Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "patient_id"
+        ],
+        "title": "StudyRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "ImagingClinicalContractV1": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://lunginsight.invalid/schemas/imaging_clinical_contract_v1.schema.json",
+        "title": "LungInsight Imaging-to-Clinical Contract v1",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "contract_version",
+          "patient_id",
+          "study_id",
+          "study_uid",
+          "series_uid",
+          "coordinate_metadata",
+          "nodules"
+        ],
+        "properties": {
+          "contract_version": {
+            "const": "1.0.0"
+          },
+          "patient_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "study_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "study_uid": {
+            "type": "string",
+            "minLength": 1
+          },
+          "series_uid": {
+            "type": "string",
+            "minLength": 1
+          },
+          "coordinate_metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "array_axes",
+              "coordinate_system",
+              "origin_mm",
+              "spacing_zyx_mm",
+              "direction_lps"
+            ],
+            "properties": {
+              "array_axes": {
+                "const": [
+                  "z",
+                  "y",
+                  "x"
+                ]
+              },
+              "coordinate_system": {
+                "const": "DICOM_LPS"
+              },
+              "origin_mm": {
+                "$ref": "#/components/schemas/ImagingClinicalContractV1_vector3"
+              },
+              "spacing_zyx_mm": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                }
+              },
+              "direction_lps": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 3,
+                "items": {
+                  "$ref": "#/components/schemas/ImagingClinicalContractV1_vector3"
+                }
+              }
+            }
+          },
+          "nodules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImagingClinicalContractV1_nodule"
+            }
+          }
+        }
+      },
+      "ImagingClinicalContractV1_vector3": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "items": {
+          "type": "number"
+        }
+      },
+      "ImagingClinicalContractV1_nodule": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "stable_nodule_id",
+          "detector",
+          "bbox_voxel",
+          "bbox_lps_mm",
+          "centroid_voxel",
+          "centroid_lps_mm",
+          "diameter_mm",
+          "volume_mm3",
+          "anatomical_location",
+          "attributes",
+          "malignancy",
+          "uncertainty",
+          "quality_flags",
+          "model_versions",
+          "gradcam_refs",
+          "shap_refs",
+          "artifact_refs"
+        ],
+        "properties": {
+          "stable_nodule_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "detector": {
+            "type": "object",
+            "required": [
+              "candidate_id",
+              "source",
+              "source_members",
+              "vitdet_score",
+              "log_score"
+            ],
+            "properties": {
+              "candidate_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source": {
+                "enum": [
+                  "ViTDet3D",
+                  "LoG",
+                  "Merged"
+                ]
+              },
+              "source_members": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "vitdet_score": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "log_score": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": true
+          },
+          "bbox_voxel": {
+            "type": "object",
+            "required": [
+              "start_zyx",
+              "end_zyx_exclusive"
+            ],
+            "properties": {
+              "start_zyx": {
+                "$ref": "#/components/schemas/ImagingClinicalContractV1_vector3"
+              },
+              "end_zyx_exclusive": {
+                "$ref": "#/components/schemas/ImagingClinicalContractV1_vector3"
+              }
+            },
+            "additionalProperties": false
+          },
+          "bbox_lps_mm": {
+            "type": "object",
+            "required": [
+              "min_lps_mm",
+              "max_lps_mm"
+            ],
+            "properties": {
+              "min_lps_mm": {
+                "$ref": "#/components/schemas/ImagingClinicalContractV1_vector3"
+              },
+              "max_lps_mm": {
+                "$ref": "#/components/schemas/ImagingClinicalContractV1_vector3"
+              }
+            },
+            "additionalProperties": false
+          },
+          "centroid_voxel": {
+            "$ref": "#/components/schemas/ImagingClinicalContractV1_vector3"
+          },
+          "centroid_lps_mm": {
+            "$ref": "#/components/schemas/ImagingClinicalContractV1_vector3"
+          },
+          "diameter_mm": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "volume_mm3": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "anatomical_location": {
+            "type": "object"
+          },
+          "attributes": {
+            "type": "object",
+            "required": [
+              "subtlety",
+              "internal_structure",
+              "calcification",
+              "sphericity",
+              "margin",
+              "lobulation",
+              "spiculation",
+              "texture"
+            ],
+            "properties": {
+              "subtlety": {
+                "type": "object"
+              },
+              "internal_structure": {
+                "type": "object"
+              },
+              "calcification": {
+                "type": "object"
+              },
+              "sphericity": {
+                "type": "object"
+              },
+              "margin": {
+                "type": "object"
+              },
+              "lobulation": {
+                "type": "object"
+              },
+              "spiculation": {
+                "type": "object"
+              },
+              "texture": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": false
+          },
+          "malignancy": {
+            "type": "object"
+          },
+          "uncertainty": {
+            "type": "object"
+          },
+          "quality_flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "model_versions": {
+            "type": "object"
+          },
+          "gradcam_refs": {
+            "type": "object"
+          },
+          "shap_refs": {
+            "type": "object"
+          },
+          "artifact_refs": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

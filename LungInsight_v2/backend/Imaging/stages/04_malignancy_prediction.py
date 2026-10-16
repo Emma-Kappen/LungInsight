@@ -14,6 +14,7 @@ The default output is:
 from __future__ import annotations
 
 import argparse
+import builtins
 import json
 import math
 import sys
@@ -29,7 +30,8 @@ if str(IMAGING_DIR) not in sys.path:
 import joblib
 import numpy as np
 from pipeline_schema import get_required, load_schema, check_meta_schema_version, validate_stage_version
-from stage04_shap import explain_regression, load_training_background, sha256_file
+from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+from stage04_shap import explain_linear_ranker, explain_regression, load_training_background, sha256_file
 
 SCHEMA = load_schema(__file__)
 STAGE04_SCHEMA = get_required(SCHEMA, "stage_04_malignancy_prediction", expected_type=dict)
@@ -128,6 +130,10 @@ def build_parser() -> argparse.ArgumentParser:
         help=f"Frozen XML-trained Stage 04 joblib model (default: {DEFAULT_MODEL}).",
     )
     parser.add_argument(
+        "--ranking-model", type=Path, default=None,
+        help="Optional validated pairwise Stage 04 ranker bundle. The rating model remains the compatibility output.",
+    )
+    parser.add_argument(
         "--output", type=Path, default=None,
         help="Explicit output JSON path. Default: <output-root>/<patient>/04_malignancy_prediction/malignancy_predictions.json.",
     )
@@ -135,11 +141,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--skip-invalid", action="store_true",
         help="Skip candidates with missing/invalid attributes and record them in the output. Default: fail fast.",
     )
+    add_verbose_argument(parser)
     return parser
 
 
 def main() -> int:
     args = build_parser().parse_args()
+    configure_console(args.verbose)
     if args.predictions is not None:
         input_path = args.predictions
         patient_id_arg = args.patient_id
@@ -169,6 +177,20 @@ def main() -> int:
             "Model bundle does not match the Stage 04 six-feature contract. "
             f"Expected {FEATURES}; got {got}"
         )
+    ranking_bundle: dict[str, Any] | None = None
+    ranking_model_path: Path | None = None
+    if args.ranking_model is not None:
+        ranking_model_path = args.ranking_model.resolve()
+        if not ranking_model_path.is_file():
+            raise FileNotFoundError(f"Stage 04 ranking model bundle not found: {ranking_model_path}")
+        ranking_bundle = joblib.load(ranking_model_path)
+        if (
+            not isinstance(ranking_bundle, dict)
+            or ranking_bundle.get("feature_names") != FEATURES
+            or ranking_bundle.get("model_type") != "pairwise_linear_ranker_v1"
+            or "model" not in ranking_bundle
+        ):
+            raise ValueError("Ranking model bundle does not match the pairwise Stage 04 contract.")
 
     payload = read_json(input_path)
     if isinstance(payload, dict):
@@ -180,6 +202,9 @@ def main() -> int:
     errors: list[dict[str, Any]] = []
     for idx, record in enumerate(records):
         try:
+            stable_id = record.get("stable_nodule_id", record.get("nodule_id"))
+            if not isinstance(stable_id, str) or not stable_id.strip():
+                raise ValueError("missing stable_nodule_id")
             row = [get_attribute_rating(record, name) for name in FEATURES]
             feature_rows.append(row)
             valid_records.append((idx, record))
@@ -204,24 +229,35 @@ def main() -> int:
     if not np.isfinite(raw_predictions).all():
         raise ValueError("Stage 04 model returned NaN or Inf predictions; check the existing model bundle and its runtime dependencies.")
     shap_schema = get_required(STAGE04_SCHEMA, "shap_explanations", expected_type=dict)
-    background_path = (STAGE_ROOT / str(shap_schema["training_table_path"])).resolve()
-    background, background_metadata = load_training_background(
-        background_path,
-        FEATURES,
-        split_column=str(shap_schema["split_column"]),
-        training_split_value=str(shap_schema["training_split_value"]),
-        sample_size=int(shap_schema["background_sample_size"]),
-        random_seed=int(shap_schema["background_random_seed"]),
-    )
-    shap_values, shap_base_values, shap_metadata = explain_regression(
-        bundle["model"],
-        background,
-        x,
-        additivity_tolerance=float(shap_schema["additivity_tolerance"]),
-    )
     shap_model_sha256 = sha256_file(model_path)
-    shap_metadata.update(
-        {
+    explanation_model_sha256 = sha256_file(ranking_model_path or model_path)
+    shap_values: np.ndarray | None = None
+    shap_base_values: np.ndarray | None = None
+    shap_failure: str | None = None
+    try:
+        if ranking_bundle is not None:
+            shap_values, shap_base_values, shap_metadata = explain_linear_ranker(ranking_bundle["model"], x)
+            background_metadata = {
+                "reference": "fitted training-feature mean stored in the ranking model",
+                "feature_names_in_order": list(FEATURES),
+            }
+        else:
+            background_path = (STAGE_ROOT / str(shap_schema["training_table_path"])).resolve()
+            background, background_metadata = load_training_background(
+                background_path,
+                FEATURES,
+                split_column=str(shap_schema["split_column"]),
+                training_split_value=str(shap_schema["training_split_value"]),
+                sample_size=int(shap_schema["background_sample_size"]),
+                random_seed=int(shap_schema["background_random_seed"]),
+            )
+            shap_values, shap_base_values, shap_metadata = explain_regression(
+                bundle["model"],
+                background,
+                x,
+                additivity_tolerance=float(shap_schema["additivity_tolerance"]),
+            )
+        shap_metadata.update({
             "status": "complete",
             "background_data": background_metadata,
             "feature_names_in_order": list(FEATURES),
@@ -229,12 +265,32 @@ def main() -> int:
                 "No additional Stage 04 transform: the six Stage 03 expected ratings "
                 "in [1,5] are passed directly to the frozen model."
             ),
-            "model_file": str(model_path),
-            "model_sha256": shap_model_sha256,
-            "model_type": bundle.get("model_type", type(bundle["model"]).__name__),
+            "model_file": str(ranking_model_path or model_path),
+            "model_sha256": explanation_model_sha256,
+            "model_type": (
+                ranking_bundle.get("model_type", type(ranking_bundle["model"]).__name__)
+                if ranking_bundle is not None
+                else bundle.get("model_type", type(bundle["model"]).__name__)
+            ),
             "limitations": list(shap_schema["limitations"]),
+            "background_data": background_metadata,
+        })
+    except (ImportError, RuntimeError, ValueError, OSError, AttributeError, TypeError) as exc:
+        shap_failure = f"{type(exc).__name__}: {exc}"
+        shap_metadata = {
+            "status": "failed",
+            "failure_reason": shap_failure,
+            "background_dataset": str((STAGE_ROOT / str(shap_schema["training_table_path"])).resolve()),
+            "feature_names_in_order": list(FEATURES),
+            "explainer": "shap.TreeExplainer",
+            "model_file": str(ranking_model_path or model_path),
+            "model_sha256": explanation_model_sha256,
+            "model_type": (
+                ranking_bundle.get("model_type", type(ranking_bundle["model"]).__name__)
+                if ranking_bundle is not None
+                else bundle.get("model_type", type(bundle["model"]).__name__)
+            ),
         }
-    )
     if PREDICTION_TRANSFORM["clip_to_target_range"]:
         predictions = np.clip(raw_predictions, TARGET_RATING_RANGE[0], TARGET_RATING_RANGE[1])
     else:
@@ -251,9 +307,85 @@ def main() -> int:
         zip(valid_records, x, predictions, raw_predictions)
     ):
         rounded = int(np.clip(math.floor(float(pred) + 0.5), TARGET_RATING_RANGE[0], TARGET_RATING_RANGE[1]))
+        if shap_values is not None and shap_base_values is not None:
+            contribution_values = [float(value) for value in shap_values[result_index]]
+            feature_contributions = [
+                {
+                    "feature_name": name,
+                    "feature_value": float(value),
+                    "shap_value": contribution,
+                }
+                for name, value, contribution in zip(FEATURES, row, contribution_values)
+            ]
+            positive = sorted(
+                (item for item in feature_contributions if item["shap_value"] > 0),
+                key=lambda item: (-item["shap_value"], item["feature_name"]),
+            )
+            negative = sorted(
+                (item for item in feature_contributions if item["shap_value"] < 0),
+                key=lambda item: (item["shap_value"], item["feature_name"]),
+            )
+            shap_explanation = {
+                "status": "complete",
+                "nodule_id": record.get("stable_nodule_id", record.get("nodule_id")),
+                "prediction_input_reference": str(input_path.resolve()),
+                "input_representation": "stage03_expected_rating_feature_vector",
+                "feature_names_in_order": list(FEATURES),
+                "base_value_raw": float(shap_base_values[result_index]),
+                "feature_contributions": {
+                    item["feature_name"]: item["shap_value"] for item in feature_contributions
+                },
+                "features": feature_contributions,
+                "top_positive_features": positive,
+                "top_negative_features": negative,
+                "explained_output": (
+                    "raw_malignancy_priority_score"
+                    if ranking_bundle is not None
+                    else "model_raw_prediction_before_rating_clip"
+                ),
+                "target_semantics": (
+                    ranking_bundle["target_semantics"]
+                    if ranking_bundle is not None
+                    else STAGE04_SCHEMA["semantics"]
+                ),
+                "explainer": shap_metadata.get("explainer"),
+                "explainer_configuration": {
+                    "feature_perturbation": shap_metadata.get("feature_perturbation"),
+                    "model_output": shap_metadata.get("model_output"),
+                },
+                "background_reference": shap_metadata.get("background_data"),
+                "preprocessing_schema_version": SCHEMA["schema_version"],
+                "model_sha256": explanation_model_sha256,
+            }
+        else:
+            shap_explanation = {
+                "status": "failed",
+                "nodule_id": record.get("stable_nodule_id", record.get("nodule_id")),
+                "prediction_input_reference": str(input_path.resolve()),
+                "input_representation": "stage03_expected_rating_feature_vector",
+                "feature_names_in_order": list(FEATURES),
+                "failure_reason": shap_failure,
+                "feature_contributions": {},
+                "features": [],
+                "top_positive_features": [],
+                "top_negative_features": [],
+                "target_semantics": (
+                    ranking_bundle["target_semantics"]
+                    if ranking_bundle is not None
+                    else STAGE04_SCHEMA["semantics"]
+                ),
+                "preprocessing_schema_version": SCHEMA["schema_version"],
+                "model_sha256": shap_model_sha256,
+            }
         output_predictions.append({
             "patch_id": record.get("patch_id"),
             "candidate_id": record.get("candidate_id"),
+            "stable_nodule_id": record.get("stable_nodule_id", record.get("nodule_id")),
+            "nodule_id": record.get("stable_nodule_id", record.get("nodule_id")),
+            "source": record.get("source", record.get("detection_source")),
+            "source_members": record.get("source_members", []),
+            "vitdet_score": record.get("vitdet_score"),
+            "log_score": record.get("log_score"),
             "detection_source": record.get("detection_source", "ViTDet3D"),
             "diagnostic_id": record.get("diagnostic_id"),
             "purpose": record.get("purpose"),
@@ -265,18 +397,17 @@ def main() -> int:
             "predicted_malignancy_rating_continuous": float(pred),
             "predicted_malignancy_rating_rounded": rounded,
             "model_raw_prediction_before_rating_clip": float(raw_pred),
+            "malignancy_priority_score": (
+                float(ranking_bundle["model"].predict(np.asarray([row], dtype=np.float64))[0])
+                if ranking_bundle is not None else None
+            ),
+            "malignancy_priority_score_semantics": (
+                ranking_bundle["target_semantics"] if ranking_bundle is not None else None
+            ),
             "rating_scale": f"{int(TARGET_RATING_RANGE[0])}..{int(TARGET_RATING_RANGE[1])}",
             "target_semantics": STAGE04_SCHEMA["semantics"],
             "feature_values_used": {name: float(value) for name, value in zip(FEATURES, row)},
-            "shap_explanation": {
-                "base_value_raw": float(shap_base_values[result_index]),
-                "feature_contributions": {
-                    name: float(value)
-                    for name, value in zip(FEATURES, shap_values[result_index])
-                },
-                "explained_output": "model_raw_prediction_before_rating_clip",
-                "model_sha256": shap_model_sha256,
-            },
+            "shap_explanation": shap_explanation,
             "stage03_prediction_index": idx,
             "ct_or_image_used_by_malignancy_predictor": False,
         })
@@ -287,13 +418,40 @@ def main() -> int:
         patient_id = parent_patient_id or patient_id_arg
         if not patient_id:
             raise ValueError("Cannot determine patient_id for default output path; supply --output")
-        output_path = (args.output_root / patient_id / STAGE_NAME / STAGE04_PATHS["output_json"]).resolve()
+        output_name = (
+            "malignancy_predictions_ranked.json"
+            if ranking_bundle is not None
+            else str(STAGE04_PATHS["output_json"])
+        )
+        output_path = (args.output_root / patient_id / STAGE_NAME / output_name).resolve()
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    shap_failure_path: Path | None = None
+    if shap_failure is not None:
+        shap_failure_path = output_path.with_name(f"{output_path.stem}_shap_failure.json")
+        failure_records = []
+        for prediction in output_predictions:
+            prediction["shap_explanation"]["failure_artifact"] = str(shap_failure_path)
+            failure_records.append({
+                "stable_nodule_id": prediction["stable_nodule_id"],
+                "candidate_id": prediction.get("candidate_id"),
+                "model_file": str(model_path),
+                "model_sha256": shap_model_sha256,
+                "failure_reason": shap_failure,
+            })
+        shap_failure_path.write_text(json.dumps({
+            "schema_version": STAGE04_SCHEMA["output_schema_version"],
+            "status": "failed",
+            "stage": STAGE_NAME,
+            "patient_id": parent_patient_id,
+            "failure_reason": shap_failure,
+            "records": failure_records,
+        }, indent=2, allow_nan=False), encoding="utf-8")
+        shap_metadata["failure_artifact"] = str(shap_failure_path)
 
     prediction_source = (metadata.get("detection_source") if isinstance(metadata, dict) else None)
     if not prediction_source and records:
         prediction_source = records[0].get("detection_source", "ViTDet3D")
-    prediction_source = str(prediction_source or "ViTDet3D")
+    prediction_source = str(prediction_source or "fused_candidate_set")
     result = {
         "schema_version": STAGE04_SCHEMA["output_schema_version"],
         "meta_schema_version": SCHEMA["schema_version"],
@@ -305,6 +463,9 @@ def main() -> int:
         "model_file": str(model_path),
         "model_version": model_path.parent.name,
         "model_type": bundle.get("model_type", "XML-trained regressor"),
+        "ranking_model_file": str(ranking_model_path) if ranking_model_path else None,
+        "ranking_model_type": ranking_bundle.get("model_type") if ranking_bundle else None,
+        "ranking_model_sha256": sha256_file(ranking_model_path) if ranking_model_path else None,
         "feature_names_in_order": list(FEATURES),
         "input_source": f"existing Stage 03 scalar attribute predictions ({prediction_source})",
         "source_predictions_json": str(input_path),
@@ -312,8 +473,11 @@ def main() -> int:
         "candidate_count": len(records),
         "scored_candidate_count": len(output_predictions),
         "invalid_candidates": errors,
-        "target_semantics": STAGE04_SCHEMA["semantics"],
+        "target_semantics": (
+            ranking_bundle["target_semantics"] if ranking_bundle is not None else STAGE04_SCHEMA["semantics"]
+        ),
         "shap": shap_metadata,
+        "shap_failure_artifact": str(shap_failure_path) if shap_failure_path else None,
         "ct_or_image_read": False,
         "h5_read": False,
         "stage03_modified": False,
@@ -324,20 +488,38 @@ def main() -> int:
         "predictions": output_predictions,
     }
     output_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
-    print(json.dumps({
+    summary = {
         "status": "completed",
         "stage": STAGE_NAME,
         "patient_id": parent_patient_id,
         "input": str(input_path),
         "model": str(model_path),
         "output": str(output_path),
+        "ranking_model": str(ranking_model_path) if ranking_model_path else None,
+        "prediction_mode": "rating_plus_optional_priority_score" if ranking_bundle else "rating_only",
         "input_candidates": len(records),
         "scored_candidates": len(output_predictions),
         "invalid_candidates": len(errors),
+        "shap_status": shap_metadata.get("status"),
+        "priority_score_count": sum(
+            prediction.get("malignancy_priority_score") is not None
+            for prediction in output_predictions
+        ),
         "ct_or_image_read": False,
         "h5_read": False,
         "stage03_modified": False,
-    }, indent=2))
+    }
+    if ranking_bundle is not None:
+        scores = [
+            float(prediction["malignancy_priority_score"])
+            for prediction in output_predictions
+            if prediction.get("malignancy_priority_score") is not None
+        ]
+        summary["priority_score_min"] = min(scores) if scores else None
+        summary["priority_score_max"] = max(scores) if scores else None
+        summary["priority_score_semantics"] = ranking_bundle["target_semantics"]
+    builtins.print(json.dumps(summary, indent=2))
+    stage_complete(4, "04")
     return 0
 
 
