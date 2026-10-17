@@ -1044,6 +1044,7 @@ def render_viewer_slice(
                 normalized = np.where(finite, normalized, 0.0)
                 if gradcam_attribute in INVERTED_CAM_ATTRIBUTES:
                     normalized = np.where(finite, 1.0 - normalized, 0.0)
+                if strength is None:
                     strength, covered = normalized, finite
                 else:
                     strength = np.where(finite & (~covered | (normalized > strength)), normalized, strength)

@@ -547,7 +547,7 @@ def test_analysis_viewer_gradcam_overlay_tolerates_nan_outside_coverage(monkeypa
         "nodules": [
             {
                 "stable_nodule_id": "nodule_test",
-                "gradcam_refs": {"spiculation": {"ct_cam_path": "attribute_ct_cam.npy"}},
+                "gradcam_refs": {"margin": {"ct_cam_path": "attribute_ct_cam.npy"}},
             }
         ]
     }
@@ -560,11 +560,11 @@ def test_analysis_viewer_gradcam_overlay_tolerates_nan_outside_coverage(monkeypa
             return np.asarray(Image.open(io.BytesIO(png)).convert("RGB"), dtype=np.int16)
 
         base = render(1)
-        overlay = render(1, gradcam_nodule_id="nodule_test", gradcam_attribute="spiculation")
+        overlay = render(1, gradcam_nodule_id="nodule_test", gradcam_attribute="margin")
         assert overlay[0, 0, 0] > base[0, 0, 0]
         assert np.array_equal(overlay[0, 1], base[0, 1])
         nan_slice_base = render(0)
-        nan_slice_overlay = render(0, gradcam_nodule_id="nodule_test", gradcam_attribute="spiculation")
+        nan_slice_overlay = render(0, gradcam_nodule_id="nodule_test", gradcam_attribute="margin")
         assert np.array_equal(nan_slice_overlay, nan_slice_base)
     finally:
         analysis_api._RUNS.pop("cam-run", None)
@@ -654,6 +654,38 @@ def test_analysis_viewer_gradcam_is_a_constant_opacity_square(monkeypatch: pytes
         assert edge.tolist() == interior.tolist()  # the border pixels are as strong as the interior
     finally:
         analysis_api._RUNS.pop("sq-run", None)
+
+def test_gradcam_colour_map_is_inverted_for_spiculation_and_lobulation(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    import io
+    from PIL import Image
+    from LungInsight_v2.backend.Imaging.api import analysis as analysis_api
+
+    patient_root = tmp_path / "inv-patient"
+    patient_root.mkdir()
+    np.save(patient_root / "volume_hu_cropped.npy", np.full((3, 8, 8), -600.0, dtype=np.float32))
+    cam = np.full((3, 8, 8), np.nan, dtype=np.float32)
+    cam[1, 2:6, 2:6] = 0.0
+    cam[1, 3, 3] = 1.0  # highest activation
+    np.save(patient_root / "cam.npy", cam)
+    (patient_root / "imaging_clinical_contract_v2.json").write_text("{}", encoding="utf-8")
+    refs = {"cam": {"ct_cam_path": "cam.npy"}}
+    fake_contract = {"nodules": [{"stable_nodule_id": "n1", "gradcam_refs": {name: refs["cam"] for name in ("margin", "spiculation", "lobulation")}}]}
+    monkeypatch.setattr(analysis_api, "read_json", lambda _path: fake_contract)
+    monkeypatch.setattr(analysis_api, "validate_contract", lambda _contract: None)
+    analysis_api._RUNS["inv-run"] = {"run_id": "inv-run", "patient_id": "inv-patient", "status": "completed"}
+    try:
+        def pixel(attribute: str, y: int, x: int) -> list[int]:
+            png = analysis_api.render_viewer_slice(
+                "inv-run", 1, output_root=tmp_path, gradcam_nodule_ids=["n1"], gradcam_attribute=attribute, gradcam_alpha=1.0
+            )
+            return np.asarray(Image.open(io.BytesIO(png)).convert("RGB"))[y, x].tolist()
+
+        red, blue = [0xD7, 0x19, 0x1C], [0x15, 0x38, 0xD6]
+        assert pixel("margin", 3, 3) == red and pixel("margin", 2, 2) == blue
+        for attribute in ("spiculation", "lobulation"):
+            assert pixel(attribute, 3, 3) == blue and pixel(attribute, 2, 2) == red
+    finally:
+        analysis_api._RUNS.pop("inv-run", None)
 
 def test_manual_brock_fills_only_missing_inputs_and_persists(tmp_path: Path) -> None:
     import json

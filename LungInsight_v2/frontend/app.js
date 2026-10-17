@@ -1346,7 +1346,9 @@ async function updateViewer() {
   el.label.textContent = `${index + 1} of ${maxIndex + 1}`;
   el.previous.disabled = index === 0;
   el.next.disabled = index === maxIndex;
-  const note = camOn ? " Grad-CAM is drawn over the nodule-centred patch (the square). Colours are relative within that patch (red = highest); a model-sensitivity map, not an attribute probability." : "";
+  const inverted = camOn && (meta.gradcam_inverted_attributes || []).includes(el.attribute.value);
+  document.querySelector(".cam-legend").classList.toggle("inv", inverted);
+  const note = camOn ? ` Grad-CAM is drawn over the nodule-centred patch (the square). Colours are relative within that patch (${inverted ? "inverted for this attribute: red = lowest, blue = highest" : "red = highest"}); a model-sensitivity map, not an attribute probability.` : "";
   setViewerStatus(`${boxStatus(V.nodules[V.selected], index)}${note}`.trim() || `CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
 }
 

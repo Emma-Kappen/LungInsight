@@ -116,6 +116,7 @@ dl.kv dt{color:var(--mute)}dl.kv dd{margin:0;overflow-wrap:anywhere}
 .camnods{display:inline-flex;flex-wrap:wrap;gap:.2rem .6rem}
 .camnods label.check{font-size:.78rem}
 .cam-legend{display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--mute)}
+.cam-legend.inv i{transform:scaleX(-1)}
 .sub-h{font-size:.9rem;margin:.5rem 0 .2rem}
 svg.chart{width:100%;height:auto;display:block}
 svg.chart text{fill:var(--mute);font-size:11px}
