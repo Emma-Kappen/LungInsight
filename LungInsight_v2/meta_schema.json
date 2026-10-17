@@ -86,10 +86,9 @@
     "authoritative_detector": {
       "name": "ViTDet3D",
       "sources": [
-        "ViTDet3D",
-        "LoG"
+        "ViTDet3D"
       ],
-      "authority_policy": "LoG_and_ViTDet3D_equal_standing_validated_union",
+      "authority_policy": "ViTDet3D_sole_detector_with_lung_inclusion_and_heart_exclusion",
       "fusion_method": "configured_physical_center_distance_or_3d_bbox_iou",
       "checkpoint_default": "rlsn/DeTr4LungNodule",
       "input_window_zyx_voxels": [
@@ -107,7 +106,7 @@
         "std": 962.3208802005623,
         "note": "These normalization constants are specific to the pretrained ViTDet3D detector."
       },
-      "candidate_center_authority": "ViTDet3D retains its own post-NMS proposal geometry; after cross-detector deduplication matched centers and boxes are combined with equal weights. Single-detector candidates retain their own geometry.",
+      "candidate_center_authority": "ViTDet3D retains its own post-NMS proposal geometry; overlapping ViTDet3D proposals that satisfy the fusion rule are merged by cluster mean. Single proposals retain their own geometry.",
       "required_candidate_fields": [
         "candidate_id",
         "source",
@@ -129,25 +128,6 @@
       },
       "candidate_anatomical_location_field": "anatomical_location",
       "model_version_default": "v1.0"
-    },
-    "diagnostic_log_detector": {
-      "role": "peer_candidate_source",
-      "authoritative": true,
-      "note": "LoG and ViTDet3D are peer candidate sources. Raw detections are fused before one shared anatomical gate; one-detector candidates remain eligible.",
-      "diameters_mm": [
-        4.0,
-        6.0,
-        8.0,
-        10.0,
-        14.0,
-        18.0,
-        24.0
-      ],
-      "stage03_attribute_inference_enabled_by_default": true,
-      "patches_are_separate_from_authoritative_candidates": false,
-      "stage03_inference_note": "Selected LoG proposals are represented in the fused primary patch manifest and pass through the same Stage 03 and Stage 04 gates as ViTDet3D candidates. An optional separate LoG manifest is audit-only.",
-      "patch_limit_default": 100,
-      "patch_limit_description": "Legacy separate-LoG limit retained for CLI compatibility; the only downstream limit is the schema-defined top 50 after fusion and lung/heart eligibility."
     },
     "patch_outputs": {
       "root": "02_detect_and_patch/patches/",
@@ -210,27 +190,18 @@
       "array_path": "Path to float32 patch .npy array.",
       "triplanar_path": "Path to tri-planar visualization.",
       "anatomical_location": "Heuristic anatomical localization object copied from the authoritative candidate; uses the same detector center and CT geometry.",
-      "detection_source": "Proposal source, either ViTDet3D, LoG, or Merged; both sources are eligible for downstream inference.",
-      "diagnostic_id": "Original LoG detector identifier when a LoG source record is present.",
-      "log_response": "Raw LoG detector response; not calibrated as a probability.",
-      "scale_mm": "LoG Gaussian scale/diameter metadata in millimetres."
+      "detection_source": "Proposal source: ViTDet3D, the sole nodule detector."
     },
     "outputs": {
-      "candidates.json": "Authoritative validated, deduplicated LoG + ViTDet3D candidate union.",
+      "candidates.json": "Authoritative validated, deduplicated ViTDet3D candidates after lung-inclusion and heart-exclusion gating.",
       "vitdet_raw_detections.json": "Persisted raw ViTDet3D detections before NMS, fusion, and mask gating for study-level audit counts.",
       "candidates.csv": "Flat human-readable mirror of candidates.json.",
       "detector_metadata.json": "Detector, CT-frame, patch-frame, and provenance metadata.",
       "candidate_filter_report.json": "Counts and rejection reasons for the pre-patch lung/heart acceptance gate.",
-      "candidates_rejected_audit.json": "Fused candidates outside the validated lung/heart mask and eligible candidates beyond top-50; audit only, never downstream input.",
-      "log_candidates_diagnostic.json": "Raw LoG source records retained as audit evidence; accepted fused candidates are in candidates.json.",
-      "log_candidate_filter_report.json": "Counts of LoG evidence represented by fused candidates that passed or failed the shared mask gate.",
-      "log_candidates_rejected_audit.json": "Rejected fused candidates with LoG evidence; audit only, never downstream input.",
-      "candidates_diagnostic_agreement.json": "Read-only ViTDet3D-vs-LoG comparison.",
+      "candidates_rejected_audit.json": "Candidates outside the validated lung/heart mask and eligible candidates beyond top-50; audit only, never downstream input.",
       "patches/arrays/patch_000.npy": "Float32 ZYX nodule patch.",
       "patches/visualizations/patch_000_triplanar.png": "Tri-planar patch visualization.",
-      "patches/patches_manifest.json": "Per-patch geometry, coordinates, provenance, and characterization.",
-      "log_diagnostic_patches/log_patches_manifest.json": "Optional audit patch records for LoG source proposals; authoritative selected candidates use the primary patch manifest.",
-      "log_diagnostic_patches/arrays/patch_000.npy": "Float32 ZYX patch for a LoG diagnostic proposal (patch IDs are local to the diagnostic manifest)."
+      "patches/patches_manifest.json": "Per-patch geometry, coordinates, provenance, and characterization."
     },
     "anatomical_localization": {
       "enabled": true,
@@ -303,7 +274,7 @@
         "local_distance_search_margin_mm": 2.0
       },
       "output_locations": {
-        "candidates.json": "Each accepted fused LoG/ViTDet3D candidate contains anatomical_location.",
+        "candidates.json": "Each accepted ViTDet3D candidate contains anatomical_location.",
         "candidates.csv": "Flat anatomical location columns mirror anatomical_location.primary, region, laterality, and compartment.",
         "patches/patches_manifest.json": "Each extracted patch record contains the same anatomical_location object copied from its authoritative candidate.",
         "detector_metadata.json": "Contains the anatomical-localization configuration used for the run."
@@ -317,9 +288,6 @@
     "model_version_default": "v1.0",
     "vit_logit_threshold_default": -5.0,
     "nms_distance_mm_default": 10.0,
-    "log_threshold_default": 0.035,
-    "log_min_distance_mm_default": 5.0,
-    "diagnostic_agreement_distance_mm_default": 10.0,
     "patch_size_vox_default": 64,
     "context_margin_mm_default": 10.0,
     "ct_display_window_hu": {
@@ -337,12 +305,8 @@
       "vitdet_raw_detections": "vitdet_raw_detections.json",
       "candidates_csv": "candidates.csv",
       "detector_metadata": "detector_metadata.json",
-      "log_diagnostic": "log_candidates_diagnostic.json",
-      "diagnostic_agreement": "candidates_diagnostic_agreement.json",
       "candidate_filter_report": "candidate_filter_report.json",
       "rejected_candidates_audit": "candidates_rejected_audit.json",
-      "log_candidate_filter_report": "log_candidate_filter_report.json",
-      "log_rejected_candidates_audit": "log_candidates_rejected_audit.json",
       "patch_array_pattern": "patch_{patch_id:03d}.npy",
       "patch_visualization_pattern": "patch_{patch_id:03d}_triplanar.png"
     },
@@ -351,8 +315,8 @@
       "minimum_bbox_lung_occupancy": 0.0,
       "require_nonempty_heart_mask": true,
       "require_human_review_attestation": false,
-      "authoritative_source": "validated_fused_LoG_and_ViTDet3D",
-      "diagnostic_source_policy": "LoG and ViTDet3D have equal standing; fuse/deduplicate their complete raw candidate union before applying one mask gate. Candidates found by either detector alone remain eligible. The separate LoG manifest is empty and audit-only."
+      "authoritative_source": "validated_ViTDet3D_candidates",
+      "detector_policy": "ViTDet3D is the sole nodule detector. Its candidates are gated by lung_mask inclusion and heart_mask exclusion before any downstream stage."
     },
     "candidate_fusion": {
       "spatial_match_rule": "Merge when physical center distance <= 3 mm; otherwise merge only when distance <= 8 mm and 3-D box IoU >= 0.25.",
@@ -361,23 +325,7 @@
       "stable_identity_rule": "Derive stable_nodule_id from patient, study, series, and fused physical LPS center using a source-neutral canonical identity namespace.",
       "eligible_limit": 50
     },
-    "default_log_diagnostic_enabled": true,
-    "patch_padding_hu_ref": "stage_01_hu_and_crop.preprocessing.default_blank_value_hu",
-    "diagnostic_patch_outputs": {
-      "root": "02_detect_and_patch/log_diagnostic_patches/",
-      "array_directory": "02_detect_and_patch/log_diagnostic_patches/arrays/",
-      "manifest": "02_detect_and_patch/log_diagnostic_patches/log_patches_manifest.json",
-      "array_dtype": "float32",
-      "array_axes": [
-        "z",
-        "y",
-        "x"
-      ],
-      "patch_space": "patch_local_ct",
-      "visualizations_enabled": false,
-      "note": "Legacy manifest remains empty because LoG proposals are fused into the authoritative candidate stream; no second Stage 03 inference stream is created.",
-      "visualization_directory": "02_detect_and_patch/log_diagnostic_patches/visualizations/"
-    }
+    "patch_padding_hu_ref": "stage_01_hu_and_crop.preprocessing.default_blank_value_hu"
   },
   "stage_03_nodule_classification": {
     "stage": "03",
@@ -398,11 +346,7 @@
         64,
         64
       ],
-      "shape_policy": "fixed_shape_required_no_silent_resize_or_resample",
-      "log_diagnostic_patch_manifest": "02_detect_and_patch/log_diagnostic_patches/log_patches_manifest.json",
-      "process_log_diagnostic_default": false,
-      "log_diagnostic_policy": "The legacy separate LoG manifest is intentionally empty. LoG proposals enter Stages 03–06 only after fusion, shared lung-mask gating, and top-50 selection in the primary Stage 02 manifest.",
-      "log_diagnostic_patch_arrays": "02_detect_and_patch/log_diagnostic_patches/arrays/*.npy"
+      "shape_policy": "fixed_shape_required_no_silent_resize_or_resample"
     },
     "model": {
       "architecture": "frozen spatial-hybrid nodule attribute rankers",
@@ -511,10 +455,7 @@
       "predictions_csv": "predictions.csv",
       "classification_metadata_json": "classification_metadata.json",
       "attention_directory": "attention/",
-      "attribute_attention": "attention/patch_###_attribute_attention.npy",
-      "log_diagnostic_predictions_json": "log_diagnostic_predictions.json",
-      "log_diagnostic_predictions_csv": "log_diagnostic_predictions.csv",
-      "log_attention_directory": "log_attention/"
+      "attribute_attention": "attention/patch_###_attribute_attention.npy"
     },
     "prediction_record_fields": {
       "patch_id": "Stage 02 patch identifier.",
@@ -533,8 +474,7 @@
       "measured_features": "Unavailable; Stage 03 predicts reader-style attributes and does not measure them from patient metadata.",
       "attention": "Optional Stage 03 attention tensor.",
       "patch_array_path": "Source patch array used for inference.",
-      "detection_source": "Source lineage for an authoritative spatially fused LoG/ViTDet3D candidate.",
-      "diagnostic_id": "Legacy detector-specific LoG identifier retained only in provenance."
+      "detection_source": "Source lineage for an authoritative ViTDet3D candidate."
     },
     "limitations": [
       "Expected ratings are not calibrated class probabilities.",
@@ -542,7 +482,7 @@
       "Internal structure and calcification are unsupported by the supplied frozen hybrid checkpoints.",
       "Malignancy is not a Stage 03 output.",
       "Inference requires checkpoints compatible with the current spatial-hybrid model and preprocessing.",
-      "LoG and ViTDet3D candidates enter Stage 03 only through the accepted fused Stage 02 manifest. The legacy separate LoG manifest remains empty to prevent duplicate inference."
+      "ViTDet3D candidates enter Stage 03 only through the accepted Stage 02 manifest after lung-inclusion and heart-exclusion gating."
     ],
     "unsupported_attributes": [
       "internal_structure",
@@ -562,10 +502,7 @@
       "detector_score",
       "intensity_statistics",
       "patch_center_local_zyx",
-      "detection_source",
-      "diagnostic_id",
-      "log_response",
-      "scale_mm"
+      "detection_source"
     ]
   },
   "paths": {
@@ -583,16 +520,13 @@
     },
     "stage_04": {
       "directory": "04_malignancy_prediction",
-      "output_json": "malignancy_predictions.json",
-      "log_diagnostic_output_json": "log_diagnostic_malignancy_predictions.json"
+      "output_json": "malignancy_predictions.json"
     },
     "stage_05": {
-      "directory": "05_explainability/gradcam_rainbow_final",
-      "log_diagnostic_directory": "05_explainability/log_diagnostic_gradcam"
+      "directory": "05_explainability/gradcam_rainbow_final"
     },
     "stage_06": {
-      "directory": "06_full_ct_gradcam_rainbow",
-      "log_diagnostic_directory": "06_log_diagnostic_gradcam_rainbow"
+      "directory": "06_full_ct_gradcam_rainbow"
     },
     "stage_07": {
       "directory": "07_visualization",
@@ -716,10 +650,8 @@
     ],
     "formula_version": "mcwilliams-nejmoa1214726-full-v1",
     "explanation_semantics": "Analytical Brock formula contributions on the logit scale; not SHAP, causal effects, or percentage-point probability changes.",
-    "input_validation": "Reject unknown predictor fields and unselected stable nodule IDs. Missing required values produce incomplete status; detector size and Stage 03 attribute predictions are never mapped into Brock predictors.",
-    "diagnosis_and_pathology": "Separate fields explicitly remain not_predicted/not_provided; Brock output is not confirmed diagnosis, pathology, or histological subtype.",
-    "diagnostic_input_predictions_ref": null,
-    "diagnostic_output_path_ref": "paths.stage_04.log_diagnostic_output_json"
+    "input_validation": "Reject unknown predictor fields and unselected stable nodule IDs. Missing or unknown required values produce incomplete status and are never coerced. Approved exceptions: nodule_size_mm is the Stage 02 detector estimate (longest in-plane bbox extent, labelled derived); spiculation is the Stage 03 predicted ordinal rating mapped to binary at expected_rating >= 3.0 (raw rating and mapping retained as provenance; not a reader finding); upper_lobe is derived from Stage 02 vertical_region (superior=1, inferior=0, otherwise incomplete); nodule_type is derived from the Stage 03 predicted texture rating by round-half-up (1=pure_ground_glass, 2-3=part_solid, 4-5=solid; ratings outside 1-5 are incomplete), with the raw rating retained as provenance and calibrated_confidence null; nodule_count is the number of lung-gated Stage 02 candidates for the patient (detector count, not radiologist-confirmed). A manual nodule_type may fill a missing source value, and may override a known value only with a recorded correction reason. Patient fields come from the stored clinical record with explicit manual corrections; conflicts without a reason are rejected.",
+    "diagnosis_and_pathology": "Separate fields explicitly remain not_predicted/not_provided; Brock output is not confirmed diagnosis, pathology, or histological subtype."
   },
   "stage_05_gradcam": {
     "stage": "05",
@@ -751,12 +683,10 @@
     },
     "attributes_ref": "attribute_contracts.stage03_ranked_attributes",
     "palette_ref": "visualization.rainbow_palette",
-    "diagnostic_manifest_ref": null,
-    "diagnostic_batch_output_directory_ref": null,
     "batch_processing": {
       "enabled": true,
       "reuse_loaded_checkpoints": true,
-      "output_layout": "<diagnostic_batch_output_directory>/patch_<patch_id:03d>/",
+      "output_layout": "<gradcam_batch_output_directory>/patch_<patch_id:03d>/",
       "all_manifest_patches_by_default": true,
       "patch_output_directory_pattern": "patch_{patch_id:03d}"
     }
@@ -809,10 +739,7 @@
     "attributes_ref": "attribute_contracts.stage03_ranked_attributes",
     "unqualified_patch_id": 0,
     "palette_ref": "visualization.rainbow_palette",
-    "display_window_ref": "stage_02_detect_and_patch.ct_display_window_hu",
-    "diagnostic_manifest_ref": null,
-    "diagnostic_cam_root_ref": null,
-    "diagnostic_output_directory_ref": null
+    "display_window_ref": "stage_02_detect_and_patch.ct_display_window_hu"
   },
   "metadata_policy": {
     "single_source_of_truth": "meta_schema.json",
@@ -883,9 +810,7 @@
       "air_mask_ref": "stage_01_hu_and_crop.filenames.air_mask.npy",
       "heart_mask_ref": "stage_01_hu_and_crop.filenames.heart_mask.npy",
       "primary_predictions_ref": "stage_03_nodule_classification.outputs.predictions_json",
-      "log_predictions_ref": null,
-      "primary_malignancy_ref": "paths.stage_04.output_json",
-      "log_malignancy_ref": null
+      "primary_malignancy_ref": "paths.stage_04.output_json"
     },
     "outputs": {
       "report_json_ref": "paths.stage_07.report_json",
@@ -898,8 +823,7 @@
     "display_window_ref": "stage_02_detect_and_patch.ct_display_window_hu",
     "slider_axis": "axial_z",
     "source_display_labels": {
-      "ViTDet3D": "V",
-      "LoG": "L"
+      "ViTDet3D": "V"
     },
     "clinical_limitations": [
       "Candidate counts are spatially deduplicated detector proposals whose rounded centers lie in lung_mask.npy, not adjudicated unique nodules.",
@@ -916,7 +840,6 @@
       },
       "slice_label": "axial_z",
       "viTdet3d_marker": "o",
-      "log_marker": "s",
       "brock_unavailable_color": "cyan",
       "brock_available_color": "red"
     },
@@ -927,7 +850,6 @@
       "stable_nodule_id",
       "patch_id",
       "candidate_id",
-      "diagnostic_id",
       "candidate_in_lung_mask",
       "center_inside_lung_mask",
       "center_z_voxel",
@@ -940,8 +862,6 @@
       "bbox_start_zyx",
       "bbox_end_zyx_exclusive",
       "detector_score",
-      "log_response",
-      "scale_mm",
       "{attribute_columns}",
       "brock_status",
       "brock_probability",

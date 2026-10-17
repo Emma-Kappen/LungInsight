@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LungInsight – research CT analysis</title>
+<style>
+:root{--bg:#eef1f3;--panel:#fff;--ink:#1c2a33;--mute:#56656f;--line:#cfd7dc;--accent:#17697a;--accent-ink:#fff;--warn:#8a5300;--warnbg:#fff3dc;--bad:#a8231b;--badbg:#fde8e6;--ok:#1e6b3a;--okbg:#e3f3e8;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#141b20;--panel:#1c262d;--ink:#e6edf1;--mute:#9bacb7;--line:#33424b;--accent:#5cc0d3;--accent-ink:#06242b;--warn:#ffcb7a;--warnbg:#3a2c10;--bad:#ff9d94;--badbg:#3d1d1a;--ok:#8fdba8;--okbg:#17321f;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,sans-serif;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.notice{background:var(--warnbg);color:var(--warn);padding:.6rem 1rem;text-align:center;font-weight:600;border-bottom:1px solid var(--line)}
+header,main{max-width:1100px;margin:0 auto;padding:0 1rem}
+h1{font-size:1.9rem;margin:1.2rem 0 .1rem;letter-spacing:-.02em}
+h2{font-size:1.15rem;margin:0 0 .8rem}
+.sub{color:var(--mute);margin:0 0 1rem;max-width:62ch}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.2rem;margin:1rem 0}
+section[hidden]{display:none}
+.grid{display:grid;gap:.8rem 1rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+label{display:block;font-weight:600;font-size:.88rem;margin-bottom:.2rem}
+input,select{width:100%;padding:.5rem .6rem;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+input[aria-invalid=true]{border-color:var(--bad)}
+.err{color:var(--bad);font-size:.82rem;min-height:1.1em;margin:.15rem 0 0}
+button{font:inherit;font-weight:600;padding:.5rem 1rem;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-top:.8rem}
+.badge{display:inline-block;padding:.1rem .55rem;border-radius:99px;font-size:.78rem;font-weight:700}
+.b-ok{background:var(--okbg);color:var(--ok)}.b-warn{background:var(--warnbg);color:var(--warn)}.b-bad{background:var(--badbg);color:var(--bad)}.b-mute{background:var(--bg);color:var(--mute);border:1px solid var(--line)}
+progress{width:100%;height:10px;accent-color:var(--accent)}
+ol.stages{list-style:none;padding:0;margin:.5rem 0;display:grid;gap:.35rem}
+ol.stages li{display:flex;justify-content:space-between;gap:1rem;padding:.4rem .7rem;border:1px solid var(--line);border-radius:6px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:.4rem .5rem;border-bottom:1px solid var(--line);vertical-align:top}
+.scroll{overflow-x:auto}
+.stats{display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:1rem}
+.stat{border-left:4px solid var(--accent);padding:.1rem .7rem}.stat b{display:block;font-size:1.5rem}
+.viewer{display:grid;gap:1rem;grid-template-columns:minmax(0,340px) minmax(0,1fr)}
+@media(max-width:760px){.viewer{grid-template-columns:1fr}}
+canvas{width:100%;max-width:340px;aspect-ratio:1;background:#000;border-radius:8px;display:block}
+.nlist{list-style:none;margin:0;padding:0;display:grid;gap:.4rem}
+.nlist button{width:100%;text-align:left;background:var(--bg);color:var(--ink);border-color:var(--line);display:flex;justify-content:space-between;gap:.5rem}
+.nlist button[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.alert{padding:.6rem .8rem;border-radius:6px;margin:.6rem 0}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:.25rem 1rem;margin:.5rem 0}dt{color:var(--mute)}dd{margin:0}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--accent)}
+footer{text-align:center;color:var(--mute);font-size:.82rem;padding:1.5rem 1rem 2rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="notice" role="note">Research use only. Not a medical device and not for clinical decisions.</div>
+<header>
+  <h1>LungInsight</h1>
+  <p class="sub">Upload a lung CT, run the analysis, and review each nodule with its status, evidence, and source artifacts. This page runs on built-in sample data until you set <code>API_BASE</code> in the script.</p>
+</header>
+<main>
+
+<section aria-labelledby="h-intake">
+  <h2 id="h-intake">1. Patient and clinical details</h2>
+  <div class="grid">
+    <div><label for="pid">Patient ID</label><input id="pid" autocomplete="off" aria-describedby="pid-e" required><p class="err" id="pid-e"></p></div>
+    <div><label for="age">Age (years)</label><input id="age" type="number" min="18" max="110" aria-describedby="age-e"><p class="err" id="age-e"></p></div>
+    <div><label for="sex">Sex</label><select id="sex"><option value="">Select</option><option>Female</option><option>Male</option></select></div>
+    <div><label for="cpd">Cigarettes per day</label><input id="cpd" type="number" min="0" max="200" aria-describedby="cpd-e"><p class="err" id="cpd-e"></p></div>
+    <div><label for="yrs">Years smoked</label><input id="yrs" type="number" min="0" max="90" aria-describedby="yrs-e"><p class="err" id="yrs-e"></p></div>
+    <div><label>Pack-years</label><p id="py" style="margin:.35rem 0;font-weight:700" aria-live="polite">–</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="h-up">
+  <h2 id="h-up">2. CT upload</h2>
+  <label for="files">CT folder or DICOM files</label>
+  <input id="files" type="file" webkitdirectory multiple>
+  <p id="fsum" class="sub" style="margin:.4rem 0 0">No files selected.</p>
+  <div class="row"><button id="upBtn" disabled>Upload CT</button><button id="upCancel" class="ghost" hidden>Cancel upload</button></div>
+  <progress id="upProg" value="0" max="100" hidden aria-label="Upload progress"></progress>
+  <p id="upMsg" class="sub" role="status" aria-live="polite"></p>
+</section>
+
+<section aria-labelledby="h-an">
+  <h2 id="h-an">3. Analysis</h2>
+  <div class="row" style="margin-top:0"><button id="runBtn" disabled>Analyse</button><button id="runCancel" class="ghost" hidden>Stop waiting</button><button id="retryBtn" class="ghost" hidden>Retry</button></div>
+  <p id="runMsg" role="status" aria-live="polite" class="sub" style="margin-top:.6rem"></p>
+  <ol class="stages" id="stages"></ol>
+</section>
+
+<section id="results" hidden aria-labelledby="h-res" tabindex="-1">
+  <h2 id="h-res">4. Results summary</h2>
+  <div class="stats" id="stats"></div>
+  <div id="gate"></div>
+  <div class="scroll"><table><caption class="sr">Per-method outcomes</caption><thead><tr><th>Method</th><th>Succeeded</th><th>Failed</th><th>Unavailable</th><th>Reason</th></tr></thead><tbody id="methods"></tbody></table></div>
+  <div class="row"><a href="#" id="repHtml">HTML report</a><a href="#" id="repJson">JSON report</a></div>
+</section>
+
+<section id="viewerSec" hidden aria-labelledby="h-view">
+  <h2 id="h-view">5. Nodule viewer</h2>
+  <div class="viewer">
+    <div>
+      <canvas id="cv" width="256" height="256" tabindex="0" role="img" aria-label="CT slice viewer. Use arrow keys to change slice."></canvas>
+      <label for="slice" style="margin-top:.6rem">Slice <span id="sliceN"></span></label>
+      <input id="slice" type="range" min="0" max="0" value="0">
+      <div class="row"><label style="font-weight:400;display:flex;gap:.4rem;align-items:center"><input type="checkbox" id="ovLung" style="width:auto" checked> Lung overlay</label><label style="font-weight:400;display:flex;gap:.4rem;align-items:center"><input type="checkbox" id="ovCam" style="width:auto"> Grad-CAM</label></div>
+      <p id="vstat" class="sub" role="status" aria-live="polite"></p>
+    </div>
+    <div><h3 style="margin:0 0 .5rem;font-size:1rem">Nodules</h3><ul class="nlist" id="nlist"></ul></div>
+  </div>
+</section>
+
+<section id="detail" hidden aria-labelledby="h-det" tabindex="-1">
+  <h2 id="h-det">6. Nodule detail</h2>
+  <div id="detBody"></div>
+</section>
+
+<section aria-labelledby="h-saved">
+  <h2 id="h-saved">7. Saved studies</h2>
+  <div class="row" style="margin-top:0"><button id="loadSaved" class="ghost">Load studies for this patient</button></div>
+  <ul id="saved" class="nlist" style="margin-top:.6rem"></ul>
+</section>
+</main>
+<footer>LungInsight example frontend. Sample data only.</footer>
+
+<script>
+"use strict";
+const API_BASE = ""; // e.g. "/api/v1". Empty = use the built-in mock below.
+const POLL_MS = 900, POLL_TIMEOUT_MS = 20000;
+const KNOWN = ["queued","running","completed","blocked","unavailable","awaiting_review","failed"];
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const fin = v => typeof v === "number" && Number.isFinite(v);
+const state = {uploaded:null, runId:null, run:null, sel:null, poll:{stop:false}};
+
+/* ---------- Mock backend (replace with fetch calls to API_BASE) ---------- */
+const MOCK_RUN = {
+  id:"run-0042", slices:60, gate:{state:"passed", downstream:"eligible"},
+  nodules:[
+    {id:"nod-001", bbox_start_zyx:[18,80,90], bbox_end_zyx_exclusive:[28,112,124], mm:[-42.1,18.5,-120.3],
+     malignancy:{label:"Suspicious", confidence:.78, probs:{benign:.22,suspicious:.78}},
+     attrs:{spiculation:"present", lobulation:"present", calcification:"absent"},
+     brock:{status:"completed", risk:.31}, shap:{status:"completed", top:[["Diameter",.34],["Spiculation",.22],["Age",.09]]}},
+    {id:"nod-002", bbox_start_zyx:[34,150,60], bbox_end_zyx_exclusive:[40,166,76], mm:[12.4,40.2,-88.0],
+     malignancy:{label:"Likely benign", confidence:.91, probs:{benign:.91,suspicious:.09}},
+     attrs:{spiculation:"absent", lobulation:"absent", calcification:"present"},
+     brock:{status:"unavailable", missing:["emphysema","family history"]}, shap:{status:"blocked", reason:"Clinical inputs incomplete"}},
+    {id:"nod-003", bbox_start_zyx:[10,120,140], bbox_end_zyx_exclusive:[10,120,150], mm:[3,3,3],
+     malignancy:null, attrs:null, brock:{status:"blocked"}, shap:{status:"blocked", reason:"No valid box"}}
+  ],
+  methods:[["Detection",3,0,0,"–"],["Malignancy classifier",2,0,1,"Nodule 3 has no valid box"],["Attributes",2,0,1,"Nodule 3 has no valid box"],["Brock",1,0,2,"Missing clinical inputs"],["SHAP",1,0,2,"Blocked: incomplete inputs"]]
+};
+const api = {
+  async upload(files, onProg, signal){
+    for(let p=0;p<=100;p+=20){ if(signal.aborted) throw new DOMException("Cancelled","AbortError"); onProg(p); await sleep(150); }
+    return {slices:MOCK_RUN.slices, series:"1.2.840.1 (axial, 1.0 mm)"};
+  },
+  async start(){ api._t0 = Date.now(); return {run_id:MOCK_RUN.id}; },
+  async status(){
+    const s = (Date.now()-api._t0)/1000, names=["Validate CT","Segment lungs","Detect nodules","Classify nodules","Explain results"];
+    const done = Math.min(names.length, Math.floor(s/1.2));
+    return {status: done>=names.length ? "completed" : "running", stages: names.map((n,i)=>({name:n,status:i<done?"completed":i===done?"running":"queued"}))};
+  },
+  async result(){ return MOCK_RUN; },
+  async studies(){ return [{id:"run-0042", date:"2026-10-12", nodules:3}, {id:"run-0031", date:"2026-04-02", nodules:2}]; }
+};
+
+/* ---------- 1. Intake ---------- */
+function setErr(id,msg){ const el=$(id); el.setAttribute("aria-invalid", msg?"true":"false"); $(id+"-e").textContent=msg||""; return !msg; }
+function validateIntake(){
+  const rng=(id,lo,hi,label)=>{ const v=$(id).value; if(v==="") return setErr(id,""); const n=Number(v); return setErr(id, fin(n)&&n>=lo&&n<=hi ? "" : `${label} must be between ${lo} and ${hi}.`); };
+  const okP = setErr("pid", $("pid").value.trim() ? "" : "Enter a patient ID.");
+  const ok = [rng("age",18,110,"Age"),rng("cpd",0,200,"Cigarettes per day"),rng("yrs",0,90,"Years smoked")].every(Boolean);
+  const c=Number($("cpd").value), y=Number($("yrs").value);
+  $("py").textContent = $("cpd").value!==""&&$("yrs").value!==""&&ok ? ((c/20)*y).toFixed(1) : "–";
+  return okP && ok;
+}
+["pid","age","cpd","yrs"].forEach(id=>$(id).addEventListener("input",()=>{ validateIntake(); if(id==="pid") invalidateUpload(); refreshButtons(); }));
+
+/* ---------- 2. Upload ---------- */
+let upAbort=null;
+function invalidateUpload(){ if(state.uploaded && state.uploaded.pid!==$("pid").value.trim()){ state.uploaded=null; $("upMsg").textContent="Patient ID changed. Upload the CT again."; } }
+function refreshButtons(){
+  const hasFiles=$("files").files.length>0, pid=$("pid").value.trim();
+  $("upBtn").disabled=!(hasFiles&&pid);
+  $("runBtn").disabled=!(state.uploaded && state.uploaded.pid===pid);
+}
+$("files").addEventListener("change",()=>{
+  const f=[...$("files").files], mb=f.reduce((a,x)=>a+x.size,0)/1048576;
+  $("fsum").textContent=f.length?`${f.length} files, ${mb.toFixed(1)} MB`:"No files selected.";
+  state.uploaded=null; refreshButtons();
+});
+$("upBtn").addEventListener("click",async()=>{
+  if(!validateIntake()) { $("pid").focus(); return; }
+  upAbort=new AbortController(); $("upProg").hidden=false; $("upCancel").hidden=false; $("upBtn").disabled=true; $("upMsg").textContent="Uploading…";
+  try{
+    const r=await api.upload($("files").files,p=>$("upProg").value=p,upAbort.signal);
+    state.uploaded={pid:$("pid").value.trim(),...r};
+    $("upMsg").textContent=`Upload validated: ${r.slices} slices, series ${r.series}.`;
+  }catch(e){ $("upMsg").textContent=e.name==="AbortError"?"Upload cancelled.":`Upload failed: ${e.message}`; }
+  finally{ $("upProg").hidden=true; $("upCancel").hidden=true; refreshButtons(); }
+});
+$("upCancel").addEventListener("click",()=>upAbort&&upAbort.abort());
+
+/* ---------- 3. Analysis with polling limits ---------- */
+const badge=s=>`<span class="badge ${{completed:"b-ok",running:"b-warn",queued:"b-mute",failed:"b-bad",blocked:"b-bad",unavailable:"b-warn",awaiting_review:"b-warn"}[s]||"b-bad"}">${esc(s.replace("_"," "))}</span>`;
+function renderStages(list){ $("stages").innerHTML=list.map(s=>`<li><span>${esc(s.name)}</span>${badge(s.status)}</li>`).join(""); }
+async function runAnalysis(){
+  state.poll={stop:false}; const me=state.poll;
+  $("runBtn").disabled=true; $("retryBtn").hidden=true; $("runCancel").hidden=false; $("results").hidden=$("viewerSec").hidden=$("detail").hidden=true;
+  $("runMsg").textContent="Starting analysis…";
+  try{
+    const {run_id}=await api.start({pid:state.uploaded.pid}); state.runId=run_id;
+    const t0=Date.now();
+    while(!me.stop){
+      const s=await api.status(run_id); renderStages(s.stages||[]);
+      if(!KNOWN.includes(s.status)) throw new Error(`Unknown status “${s.status}” from the server.`);
+      if(s.status==="completed"){ $("runMsg").textContent="Analysis complete."; return showResults(await api.result(run_id)); }
+      if(["failed","blocked","unavailable"].includes(s.status)) throw new Error(`Run ${s.status}. ${s.reason||"Check the failing stage above."}`);
+      if(s.status==="awaiting_review"){ $("runMsg").textContent="Awaiting review. Results appear once review is done."; return; }
+      if(Date.now()-t0>POLL_TIMEOUT_MS) throw new Error("Timed out waiting for the run to finish.");
+      $("runMsg").textContent="Running… this page checks every second."; await sleep(POLL_MS);
+    }
+    $("runMsg").textContent="Stopped waiting. The run may still be going on the server.";
+  }catch(e){ $("runMsg").textContent=e.message; $("retryBtn").hidden=false; }
+  finally{ $("runCancel").hidden=true; refreshButtons(); }
+}
+$("runBtn").addEventListener("click",runAnalysis);
+$("retryBtn").addEventListener("click",runAnalysis);
+$("runCancel").addEventListener("click",()=>state.poll.stop=true);
+
+/* ---------- 4. Results ---------- */
+function validateBox(n){
+  if(!n || typeof n.id!=="string" || !n.id) return "Missing stable nodule ID";
+  const a=n.bbox_start_zyx,b=n.bbox_end_zyx_exclusive;
+  if(!Array.isArray(a)||!Array.isArray(b)||a.length!==3||b.length!==3) return "Box coordinates missing";
+  if(![...a,...b].every(fin)) return "Box has non-finite values";
+  if(!a.every((v,i)=>b[i]>v)) return "Box has zero or negative size";
+  if(a[0]<0||a[1]<0||a[2]<0||b[1]>256||b[2]>256||b[0]>state.run.slices) return "Box outside image bounds";
+  return null;
+}
+function showResults(run){
+  state.run=run; run.nodules.forEach(n=>n._boxErr=validateBox(n));
+  const valid=run.nodules.filter(n=>n.malignancy).length;
+  $("stats").innerHTML=[["Nodules",run.nodules.length],["Valid predictions",valid],["Run ID",run.id]].map(([k,v])=>`<div class="stat"><b>${esc(v)}</b>${esc(k)}</div>`).join("");
+  $("gate").innerHTML=`<div class="alert ${run.gate.state==="passed"?"b-ok":"b-bad"}">Gate: <b>${esc(run.gate.state)}</b>. Downstream analysis: <b>${esc(run.gate.downstream)}</b>.</div>`;
+  $("methods").innerHTML=run.methods.map(m=>`<tr>${m.map(c=>`<td>${esc(c)}</td>`).join("")}</tr>`).join("");
+  $("repHtml").href=`${API_BASE}/runs/${encodeURIComponent(run.id)}/report.html`; $("repJson").href=`${API_BASE}/runs/${encodeURIComponent(run.id)}/report.json`;
+  $("results").hidden=false;
+  $("slice").max=run.slices-1; $("viewerSec").hidden=false;
+  $("nlist").innerHTML=run.nodules.map((n,i)=>`<li><button type="button" data-i="${i}" aria-pressed="false"><span>${esc(n.id)}</span>${n._boxErr?'<span class="badge b-bad">box unavailable</span>':n.malignancy?`<span class="badge ${n.malignancy.label==="Suspicious"?"b-warn":"b-ok"}">${esc(n.malignancy.label)}</span>`:'<span class="badge b-mute">no prediction</span>'}</button></li>`).join("");
+  $("results").focus(); selectNodule(0);
+}
+$("nlist").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) selectNodule(+b.dataset.i,true); });
+
+/* ---------- 5. Viewer ---------- */
+function selectNodule(i,focus){
+  const n=state.run.nodules[i]; state.sel=n;
+  document.querySelectorAll("#nlist button").forEach((b,j)=>b.setAttribute("aria-pressed",j===i));
+  if(!n._boxErr) $("slice").value=Math.floor((n.bbox_start_zyx[0]+n.bbox_end_zyx_exclusive[0]-1)/2);
+  drawSlice(); showDetail(n,focus);
+}
+function drawSlice(){
+  const z=+$("slice").value, n=state.sel, c=$("cv").getContext("2d");
+  $("sliceN").textContent=`${z+1} of ${state.run.slices}`;
+  const img=c.createImageData(256,256);
+  for(let y=0;y<256;y++)for(let x=0;x<256;x++){
+    const dl=Math.hypot((x-85)/52,(y-130)/78), dr=Math.hypot((x-171)/52,(y-130)/78);
+    const lung=(dl<1||dr<1)&&Math.abs(z-30)<28; const noise=((x*73856093^y*19349663^z*83492791)>>>0)%40;
+    const v=lung?25+noise:(Math.hypot((x-128)/110,(y-130)/100)<1?110+noise:8);
+    const k=(y*256+x)*4; img.data[k]=img.data[k+1]=img.data[k+2]=v; img.data[k+3]=255;
+    if($("ovLung").checked&&lung){ img.data[k+1]+=40; }
+  }
+  c.putImageData(img,0,0);
+  if(!n){ return; }
+  if(n._boxErr){ $("vstat").textContent=`${n.id}: no box drawn. ${n._boxErr}.`; return; }
+  const [z0,y0,x0]=n.bbox_start_zyx,[z1,y1,x1]=n.bbox_end_zyx_exclusive;
+  if(z>=z0&&z<z1){
+    if($("ovCam").checked){ const g=c.createRadialGradient((x0+x1)/2,(y0+y1)/2,2,(x0+x1)/2,(y0+y1)/2,30); g.addColorStop(0,"rgba(255,80,40,.55)"); g.addColorStop(1,"rgba(255,80,40,0)"); c.fillStyle=g; c.fillRect(x0-30,y0-30,x1-x0+60,y1-y0+60); }
+    c.strokeStyle="#ffd24a"; c.lineWidth=2; c.strokeRect(x0,y0,x1-x0,y1-y0);
+    $("vstat").textContent=`${n.id}: box shown on this slice (z ${z0}–${z1-1}). Grad-CAM: red = raises malignancy score.`;
+  } else $("vstat").textContent=`${n.id} spans slices ${z0+1}–${z1}. This slice is outside it.`;
+}
+$("slice").addEventListener("input",drawSlice);
+["ovLung","ovCam"].forEach(id=>$(id).addEventListener("change",drawSlice));
+$("cv").addEventListener("wheel",e=>{ e.preventDefault(); stepSlice(e.deltaY>0?1:-1); },{passive:false});
+$("cv").addEventListener("keydown",e=>{ if(e.key==="ArrowUp"||e.key==="ArrowRight"){e.preventDefault();stepSlice(1);} if(e.key==="ArrowDown"||e.key==="ArrowLeft"){e.preventDefault();stepSlice(-1);} });
+function stepSlice(d){ const s=$("slice"); s.value=Math.min(+s.max,Math.max(0,+s.value+d)); drawSlice(); }
+
+/* ---------- 6. Detail ---------- */
+const statusLine=(o,label)=>o.status==="completed"?"":`<div class="alert ${o.status==="blocked"?"b-bad":"b-warn"}">${esc(label)} ${esc(o.status)}${o.reason?`: ${esc(o.reason)}`:""}${o.missing?`. Missing inputs: ${o.missing.map(esc).join(", ")}`:""}.</div>`;
+function showDetail(n,focus){
+  let h=`<h3 style="margin:0 0 .4rem">${esc(n.id)}</h3>`;
+  if(n._boxErr) h+=`<div class="alert b-bad">Box unavailable: ${esc(n._boxErr)}. No overlay is drawn for this nodule.</div>`;
+  if(n.malignancy){
+    h+=`<p><b>${esc(n.malignancy.label)}</b>, confidence ${(n.malignancy.confidence*100).toFixed(0)}%</p>`+Object.entries(n.malignancy.probs).map(([k,v])=>`<div style="max-width:360px"><small>${esc(k)} ${(v*100).toFixed(0)}%</small><div class="bar"><i style="width:${Math.min(100,Math.max(0,v*100))}%"></i></div></div>`).join("");
+    h+=`<h4>Attributes</h4><dl>${Object.entries(n.attrs).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`;
+  } else h+=`<div class="alert b-warn">No malignancy prediction for this nodule.</div>`;
+  h+=`<h4>Brock risk</h4>`+(n.brock.status==="completed"?`<p>${(n.brock.risk*100).toFixed(0)}%</p>`:statusLine(n.brock,"Brock"));
+  h+=`<h4>SHAP explanation</h4>`+(n.shap.status==="completed"?`<dl>${n.shap.top.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${v>0?"+":""}${v.toFixed(2)}</dd>`).join("")}</dl>`:statusLine(n.shap,"SHAP"));
+  h+=`<h4>Location</h4><dl><dt>Physical (mm)</dt><dd>${n.mm.map(v=>v.toFixed(1)).join(", ")}</dd><dt>Voxel box (z,y,x)</dt><dd>${n._boxErr?"unavailable":`${n.bbox_start_zyx.join(",")} to ${n.bbox_end_zyx_exclusive.join(",")} (end exclusive)`}</dd></dl>`;
+  h+=`<p><a href="${API_BASE}/runs/${encodeURIComponent(state.run.id)}/nodules/${encodeURIComponent(n.id)}/artifacts">Artifacts for ${esc(n.id)}</a></p>`;
+  $("detBody").innerHTML=h; $("detail").hidden=false; if(focus) $("detail").focus();
+}
+
+/* ---------- 7. Saved studies ---------- */
+$("loadSaved").addEventListener("click",async()=>{
+  if(!$("pid").value.trim()){ setErr("pid","Enter a patient ID to list studies."); $("pid").focus(); return; }
+  const list=await api.studies($("pid").value.trim());
+  $("saved").innerHTML=list.length?list.map(s=>`<li><button type="button" data-id="${esc(s.id)}"><span>${esc(s.id)}, ${esc(s.date)}</span><span>${esc(s.nodules)} nodules</span></button></li>`).join(""):"<li>No saved studies for this patient.</li>";
+});
+$("saved").addEventListener("click",async e=>{ const b=e.target.closest("button"); if(!b) return; showResults(await api.result(b.dataset.id)); $("runMsg").textContent=`Reopened ${b.dataset.id}.`; });
+</script>
+</body>
+</html>

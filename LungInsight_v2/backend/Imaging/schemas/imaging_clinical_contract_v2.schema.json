@@ -84,10 +84,9 @@
         "raw_detection_counts": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["ViTDet3D", "LoG"],
+          "required": ["ViTDet3D"],
           "properties": {
-            "ViTDet3D": {"$ref": "#/$defs/count"},
-            "LoG": {"$ref": "#/$defs/count"}
+            "ViTDet3D": {"$ref": "#/$defs/count"}
           }
         },
         "fused_candidate_count": {"$ref": "#/$defs/count"},
@@ -141,13 +140,12 @@
         "quality_status": {"enum": ["passed", "passed_with_warnings"]},
         "detector": {
           "type": "object",
-          "required": ["candidate_id", "source", "source_members", "vitdet_score", "log_score"],
+          "required": ["candidate_id", "source", "source_members", "vitdet_score"],
           "properties": {
             "candidate_id": {"type": "string", "minLength": 1},
-            "source": {"enum": ["ViTDet3D", "LoG", "Merged"]},
+            "source": {"enum": ["ViTDet3D", "Merged"]},
             "source_members": {"type": "array", "items": {"type": "object"}},
-            "vitdet_score": {"type": ["number", "null"]},
-            "log_score": {"type": ["number", "null"]}
+            "vitdet_score": {"type": ["number", "null"]}
           },
           "additionalProperties": true
         },
@@ -155,7 +153,7 @@
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"enum": ["ViTDet3D", "LoG"]}
+          "items": {"enum": ["ViTDet3D"]}
         },
         "bbox_voxel": {
           "type": "object",

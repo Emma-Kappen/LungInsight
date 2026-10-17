@@ -144,11 +144,9 @@ def _score_row(
         "source": stage06_record.get("detector", {}).get("source", source),
         "source_members": stage06_record.get("detector", {}).get("source_members", []),
         "vitdet_score": stage06_record.get("detector", {}).get("vitdet_score"),
-        "log_score": stage06_record.get("detector", {}).get("log_score"),
         "purpose": stage06_record["purpose"],
         "patch_id": patch_id,
         "candidate_id": prediction.get("candidate_id"),
-        "diagnostic_id": prediction.get("diagnostic_id"),
         "candidate_in_lung_mask": True,
         "center_z_voxel": float(center[0]) if isinstance(center, (list, tuple)) and len(center) == 3 else None,
         "center_y_voxel": float(center[1]) if isinstance(center, (list, tuple)) and len(center) == 3 else None,
@@ -157,8 +155,6 @@ def _score_row(
         "center_lps_y_mm": center_lps[1] if isinstance(center_lps, (list, tuple)) and len(center_lps) == 3 else None,
         "center_lps_z_mm": center_lps[2] if isinstance(center_lps, (list, tuple)) and len(center_lps) == 3 else None,
         "detector_score": prediction.get("detector_score"),
-        "log_response": prediction.get("log_response"),
-        "scale_mm": prediction.get("scale_mm"),
         "brock_probability": (score.get("selected_prediction") or {}).get("probability"),
         "brock_status": (score.get("selected_prediction") or {}).get("status", "unavailable"),
         "center_inside_lung_mask": True,
@@ -602,7 +598,7 @@ def launch_viewer(ct: np.ndarray, lung_mask: np.ndarray, air_mask: np.ndarray, h
         for row, (center_z, y, x), start, end in visible:
             available = row.get("brock_status") == "available"
             source = row.get("detection_source")
-            marker = str(VIEWER_SCHEMA["viTdet3d_marker"]) if source == "ViTDet3D" else str(VIEWER_SCHEMA["log_marker"])
+            marker = str(VIEWER_SCHEMA["viTdet3d_marker"])
             color = str(VIEWER_SCHEMA["brock_available_color"]) if available else str(VIEWER_SCHEMA["brock_unavailable_color"])
             left = max(float(start[2]), -0.5)
             top = max(float(start[1]), -0.5)
@@ -639,8 +635,6 @@ def launch_viewer(ct: np.ndarray, lung_mask: np.ndarray, air_mask: np.ndarray, h
         legend_items = [
             Line2D([0], [0], marker="o", color="w", markerfacecolor="red", markeredgecolor="white", label="ViTDet3D: Brock available", markersize=7),
             Line2D([0], [0], marker="o", color="w", markerfacecolor="cyan", markeredgecolor="white", label="ViTDet3D: Brock unavailable", markersize=7),
-            Line2D([0], [0], marker="s", color="w", markerfacecolor="red", markeredgecolor="white", label="LoG: Brock available", markersize=7),
-            Line2D([0], [0], marker="s", color="w", markerfacecolor="cyan", markeredgecolor="white", label="LoG: Brock unavailable", markersize=7),
         ]
         ax.legend(handles=legend_items, loc="upper right", fontsize=7)
         fig.canvas.draw_idle()
@@ -787,7 +781,6 @@ def main() -> int:
                 "source": row.get("source"),
                 "source_members": row.get("source_members", []),
                 "vitdet_score": row.get("vitdet_score"),
-                "log_score": row.get("log_score"),
             },
             "classification": {
                 "status": "available" if any(item["value"] is not None for item in classification_attributes.values()) else "unavailable",
@@ -811,7 +804,7 @@ def main() -> int:
         })
 
     count_by_source: dict[str, dict[str, int]] = {}
-    for source in ("ViTDet3D", "LoG", "Merged"):
+    for source in ("ViTDet3D", "Merged"):
         source_rows = [row for row in accepted if row["detection_source"] == source]
         excluded_source_rows = [row for row in excluded if row["detection_source"] == source]
         count_by_source[source] = {

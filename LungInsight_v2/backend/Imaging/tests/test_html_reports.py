@@ -24,9 +24,8 @@ class HtmlReportTests(unittest.TestCase):
                 "stable_nodule_id": "nodule_a1",
                 "detector": {
                     "source": "Merged",
-                    "source_members": [{"candidate_id": "v1"}, {"candidate_id": "l1"}],
+                    "source_members": [{"candidate_id": "v1"}],
                     "vitdet_score": 0.8,
-                    "log_score": 2.3,
                 },
                 "malignancy": {
                     "brock": {"status": "incomplete", "probability": None, "feature_contributions": []},
@@ -148,7 +147,7 @@ class HtmlReportTests(unittest.TestCase):
                     "crop_start_zyx": [0, 1, 1],
                     "patch_size_vox_zyx": [2, 2, 2],
                 },
-                "detector": {"source": "LoG"},
+                "detector": {"source": "Merged"},
                 "malignancy": {
                     "brock": {"status": "incomplete", "probability": None, "feature_contributions": []},
                     "selected_prediction": {"method": "brock", "status": "incomplete", "probability": None, "value": None},

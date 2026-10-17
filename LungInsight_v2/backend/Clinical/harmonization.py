@@ -134,6 +134,9 @@ def validate_clinician_inputs(values: dict[str, Any]) -> dict[str, Any]:
         "kps",
         "ecog",
     }
+    # Outputs of a previous validation pass (e.g. a saved record read back); always recomputed below.
+    derived_keys = {"sex_at_baseline_status", "performance_status", "kps_category"}
+    values = {key: value for key, value in values.items() if key not in derived_keys}
     extra = set(values) - allowed
     if extra:
         raise ClinicalValidationError(f"Unsupported clinician fields: {sorted(extra)}.")

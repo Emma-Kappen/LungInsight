@@ -29,10 +29,8 @@ def sample_inputs():
                 "source": "Merged",
                 "source_members": [
                     {"candidate_id": "v1", "source": "ViTDet3D"},
-                    {"candidate_id": "l1", "source": "LoG"},
                 ],
                 "vitdet_score": 0.83,
-                "log_score": 2.75,
             },
             "geometry": {
                 "center_zyx": [2.0, 3.0, 4.0],
@@ -114,7 +112,6 @@ class ImagingContractTests(unittest.TestCase):
         nodule = contract["nodules"][0]
         self.assertEqual(nodule["stable_nodule_id"], "nodule-stable-001")
         self.assertEqual(nodule["detector"]["vitdet_score"], 0.83)
-        self.assertEqual(nodule["detector"]["log_score"], 2.75)
         self.assertEqual(nodule["bbox_lps_mm"]["min_lps_mm"], [12.0, 26.0, 42.0])
         self.assertEqual(nodule["bbox_lps_mm"]["max_lps_mm"], [16.0, 32.0, 50.0])
         self.assertEqual(
@@ -122,7 +119,7 @@ class ImagingContractTests(unittest.TestCase):
             "unsupported_checkpoint_contract",
         )
         self.assertEqual(contract["contract_version"], "2.0.0")
-        self.assertEqual(nodule["detection_sources"], ["LoG", "ViTDet3D"])
+        self.assertEqual(nodule["detection_sources"], ["ViTDet3D"])
         self.assertEqual(contract["study"]["eligible_nodule_count"], 1)
 
     def test_missing_checkpoint_supported_attribute_is_rejected(self):

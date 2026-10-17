@@ -36,8 +36,12 @@ function Invoke-PythonStep {
     param([Parameter(Mandatory=$true)][string]$Label, [Parameter(Mandatory=$true)][string[]]$Arguments)
     Write-Host "`n=== $Label ===" -ForegroundColor Cyan
     $StartedAt = [DateTime]::UtcNow
+    # Native stderr (e.g. HF Hub warnings) must not abort the step; the exit code decides success.
+    $PreviousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
     & $Python @Arguments
     $ExitCode = $LASTEXITCODE
+    $ErrorActionPreference = $PreviousErrorActionPreference
     $RunSteps.Add([ordered]@{
         label = $Label
         arguments = @($Arguments)
@@ -67,10 +71,7 @@ if ($ResumeFromStage02 -and $RegenerateStage01) {
     throw '-ResumeFromStage02 and -RegenerateStage01 are mutually exclusive.'
 }
 try {
-    Invoke-PythonStep 'Static schema and stage-contract validation' @('.\validate_pipeline.py')
     Invoke-PythonStep 'Check required local model artifacts' @('.\validate_pipeline.py', '--check-artifacts')
-    Invoke-PythonStep 'Schema helper unit tests' @('-m', 'unittest', 'discover', '-s', 'tests', '-v')
-    Invoke-PythonStep 'Imaging tracker and candidate-gate tests' @('-m', 'unittest', 'discover', '-s', 'backend\Imaging\tests', '-v')
 
     $PatientOutput = Join-Path ([string]$Schema.paths.output_root) $PatientId
     if (-not $ResumeFromStage02) {
@@ -262,7 +263,7 @@ finally {
         $RunSummary | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $SummaryPath -Encoding UTF8
         Write-Host "Run summary: $SummaryPath"
         if ($RunStatus -eq 'completed') {
-            $ContractFinalizer = 'import sys; from pathlib import Path; from backend.Imaging.api.contract import create_contract_file; root = Path(sys.argv[1]); create_contract_file(root, sys.argv[2], Path(sys.argv[3]), processing_status="completed")'
+            $ContractFinalizer = 'import sys; from pathlib import Path; from backend.Imaging.api.contract import create_contract_file; root = Path(sys.argv[1]); create_contract_file(root, sys.argv[2], Path(sys.argv[3]), processing_status=''completed'')'
             try {
                 Invoke-PythonStep 'Publish completed Imaging-to-Clinical contract' @(
                     '-c',

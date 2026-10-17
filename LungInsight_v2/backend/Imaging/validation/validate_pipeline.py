@@ -117,30 +117,12 @@ def validate_schema_contracts(schema: dict[str, Any]) -> list[str]:
     _assert(manifest.name.endswith(".json"), f"Stage 02 manifest path is not a JSON filename: {manifest}.")
     passed.append("Stage 01 -> Stage 02 filenames, and Stage 02 -> Stage 03 manifest path, are consistent.")
 
-    # LoG proposals are given their own patch tree/manifest and Stage 03 outputs.
-    log_patch_outputs = get_required(schema, "stage_02_detect_and_patch.diagnostic_patch_outputs", expected_type=dict)
-    log_root = Path(get_required(log_patch_outputs, "root", expected_type=str))
-    log_arrays = Path(get_required(log_patch_outputs, "array_directory", expected_type=str))
-    log_visualizations = Path(get_required(log_patch_outputs, "visualization_directory", expected_type=str))
-    for label, path in (("array directory", log_arrays), ("visualization directory", log_visualizations)):
-        try:
-            path.relative_to(log_root)
-        except ValueError as exc:
-            raise PipelineSchemaError(f"Stage 02 diagnostic {label} {path} must be nested under {log_root}.") from exc
-    log_manifest = Path(get_required(log_patch_outputs, "manifest", expected_type=str))
-    log_input = Path(get_required(schema, "stage_03_nodule_classification.inputs.log_diagnostic_patch_manifest", expected_type=str))
-    _assert(log_manifest == log_input, f"Stage 03 LoG manifest input {log_input} differs from Stage 02 diagnostic output {log_manifest}.")
-    _assert(log_manifest != manifest, "LoG and authoritative patch manifests must remain separate.")
-    _assert(bool(get_required(schema, "stage_03_nodule_classification.outputs.log_diagnostic_predictions_json", expected_type=str)),
-            "Stage 03 diagnostic predictions output filename is missing.")
-    _assert(bool(get_required(schema, "stage_03_nodule_classification.outputs.log_diagnostic_predictions_csv", expected_type=str)),
-            "Stage 03 diagnostic CSV output filename is missing.")
-    _assert(get_required(schema, "stage_03_nodule_classification.inputs.process_log_diagnostic_default", expected_type=bool) is False,
-            "The legacy separate LoG manifest must not create a second Stage 03 inference stream.")
-    _assert(get_required(schema, "stage_02_detect_and_patch.diagnostic_log_detector.stage03_attribute_inference_enabled_by_default", expected_type=bool) is True,
-            "LoG candidates represented in the fused primary manifest must remain eligible for Stage 03 inference.")
-    passed.append("LoG candidates use the fused primary Stage 03–06 path; the legacy separate LoG inference stream stays disabled.")
-
+    # LoG has been removed: ViTDet3D is the sole nodule detector and its NMS output is the only Stage 02 candidate source.
+    _assert(get_required(schema, "stage_02_detect_and_patch.authoritative_detector.sources", expected_type=list) == ["ViTDet3D"],
+            "Stage 02 must declare ViTDet3D as the sole nodule detector.")
+    _assert("diagnostic_log_detector" not in get_required(schema, "stage_02_detect_and_patch", expected_type=dict),
+            "The LoG detector configuration must not remain in meta_schema.json.")
+    passed.append("Stage 02 declares ViTDet3D as the sole nodule detector; no LoG patch tree, Stage 03 stream, or LoG output remains.")
     stage2_filter = get_required(schema, "stage_02_detect_and_patch.candidate_acceptance_filter", expected_type=dict)
     _assert(stage2_filter.get("require_nonempty_heart_mask") is True,
             "Production candidate filtering must fail closed on an empty heart mask.")
@@ -149,8 +131,6 @@ def validate_schema_contracts(schema: dict[str, Any]) -> list[str]:
     for key in (
         "candidate_filter_report",
         "rejected_candidates_audit",
-        "log_candidate_filter_report",
-        "log_rejected_candidates_audit",
     ):
         _assert(bool(get_required(schema, f"stage_02_detect_and_patch.filenames.{key}", expected_type=str)),
                 f"Stage 02 is missing the configured output filename {key!r}.")
@@ -336,30 +316,23 @@ def main() -> int:
 
     stage2_source = pipeline_script_path("02_detect_and_patch.py").read_text(encoding="utf-8-sig")
     detector_call = stage2_source.index("raw_detections = run_vitdet3d_raw(")
-    log_detector_call = stage2_source.index("log_candidates = run_log_detector(")
     merge_call = stage2_source.index("fused_candidates, fusion_report = merge_detections(")
     candidate_gate = stage2_source.index(
         "accepted_candidates, rejected_candidates, candidate_filter_report = filter_detections_by_lung_mask("
     )
     top50_selection = stage2_source.index("selected_candidates = select_fused_candidates(accepted_candidates, limit=50)")
     accepted_patch_call = stage2_source.index("records = extract_all(")
-    _assert(detector_call < log_detector_call < merge_call < candidate_gate < top50_selection < accepted_patch_call,
-            "Stage 02 must run both detectors, fuse their union, gate fused candidates, then apply top-50 before extraction.")
+    _assert(detector_call < merge_call < candidate_gate < top50_selection < accepted_patch_call,
+            "Stage 02 must run ViTDet3D, deduplicate its detections, gate candidates, then apply top-50 before extraction.")
     _assert(stage2_source.count("= filter_detections_by_lung_mask(") == 1,
             "Stage 02 must apply one shared lung/heart gate after detector fusion.")
     _assert('"validated_automated"' in stage2_source and 'mask_quality.get("problems") != []' in stage2_source,
             "Stage 02 must block when Stage 01 aggregate mask validation is incomplete.")
     messages.append("Stage 02 validates Stage 01 masks, fuses both detector unions, applies one shared geometry/mask gate, and limits eligible patches.")
 
-    # Optional LoG-specific paths remain for audit compatibility; production inference uses the fused Stage 02 manifest.
-    stage4_log_output = get_required(schema, "paths.stage_04.log_diagnostic_output_json", expected_type=str)
-    stage3_log_input = get_required(schema, "stage_03_nodule_classification.outputs.log_diagnostic_predictions_json", expected_type=str)
-    _assert(stage4_log_output.endswith(".json") and stage3_log_input.endswith(".json"), "Stage 04 diagnostic JSON paths must be JSON filenames.")
     stage5_batch = get_required(schema, "stage_05_gradcam.batch_processing", expected_type=dict)
-    _assert(bool(stage5_batch.get("reuse_loaded_checkpoints")), "Stage 05 diagnostic batch processing must reuse loaded checkpoint models.")
+    _assert(bool(stage5_batch.get("reuse_loaded_checkpoints")), "Stage 05 batch processing must reuse loaded checkpoint models.")
     _assert("{patch_id" in str(stage5_batch.get("patch_output_directory_pattern", "")), "Stage 05 batch patch provenance pattern must include patch_id.")
-    default_log_limit = get_required(schema, "stage_02_detect_and_patch.diagnostic_log_detector.patch_limit_default")
-    _assert(type(default_log_limit) is int and default_log_limit > 0, "The canonical LoG patch limit must be a positive integer (use --all-log-patches for all proposals).")
     stage7 = get_required(schema, "stage_07_visualize", expected_type=dict)
     stage7_outputs = get_required(stage7, "outputs", expected_type=dict)
     for output_key in ("report_json_ref", "report_csv_ref", "excluded_outside_lung_csv_ref"):
@@ -421,7 +394,7 @@ def main() -> int:
         "/api/v1/imaging/artifact/{artifact_id}",
     ):
         _assert(api_path in openapi.get("paths", {}), f"OpenAPI is missing endpoint {api_path}.")
-    messages.append("Fused LoG + ViTDet3D candidates, accepted-only CAM inference, validated contract/API, HTML reports, and Stage 07 box/lung localization gating are wired.")
+    messages.append("Fused ViTDet3D candidates, accepted-only CAM inference, validated contract/API, HTML reports, and Stage 07 box/lung localization gating are wired.")
     if args.check_artifacts:
         messages.extend(check_artifacts(schema))
     for message in messages:

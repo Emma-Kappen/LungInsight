@@ -139,180 +139,13 @@ def transfer_identity_fields(patch: dict[str, Any]) -> dict[str, Any]:
         )
     out["stable_nodule_id"] = stable_id
     out["nodule_id"] = stable_id
-    for key in ("source", "source_members", "vitdet_score", "log_score", "study_uid", "series_uid"):
+    for key in ("source", "source_members", "vitdet_score", "study_uid", "series_uid"):
         if key in patch:
             out[key] = patch[key]
     out["prediction_space"] = STAGE03_SCHEMA["space"]
     out["detection_source"] = patch.get("detection_source", "ViTDet3D")
     out["patch_array_path"] = patch.get("array_path")
     return out
-
-
-def run_log_diagnostic_inference(
-    patient_dir: Path,
-    models: dict[str, torch.nn.Module],
-    checkpoint_metadata: dict[str, Any],
-    device: torch.device,
-    *,
-    output_dir: Path,
-    collect_attention: bool,
-) -> dict[str, Any]:
-    """Infer LoG-derived patches separately so they never enter Stage 04's primary input."""
-    patient_id = patient_dir.name
-    rel_manifest = Path(str(STAGE03_SCHEMA["inputs"]["log_diagnostic_patch_manifest"]))
-    manifest_path = patient_dir / rel_manifest
-    if not manifest_path.is_file():
-        raise FileNotFoundError(
-            f"Missing Stage 02 LoG diagnostic patch manifest: {manifest_path}. "
-            "Rerun Stage 02 with its default LoG diagnostic detector enabled, or explicitly skip LoG inference with --skip-log-diagnostic."
-        )
-    manifest = load_json(manifest_path)
-    check_meta_schema_version(manifest, SCHEMA, context=str(manifest_path), require=False)
-    validate_stage_version(
-        manifest.get("schema_version"), STAGE02_SCHEMA["manifest_schema_version"],
-        context="Stage 02 LoG diagnostic patch manifest",
-    )
-    patches = manifest.get("patches")
-    if not isinstance(patches, list) or not all(isinstance(patch, dict) for patch in patches):
-        raise ValueError(f"{manifest_path}: expected a list of JSON objects under 'patches'.")
-    patch_ids = [patch.get("patch_id") for patch in patches]
-    if any(not isinstance(pid, int) for pid in patch_ids) or len(patch_ids) != len(set(patch_ids)):
-        raise ValueError(f"{manifest_path}: patch_id values must be unique integers.")
-    patches = sorted(patches, key=lambda patch: int(patch["patch_id"]))
-
-    log_attention_name = str(STAGE03_OUTPUTS["log_attention_directory"]).strip("/")
-    log_attention_dir = output_dir / log_attention_name
-    if collect_attention:
-        log_attention_dir.mkdir(parents=True, exist_ok=True)
-
-    records: list[dict[str, Any]] = []
-    flat_rows: list[dict[str, Any]] = []
-    for n, patch in enumerate(patches, start=1):
-        array_path = resolve_patch_array(patch, manifest_path)
-        patch_array = np.load(array_path, allow_pickle=False)
-        if tuple(patch_array.shape) != EXPECTED_PATCH_SHAPE:
-            raise ValueError(
-                f"{array_path}: Stage 03 requires raw-HU shape {EXPECTED_PATCH_SHAPE}; "
-                f"got {patch_array.shape}. Do not silently resize/resample diagnostic patches."
-            )
-        if patch_array.dtype != np.float32:
-            raise ValueError(f"{array_path}: expected float32 patch data, got {patch_array.dtype}.")
-        predictions, distributions, attention_by_attribute = stage03_prediction_details(
-            patch_array, models, device, collect_attention=collect_attention
-        )
-        record = transfer_identity_fields(patch)
-        record["patch_array_path"] = str(array_path)
-        record["patient_id"] = patient_id
-        record["detection_source"] = "LoG"
-        record["purpose"] = "research_comparison_only"
-        record["stage04_eligible"] = False
-        record["attributes"] = {
-            name: {
-                "expected_rating": float(predictions[name]),
-                "rating_scale": list(STAGE03_SCHEMA["attribute_scales"][name]["rating_range"]),
-                "score_semantics": STAGE03_SCHEMA["attribute_scales"][name]["semantics"],
-                "checkpoint_group": next(g for g, attrs in CHECKPOINT_GROUPS.items() if name in attrs),
-                "head_output": ATTRIBUTE_SUPPORT_AUDIT[name]["head_output"],
-                "target_index": ATTRIBUTE_SUPPORT_AUDIT[name]["target_index"],
-            }
-            for name in FEATURE_NAMES
-        }
-        record["warnings"] = [
-            "log_proposal_is_diagnostic_not_authoritative",
-            "attribute_predictions_are_not_validated_for_LoG_proposals",
-        ]
-        if collect_attention:
-            attention_tensor = np.stack([attention_by_attribute[name] for name in FEATURE_NAMES]).astype(np.float32)
-            attention_rel = Path(log_attention_name) / f"patch_{int(patch['patch_id']):05d}_attribute_attention.npy"
-            np.save(output_dir / attention_rel, attention_tensor, allow_pickle=False)
-            record["attention"] = {
-                "attribute_spatial_attention_path": attention_rel.as_posix(),
-                "attribute_order": list(FEATURE_NAMES),
-                "attribute_support_audit": ATTRIBUTE_SUPPORT_AUDIT,
-                "grid_shape_zyx": list(STAGE03_MODEL["attention_grid_shape_zyx"]),
-                "semantics": "softmax attention over spatial tokens; not a segmentation mask",
-            }
-        records.append(record)
-        anatomical = patch.get("anatomical_location")
-        flat: dict[str, Any] = {
-            "patient_id": patient_id,
-            "patch_id": patch.get("patch_id"),
-            "candidate_id": patch.get("candidate_id"),
-            "stable_nodule_id": record["stable_nodule_id"],
-            "source": patch.get("source"),
-            "source_members": patch.get("source_members"),
-            "vitdet_score": patch.get("vitdet_score"),
-            "log_score": patch.get("log_score"),
-            "stable_nodule_id": record["stable_nodule_id"],
-            "diagnostic_id": patch.get("diagnostic_id"),
-            "detection_source": "LoG",
-            "log_response": patch.get("log_response"),
-            "scale_mm": patch.get("scale_mm"),
-            "detector_score": patch.get("detector_score"),
-            "center_lps_mm": json.dumps(patch.get("center_lps_mm")),
-            "anatomical_region": (anatomical.get("region") if isinstance(anatomical, dict) else None),
-            "warnings": ";".join(record["warnings"]),
-        }
-        flat.update({name: predictions[name] for name in FEATURE_NAMES})
-        flat_rows.append(flat)
-        if len(patches) <= 20 or n % 50 == 0 or n == len(patches):
-            print(
-                f"[{patient_id}][LoG] {n}/{len(patches)} patch={patch['patch_id']} -> "
-                + ", ".join(f"{key}={predictions[key]:.3f}" for key in FEATURE_NAMES),
-                flush=True,
-            )
-
-    output = {
-        "schema_version": STAGE03_SCHEMA["schema_version"],
-        "meta_schema_version": SCHEMA["schema_version"],
-        "stage": STAGE03_PATHS["directory"],
-        "patient_id": patient_id,
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
-        "route": "spatial_hybrid",
-        "objective": "ordinal_reader",
-        "detection_source": "LoG",
-        "purpose": "research_comparison_only",
-        "stage04_eligible": False,
-        "prediction_space": STAGE03_SCHEMA["space"],
-        "attribute_order": list(FEATURE_NAMES),
-        "attribute_support_audit": ATTRIBUTE_SUPPORT_AUDIT,
-        "attribute_outputs": STAGE03_SCHEMA["prediction_semantics"]["expected_rating"],
-        "malignancy_prediction_included": False,
-        "annotation_labels": {
-            "status": "unavailable_not_provided",
-            "source": None,
-            "diagnosis_or_pathology": None,
-        },
-        "measured_features": {
-            "status": "unavailable_not_measured",
-            "values": None,
-        },
-        "unsupported_attributes_omitted": list(STAGE03_SCHEMA["unsupported_attributes"]),
-        "patch_manifest": str(manifest_path.resolve()),
-        "patch_manifest_sha256": sha256_file(manifest_path),
-        "checkpoint_metadata": checkpoint_metadata,
-        "attention_enabled": bool(collect_attention),
-        "n_patches": len(records),
-        "diagnostic_warning": (
-            "These rows originate from LoG proposals, not the authoritative ViTDet3D detector. "
-            "Their attribute outputs are exploratory and are kept separate from predictions.json, "
-            "which is the only Stage 03 input used by the primary Stage 04 malignancy-risk step."
-        ),
-        "predictions": records,
-    }
-    json_path = output_dir / STAGE03_OUTPUTS["log_diagnostic_predictions_json"]
-    json_path.write_text(json.dumps(output, indent=2, allow_nan=False), encoding="utf-8")
-    csv_path = output_dir / STAGE03_OUTPUTS["log_diagnostic_predictions_csv"]
-    fieldnames = list(flat_rows[0].keys()) if flat_rows else [
-        "patient_id", "patch_id", "candidate_id", "diagnostic_id", "detection_source", "log_response", "scale_mm",
-        "detector_score", "center_lps_mm", "anatomical_region", "warnings", *FEATURE_NAMES,
-    ]
-    with csv_path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(flat_rows)
-    print(f"Saved Stage 03 LoG diagnostic predictions: {json_path} ({len(records)} patches)")
-    return output
 
 
 def run_patient(
@@ -323,7 +156,6 @@ def run_patient(
     *,
     output_root: Path,
     collect_attention: bool,
-    process_log_diagnostic: bool = False,
 ) -> dict[str, Any]:
     patient_id = patient_dir.name
     patch_manifest_path = patient_dir / STAGE02_SCHEMA["patch_outputs"]["manifest"]
@@ -424,17 +256,6 @@ def run_patient(
         flat_rows.append(csv_record)
         print(f"[{patient_id}] {n}/{len(patches)} patch={patch['patch_id']} -> " + ", ".join(f"{k}={predictions[k]:.3f}" for k in FEATURE_NAMES), flush=True)
 
-    log_output = None
-    if process_log_diagnostic:
-        log_output = run_log_diagnostic_inference(
-            patient_dir,
-            models,
-            checkpoint_metadata,
-            device,
-            output_dir=out_dir,
-            collect_attention=collect_attention,
-        )
-
     output = {
         "schema_version": STAGE03_SCHEMA["schema_version"],
         "meta_schema_version": SCHEMA["schema_version"],
@@ -443,13 +264,9 @@ def run_patient(
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "route": "spatial_hybrid",
         "objective": "ordinal_reader",
-        "detection_source": "LoG+ViTDet3D_fused",
+        "detection_source": "ViTDet3D",
         "stage04_eligible": True,
         "status": "completed" if records else "no_eligible_candidates",
-        "log_diagnostic_predictions_json": (
-            STAGE03_OUTPUTS["log_diagnostic_predictions_json"] if log_output is not None else None
-        ),
-        "n_log_diagnostic_patches_inferred": (int(log_output["n_patches"]) if log_output is not None else 0),
         "prediction_space": STAGE03_SCHEMA["space"],
         "attribute_order": list(FEATURE_NAMES),
         "attribute_support_audit": ATTRIBUTE_SUPPORT_AUDIT,
@@ -493,8 +310,6 @@ def run_patient(
         "objective": "ordinal_reader",
         "attribute_order": list(FEATURE_NAMES),
         "n_patches": len(records),
-        "n_log_diagnostic_patches_inferred": (int(log_output["n_patches"]) if log_output is not None else 0),
-        "log_diagnostic_predictions_json": (STAGE03_OUTPUTS["log_diagnostic_predictions_json"] if log_output is not None else None),
         "patch_shape_required": list(EXPECTED_PATCH_SHAPE),
         "input_intensity": STAGE03_SCHEMA["preprocessing"]["source_units"],
         "preprocessing": dict(STAGE03_SCHEMA["preprocessing"]),
@@ -520,7 +335,6 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--checkpoint-root", type=Path, default=DEFAULT_CHECKPOINT_ROOT)
     p.add_argument("--device", default="auto", help="auto, cpu, or a PyTorch device spec such as cuda:0")
     p.add_argument("--collect-attention", action="store_true", help="Write spatial attention tensors for each processed patch")
-    p.add_argument("--skip-log-diagnostic", action="store_true", help=argparse.SUPPRESS)
     p.add_argument("--allow-noncanonical-checkpoint-provenance", action="store_true", help="Disable split-hash/group provenance checks only for deliberate debugging")
     add_verbose_argument(p)
     return p.parse_args()
@@ -558,7 +372,6 @@ def main() -> int:
             patient_dir, models, checkpoint_metadata, device,
             output_root=output_root,
             collect_attention=a.collect_attention,
-            process_log_diagnostic=False,
         )
     stage_complete(3, "03")
     return 0

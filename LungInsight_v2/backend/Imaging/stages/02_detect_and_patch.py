@@ -4,26 +4,15 @@ LungInsight v2 -- Stage 02: candidate detection + nodule patch extraction.
 This file consolidates the supplied 04_detect_candidates.py and
 05_extract_patches.py implementations into the v2 Stage 02 layout.
 
-Authoritative candidate detectors:
-    ViTDet3D (rlsn/DeTr4LungNodule) and LoG
-
-Both detectors contribute to the validated, deduplicated authoritative
-candidate set. Detector provenance and source-specific score semantics are
-preserved in every fused record.
-
-Input:
-    LungInsight_v2/backend/output/<patient_id>/
-        volume_hu_cropped.npy
-        lung_mask.npy
-        meta.json
+Authoritative candidate detector:
+    ViTDet3D (rlsn/DeTr4LungNodule). Candidates are accepted only when their
+    center lies inside the validated lung mask and outside the heart mask.
 
 Output:
     LungInsight_v2/backend/output/<patient_id>/02_detect_and_patch/
         candidates.json
         candidates.csv
         detector_metadata.json
-        log_candidates_diagnostic.json
-        candidates_diagnostic_agreement.json
         patches/
             arrays/patch_000.npy
             visualizations/patch_000_triplanar.png
@@ -89,7 +78,6 @@ STAGE02_LOCALIZATION = get_required(STAGE02_SCHEMA, "anatomical_localization.def
 STAGE02_PATHS = get_required(SCHEMA, "paths.stage_02", expected_type=dict)
 STAGE02_FILES = get_required(STAGE02_SCHEMA, "filenames", expected_type=dict)
 STAGE02_PATCH_OUTPUTS = get_required(STAGE02_SCHEMA, "patch_outputs", expected_type=dict)
-STAGE02_LOG_PATCH_OUTPUTS = get_required(STAGE02_SCHEMA, "diagnostic_patch_outputs", expected_type=dict)
 STAGE02_PATCH_ARRAY_SUBDIR = Path(STAGE02_PATCH_OUTPUTS["array_directory"]).relative_to(Path(STAGE02_PATCH_OUTPUTS["root"]))
 STAGE02_PATCH_VIZ_SUBDIR = Path(STAGE02_PATCH_OUTPUTS["visualization_directory"]).relative_to(Path(STAGE02_PATCH_OUTPUTS["root"]))
 STAGE02_PATCH_ARRAY_PATTERN = str(STAGE02_FILES["patch_array_pattern"])
@@ -101,7 +89,6 @@ if PATCH_ARRAY_DTYPE != np.dtype(np.float32):
     )
 from matplotlib.widgets import Slider
 from scipy import ndimage
-from scipy.ndimage import gaussian_laplace, maximum_filter
 
 try:
     from transformers import PreTrainedModel, ViTConfig
@@ -144,10 +131,6 @@ VIT_STD = float(get_required(STAGE02_DETECTOR, "normalization.std"))
 
 DEFAULT_VIT_LOGIT_THRESHOLD = float(STAGE02_SCHEMA["vit_logit_threshold_default"])
 DEFAULT_NMS_DISTANCE_MM = float(STAGE02_SCHEMA["nms_distance_mm_default"])
-LOG_DIAMETERS_MM = tuple(float(v) for v in get_required(STAGE02_SCHEMA, "diagnostic_log_detector.diameters_mm", expected_type=list))
-DEFAULT_LOG_THRESHOLD = float(STAGE02_SCHEMA["log_threshold_default"])
-DEFAULT_LOG_MIN_DISTANCE_MM = float(STAGE02_SCHEMA["log_min_distance_mm_default"])
-DEFAULT_DIAGNOSTIC_AGREEMENT_DISTANCE_MM = float(STAGE02_SCHEMA["diagnostic_agreement_distance_mm_default"])
 
 AIR_HU = float(get_required(SCHEMA, str(STAGE02_SCHEMA["patch_padding_hu_ref"])))
 # Backward-compatible alias retained by the patch-extraction implementation.
@@ -215,26 +198,6 @@ class DetectorCandidate:
     center_lps_mm: Optional[List[float]] = None
     diameter_mm: Optional[float] = None
     anatomical_location: Optional[Dict[str, Any]] = None
-
-
-@dataclass
-class LogDiagnosticCandidate:
-    """
-    A LoG (Laplacian-of-Gaussian) detection.
-
-    This is the raw detector record. It retains its research-comparison
-    purpose in the audit stream; validated records are also fused into the
-    authoritative `candidates.json`.
-    """
-
-    diagnostic_id: str
-    purpose: str                     # raw detector purpose before fusion
-    coordinate_order: str
-    center_zyx: List[float]
-    center_lps_mm: List[float]
-    scale_mm: float
-    log_response: float
-    space: str
 
 
 # ============================================================================
@@ -779,11 +742,6 @@ def euclidean_mm(a_zyx: np.ndarray, b_zyx: np.ndarray, spacing_zyx: np.ndarray) 
     return float(np.linalg.norm(delta))
 
 
-def euclidean_mm_physical(a_mm: np.ndarray, b_mm: np.ndarray) -> float:
-    """Physical Euclidean distance between two already-physical (mm) centers."""
-    return float(np.linalg.norm(np.asarray(a_mm) - np.asarray(b_mm)))
-
-
 # ============================================================================
 # VITDET3D WINDOWING
 # ============================================================================
@@ -1227,6 +1185,10 @@ def load_vitdet3d(model_name: str, device: torch.device, revision: Optional[str]
     print(f"  {model_name}" + (f" @ {revision}" if revision else ""))
 
     kwargs: Dict[str, Any] = {"revision": revision} if revision else {}
+    # Optional. The checkpoint is public; the token only lifts Hub rate limits.
+    hf_token = os.environ.get("HF_TOKEN", "").strip()
+    if hf_token:
+        kwargs["token"] = hf_token
 
     try:
         model = VitDet3D.from_pretrained(model_name, **kwargs)
@@ -1495,199 +1457,6 @@ def validate_detector_candidate_schema(
 
 
 # ============================================================================
-# LOG DETECTOR (candidate source with optional audit output)
-# ============================================================================
-
-def normalize_for_log(volume_hu: np.ndarray, lung_mask: np.ndarray) -> np.ndarray:
-    """
-    Normalize HU values for the LoG response calculation.
-
-    This normalization is used only by the LoG detector candidate generator.
-    It is never written into Stage 02 classifier patches, and it never
-    touches `candidates.json`.
-    """
-    valid = volume_hu[lung_mask]
-    if valid.size == 0:
-        raise RuntimeError("Lung mask contains no voxels.")
-
-    p_low, p_high = np.percentile(valid, [1.0, 99.0])
-    if p_high <= p_low:
-        p_low, p_high = float(np.min(valid)), float(np.max(valid))
-    if p_high <= p_low:
-        return np.zeros_like(volume_hu, dtype=np.float32)
-
-    image = (volume_hu - p_low) / (p_high - p_low)
-    image = np.clip(image, 0.0, 1.0)
-    image[~lung_mask] = 0.0
-    return image.astype(np.float32)
-
-
-def local_maxima(response: np.ndarray, footprint: np.ndarray, threshold: float) -> np.ndarray:
-    """Return voxel coordinates of local maxima above threshold."""
-    maximum = maximum_filter(response, footprint=footprint, mode="constant", cval=0.0)
-    mask = (response == maximum) & (response >= threshold) & np.isfinite(response)
-    return np.argwhere(mask)
-
-
-def run_log_detector(
-    volume_hu: np.ndarray,
-    lung_mask: np.ndarray,
-    spacing_zyx: np.ndarray,
-    origin_lps_mm: np.ndarray,
-    direction_lps: np.ndarray,
-    threshold: float,
-    min_distance_mm: float,
-) -> List[LogDiagnosticCandidate]:
-    """
-    Multi-scale Laplacian-of-Gaussian blob detector.
-
-    The raw detector records retain their original detector purpose for audit.
-    After validation and fusion, eligible LoG records are represented in the
-    authoritative fused candidate set with purpose
-    `authoritative_fused_candidate`.
-    """
-
-    image = normalize_for_log(volume_hu, lung_mask)
-    raw: List[Dict[str, Any]] = []
-
-    print()
-    print("Running multi-scale LoG detector:")
-
-    for diameter_mm in LOG_DIAMETERS_MM:
-        # For a 3D Gaussian blob, diameter ~= 2 * sqrt(3) * sigma.
-        sigma_mm = diameter_mm / (2.0 * math.sqrt(3.0))
-        sigma_vox = sigma_mm / spacing_zyx
-
-        response = -gaussian_laplace(image, sigma=tuple(sigma_vox.tolist()), mode="nearest")
-        response *= sigma_mm ** 2
-        response[~lung_mask] = 0.0
-
-        radius_vox = np.maximum(
-            np.ceil(min_distance_mm / spacing_zyx).astype(np.int32), 1
-        )
-        z = np.arange(-radius_vox[0], radius_vox[0] + 1)
-        y = np.arange(-radius_vox[1], radius_vox[1] + 1)
-        x = np.arange(-radius_vox[2], radius_vox[2] + 1)
-        zz, yy, xx = np.meshgrid(z, y, x, indexing="ij")
-        footprint = (
-            (zz * spacing_zyx[0]) ** 2
-            + (yy * spacing_zyx[1]) ** 2
-            + (xx * spacing_zyx[2]) ** 2
-            <= min_distance_mm ** 2
-        )
-
-        coords = local_maxima(response, footprint, threshold)
-        print(f"  diameter={diameter_mm:5.1f} mm sigma={sigma_mm:5.2f} mm maxima={len(coords)}")
-
-        for coord in coords:
-            center = coord.astype(np.float32)
-            raw.append(
-                {
-                    "center_zyx": center,
-                    "score": float(response[tuple(coord)]),
-                    "scale_mm": float(diameter_mm),
-                }
-            )
-
-    print(f"LoG raw detections: {len(raw)}")
-
-    # Same NMS-by-distance approach as ViTDet3D -- keep the strongest
-    # raw detection's own center unchanged, discard redundant neighbors.
-    kept = nms_by_distance(
-        [{"center_zyx": r["center_zyx"], "low_zyx": r["center_zyx"], "high_zyx": r["center_zyx"],
-          "score": r["score"], "logit": r["score"]} for r in raw],
-        spacing_zyx,
-        distance_mm=min_distance_mm,
-    )
-    # Recover scale_mm for kept detections (matched by identity of the
-    # numpy array object, since nms_by_distance only forwards score).
-    scale_lookup = {id(r["center_zyx"]): r["scale_mm"] for r in raw}
-
-    diagnostics: List[LogDiagnosticCandidate] = []
-    for diagnostic_id, det in enumerate(sorted(kept, key=lambda d: d["score"], reverse=True)):
-        center = det["center_zyx"]
-        center_mm = voxel_to_lps_mm(center, spacing_zyx, origin_lps_mm, direction_lps)
-        diagnostics.append(
-            LogDiagnosticCandidate(
-                diagnostic_id=f"log_diag_{diagnostic_id:05d}",
-                purpose="research_comparison_only",
-                coordinate_order=COORDINATE_ORDER,
-                center_zyx=[float(v) for v in center.tolist()],
-                center_lps_mm=[float(v) for v in center_mm.tolist()],
-                scale_mm=float(scale_lookup.get(id(center), float("nan"))),
-                log_response=float(det["score"]),
-                space=CT_SPACE,
-            )
-        )
-
-    print(f"LoG candidates after NMS: {len(diagnostics)}")
-    return diagnostics
-
-
-# ============================================================================
-# DIAGNOSTIC-ONLY COMPARISON (never fed back into candidates.json)
-# ============================================================================
-
-def compute_diagnostic_agreement(
-    vit_candidates: List[DetectorCandidate],
-    log_candidates: List[LogDiagnosticCandidate],
-    agreement_distance_mm: float,
-) -> Dict[str, Any]:
-    """
-    Report-only comparison of ViTDet3D candidates against LoG
-    diagnostic detections. This NEVER modifies either candidate list --
-    it only annotates, for research purposes, which ViTDet3D candidates
-    have a nearby LoG detection and vice versa.
-    """
-
-    per_candidate = []
-    vit_with_log_support = 0
-
-    for c in vit_candidates:
-        c_mm = np.asarray(c.center_lps_mm, dtype=np.float64)
-        best_dist = None
-        best_log_id = None
-        for log_c in log_candidates:
-            d = euclidean_mm_physical(c_mm, np.asarray(log_c.center_lps_mm, dtype=np.float64))
-            if best_dist is None or d < best_dist:
-                best_dist = d
-                best_log_id = log_c.diagnostic_id
-
-        has_support = best_dist is not None and best_dist <= agreement_distance_mm
-        if has_support:
-            vit_with_log_support += 1
-
-        per_candidate.append(
-            {
-                "candidate_id": c.candidate_id,
-                "nearest_log_diagnostic_id": best_log_id,
-                "distance_mm": best_dist,
-                "log_agrees_within_threshold": bool(has_support),
-            }
-        )
-
-    log_with_vit_support = 0
-    for log_c in log_candidates:
-        log_mm = np.asarray(log_c.center_lps_mm, dtype=np.float64)
-        nearest = min(
-            (euclidean_mm_physical(log_mm, np.asarray(c.center_lps_mm, dtype=np.float64)) for c in vit_candidates),
-            default=None,
-        )
-        if nearest is not None and nearest <= agreement_distance_mm:
-            log_with_vit_support += 1
-
-    return {
-        "purpose": "research_comparison_only -- does NOT affect candidates.json",
-        "agreement_distance_mm": agreement_distance_mm,
-        "num_vitdet3d_candidates": len(vit_candidates),
-        "num_log_diagnostic_candidates": len(log_candidates),
-        "vitdet3d_candidates_with_log_support": vit_with_log_support,
-        "log_candidates_with_vitdet3d_support": log_with_vit_support,
-        "per_candidate": per_candidate,
-    }
-
-
-# ============================================================================
 # OUTPUT
 # ============================================================================
 
@@ -1750,7 +1519,7 @@ def write_fused_candidates_csv(path: str | Path, candidates: Sequence[dict[str, 
     """Write accepted fused records without flattening detector scores together."""
     fields = (
         "candidate_id", "stable_nodule_id", "source", "source_members",
-        "vitdet_score", "log_score", "center_z", "center_y", "center_x",
+        "vitdet_score", "center_z", "center_y", "center_x",
         "center_lps_x_mm", "center_lps_y_mm", "center_lps_z_mm",
         "bbox_start_z", "bbox_start_y", "bbox_start_x",
         "bbox_end_z", "bbox_end_y", "bbox_end_x",
@@ -1771,7 +1540,6 @@ def write_fused_candidates_csv(path: str | Path, candidates: Sequence[dict[str, 
                 "source": candidate["source"],
                 "source_members": json.dumps(candidate["source_members"], sort_keys=True),
                 "vitdet_score": candidate.get("vitdet_score"),
-                "log_score": candidate.get("log_score"),
                 "center_z": center[0], "center_y": center[1], "center_x": center[2],
                 "center_lps_x_mm": center_lps[0],
                 "center_lps_y_mm": center_lps[1],
@@ -2873,10 +2641,7 @@ def extract_one_patch(
         "source": candidate.get("source", candidate.get("detection_source", "ViTDet3D")),
         "source_members": candidate.get("source_members", []),
         "vitdet_score": candidate.get("vitdet_score"),
-        "log_score": candidate.get("log_score"),
         "detection_source": candidate.get("detection_source", candidate.get("source", "ViTDet3D")),
-        "diagnostic_id": candidate.get("diagnostic_id"),
-        "log_response": candidate.get("log_response"),
         "scale_mm": candidate.get("scale_mm"),
 
         "coordinate_order": COORDINATE_ORDER,
@@ -3006,50 +2771,6 @@ def extract_one_patch(
 
 
 
-def build_log_patch_candidates(
-    log_candidates: list[LogDiagnosticCandidate], spacing_zyx_mm: np.ndarray
-) -> list[dict[str, Any]]:
-    """Adapt LoG records into patch-cropping records without merging candidate authority."""
-    converted: list[dict[str, Any]] = []
-    spacing = np.asarray(spacing_zyx_mm, dtype=np.float64)
-    if spacing.shape != (3,) or not np.isfinite(spacing).all() or np.any(spacing <= 0):
-        raise ValueError(f"Invalid spacing for LoG patch extraction: {spacing.tolist()}")
-    source_file = str(STAGE02_FILES["log_diagnostic"])
-    for candidate in log_candidates:
-        center = np.asarray(candidate.center_zyx, dtype=np.float64)
-        if center.shape != (3,) or not np.isfinite(center).all():
-            raise ValueError(f"Invalid center_zyx for LoG candidate {candidate.diagnostic_id!r}")
-        diameter_mm = float(candidate.scale_mm)
-        if not np.isfinite(diameter_mm) or diameter_mm <= 0:
-            raise ValueError(f"Invalid scale_mm for LoG candidate {candidate.diagnostic_id!r}: {diameter_mm}")
-        half_extent_vox = np.maximum((diameter_mm / (2.0 * spacing)), 0.5)
-        bbox_start = np.floor(center - half_extent_vox).astype(int)
-        bbox_end = np.ceil(center + half_extent_vox).astype(int)
-        bbox_end = np.maximum(bbox_end, bbox_start + 1)
-        response = float(candidate.log_response)
-        if not np.isfinite(response):
-            raise ValueError(f"Non-finite LoG response for candidate {candidate.diagnostic_id!r}")
-        converted.append({
-            "candidate_id": str(candidate.diagnostic_id),
-            "diagnostic_id": str(candidate.diagnostic_id),
-            "detection_source": "LoG",
-            "source": "LoG",
-            "source_candidates_file": source_file,
-            "purpose": str(candidate.purpose),
-            "coordinate_order": str(candidate.coordinate_order),
-            "center_zyx": center.tolist(),
-            "center_lps_mm": list(candidate.center_lps_mm),
-            "bbox_start_zyx": bbox_start.tolist(),
-            "bbox_end_zyx": bbox_end.tolist(),
-            "detector_score": response,
-            "log_response": response,
-            "scale_mm": diameter_mm,
-            "diameter_mm": diameter_mm,
-            "anatomical_location": None,
-        })
-    return converted
-
-
 def extract_all(
     volume: np.ndarray,
     candidates: list[dict[str, Any]],
@@ -3148,45 +2869,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "--with-log-diagnostic",
-        "--with-log",
-        dest="with_log_diagnostic",
-        action="store_true",
-        default=bool(STAGE02_SCHEMA["default_log_diagnostic_enabled"]),
-        help="Run LoG candidate detection and fuse filtered Top-50 proposals (enabled by default).",
-    )
-    parser.add_argument(
-        "--skip-log",
-        dest="with_log_diagnostic",
-        action="store_false",
-    )
-    parser.add_argument("--log-threshold", type=float, default=DEFAULT_LOG_THRESHOLD)
-    parser.add_argument(
-        "--log-min-distance-mm",
-        type=float,
-        default=DEFAULT_LOG_MIN_DISTANCE_MM,
-    )
-    log_limit_group = parser.add_mutually_exclusive_group()
-    log_limit_group.add_argument(
-        "--log-patch-limit",
-        type=int,
-        default=STAGE02_SCHEMA["diagnostic_log_detector"]["patch_limit_default"],
-        help=("Maximum LoG diagnostic patches to extract (default from meta_schema.json; "
-              "the strongest post-NMS responses are first)."),
-    )
-    log_limit_group.add_argument(
-        "--all-log-patches",
-        dest="all_log_patches",
-        action="store_true",
-        help="Extract every LoG diagnostic candidate rather than applying the schema's default patch limit.",
-    )
-    parser.add_argument(
-        "--diagnostic-agreement-distance-mm",
-        type=float,
-        default=DEFAULT_DIAGNOSTIC_AGREEMENT_DISTANCE_MM,
-    )
-
-    parser.add_argument(
         "--patch-size-vox",
         type=int,
         default=DEFAULT_PATCH_SIZE_VOX,
@@ -3220,8 +2902,6 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         raise ValueError("--patch-size-vox must be > 0")
     if args.context_margin_mm < 0:
         raise ValueError("--context-margin-mm must be >= 0")
-    if args.log_patch_limit is not None and args.log_patch_limit <= 0:
-        raise ValueError("--log-patch-limit must be a positive integer when supplied")
 
     if args.device is None or args.device == "auto":
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -3316,25 +2996,6 @@ def run_pipeline(args: argparse.Namespace) -> Path:
 
     vit_candidate_dicts = [asdict(candidate) for candidate in vit_candidates]
 
-    # LoG and ViTDet3D are peer proposal sources. Fusion happens before the
-    # single validated-mask gate so a one-detector candidate is never dropped
-    # merely for lacking agreement from the other source.
-    log_candidates: List[LogDiagnosticCandidate] = []
-    if args.with_log_diagnostic:
-        log_candidates = run_log_detector(
-            volume_hu=volume_hu,
-            lung_mask=lung_mask,
-            spacing_zyx=spacing_zyx,
-            origin_lps_mm=origin_lps_mm,
-            direction_lps=direction_lps,
-            threshold=args.log_threshold,
-            min_distance_mm=args.log_min_distance_mm,
-        )
-    else:
-        print("LoG candidate detector: SKIPPED")
-
-    raw_log_candidate_dicts = [asdict(candidate) for candidate in log_candidates]
-
     patient_id = str(stage01_meta.get("patient_id", args.patient_id))
     study_uid = str(stage01_meta.get("study_instance_uid", ""))
     series_uid = str(stage01_meta.get("series_instance_uid", ""))
@@ -3345,7 +3006,6 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         )
 
     fused_candidates, fusion_report = merge_detections(
-        raw_log_candidate_dicts,
         vit_candidate_dicts,
         spacing_zyx_mm=spacing_zyx,
         expected_space=CT_SPACE,
@@ -3355,8 +3015,8 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         origin_lps_mm=origin_lps_mm,
         direction_lps=direction_lps,
     )
-    if fusion_report["deduplicated_count"] > len(vit_candidate_dicts) + len(raw_log_candidate_dicts):
-        raise RuntimeError("Stage 02 fusion output count exceeds its detector input union.")
+    if fusion_report["deduplicated_count"] > len(vit_candidate_dicts):
+        raise RuntimeError("Stage 02 fusion output count exceeds its ViTDet3D input count.")
     airway_core_cache, airway_info_cache = _build_airway_core(
         lung_mask, air_mask, spacing_zyx, origin_lps_mm, direction_lps
     )
@@ -3415,7 +3075,6 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             eligible_not_selected.append(row)
     candidate_dicts = [row for row in accepted_candidates if str(row["stable_nodule_id"]) in selected_ids]
     fusion_report.update({
-        "raw_log_count": len(raw_log_candidate_dicts),
         "raw_vitdet3d_count": len(vit_candidate_dicts),
         "lung_gate_accepted_count": len(accepted_candidates),
         "lung_gate_rejected_count": len(rejected_candidates),
@@ -3436,7 +3095,6 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             f"- Study UID: `{study_uid}`",
             f"- Series UID: `{series_uid}`",
             f"- ViTDet3D raw: {fusion_report['raw_vitdet3d_count']}",
-            f"- LoG raw: {fusion_report['raw_log_count']}",
             f"- Lung/heart gate accepted fused candidates: {fusion_report['lung_gate_accepted_count']}",
             f"- Lung/heart gate rejected fused candidates: {fusion_report['lung_gate_rejected_count']}",
             f"- Eligible fused candidates: {fusion_report['eligible_fused_count']}",
@@ -3459,7 +3117,7 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             "meta_schema_version": SCHEMA["schema_version"],
             "stage": STAGE02_SCHEMA["stage"],
             "patient_id": args.patient_id,
-            "detectors": ["LoG", "ViTDet3D"],
+            "detectors": ["ViTDet3D"],
             "review_attestation": review_attestation,
             "fusion": fusion_report,
             "stable_identity": {
@@ -3485,45 +3143,6 @@ def run_pipeline(args: argparse.Namespace) -> Path:
     save_json(output_stage / STAGE02_FILES["candidates_json"], candidate_dicts)
     write_fused_candidates_csv(output_stage / STAGE02_FILES["candidates_csv"], candidate_dicts)
 
-    log_filter_report = {
-        "meta_schema_version": SCHEMA["schema_version"],
-        "stage": STAGE02_SCHEMA["stage"],
-        "patient_id": args.patient_id,
-        "detector": "LoG",
-        "policy": "fuse_before_lung_heart_gate; no detector-specific prefilter or downstream manifest",
-        "input_count": len(raw_log_candidate_dicts),
-        "gate_status": candidate_filter_report["gate_status"],
-        "review_attestation": review_attestation,
-    }
-    rejected_log_candidates = [
-        row for row in rejected_candidates
-        if any(member.get("source") == "LoG" for member in row.get("source_members", []))
-    ]
-    accepted_log_candidates = [
-        row for row in accepted_candidates
-        if any(member.get("source") == "LoG" for member in row.get("source_members", []))
-    ]
-    log_filter_report["accepted_fused_count"] = len(accepted_log_candidates)
-    log_filter_report["rejected_fused_count"] = len(rejected_log_candidates)
-    save_json(output_stage / STAGE02_FILES["log_candidate_filter_report"], log_filter_report)
-    save_json(
-        output_stage / STAGE02_FILES["log_rejected_candidates_audit"],
-        {
-            "meta_schema_version": SCHEMA["schema_version"],
-            "patient_id": args.patient_id,
-            "role": "audit_only_not_for_patch_extraction_or_inference",
-            "rejected_fused_count": len(rejected_log_candidates),
-            "rejected_fused_candidates": rejected_log_candidates,
-        },
-    )
-    save_json(output_stage / STAGE02_FILES["log_diagnostic"], raw_log_candidate_dicts)
-    agreement_report = compute_diagnostic_agreement(
-        vit_candidates,
-        log_candidates,
-        agreement_distance_mm=args.diagnostic_agreement_distance_mm,
-    )
-    save_json(output_stage / STAGE02_FILES["diagnostic_agreement"], agreement_report)
-
     # ------------------------------------------------------------------
     # Authoritative candidate patch extraction
     # ------------------------------------------------------------------
@@ -3541,16 +3160,14 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         args.adaptive,
     )
 
-    # Resolve both manifest paths before constructing metadata that references
-    # them. The legacy LoG manifest stays empty to prevent duplicate inference.
+    # Resolve the manifest path before constructing metadata that references it.
     patch_manifest_path = patient_root / STAGE02_PATCH_OUTPUTS["manifest"]
-    log_patch_manifest_path = patient_root / STAGE02_LOG_PATCH_OUTPUTS["manifest"]
 
     manifest = {
         "schema_version": STAGE02_SCHEMA["manifest_schema_version"],
         "meta_schema_version": SCHEMA["schema_version"],
         "stage": STAGE02_SCHEMA["stage"],
-        "module": "Validated LoG + ViTDet3D Candidate Fusion + 3-D Nodule Patch Extraction",
+        "module": "ViTDet3D Candidate Detection + Lung/Heart Gating + 3-D Nodule Patch Extraction",
         "patient_id": args.patient_id,
         "study_uid": study_uid,
         "series_uid": series_uid,
@@ -3577,7 +3194,7 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         },
         "detector": {
             "name": str(STAGE02_DETECTOR["name"]),
-            "role": "peer_candidate_source_in_equal_standing_fusion",
+            "role": "sole_nodule_detector",
             "model": args.vitdet_model,
             "checkpoint": checkpoint_ref,
             "model_version": args.model_version,
@@ -3590,19 +3207,6 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             "num_raw_detections": len(raw_detections),
             "num_authoritative_candidates": len(vit_candidates),
             "num_fused_accepted_candidates": len(candidate_dicts),
-        },
-        "diagnostic_log_detector": {
-            "enabled": bool(args.with_log_diagnostic),
-            "note": "Raw LoG proposals are fused with ViTDet3D before the shared mask gate. The separate LoG manifest is empty and audit-only.",
-            "diameters_mm": list(LOG_DIAMETERS_MM),
-            "threshold": args.log_threshold,
-            "min_distance_mm": args.log_min_distance_mm,
-            "num_candidates": len(log_candidates),
-            "stage03_attribute_inference_enabled": bool(STAGE02_SCHEMA["diagnostic_log_detector"]["stage03_attribute_inference_enabled_by_default"]),
-            "separate_patch_manifest": str(log_patch_manifest_path),
-            # Updated with the actual extraction count before the manifest is saved.
-            "num_log_patches_extracted": 0,
-            "candidate_limit": args.log_patch_limit,
         },
         "patch_geometry": {
             "space": PATCH_SPACE,
@@ -3650,62 +3254,6 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         "patch_count": len(records),
         "patches": records,
     }
-    # Filtered Top-50 LoG proposals are already in the primary fused manifest.
-    # Do not create a second inference stream for duplicate nodule identities.
-    selected_log_candidates: list[LogDiagnosticCandidate] = []
-    log_patch_candidates: list[dict[str, Any]] = []
-    log_patch_root = patient_root / STAGE02_LOG_PATCH_OUTPUTS["root"]
-    bytes_per_patch = int(args.patch_size_vox) ** 3 * int(PATCH_ARRAY_DTYPE.itemsize)
-    estimated_gib = len(log_patch_candidates) * bytes_per_patch / (1024 ** 3)
-    print(
-        f"Preparing {len(log_patch_candidates)} LoG diagnostic patches for Stage 03 "
-        f"(detected={len(log_candidates)}; estimated array payload={estimated_gib:.2f} GiB; "
-        "visualizations disabled by default).",
-        flush=True,
-    )
-    log_records = extract_all(
-        volume_hu,
-        log_patch_candidates,
-        spacing_zyx,
-        origin_lps_mm,
-        direction_lps,
-        log_patch_root,
-        args.patch_size_vox,
-        args.context_margin_mm,
-        args.adaptive,
-        render_visualization=bool(STAGE02_LOG_PATCH_OUTPUTS["visualizations_enabled"]),
-        progress_label="log_patch",
-        array_subdir=Path(STAGE02_LOG_PATCH_OUTPUTS["array_directory"]).relative_to(Path(STAGE02_LOG_PATCH_OUTPUTS["root"])),
-        visualization_subdir=Path(STAGE02_LOG_PATCH_OUTPUTS["visualization_directory"]).relative_to(Path(STAGE02_LOG_PATCH_OUTPUTS["root"])),
-    )
-    log_manifest = {
-        "schema_version": STAGE02_SCHEMA["manifest_schema_version"],
-        "meta_schema_version": SCHEMA["schema_version"],
-        "stage": STAGE02_SCHEMA["stage"],
-        "module": "Legacy LoG Diagnostic Patch Manifest (empty; fused candidates are in primary manifest)",
-        "purpose": "research_comparison_only",
-        "patient_id": args.patient_id,
-        "coordinate_order": COORDINATE_ORDER,
-        "coordinate_system": SCHEMA["coordinate_system"],
-        "source_space": CT_SPACE,
-        "patch_space": PATCH_SPACE,
-        "source_detector_candidates": STAGE02_FILES["log_diagnostic"],
-        "diagnostic_policy": STAGE02_SCHEMA["diagnostic_log_detector"]["stage03_inference_note"],
-        "detected_candidate_count": len(log_candidates),
-        "selected_candidate_count": len(selected_log_candidates),
-        "candidate_limit": args.log_patch_limit,
-        "ct_geometry": manifest["ct_geometry"],
-        "patch_geometry": manifest["patch_geometry"],
-        "patch_configuration": manifest["patch_configuration"],
-        "patch_count": len(log_records),
-        "patches": log_records,
-    }
-    log_patch_manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    save_json(log_patch_manifest_path, log_manifest)
-
-    # The optional legacy diagnostic manifest is deliberately empty to prevent
-    # downstream duplicate inference for LoG records already fused above.
-    manifest["diagnostic_log_detector"]["num_log_patches_extracted"] = len(log_records)
     patch_manifest_path.parent.mkdir(parents=True, exist_ok=True)
     save_json(patch_manifest_path, manifest)
 
@@ -3726,7 +3274,7 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         "stage01_z_crop_range": stage01_meta.get("z_crop_range"),
         "authoritative_detector": {
             "name": str(STAGE02_DETECTOR["name"]),
-            "role": "peer_candidate_source_in_equal_standing_fusion",
+            "role": "sole_nodule_detector",
             "model": args.vitdet_model,
             "checkpoint": checkpoint_ref,
             "model_version": args.model_version,
@@ -3759,13 +3307,10 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             "manifest": str(patch_manifest_path),
         },
         "output_files": {
-            "candidates.json": "AUTHORITATIVE - validated LoG + ViTDet3D union after deduplication and lung/heart gating.",
+            "candidates.json": "AUTHORITATIVE - ViTDet3D candidates after lung/heart gating.",
             "candidates.csv": "Flat mirror of candidates.json.",
             "detector_metadata.json": "Detector and coordinate provenance.",
-            "log_candidates_diagnostic.json": "Diagnostic only.",
-            "candidates_diagnostic_agreement.json": "Comparison report only.",
             "patches/patches_manifest.json": "Authoritative ViTDet3D patch geometry and localization.",
-            "log_diagnostic_patches/log_patches_manifest.json": "Separate diagnostic LoG patch geometry for Stage 03 inference.",
         },
     }
     save_json(output_stage / STAGE02_FILES["detector_metadata"], detector_metadata)
@@ -3775,13 +3320,10 @@ def run_pipeline(args: argparse.Namespace) -> Path:
     print("STAGE 02 COMPLETE")
     print("=" * 78)
     print(f"ViTDet3D detector candidates        : {len(vit_candidates)}")
-    print(f"LoG detector candidates             : {len(log_candidates)}")
     print(f"Extracted fused authoritative patches: {len(records)}")
-    print(f"Extracted LoG diagnostic patches    : {len(log_records)}")
     print(f"Output: {output_stage}")
     print("Authoritative candidate file: candidates.json")
     print("Authoritative patch manifest: patches/patches_manifest.json")
-    print(f"LoG diagnostic patch manifest: {log_patch_manifest_path}")
 
     if args.interactive and records:
         viewer = PatchViewer(records, patch_root / Path(STAGE02_PATCH_OUTPUTS["array_directory"]).name)
@@ -3793,8 +3335,6 @@ def run_pipeline(args: argparse.Namespace) -> Path:
 def main() -> None:
     args = build_parser().parse_args()
     configure_console(args.verbose)
-    if getattr(args, "all_log_patches", False):
-        args.log_patch_limit = None
     run_pipeline(args)
     stage_complete(2, "02")
 

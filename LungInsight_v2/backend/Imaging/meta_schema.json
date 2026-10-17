@@ -69,10 +69,9 @@
     "authoritative_detector": {
       "name": "ViTDet3D",
       "sources": [
-        "ViTDet3D",
-        "LoG"
+        "ViTDet3D"
       ],
-      "authority_policy": "validated_union_after_deduplication",
+      "authority_policy": "validated_nms_output",
       "fusion_method": "configured_physical_center_distance_or_3d_bbox_iou",
       "checkpoint_default": "rlsn/DeTr4LungNodule",
       "input_window_zyx_voxels": [
@@ -110,11 +109,6 @@
         "formula": "center_lps_mm = origin_mm + direction_lps @ (center_zyx * spacing_zyx_mm)"
       },
       "candidate_anatomical_location_field": "anatomical_location"
-    },
-    "diagnostic_log_detector": {
-      "role": "candidate_source",
-      "authoritative": true,
-      "note": "LoG candidates are validated with the same anatomical gates, fused with ViTDet3D candidates, and retained with source provenance."
     },
     "patch_outputs": {
       "root": "02_detect_and_patch/patches/",
@@ -179,11 +173,9 @@
       "anatomical_location": "Heuristic anatomical localization object copied from the authoritative candidate; uses the same detector center and CT geometry."
     },
     "outputs": {
-      "candidates.json": "Authoritative validated, deduplicated LoG + ViTDet3D candidate union.",
+      "candidates.json": "Authoritative validated, deduplicated ViTDet3D candidate set.",
       "candidates.csv": "Flat human-readable mirror of candidates.json.",
       "detector_metadata.json": "Detector, CT-frame, patch-frame, and provenance metadata.",
-      "log_candidates_diagnostic.json": "Diagnostic LoG records only.",
-      "candidates_diagnostic_agreement.json": "Read-only ViTDet3D-vs-LoG comparison.",
       "patches/arrays/patch_000.npy": "Float32 ZYX nodule patch.",
       "patches/visualizations/patch_000_triplanar.png": "Tri-planar patch visualization.",
       "patches/patches_manifest.json": "Per-patch geometry, coordinates, provenance, and characterization."

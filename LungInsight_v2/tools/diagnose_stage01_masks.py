@@ -44,8 +44,6 @@ def records_from_payload(payload: Any, path: Path) -> list[dict[str, Any]]:
 def source_name(row: dict[str, Any], fallback: str) -> str:
     raw = str(row.get("detection_source", row.get("source", fallback)))
     low = raw.lower()
-    if "log" in low or "blob" in low:
-        return "LoG"
     if "vit" in low or "detr" in low:
         return "ViTDet3D"
     return fallback
@@ -80,8 +78,6 @@ def main() -> int:
                         help="Stage 01 patient output folder with volume_hu_cropped.npy, lung_mask.npy, heart_mask.npy, meta.json")
     parser.add_argument("--vitdet-candidates", type=Path, default=None,
                         help="Optional Stage 02 candidates.json, for center-location diagnostics only")
-    parser.add_argument("--log-candidates", type=Path, default=None,
-                        help="Optional Stage 02 log_candidates_diagnostic.json; remains diagnostic-only")
     parser.add_argument("--output-dir", type=Path, default=None)
     parser.add_argument("--max-slices", type=int, default=15,
                         help="Maximum montage slice count (defaults to 15)")
@@ -118,13 +114,12 @@ def main() -> int:
         raise ValueError("meta.json must be a JSON object")
 
     input_groups: list[tuple[str, list[dict[str, Any]], Path]] = []
-    for source, path in (("ViTDet3D", args.vitdet_candidates), ("LoG", args.log_candidates)):
-        if path is not None:
-            resolved = path.expanduser().resolve()
-            if not resolved.is_file():
-                raise FileNotFoundError(f"Candidate input missing: {resolved}")
-            rows = records_from_payload(read_json(resolved), resolved)
-            input_groups.append((source, rows, resolved))
+    if args.vitdet_candidates is not None:
+        resolved = args.vitdet_candidates.expanduser().resolve()
+        if not resolved.is_file():
+            raise FileNotFoundError(f"Candidate input missing: {resolved}")
+        rows = records_from_payload(read_json(resolved), resolved)
+        input_groups.append(("ViTDet3D", rows, resolved))
 
     output_dir.mkdir(parents=True, exist_ok=True)
     metrics_path = output_dir / "slice_mask_metrics.csv"
@@ -226,15 +221,6 @@ def main() -> int:
                 continue
             if source == "ViTDet3D":
                 ax.scatter(center[2], center[1], marker="x", s=55, linewidths=1.3, color="red")
-        # LoG is diagnostic-only. Display a deterministic subset to avoid
-        # obscuring mask boundaries with thousands of points.
-        log_points = [(center[2], center[1]) for source, center, _cid in all_plot_candidates if source == "LoG" and int(np.rint(center[0])) == z]
-        if len(log_points) > 80:
-            step = math.ceil(len(log_points) / 80)
-            log_points = log_points[::step]
-        if log_points:
-            xs, ys = zip(*log_points)
-            ax.scatter(xs, ys, marker=".", s=9, alpha=0.5, color="cyan")
         ax.set_title(f"z={z} | lung={int(lung[z].sum()):,} vox | heart={int(heart[z].sum()):,} vox")
         ax.set_axis_off()
     for ax in list(axes.flat)[len(slice_indices):]:
@@ -242,7 +228,6 @@ def main() -> int:
     handles = [
         plt.Line2D([0], [0], color="lime", lw=2, label="lung mask contour"),
         plt.Line2D([0], [0], color="red", lw=2, label="heart mask contour / ViTDet3D center (x)"),
-        plt.Line2D([0], [0], marker=".", color="cyan", lw=0, label="sampled LoG diagnostic centers"),
     ]
     fig.legend(handles=handles, loc="lower center", ncol=3)
     warning = "WARNING: heart_mask is EMPTY; cardiac exclusion is UNVERIFIED" if not heart.any() else ""
@@ -271,7 +256,7 @@ def main() -> int:
         "heart_mask_review_status": str(meta.get("heart_mask_review_status", "unknown")),
         "heart_mask_tracking_successful": bool(meta.get("heart_mask_tracking_successful", False)),
         "candidate_inputs": source_counts,
-        "candidate_file_policy": "LoG remains diagnostic-only unless the authoritative project schema explicitly changes that policy.",
+        "candidate_file_policy": "ViTDet3D is the sole nodule detector; candidates are used only when inside lung_mask and outside heart_mask.",
         "status": "BLOCKED_EMPTY_HEART_MASK" if not heart.any() else "AUTOMATED_MASKS_PRESENT_VISUAL_QA_OPTIONAL",
         "outputs": {
             "montage_png": str(montage_path),

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -455,3 +457,26 @@ def load_artifacts(path: str | Path) -> dict[str, dict[str, Any] | None]:
             raise ClinicalInferenceError(f"Invalid {name} artifact structure.")
         models[name] = artifact
     return models
+
+
+DEFAULT_ARTIFACT_PATH = CLINICAL_DIR / "models" / "clinical-research-v1.joblib"
+
+
+def configured_artifact_path() -> Path | None:
+    """Trusted local bundle: LUNGINSIGHT_CLINICAL_ARTIFACT, else the deployed default bundle if present."""
+    configured = os.environ.get("LUNGINSIGHT_CLINICAL_ARTIFACT")
+    if configured:
+        return Path(configured)
+    return DEFAULT_ARTIFACT_PATH if DEFAULT_ARTIFACT_PATH.is_file() else None
+
+
+@lru_cache(maxsize=1)
+def _cached_artifacts(path: str, modified_ns: int) -> dict[str, dict[str, Any] | None]:
+    return load_artifacts(path)
+
+
+def load_deployed_artifacts() -> dict[str, dict[str, Any] | None] | None:
+    path = configured_artifact_path()
+    if path is None:
+        return None
+    return _cached_artifacts(str(path), path.stat().st_mtime_ns)

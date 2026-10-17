@@ -1212,11 +1212,14 @@ def resolve_patient_dir(patient_arg: str):
 
             # Always return the actual LIDC-IDRI patient directory when the
             # supplied path is somewhere underneath it.
+            # Use the innermost LIDC-IDRI ancestor. An outer match (for example
+            # backend/output/LIDC-IDRI-0007 above a dicom_uploads tree) would make
+            # the recursive scan read other copies of the same series.
             parts = list(resolved.parts)
-            for i, part in enumerate(parts):
-                if part.upper().startswith("LIDC-IDRI-"):
+            for i in range(len(parts) - 1, -1, -1):
+                if parts[i].upper().startswith("LIDC-IDRI-"):
                     patient_root = Path(*parts[: i + 1])
-                    return patient_root, part
+                    return patient_root, parts[i]
             return resolved, patient_id
 
     # If only the patient ID was supplied, search the actual archive root.

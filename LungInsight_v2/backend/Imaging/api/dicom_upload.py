@@ -228,6 +228,7 @@ async def process_dicom_upload(
             {"job_id": job_id, "status": "validating_series", "patient_id": patient_id},
             output_root,
         )
+        logger.info("dicom_upload_validating job_id=%s uploaded_bytes=%d", job_id, total_bytes)
         series = _reconstruct(*_select_series(_read_datasets(temp_root)))
         job_root.mkdir(parents=True, exist_ok=False)
         stage01_input_root = job_root / "stage01_input" / patient_id
@@ -250,6 +251,7 @@ async def process_dicom_upload(
         )
         result = {
             "job_id": job_id,
+            "patient_id": patient_id,
             "status": "preprocessing_complete",
             "analysis_status": "blocked",
             "message": (
@@ -275,6 +277,12 @@ async def process_dicom_upload(
             ),
         }
         _store_job(job_id, result, output_root)
+        logger.info(
+            "dicom_upload_preprocessing_complete job_id=%s slices=%d volume_shape_zyx=%s",
+            job_id,
+            len(series.datasets),
+            list(series.volume_hu.shape),
+        )
         return result
     except Exception as exc:
         failure = {
@@ -284,8 +292,10 @@ async def process_dicom_upload(
             "patient_id": patient_id,
             "message": str(exc) if isinstance(exc, (DicomUploadError, OSError)) else "DICOM preprocessing failed.",
         }
-        if not isinstance(exc, DicomUploadError):
-            logger.exception("dicom_preprocessing_failed")
+        if isinstance(exc, DicomUploadError):
+            logger.warning("dicom_upload_failed job_id=%s reason=%s", job_id, exc)
+        else:
+            logger.exception("dicom_preprocessing_failed job_id=%s", job_id)
         _store_job(job_id, failure, output_root)
         raise
     finally:

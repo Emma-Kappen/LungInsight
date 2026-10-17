@@ -330,7 +330,7 @@ def draw_attribute(
         ),
     ]
 
-    fig, axes = plt.subplots(1, 3, figsize=(16, 5.5))
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5.5), layout="constrained")
 
     heatmap_mappable = ScalarMappable(norm=Normalize(vmin=0, vmax=1), cmap=RAINBOW)
     heatmap_mappable.set_array([])
@@ -377,15 +377,11 @@ def draw_attribute(
     )
     colorbar.set_label("Relative CAM value within this attribute map")
 
-    fig.text(
-        0.5,
-        0.015,
+    fig.supxlabel(
         "Yellow outline = entire 64x64 patch; not a nodule segmentation. "
         "Colors show relative CAM values, not voxelwise attribute ratings.",
-        ha="center",
         fontsize=8,
     )
-    fig.tight_layout(rect=(0, 0.05, 0.95, 0.90))
 
     png_path = output_dir / STAGE05_SCHEMA["filenames"]["image_pattern"].format(attribute=attribute)
     fig.savefig(png_path, dpi=180, bbox_inches="tight")

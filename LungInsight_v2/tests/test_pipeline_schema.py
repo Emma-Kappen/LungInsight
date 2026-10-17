@@ -29,42 +29,6 @@ class PipelineSchemaTests(unittest.TestCase):
     def test_current_schema_loads_and_declares_supported_version(self):
         self.assertIn(self.schema["schema_version"], self.schema["metadata_policy"]["supported_schema_versions"])
 
-    def test_log_patches_and_stage03_outputs_are_separate(self):
-        stage2 = self.schema["stage_02_detect_and_patch"]
-        stage3 = self.schema["stage_03_nodule_classification"]
-        self.assertEqual(
-            stage2["diagnostic_patch_outputs"]["manifest"],
-            stage3["inputs"]["log_diagnostic_patch_manifest"],
-        )
-        self.assertNotEqual(
-            stage2["diagnostic_patch_outputs"]["manifest"],
-            stage2["patch_outputs"]["manifest"],
-        )
-        self.assertNotEqual(
-            stage3["outputs"]["log_diagnostic_predictions_json"],
-            stage3["outputs"]["predictions_json"],
-        )
-
-    def test_stage02_resolves_log_manifest_before_use_and_saves_after_extraction(self):
-        stage2 = STAGES / "02_detect_and_patch.py"
-        source = stage2.read_text(encoding="utf-8")
-        log_path_assignment = source.index(
-            'log_patch_manifest_path = patient_root / STAGE02_LOG_PATCH_OUTPUTS["manifest"]'
-        )
-        authoritative_manifest = source.index("    manifest = {")
-        log_records_extraction = source.index("    log_records = extract_all(")
-        actual_count_update = source.index(
-            'manifest["diagnostic_log_detector"]["num_log_patches_extracted"] = len(log_records)'
-        )
-        log_manifest_save = source.index("save_json(log_patch_manifest_path, log_manifest)")
-        authoritative_manifest_save = source.index("save_json(patch_manifest_path, manifest)")
-
-        self.assertLess(log_path_assignment, authoritative_manifest)
-        self.assertLess(authoritative_manifest, log_records_extraction)
-        self.assertLess(log_records_extraction, actual_count_update)
-        self.assertLess(actual_count_update, authoritative_manifest_save)
-        self.assertLess(log_manifest_save, authoritative_manifest_save)
-
     def test_stage05_patch_shape_is_defined_from_schema_and_matches_stage03(self):
         stage5 = INFERENCE / "05_gradcam.py"
         source = stage5.read_text(encoding="utf-8")
@@ -123,39 +87,6 @@ class PipelineSchemaTests(unittest.TestCase):
         }
         self.assertIn("STAGE03_PATHS", assigned)
 
-    def test_log_candidate_adapter_preserves_source_identity_and_bbox(self):
-        import numpy as np
-        from types import SimpleNamespace
-
-        stage2_path = STAGES / "02_detect_and_patch.py"
-        tree = ast.parse(stage2_path.read_text(encoding="utf-8"), filename=str(stage2_path))
-        function = next(
-            node for node in tree.body
-            if isinstance(node, ast.FunctionDef) and node.name == "build_log_patch_candidates"
-        )
-        module = ast.Module(
-            body=[ast.ImportFrom(module="__future__", names=[ast.alias(name="annotations")], level=0), function],
-            type_ignores=[],
-        )
-        namespace = {"np": np, "STAGE02_FILES": {"log_diagnostic": "log_candidates_diagnostic.json"}}
-        exec(compile(ast.fix_missing_locations(module), str(stage2_path), "exec"), namespace)
-        original = SimpleNamespace(
-            diagnostic_id="log_00042", center_zyx=[10.0, 20.0, 30.0],
-            center_lps_mm=[1.0, 2.0, 3.0], scale_mm=8.0, log_response=0.12,
-            purpose="research_comparison_only", coordinate_order="ZYX",
-        )
-        converted = namespace["build_log_patch_candidates"]([original], np.asarray([2.0, 1.0, 1.0]))[0]
-        self.assertEqual(converted["detection_source"], "LoG")
-        self.assertEqual(converted["diagnostic_id"], "log_00042")
-        self.assertEqual(converted["source_candidates_file"], "log_candidates_diagnostic.json")
-        self.assertEqual(converted["bbox_start_zyx"], [8, 16, 26])
-        self.assertEqual(converted["bbox_end_zyx"], [12, 24, 34])
-
-    def test_schema_defaults_to_top_100_ranked_log_candidates(self):
-        stage2 = self.schema["stage_02_detect_and_patch"]["diagnostic_log_detector"]
-        self.assertEqual(stage2["patch_limit_default"], 100)
-        self.assertIn("--all-log-patches", (STAGES / "02_detect_and_patch.py").read_text(encoding="utf-8"))
-
     def test_stage07_csv_columns_are_schema_driven(self):
         stage7 = self.schema["stage_07_visualize"]
         columns = stage7["csv_columns_order"]
@@ -163,15 +94,10 @@ class PipelineSchemaTests(unittest.TestCase):
         self.assertTrue(set(self.schema["attribute_contracts"]["stage03_ranked_attributes"]).isdisjoint({"{attribute_columns}"}))
         self.assertIn('get_required(STAGE07, "csv_columns_order", expected_type=list)', (VISUALIZATION / "07_visualize.py").read_text(encoding="utf-8"))
 
-    def test_stage04_log_diagnostic_output_is_separate(self):
-        stage4 = self.schema["paths"]["stage_04"]
-        stage3 = self.schema["stage_03_nodule_classification"]["outputs"]
-        self.assertNotEqual(stage4["output_json"], stage4["log_diagnostic_output_json"])
-        self.assertIn("log_diagnostic_predictions_json", stage3)
-
     def test_fused_candidate_stream_is_the_only_downstream_inference_path(self):
         stage3 = self.schema["stage_03_nodule_classification"]
-        self.assertFalse(stage3["inputs"]["process_log_diagnostic_default"])
+        self.assertNotIn("process_log_diagnostic_default", stage3["inputs"])
+        self.assertNotIn("log_diagnostic_predictions_json", stage3["outputs"])
         runner = (ROOT / "run_pipeline.ps1").read_text(encoding="utf-8")
         self.assertIn("[string]$BrockInputs", runner)
         self.assertIn("Stage 03 - frozen attribute inference for selected fused candidates", runner)
@@ -223,7 +149,7 @@ class PipelineSchemaTests(unittest.TestCase):
         contract_publish = runner.index("Publish completed Imaging-to-Clinical contract")
         self.assertLess(summary_write, contract_publish)
         self.assertIn("$Schema.imaging_clinical_contract.filename", runner)
-        self.assertIn('processing_status="completed"', runner)
+        self.assertIn("processing_status=''completed''", runner)
 
     def test_runner_accepts_explicit_uploaded_dicom_input_tree(self):
         runner = (ROOT / "run_pipeline.ps1").read_text(encoding="utf-8")

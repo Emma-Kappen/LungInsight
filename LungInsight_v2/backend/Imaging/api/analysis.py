@@ -7,8 +7,9 @@ import subprocess
 import threading
 import uuid
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 import numpy as np
 from PIL import Image, ImageDraw
@@ -41,6 +42,7 @@ def _now() -> str:
 def _public(run: dict[str, Any]) -> dict[str, Any]:
     result = dict(run)
     result.pop("_clinical_inputs", None)
+    result.pop("_baseline_definition", None)
     result.pop("_process", None)
     result.pop("log_path", None)
     result.pop("contract_path", None)
@@ -237,6 +239,7 @@ def _run_pipeline(
     clinical_inputs: dict[str, Any],
     requested_malignancy_method: str | None,
     resume_from_stage02: bool = False,
+    baseline_definition: str = "other_or_unverified",
 ) -> None:
     run_root = output_root / patient_id
     log_path = run_root / f"analysis_{run_id}.log"
@@ -284,12 +287,12 @@ def _run_pipeline(
                 _record_completed_stage(run_id, line)
                 detected = _stage_from_line(line)
                 if detected:
-                    stage, message = detected
+                    stage, _ = detected
                     _set(
                         run_id,
                         status=f"{stage}_running",
                         current_stage=stage,
-                        message=message,
+                        message=None,
                     )
             exit_code = process.wait()
         if exit_code != 0:
@@ -369,7 +372,7 @@ def _run_pipeline(
         contract = read_json(contract_path)
         validate_contract(contract)
         _set(run_id, status="clinical_running", current_stage="clinical", contract_path=str(contract_path.relative_to(project_root).as_posix()))
-        from ...Clinical.inference import run_inference
+        from ...Clinical.inference import load_deployed_artifacts, run_inference
 
         meta_schema_version = contract["study"]["provenance"]["meta_schema_version"]
         if not isinstance(meta_schema_version, str) or not meta_schema_version:
@@ -378,7 +381,7 @@ def _run_pipeline(
             {
                 "schema_version": "1.0.0",
                 "patient_id": patient_id,
-                "baseline_definition": "other_or_unverified",
+                "baseline_definition": baseline_definition,
                 "requested_malignancy_method": requested_malignancy_method,
                 "clinician_inputs": clinical_inputs,
                 "imaging_evidence": {
@@ -389,7 +392,8 @@ def _run_pipeline(
                     "imaging_pipeline_version": f"meta_schema-{meta_schema_version}",
                     "imaging_model_versions": contract["study"]["provenance"]["imaging_model_versions"],
                 },
-            }
+            },
+            artifacts=load_deployed_artifacts(),
         )
         result_path = run_root / f"clinical_prediction_{run_id}.json"
         result_path.write_text(json.dumps(response, indent=2), encoding="utf-8")
@@ -462,7 +466,10 @@ def start_analysis(
     clinical_inputs: dict[str, Any],
     requested_malignancy_method: str | None,
     data_provenance: str | None,
+    baseline_definition: str = "other_or_unverified",
 ) -> dict[str, Any]:
+    if baseline_definition not in {"initial_pathologic_diagnosis", "other_or_unverified"}:
+        raise ValueError("Invalid baseline_definition.")
     if not PATIENT_ID_PATTERN.fullmatch(patient_id):
         raise ValueError("Invalid patient_id.")
     upload = get_dicom_job(upload_job_id, output_root=output_root)
@@ -515,6 +522,7 @@ def start_analysis(
             "created_at": _now(),
             "data_provenance": data_provenance or "operator_submitted",
             "_clinical_inputs": clinical_inputs,
+            "_baseline_definition": baseline_definition,
             "_state_path": str(state_path),
         }
         _RUNS[run_id] = run
@@ -530,6 +538,7 @@ def start_analysis(
             "clinical_inputs": clinical_inputs,
             "requested_malignancy_method": requested_malignancy_method,
             "resume_from_stage02": False,
+            "baseline_definition": baseline_definition,
         },
         daemon=True,
     ).start()
@@ -543,6 +552,7 @@ def resume_analysis(run_id: str, *, project_root: Path, output_root: Path) -> di
             raise ValueError("This analysis is not waiting for Stage 01 review.")
         patient_id = str(run["patient_id"])
         clinical_inputs = dict(run.get("_clinical_inputs", {}))
+        baseline_definition = str(run.get("_baseline_definition", "other_or_unverified"))
     patient_root = (output_root / patient_id).resolve()
     _set(run_id, status="stage02_running", current_stage="stage02", message="Resuming from Stage 02 after automated Stage 01 validation.")
     threading.Thread(
@@ -556,6 +566,7 @@ def resume_analysis(run_id: str, *, project_root: Path, output_root: Path) -> di
             "clinical_inputs": clinical_inputs,
             "requested_malignancy_method": "brock",
             "resume_from_stage02": True,
+            "baseline_definition": baseline_definition,
         },
         daemon=True,
     ).start()
@@ -689,6 +700,32 @@ def viewer_metadata(run_id: str, *, output_root: Path) -> dict[str, Any]:
     }
 
 
+@lru_cache(maxsize=32)
+def _cam_finite_max(path: str, mtime_ns: int) -> float:
+    # CT-space CAMs are NaN outside the patch coverage, so the scale must ignore NaN.
+    cam = np.load(path, mmap_mode="r")
+    best = 0.0
+    for slab in cam:
+        finite = np.asarray(slab, dtype=np.float32)
+        finite = finite[np.isfinite(finite)]
+        if finite.size:
+            best = max(best, float(finite.max()))
+    return best
+
+
+_CAM_COLOR_STOPS = np.array(
+    [[0, 0, 255], [0, 255, 255], [0, 255, 0], [255, 255, 0], [255, 0, 0]], dtype=np.float32
+)
+
+
+def _cam_colormap(values: np.ndarray) -> np.ndarray:
+    """Map activations in [0, 1] to a blue-cyan-green-yellow-red colour ramp."""
+    position = np.clip(values, 0, 1) * (len(_CAM_COLOR_STOPS) - 1)
+    lower = np.minimum(position.astype(np.int64), len(_CAM_COLOR_STOPS) - 2)
+    fraction = (position - lower)[..., None]
+    return _CAM_COLOR_STOPS[lower] * (1 - fraction) + _CAM_COLOR_STOPS[lower + 1] * fraction
+
+
 def render_viewer_slice(
     run_id: str,
     index: int,
@@ -696,14 +733,18 @@ def render_viewer_slice(
     output_root: Path,
     lung_overlay: bool = False,
     heart_overlay: bool = False,
+    gradcam_nodule_ids: Sequence[str] | None = None,
     gradcam_nodule_id: str | None = None,
     gradcam_attribute: str | None = None,
+    gradcam_alpha: float = 0.55,
 ) -> bytes:
     run = _run_or_raise(run_id, output_root)
     root = _viewer_root(run, output_root)
     volume, lung, heart = _viewer_arrays(root)
     if index < 0 or index >= volume.shape[0]:
         raise IndexError("Slice index is outside the current volume.")
+    if not 0.0 <= gradcam_alpha <= 1.0:
+        raise ValueError("gradcam_alpha must be between 0 and 1.")
     pixels = np.asarray(volume[index], dtype=np.float32)
     level, width = -600.0, 1500.0
     gray = np.clip((pixels - (level - width / 2)) / width * 255, 0, 255).astype(np.uint8)
@@ -715,36 +756,41 @@ def render_viewer_slice(
         mask = np.asarray(heart[index], dtype=bool)
         rgb[mask, 0] = 220
         rgb[mask, 1] = np.minimum(rgb[mask, 1], 80)
-    if gradcam_nodule_id and gradcam_attribute:
+    selected_ids = list(gradcam_nodule_ids or ([gradcam_nodule_id] if gradcam_nodule_id else []))
+    if selected_ids and gradcam_attribute:
         contract_path = root / CONTRACT_FILENAME
         if contract_path.is_file():
             contract = read_json(contract_path)
             validate_contract(contract)
-            reference = next(
-                (
-                    nodule.get("gradcam_refs", {}).get(gradcam_attribute, {})
-                    for nodule in contract.get("nodules", [])
-                    if nodule.get("stable_nodule_id") == gradcam_nodule_id
-                ),
-                {},
-            )
-            cam_path = reference.get("ct_cam_path") if isinstance(reference, dict) else None
-            if isinstance(cam_path, str):
+            strength: np.ndarray | None = None
+            for nodule in contract.get("nodules", []):
+                if nodule.get("stable_nodule_id") not in selected_ids:
+                    continue
+                reference = (nodule.get("gradcam_refs") or {}).get(gradcam_attribute, {})
+                cam_path = reference.get("ct_cam_path") if isinstance(reference, dict) else None
+                if not isinstance(cam_path, str):
+                    continue
                 resolved = (root / cam_path).resolve()
                 try:
                     resolved.relative_to(root)
                 except ValueError:
-                    resolved = None
-                if resolved is not None and resolved.is_file():
-                    cam = np.load(resolved, mmap_mode="r")
-                    if cam.ndim == 3 and cam.shape == volume.shape:
-                        activation = np.asarray(cam[index], dtype=np.float32)
-                        scale = float(np.max(activation))
-                        if scale > 0:
-                            alpha = np.clip(activation / scale, 0, 1)[..., None]
-                            heat = np.zeros_like(rgb)
-                            heat[..., 0] = 255
-                            rgb = (rgb * (1 - alpha * 0.55) + heat * alpha * 0.55).astype(np.uint8)
+                    continue
+                if not resolved.is_file():
+                    continue
+                cam = np.load(resolved, mmap_mode="r")
+                if cam.ndim != 3 or cam.shape != volume.shape:
+                    continue
+                activation = np.asarray(cam[index], dtype=np.float32)
+                scale = _cam_finite_max(str(resolved), resolved.stat().st_mtime_ns)
+                if scale <= 0:
+                    continue
+                normalized = np.where(np.isfinite(activation), activation, 0.0) / scale
+                strength = normalized if strength is None else np.maximum(strength, normalized)
+            if strength is not None:
+                strength = np.clip(strength, 0, 1)
+                opacity = (strength * gradcam_alpha)[..., None]
+                heat = _cam_colormap(strength)
+                rgb = (rgb * (1 - opacity) + heat * opacity).astype(np.uint8)
     image = Image.fromarray(rgb, mode="RGB")
     output = io.BytesIO()
     image.save(output, format="PNG", optimize=True)

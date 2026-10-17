@@ -22,8 +22,8 @@ def stable_nodule_id(
     namespace for all source combinations, so detector agreement does not
     change the identity of the same physical nodule.
     """
-    if detector_source not in {"ViTDet3D", "LoG", "Merged"}:
-        raise ValueError("detector_source must be one of ViTDet3D, LoG, or Merged.")
+    if detector_source != "Merged":
+        raise ValueError("detector_source must be Merged; the fused namespace is the only identity source.")
     identity = {
         "patient_id": _required_text(patient_id, "patient_id"),
         "study_uid": _required_text(study_uid, "study_uid"),

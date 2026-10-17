@@ -68,9 +68,9 @@ abstention status otherwise.
 - Stage 07: invalid localization or missing explanation evidence is displayed
   as unavailable rather than as a successful result.
 
-The separate LoG diagnostic manifest is a legacy empty artifact. LoG and
-ViTDet3D detections enter Stages 03–06 only after shared fusion, lung-mask
-validation, and top-50 selection. Every downstream stage rechecks the selected
+The separate LoG diagnostic manifest was removed. ViTDet3D is the sole nodule
+detector. Its detections enter Stages 03–06 only after lung-mask inclusion,
+heart-mask exclusion, and top-50 selection. Every downstream stage rechecks the selected
 candidate set and mask gate; Stage 04 records incomplete Brock inputs without
 blocking otherwise eligible attribute inference or Grad-CAM.
 

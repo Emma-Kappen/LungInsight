@@ -25,8 +25,6 @@ def make_dicom(series_uid: str, position: float, pixel_value: int = 10) -> bytes
     file_meta.MediaStorageSOPInstanceUID = generate_uid()
     file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
     dataset = FileDataset(None, {}, file_meta=file_meta, preamble=b"\0" * 128)
-    dataset.is_little_endian = True
-    dataset.is_implicit_VR = False
     dataset.PatientID = "patient-upload"
     dataset.StudyInstanceUID = "1.2.3.4"
     dataset.SeriesInstanceUID = series_uid
@@ -49,7 +47,7 @@ def make_dicom(series_uid: str, position: float, pixel_value: int = 10) -> bytes
     dataset.PixelRepresentation = 1
     dataset.PixelData = (np.full((2, 2), pixel_value, dtype=np.int16)).tobytes()
     output = __import__("io").BytesIO()
-    dataset.save_as(output, write_like_original=False)
+    dataset.save_as(output, enforce_file_format=True)
     return output.getvalue()
 
 

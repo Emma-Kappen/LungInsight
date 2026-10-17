@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Schema-aware, deterministic LoG + ViTDet3D merge and lung/heart gating.
+"""Schema-aware, deterministic ViTDet3D candidate deduplication and lung/heart gating.
 
 This is a standalone safety utility. It deliberately does not import the
 project's unsupplied pipeline_schema.py or model modules. It never predicts
@@ -123,20 +123,16 @@ def _finite_vec(value: Any, name: str) -> np.ndarray:
 
 
 def _source(record: dict[str, Any]) -> str:
-    raw = record.get("detection_source", record.get("source"))
-    if raw is None:
-        raw = "LoG" if ("log_response" in record or "diagnostic_id" in record) else "ViTDet3D"
+    raw = record.get("detection_source", record.get("source", "ViTDet3D"))
     source = str(raw).strip()
     lower = source.lower()
-    if "log" in lower:
-        return "LoG"
     if "vit" in lower or "detr" in lower:
         return "ViTDet3D"
-    raise ValueError(f"Unrecognized detector source {raw!r}; expected LoG or ViTDet3D.")
+    raise ValueError(f"Unrecognized detector source {raw!r}; the only supported detector is ViTDet3D.")
 
 
 def _candidate_identity(record: dict[str, Any], center: np.ndarray) -> str:
-    for key in ("candidate_id", "diagnostic_id", "id"):
+    for key in ("candidate_id", "id"):
         value = record.get(key)
         if value is not None and str(value).strip():
             return str(value)
@@ -154,21 +150,9 @@ def _bbox(record: dict[str, Any], center: np.ndarray, spacing: np.ndarray) -> tu
             low = _finite_vec(record[low_key], low_key)
             high = _finite_vec(record[high_key], high_key)
             if np.any(high <= low):
-                raise ValueError(f"Candidate {record.get('candidate_id', record.get('diagnostic_id'))}: invalid bbox {low_key}/{high_key}.")
+                raise ValueError(f"Candidate {record.get('candidate_id')}: invalid bbox {low_key}/{high_key}.")
             return low, high
-    # LoG records in the supplied source encode a physical diameter, not an
-    # explicit box. Use that scale only to create a geometrical comparison box.
-    scale = record.get("scale_mm", record.get("diameter_mm"))
-    try:
-        scale_f = float(scale)
-    except (TypeError, ValueError):
-        return None
-    if not math.isfinite(scale_f) or scale_f <= 0:
-        return None
-    half_extent_vox = np.maximum(scale_f / (2.0 * spacing), 0.5)
-    low = np.floor(center - half_extent_vox)
-    high = np.maximum(np.ceil(center + half_extent_vox), low + 1.0)
-    return low, high
+    return None
 
 
 def _box_iou(a: tuple[np.ndarray, np.ndarray] | None, b: tuple[np.ndarray, np.ndarray] | None) -> float:
@@ -223,12 +207,8 @@ def _normalise_detection(
     row["_fusion_center"] = center
     row["_fusion_bbox"] = _bbox(row, center, spacing)
     row["_fusion_identity"] = _candidate_identity(row, center)
-    if source == "ViTDet3D":
-        score = row.get("detector_score", row.get("score"))
-        score_name = "detector_score"
-    else:
-        score = row.get("log_response", row.get("score"))
-        score_name = "log_response"
+    score = row.get("detector_score", row.get("score"))
+    score_name = "detector_score"
     try:
         score_value = float(score)
         if not math.isfinite(score_value):
@@ -262,35 +242,6 @@ def _matches(
     return matched, distance, iou
 
 
-def rank_filtered_log_candidates(
-    filtered_candidates: Sequence[dict[str, Any]], *, limit: int = 50
-) -> list[dict[str, Any]]:
-    """Rank already quality-filtered LoG records by native response only."""
-    if limit < 0:
-        raise ValueError("limit must be non-negative.")
-    ranked: list[tuple[float, str, dict[str, Any]]] = []
-    for row in filtered_candidates:
-        if not isinstance(row, dict):
-            raise ValueError("Every filtered LoG candidate must be a dictionary.")
-        value = row.get("log_response", row.get("detector_score"))
-        try:
-            score = float(value)
-        except (TypeError, ValueError) as exc:
-            raise ValueError(
-                f"Filtered LoG candidate {row.get('diagnostic_id', row.get('candidate_id'))!r} "
-                "has no finite log_response for ranking."
-            ) from exc
-        if not math.isfinite(score):
-            raise ValueError(
-                f"Filtered LoG candidate {row.get('diagnostic_id', row.get('candidate_id'))!r} "
-                "has no finite log_response for ranking."
-            )
-        identity = str(row.get("diagnostic_id", row.get("candidate_id", "")))
-        ranked.append((-score, identity, copy.deepcopy(row)))
-    ranked.sort(key=lambda item: (item[0], item[1]))
-    return [row for _, _, row in ranked[:limit]]
-
-
 def select_fused_candidates(
     fused_candidates: Sequence[dict[str, Any]], *, limit: int = 50
 ) -> list[dict[str, Any]]:
@@ -312,7 +263,6 @@ def select_fused_candidates(
 
 
 def merge_detections(
-    log_detections: Sequence[dict[str, Any]],
     vitdet_detections: Sequence[dict[str, Any]],
     *,
     spacing_zyx_mm: Sequence[float],
@@ -326,18 +276,16 @@ def merge_detections(
     origin_lps_mm: Sequence[float] | None = None,
     direction_lps: Sequence[Sequence[float]] | None = None,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Merge two detector lists and return (deduplicated records, count report).
+    """Deduplicate ViTDet3D detections and return (records, count report).
 
-    Match policy: merge when physical center distance <= center_distance_mm;
-    otherwise merge only when center distance <= max_center_distance_mm AND
-    3-D box IoU >= min_overlap_iou. Distances multiply ZYX index differences
-    by spacing_zyx_mm. This handles anisotropic voxels.
+    ViTDet3D is the only nodule detector. Match policy: merge when physical
+    center distance <= center_distance_mm; otherwise merge only when center
+    distance <= max_center_distance_mm AND 3-D box IoU >= min_overlap_iou.
+    Distances multiply ZYX index differences by spacing_zyx_mm.
 
-    Detector scores are ranked only within their own source. Matched candidate
-    centers and available boxes are averaged within each detector, then the
-    detector-level geometries receive equal weights; no detector is
-    authoritative. All detector records, scores, and within-source rank
-    percentiles remain in the provenance.
+    Scores are ranked within the ViTDet3D list and converted to percentiles.
+    Matched centers and boxes are averaged. Member records and scores remain
+    in the provenance.
     """
     spacing = _finite_vec(spacing_zyx_mm, "spacing_zyx_mm")
     if np.any(spacing <= 0):
@@ -361,9 +309,8 @@ def merge_detections(
     ):
         raise ValueError("direction_lps must be a finite orthonormal 3x3 matrix.")
 
-    raw_log = list(log_detections or [])
     raw_vit = list(vitdet_detections or [])
-    if not all(isinstance(x, dict) for x in raw_log + raw_vit):
+    if not all(isinstance(x, dict) for x in raw_vit):
         raise ValueError("Every detector record must be a dictionary.")
     normalised = [
         _normalise_detection(
@@ -373,23 +320,22 @@ def merge_detections(
             origin_lps_mm=origin,
             direction_lps=direction,
         )
-        for row in raw_log + raw_vit
+        for row in raw_vit
     ]
-    for source in ("LoG", "ViTDet3D"):
-        scored = sorted(
-            (row for row in normalised if row["_fusion_source"] == source and row["_fusion_score_value"] is not None),
-            key=lambda row: (-row["_fusion_score_value"], row["_fusion_identity"]),
-        )
-        if scored:
-            score_positions: dict[float, list[int]] = {}
-            for rank, row in enumerate(scored):
-                score_positions.setdefault(row["_fusion_score_value"], []).append(rank)
-            for row in scored:
-                positions = score_positions[row["_fusion_score_value"]]
-                mean_rank = float(np.mean(positions))
-                row["_fusion_rank_percentile"] = (
-                    1.0 if len(scored) == 1 else 1.0 - mean_rank / (len(scored) - 1)
-                )
+    scored = sorted(
+        (row for row in normalised if row["_fusion_score_value"] is not None),
+        key=lambda row: (-row["_fusion_score_value"], row["_fusion_identity"]),
+    )
+    if scored:
+        score_positions: dict[float, list[int]] = {}
+        for rank, row in enumerate(scored):
+            score_positions.setdefault(row["_fusion_score_value"], []).append(rank)
+        for row in scored:
+            positions = score_positions[row["_fusion_score_value"]]
+            mean_rank = float(np.mean(positions))
+            row["_fusion_rank_percentile"] = (
+                1.0 if len(scored) == 1 else 1.0 - mean_rank / (len(scored) - 1)
+            )
     normalised.sort(key=_rank_key)
 
     # Each cluster representative is the best-ranked record; cluster membership
@@ -417,32 +363,13 @@ def merge_detections(
         cluster.sort(key=_rank_key)
         winner = cluster[0]
         output = _public_record(winner)
-        sources = sorted({item["_fusion_source"] for item in cluster})
-        source_centers = [
-            np.mean(
-                [item["_fusion_center"] for item in cluster if item["_fusion_source"] == source],
-                axis=0,
-            )
-            for source in sources
-        ]
-        center = np.mean(source_centers, axis=0)
-        source_boxes = []
-        for source in sources:
-            boxes_for_source = [
-                item["_fusion_bbox"]
-                for item in cluster
-                if item["_fusion_source"] == source and item["_fusion_bbox"] is not None
-            ]
-            if boxes_for_source:
-                source_boxes.append((
-                    np.mean([box[0] for box in boxes_for_source], axis=0),
-                    np.mean([box[1] for box in boxes_for_source], axis=0),
-                ))
+        center = np.mean([item["_fusion_center"] for item in cluster], axis=0)
+        boxes = [item["_fusion_bbox"] for item in cluster if item["_fusion_bbox"] is not None]
         bbox = None
-        if source_boxes:
+        if boxes:
             bbox = (
-                np.mean([box[0] for box in source_boxes], axis=0),
-                np.mean([box[1] for box in source_boxes], axis=0),
+                np.mean([box[0] for box in boxes], axis=0),
+                np.mean([box[1] for box in boxes], axis=0),
             )
         output["center_zyx"] = center.tolist()
         if all(value is not None for value in (patient_id, study_uid, series_uid, origin_lps_mm, direction_lps)):
@@ -478,15 +405,13 @@ def merge_detections(
         provenance = []
         source_members = []
         vitdet_score = None
-        log_score = None
         for item in sorted(cluster, key=lambda r: (r["_fusion_source"], r["_fusion_identity"])):
             src = item["_fusion_source"]
             score_name = item["_fusion_score_name"]
             score_value = item["_fusion_score_value"]
-            src_key = "ViTDet3D" if src == "ViTDet3D" else "LoG"
-            detector_scores.setdefault(src_key, []).append({"field": score_name, "value": score_value})
-            detector_rank_percentiles.setdefault(src_key, []).append(item["_fusion_rank_percentile"])
-            member_id = str(item.get("candidate_id", item.get("diagnostic_id", item["_fusion_identity"])))
+            detector_scores.setdefault(src, []).append({"field": score_name, "value": score_value})
+            detector_rank_percentiles.setdefault(src, []).append(item["_fusion_rank_percentile"])
+            member_id = str(item.get("candidate_id", item["_fusion_identity"]))
             source_members.append({
                 "candidate_id": member_id,
                 "source": src,
@@ -494,10 +419,8 @@ def merge_detections(
                 "score": score_value,
                 "original_purpose": item.get("purpose"),
             })
-            if src == "ViTDet3D" and vitdet_score is None:
+            if vitdet_score is None:
                 vitdet_score = score_value
-            if src == "LoG" and log_score is None:
-                log_score = score_value
             provenance.append({
                 "detector": src,
                 "candidate_id": member_id,
@@ -512,11 +435,10 @@ def merge_detections(
         output["nodule_id"] = stable_id
         output["stable_nodule_id"] = stable_id
         output["candidate_id"] = stable_id
-        output["source"] = "Merged" if len(sources) > 1 else sources[0]
+        output["source"] = "ViTDet3D"
         output["source_members"] = source_members
         output["vitdet_score"] = vitdet_score
-        output["log_score"] = log_score
-        output["detector_provenance"] = sources
+        output["detector_provenance"] = sorted(detector_scores)
         output["detector_scores"] = detector_scores
         output["detector_rank_percentiles"] = detector_rank_percentiles
         source_percentiles = [
@@ -527,10 +449,9 @@ def merge_detections(
         )
         output["provenance_records"] = provenance
         output["primary_geometry_source"] = (
-            "equal_weight_fusion" if len(cluster) > 1 else winner["_fusion_source"]
+            "vitdet3d_cluster_mean" if len(cluster) > 1 else "vitdet3d_single"
         )
         output["merged_member_count"] = len(cluster)
-        output["detection_source"] = output["source"]
         output["center_lps_mm"] = (
             center_lps.tolist()
             if all(value is not None for value in (patient_id, study_uid, series_uid, origin_lps_mm, direction_lps))
@@ -542,7 +463,6 @@ def merge_detections(
             output["bbox_start_zyx"] = bbox_start.tolist()
             output["bbox_end_zyx"] = bbox_end.tolist()
             output["bbox_size_zyx_voxels"] = (bbox_end - bbox_start).tolist()
-        output["detection_source"] = output["source"]
         results.append(output)
 
     results.sort(key=lambda row: (
@@ -550,11 +470,10 @@ def merge_detections(
         str(row["nodule_id"]),
     ))
     report = {
-        "log_count": len(raw_log),
         "vitdet3d_count": len(raw_vit),
-        "union_count_before_deduplication": len(raw_log) + len(raw_vit),
+        "union_count_before_deduplication": len(raw_vit),
         "deduplicated_count": len(results),
-        "duplicates_removed": len(raw_log) + len(raw_vit) - len(results),
+        "duplicates_removed": len(raw_vit) - len(results),
         "merge_policy": {
             "coordinate_order": "ZYX voxel indices in one CT frame",
             "coordinate_space": expected_space,
@@ -562,8 +481,9 @@ def merge_detections(
             "center_distance_mm": float(center_distance_mm),
             "max_center_distance_mm": float(max_center_distance_mm),
             "min_overlap_iou": float(min_overlap_iou),
-            "conflict_resolution": "Average geometry within each detector, then average detector-level centers/boxes with equal detector weights; no source is authoritative.",
-            "ranking": "Detector scores are ranked within their own source and converted to [0,1] percentiles; a fused candidate's selection score is the mean of the available source percentiles.",
+            "detector": "ViTDet3D (sole nodule detector)",
+            "conflict_resolution": "Average geometry within the ViTDet3D cluster; no secondary detector is used.",
+            "ranking": "ViTDet3D scores are ranked and converted to [0,1] percentiles.",
         },
     }
     return results, report
@@ -754,7 +674,6 @@ def _cli() -> int:
                         help="Stage 01 patient output directory containing volume_hu_cropped.npy, masks and meta.json")
     parser.add_argument("--schema", type=Path, default=Path(__file__).resolve().parents[2] / "meta_schema.json")
     parser.add_argument("--vitdet-candidates", type=Path, required=True, help="Stage 02 candidates.json")
-    parser.add_argument("--log-candidates", type=Path, required=True, help="Stage 02 log_candidates_diagnostic.json")
     parser.add_argument("--output-dir", type=Path, default=None)
     parser.add_argument("--center-distance-mm", type=float, default=3.0)
     parser.add_argument("--max-center-distance-mm", type=float, default=8.0)
@@ -768,7 +687,7 @@ def _cli() -> int:
     lung_path = patient_dir / "lung_mask.npy"
     heart_path = patient_dir / "heart_mask.npy"
     meta_path = patient_dir / "meta.json"
-    for path in (ct_path, lung_path, heart_path, meta_path, args.vitdet_candidates, args.log_candidates):
+    for path in (ct_path, lung_path, heart_path, meta_path, args.vitdet_candidates):
         if not path.is_file():
             raise FileNotFoundError(f"Required input is missing: {path}")
     ct = np.load(ct_path, mmap_mode="r", allow_pickle=False)
@@ -784,9 +703,8 @@ def _cli() -> int:
     # plus exact CT-frame metadata are used here. The utility cannot prove that
     # source DICOM geometry was correct if Stage 01 meta.json is itself wrong.
     vit = unwrap_records(read_json(args.vitdet_candidates), path=str(args.vitdet_candidates))
-    log = unwrap_records(read_json(args.log_candidates), path=str(args.log_candidates))
     merged, merge_report = merge_detections(
-        log, vit, spacing_zyx_mm=spacing,
+        vit, spacing_zyx_mm=spacing,
         center_distance_mm=args.center_distance_mm,
         max_center_distance_mm=args.max_center_distance_mm,
         min_overlap_iou=args.min_overlap_iou,
@@ -829,9 +747,7 @@ def _cli() -> int:
         "status": report["status"],
         "safe_to_use_downstream": report["safe_to_use_downstream"],
         "blockers": report["blockers"],
-        "log_count": merge_report["log_count"],
         "vitdet3d_count": merge_report["vitdet3d_count"],
-        "union_count_before_deduplication": merge_report["union_count_before_deduplication"],
         "deduplicated_count": merge_report["deduplicated_count"],
         "accepted_after_lung_heart_filter": filter_report["accepted_count"],
         "rejected_after_lung_heart_filter": filter_report["rejected_count"],

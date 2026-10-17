@@ -16,7 +16,20 @@ if str(IMAGING_DIR) not in sys.path:
     sys.path.insert(0, str(IMAGING_DIR))
 
 from brock import estimate_brock
-from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print
+from brock_inputs import (
+    CLINICAL_SOURCE,
+    LOCATION_SOURCE,
+    NODULE_FIELDS,
+    PATIENT_FIELDS,
+    SIZE_SOURCE,
+    SPICULATION_SOURCE,
+    derive_nodule_fields,
+    load_clinical_inputs,
+    patient_fields_from_clinical,
+    resolve_values,
+    source_was_used,
+)
+from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
 from pipeline_schema import check_meta_schema_version, get_required, load_schema, validate_stage_version
 from stage02_eligibility import load_validated_stage02
 
@@ -58,21 +71,6 @@ def unpack_stage03_payload(payload: Any) -> tuple[list[dict[str, Any]], dict[str
     if any(not isinstance(record, dict) for record in records):
         raise ValueError("Stage 03 predictions must contain only object records.")
     return records, metadata
-
-
-def _invalid_brock_inputs(stable_nodule_id: str, reason: str) -> dict[str, Any]:
-    return {
-        "status": "invalid_input",
-        "method": "brock_formula_decomposition",
-        "model_name": "Brock_PanCan_full",
-        "model_version": BROCK_MODEL_VERSION,
-        "target": "pulmonary_nodule_malignancy_probability",
-        "probability": None,
-        "features_missing": [],
-        "feature_contributions": [],
-        "failure_reason": f"{stable_nodule_id}: {reason}",
-        "limitations": ["No probability was generated from malformed Brock inputs."],
-    }
 
 
 def selected_prediction(brock: dict[str, Any]) -> dict[str, Any]:
@@ -118,12 +116,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Only supported malignancy-risk method: Brock/PanCan.",
     )
     parser.add_argument(
+        "--clinical-record",
+        type=Path,
+        default=None,
+        help=(
+            "Stored clinical intake record (clinical-intake-record-v1). Defaults to "
+            "<output-root>/.clinical_records/<patient_id>.json. A missing record leaves "
+            "patient predictors unknown, so Brock abstains rather than guessing."
+        ),
+    )
+    parser.add_argument(
         "--brock-inputs",
         type=Path,
         default=None,
         help=(
-            "JSON envelope containing patient-level inputs and a nodules object keyed "
-            "by stable_nodule_id. Missing inputs produce an explicit incomplete result."
+            "JSON envelope with manual patient/nodule values keyed by stable_nodule_id, "
+            "plus an optional corrections block. Manual values fill unknown inputs; they "
+            "cannot overwrite a known value without a documented correction reason. "
+            "Missing inputs produce an explicit incomplete result."
         ),
     )
     parser.add_argument(
@@ -166,10 +176,11 @@ def main() -> int:
     patient_root = manifest_path.parents[2]
     stage02_manifest, accepted_patches, accepted_candidates = load_validated_stage02(patient_root, manifest_path)
     del stage02_manifest
-    expected_ids = {
-        (str(row["candidate_id"]), int(row["patch_id"]))
+    patch_by_identity = {
+        (str(row["candidate_id"]), int(row["patch_id"])): row
         for row in accepted_patches
     }
+    expected_ids = set(patch_by_identity)
     declared_hash = metadata.get("patch_manifest_sha256")
     actual_hash = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
     if not isinstance(declared_hash, str) or declared_hash != actual_hash:
@@ -215,43 +226,80 @@ def main() -> int:
             raise ValueError(
                 "Brock input envelope must contain object-valued 'patient' and 'nodules' fields."
             )
-        patient_fields = {"age_years", "sex", "family_history_lung_cancer", "emphysema"}
-        nodule_fields = {"nodule_size_mm", "nodule_type", "upper_lobe", "nodule_count", "spiculation"}
-        unknown_patient = set(loaded["patient"]) - patient_fields
+        unknown_patient = set(loaded["patient"]) - set(PATIENT_FIELDS)
         if unknown_patient:
             raise ValueError(f"Unknown patient-level Brock input(s): {sorted(unknown_patient)}")
         for stable_id, nodule_values in loaded["nodules"].items():
             if not isinstance(stable_id, str) or not isinstance(nodule_values, dict):
                 raise ValueError("Brock nodules must map stable nodule IDs to input objects.")
-            unknown_nodule = set(nodule_values) - nodule_fields
+            unknown_nodule = set(nodule_values) - set(NODULE_FIELDS)
             if unknown_nodule:
                 raise ValueError(f"Unknown Brock inputs for {stable_id}: {sorted(unknown_nodule)}")
-            if set(nodule_values) & patient_fields:
+            if set(nodule_values) & set(PATIENT_FIELDS):
                 raise ValueError(f"Patient-level Brock predictors must not be overridden per nodule: {stable_id}")
         known_ids = {str(row["candidate_id"]) for row in accepted_patches}
         unknown_ids = set(loaded["nodules"]) - known_ids
         if unknown_ids:
             raise ValueError(f"Brock input envelope contains unselected candidate IDs: {sorted(unknown_ids)}")
+        corrections = loaded.get("corrections", {})
+        if not isinstance(corrections, dict) or set(corrections) - {"patient", "nodules"}:
+            raise ValueError("Brock envelope corrections must contain only 'patient' and 'nodules'.")
+        if not isinstance(corrections.get("patient", {}), dict) or set(corrections.get("patient", {})) - set(PATIENT_FIELDS):
+            raise ValueError("Brock envelope corrections.patient must map patient predictors to reasons.")
+        nodule_corrections = corrections.get("nodules", {})
+        if not isinstance(nodule_corrections, dict) or set(nodule_corrections) - known_ids:
+            raise ValueError("Brock envelope corrections.nodules must be keyed by selected candidate IDs.")
+        for stable_id, fields in nodule_corrections.items():
+            if not isinstance(fields, dict) or set(fields) - set(NODULE_FIELDS):
+                raise ValueError(f"Invalid Brock corrections for {stable_id}.")
         brock_payload = loaded
+
+    parent_patient_id = (
+        metadata.get("patient_id") if isinstance(metadata, dict) else None
+    ) or patient_id_arg
+    clinical_record_path = (
+        args.clinical_record.resolve()
+        if args.clinical_record is not None
+        else (args.output_root / ".clinical_records" / f"{parent_patient_id}.json").resolve()
+    )
+    clinician_inputs = load_clinical_inputs(clinical_record_path, str(parent_patient_id))
+    clinical_status = "loaded" if clinician_inputs is not None else "not_found"
+    stored_patient = patient_fields_from_clinical(clinician_inputs or {})
+    patient_sourced = {
+        field: {"value": value, "source": CLINICAL_SOURCE, "derivation": "stored clinical intake record"}
+        for field, value in stored_patient.items()
+    }
+    manual_patient = brock_payload.get("patient", {})
+    patient_corrections = brock_payload.get("corrections", {}).get("patient", {})
+    patient_values, patient_provenance = resolve_values(
+        scope="patient",
+        fields=PATIENT_FIELDS,
+        sourced=patient_sourced,
+        manual=manual_patient,
+        corrections=patient_corrections,
+    )
 
     predictions: list[dict[str, Any]] = []
     invalid_candidates: list[dict[str, Any]] = []
+    clinical_source_label = str(clinical_record_path) if clinician_inputs is not None else None
     for record in records:
         stable_id = record.get("stable_nodule_id", record.get("nodule_id"))
         if not isinstance(stable_id, str) or not stable_id.strip():
             raise ValueError("Eligible Stage 03 record is missing stable_nodule_id.")
-        nodule_inputs = brock_payload.get("nodules", {}).get(stable_id, {})
-        if not isinstance(nodule_inputs, dict):
-            brock = _invalid_brock_inputs(stable_id, "nodule Brock inputs must be an object")
-        else:
-            brock = estimate_brock({
-                **brock_payload.get("patient", {}),
-                **nodule_inputs,
-            })
+        identity = (str(record["candidate_id"]), int(record["patch_id"]))
+        nodule_values, nodule_provenance = resolve_values(
+            scope=f"nodule {stable_id}",
+            fields=NODULE_FIELDS,
+            sourced=derive_nodule_fields(patch_by_identity[identity], record, len(accepted_patches)),
+            manual=brock_payload.get("nodules", {}).get(stable_id, {}),
+            corrections=brock_payload.get("corrections", {}).get("nodules", {}).get(stable_id, {}),
+        )
+        brock = estimate_brock({**patient_values, **nodule_values})
         predictions.append({
             "stable_nodule_id": stable_id,
             "nodule_id": stable_id,
             "candidate_id": record.get("candidate_id"),
+            "patch_id": int(record["patch_id"]),
             "patient_id": record.get("patient_id") or record.get("patient") or metadata.get("patient_id") or patient_id_arg,
             "source": record.get("source", record.get("detection_source")),
             "detection_source": record.get("detection_source", "fused_candidate_set"),
@@ -273,19 +321,24 @@ def main() -> int:
             "ct_or_image_used_by_malignancy_predictor": False,
             "input_completeness": {
                 "status": brock.get("status"),
-                "required_fields": [
-                    "age_years", "sex", "family_history_lung_cancer", "emphysema",
-                    "nodule_size_mm", "nodule_type", "upper_lobe", "nodule_count", "spiculation",
-                ],
+                "required_fields": [*PATIENT_FIELDS, *NODULE_FIELDS],
                 "fields_missing": brock.get("features_missing", []),
-                "source": str(args.brock_inputs.resolve()) if args.brock_inputs is not None else None,
+                "source": clinical_source_label,
+                "envelope": str(args.brock_inputs.resolve()) if args.brock_inputs is not None else None,
             },
             "input_provenance": {
-                "patient_fields": sorted(brock_payload.get("patient", {})),
-                "nodule_fields": sorted(nodule_inputs) if isinstance(nodule_inputs, dict) else [],
+                "patient_fields": patient_provenance,
+                "nodule_fields": nodule_provenance,
                 "nodule_size_unit": "mm",
-                "stage03_predictions_used_as_brock_predictors": False,
-                "stage02_detector_size_used_as_brock_size": False,
+                "stage03_predictions_used_as_brock_predictors": source_was_used(
+                    nodule_provenance["spiculation"], SPICULATION_SOURCE
+                ),
+                "stage02_detector_size_used_as_brock_size": source_was_used(
+                    nodule_provenance["nodule_size_mm"], SIZE_SOURCE
+                ),
+                "stage02_location_used_as_brock_upper_lobe": source_was_used(
+                    nodule_provenance["upper_lobe"], LOCATION_SOURCE
+                ),
             },
             "risk_uncertainty": {
                 "status": "not_estimated",
@@ -295,9 +348,6 @@ def main() -> int:
             "pathology": {"status": "not_provided", "value": None},
         })
 
-    parent_patient_id = (
-        metadata.get("patient_id") if isinstance(metadata, dict) else None
-    ) or patient_id_arg
     output_path = (
         args.output.resolve()
         if args.output is not None
@@ -313,6 +363,12 @@ def main() -> int:
         "malignancy_method": "brock",
         "model_name": "Brock_PanCan_full",
         "model_version": BROCK_MODEL_VERSION,
+        "clinical_record": {
+            "path": str(clinical_record_path),
+            "status": clinical_status,
+            "patient_predictors_sourced": sorted(stored_patient),
+        },
+        "patient_field_provenance": patient_provenance,
         "target_semantics": "research-only pulmonary nodule malignancy-risk probability; not pathology diagnosis",
         "input_source": f"validated Brock envelope plus Stage 03 stable nodule identifiers ({input_path})",
         "source_predictions_json": str(input_path),
@@ -347,6 +403,7 @@ def main() -> int:
         "malignancy_method": "brock",
         "scored_candidates": len(predictions),
     }, indent=2))
+    stage_complete(4, "04")
     return 0
 
 

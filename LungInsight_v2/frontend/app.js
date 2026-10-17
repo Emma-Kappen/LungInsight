@@ -10,8 +10,10 @@ const analyseButton = document.querySelector("#analyse-button");
 const formError = document.querySelector("#form-error");
 const reviewSummary = document.querySelector("#review-summary");
 const results = document.querySelector("#results");
-const resultSummary = document.querySelector("#result-summary");
-const resultSections = document.querySelector("#result-sections");
+const runMessage = document.querySelector("#run-message");
+const stagesList = document.querySelector("#stages");
+const viewerSection = document.querySelector("#viewer-section");
+const detailSection = document.querySelector("#detail");
 const technicalResult = document.querySelector("#technical-result");
 const printReportButton = document.querySelector("#print-report");
 const packYearsOutput = document.querySelector("#pack-years");
@@ -20,6 +22,9 @@ const loadClinicalButton = document.querySelector("#load-clinical-record");
 const loadStudiesButton = document.querySelector("#load-studies");
 const clinicalRecordStatus = document.querySelector("#clinical-record-status");
 const savedStudies = document.querySelector("#saved-studies");
+const confirmUploadButton = document.querySelector("#confirm-upload");
+const uploadProgress = document.querySelector("#upload-progress");
+const activityLog = document.querySelector("#activity-log");
 
 const imagingApiBase = window.LUNGINSIGHT_IMAGING_API_BASE || "/api/v1/imaging";
 let selectedFiles = [];
@@ -27,6 +32,55 @@ let uploadResult = null;
 let analysisResult = null;
 let requestInProgress = false;
 let uploadedPatientId = null;
+let requestSequence = 0;
+
+function logEvent(event, fields = {}) {
+  console.info("[LungInsight]", event, fields);
+  if (!activityLog) return;
+  const item = document.createElement("li");
+  const time = new Date().toLocaleTimeString();
+  const detail = Object.entries(fields).map(([key, value]) => `${key}=${value}`).join(" ");
+  item.textContent = `${time} ${event}${detail ? ` (${detail})` : ""}`;
+  activityLog.appendChild(item);
+  while (activityLog.children.length > 200) activityLog.firstElementChild.remove();
+}
+
+function logError(event, error, fields = {}) {
+  console.error("[LungInsight]", event, error, fields);
+  logEvent(event, {...fields, message: error?.message || String(error)});
+}
+
+async function apiFetch(url, options = {}) {
+  const method = options.method || "GET";
+  const id = ++requestSequence;
+  const started = performance.now();
+  logEvent("api_request", {id, method, url});
+  let response;
+  try {
+    response = await fetch(url, options);
+  } catch (error) {
+    logError("api_network_error", error, {id, method, url});
+    throw new Error(`Could not reach the server (${method} ${url}). Check that the LungInsight server is still running.`);
+  }
+  logEvent("api_response", {id, method, url, status: response.status, duration_ms: Math.round(performance.now() - started)});
+  return response;
+}
+
+function errorMessage(body, fallback) {
+  const detail = body?.detail;
+  if (typeof detail === "string" && detail) return detail;
+  if (Array.isArray(detail) && detail.length) {
+    return detail.map((item) => `${(item.loc || []).slice(1).join(".") || "field"}: ${item.msg}`).join("; ");
+  }
+  return fallback;
+}
+
+window.addEventListener("error", (event) => {
+  logError("window_error", event.error || new Error(event.message), {source: event.filename, line: event.lineno});
+});
+window.addEventListener("unhandledrejection", (event) => {
+  logError("unhandled_rejection", event.reason instanceof Error ? event.reason : new Error(String(event.reason)));
+});
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (character) => ({
@@ -51,16 +105,21 @@ function clinicalInputs(data) {
     family_history_lung_cancer: data.get("family_history_lung_cancer"),
     medical_history_status: data.get("medical_history_status"),
     medical_history_conditions: data.getAll("medical_history"),
-    symptoms_status: data.get("symptoms_status"),
-    symptoms: data.getAll("symptoms"),
-    kps: optionalNumber(data.get("kps")),
+    symptoms_status: symptomsStatus(data),
+    symptoms: symptomsStatus(data) === "reported" ? data.getAll("symptoms") : [],
+    kps: data.get("kps_unknown") ? null : optionalNumber(data.get("kps")),
   };
 }
 
 function optionalNumber(value) {
   return value === "" ? null : Number(value);
 }
-if (metadata.nodules?.length) showNoduleDetails(metadata.nodules[0]);
+
+// "no_symptoms" is a form-only choice; it is sent as a reported status with an empty symptom list.
+function symptomsStatus(data) {
+  const value = data.get("symptoms_status");
+  return value === "no_symptoms" ? "reported" : value;
+}
 
 function calculatedPackYears(data) {
   if (data.get("smoking_status") === "never") return 0;
@@ -79,23 +138,91 @@ function setStatus(message, kind = "") {
   uploadStatus.textContent = message;
 }
 
+function setRunMessage(message) {
+  runMessage.textContent = message;
+}
+
+const STAGE_LABELS = [
+  ["stage01", "Stage 01 · CT conversion, lung masks and crop"],
+  ["stage02", "Stage 02 · Nodule detection and patch extraction"],
+  ["stage03", "Stage 03 · Nodule attribute classification"],
+  ["stage04", "Stage 04 · Brock malignancy-risk estimate"],
+  ["stage05", "Stage 05 · Grad-CAM explanations"],
+  ["stage06", "Stage 06 · Full-CT Grad-CAM projection"],
+  ["stage07", "Stage 07 · Report and viewer artifacts"],
+  ["clinical", "Clinical models"],
+];
+
+function badge(label, kind) {
+  return `<span class="badge b-${kind}">${escapeHtml(String(label).replaceAll("_", " "))}</span>`;
+}
+
+function renderStages(body) {
+  const completed = new Set(body.completed_stages || []);
+  const failed = ["failed", "blocked", "interrupted"].includes(body.status);
+  const finished = body.status === "completed";
+  stagesList.innerHTML = STAGE_LABELS.map(([key, label]) => {
+    let state = "queued";
+    if (completed.has(key) || (finished && key === "clinical")) state = "completed";
+    else if (body.current_stage === key) state = failed ? body.status : "running";
+    const kind = {completed: "ok", running: "warn", queued: "mute"}[state] || "bad";
+    return `<li><span>${escapeHtml(label)}</span>${badge(state, kind)}</li>`;
+  }).join("");
+}
+
 function updateReview() {
   const data = new FormData(form);
   const patient = String(data.get("patient_id") || "").trim();
-  const kps = data.get("kps") || "not supplied";
+  const kps = data.get("kps_unknown") ? "unknown" : data.get("kps") || "not supplied";
   const packYears = calculatedPackYears(data);
-  if (packYearsOutput) packYearsOutput.textContent = packYears === null ? "Unavailable" : `${packYears} pack-years`;
+  if (packYearsOutput) packYearsOutput.textContent = packYears === null ? "–" : `${packYears}`;
   reviewSummary.innerHTML = `
-    <strong>Review before submission</strong>
     <dl>
       <dt>Patient</dt><dd>${escapeHtml(patient || "not supplied")}</dd>
       <dt>Prediction timestamp</dt><dd>Generated automatically when the run starts (UTC)</dd>
       <dt>KPS</dt><dd>${escapeHtml(kps)}</dd>
       <dt>CT series</dt><dd>${escapeHtml(uploadResult?.series ? `${uploadResult.series.slice_count} slices uploaded and validated` : selectedFiles.length ? "selected; not uploaded" : "not selected")}</dd>
     </dl>`;
-  const alreadyUploaded = uploadResult && uploadedPatientId === patient;
-  analyseButton.disabled = requestInProgress || !selectedFiles.length || !patient || alreadyUploaded;
-  analyseButton.textContent = alreadyUploaded ? "Analysis submitted" : "Upload CT and start analysis";
+  const alreadyUploaded = Boolean(uploadResult && uploadedPatientId === patient);
+  confirmUploadButton.disabled = requestInProgress || !selectedFiles.length || !patient || alreadyUploaded;
+  confirmUploadButton.textContent = alreadyUploaded ? "CT uploaded" : "Confirm and upload CT";
+  analyseButton.disabled = requestInProgress || !alreadyUploaded;
+  analyseButton.textContent = "Submit case and run analysis";
+}
+
+
+const MODEL_ISSUES = {
+  prediction_baseline_does_not_match_training_baseline: "The CT was not confirmed as acquired at initial pathologic diagnosis. Tick the confirmation in section 1 and re-run.",
+  required_model_inputs_missing: "Required inputs are missing.",
+  age_at_baseline_years_outside_training_range: "Age is outside the range the model was trained on (33 to 90 years).",
+  sex_at_baseline_category_not_seen_in_training: "Sex category was not seen in training.",
+  no_validated_horizon_within_model_support: "No validated time horizon is supported for this input.",
+};
+
+function modelIssues(model) {
+  const issues = [...(model?.warnings || [])].map((code) => MODEL_ISSUES[code] || String(code).replaceAll("_", " "));
+  if (model?.missing_features?.length) issues.push(`Missing: ${model.missing_features.join(", ").replaceAll("_", " ")}.`);
+  return issues;
+}
+
+function modelOutcome(model) {
+  if (model?.status === "research_prediction") return "ok";
+  return model?.status === "failed" ? "failed" : "unavailable";
+}
+
+function modelResultHtml(model) {
+  if (!model) return "Unavailable";
+  if (model.status === "research_prediction" && model.probabilities) {
+    const rows = Object.entries(model.probabilities).map(([label, p]) => `<div style="max-width:360px"><small>${escapeHtml(label)} ${(p * 100).toFixed(1)}%</small><div class="bar"><i style="width:${Math.min(100, Math.max(0, p * 100))}%"></i></div></div>`).join("");
+    return `${badge("research prediction", "ok")} Predicted: <b>${escapeHtml(model.predicted_class)}</b> (histology, conditional on LUAD or LUSC)${rows}`;
+  }
+  if (model.status === "research_prediction" && model.prediction) {
+    const horizons = Object.entries(model.prediction.probability_at_horizons_days || {})
+      .map(([days, p]) => `<dt>${Math.round(days / 365.25 * 10) / 10} yr survival</dt><dd>${(p * 100).toFixed(1)}%</dd>`).join("");
+    return `${badge("research prediction", "ok")} Overall survival from diagnosis<dl>${horizons}</dl>`;
+  }
+  const issues = modelIssues(model);
+  return `${badge(model.status || "unavailable", model.status === "failed" ? "bad" : "warn")} ${escapeHtml(model.reason || issues.join(" ") || "No result returned.")}`;
 }
 
 function clinicalSummary(prediction) {
@@ -104,14 +231,9 @@ function clinicalSummary(prediction) {
     ["Cancer-type model", prediction.cancer_type],
     ["Survival model", prediction.survival],
   ];
-  return `<section class="clinical-results"><h4>Clinical results</h4>
-    ${models.map(([label, model]) => `<article class="model-result">
-      <strong>${label}</strong>
-      <span>Status: ${escapeHtml(model?.status || "unavailable")}</span>
-      <span>${escapeHtml(model?.reason || (model?.prediction == null ? "No numeric result returned." : JSON.stringify(model.prediction)))}</span>
-    </article>`).join("")}
-    <p class="hint">Clinical outputs are research-only and are not a replacement for pathology or clinician judgment.</p>
-  </section>`;
+  return `<h3 style="margin-top:1rem">Clinical models</h3>
+    <dl>${models.map(([label, model]) => `<dt>${label}</dt><dd>${modelResultHtml(model)}</dd>`).join("")}</dl>
+    <p class="hint">Research-only. These models use only age, sex and recorded history; they are not a replacement for pathology or clinician judgment.</p>`;
 }
 
 function showSelection(files) {
@@ -124,7 +246,6 @@ function showSelection(files) {
     removeScanButton.hidden = true;
     setStatus("");
     updateReview();
-    printReportButton.addEventListener("click", () => window.print());
     return;
   }
   const total = selectedFiles.reduce((sum, file) => sum + file.size, 0);
@@ -133,7 +254,8 @@ function showSelection(files) {
   selection.className = "selection";
   selection.innerHTML = `<strong>${escapeHtml(folder)}</strong><span>${selectedFiles.length} file(s), ${formatBytes(total)}</span>`;
   removeScanButton.hidden = false;
-  setStatus("Scan selected. Enter the patient identifier, then submit for DICOM validation.", "info");
+  logEvent("ct_selection_changed", {files: selectedFiles.length, folder, bytes: total});
+  setStatus("Review the selected CT folder, then confirm the upload.", "info");
   updateReview();
 }
 
@@ -141,19 +263,32 @@ function uploadFiles(files, patientId) {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
     request.open("POST", `${imagingApiBase}/dicom/upload`);
+    logEvent("api_request", {method: "POST", url: `${imagingApiBase}/dicom/upload`, files: files.length});
     request.responseType = "json";
     request.upload.onprogress = (event) => {
-      if (event.lengthComputable) setStatus(`Uploading CT: ${Math.round(event.loaded / event.total * 100)}%`, "info");
+      if (!event.lengthComputable) return;
+      const percent = Math.round(event.loaded / event.total * 100);
+      uploadProgress.value = percent;
+      setStatus(`Uploading CT: ${percent}% (${formatBytes(event.loaded)} of ${formatBytes(event.total)})`, "info");
     };
-    request.onerror = () => reject(new Error("The CT upload could not reach the Imaging service."));
+    request.upload.onload = () => {
+      uploadProgress.value = 100;
+      logEvent("upload_body_sent");
+      setStatus("Upload received. The server is validating and reconstructing the CT series; large scans can take a minute.", "info");
+    };
+    request.onerror = () => {
+      logError("upload_network_error", new Error("network error"));
+      reject(new Error("The CT upload could not reach the Imaging service. Check that the LungInsight server is still running."));
+    };
     request.ontimeout = () => reject(new Error("The CT upload timed out. Try the scan again."));
     request.timeout = 120000;
     request.onload = () => {
       const body = request.response || (() => {
         try { return JSON.parse(request.responseText); } catch { return {}; }
       })();
+      logEvent("api_response", {method: "POST", url: `${imagingApiBase}/dicom/upload`, status: request.status});
       if (request.status < 200 || request.status >= 300) {
-        reject(new Error(body.detail || `Imaging upload failed (HTTP ${request.status}).`));
+        reject(new Error(errorMessage(body, `Imaging upload failed (HTTP ${request.status}).`)));
         return;
       }
       resolve(body);
@@ -165,215 +300,365 @@ function uploadFiles(files, patientId) {
   });
 }
 
-function renderResult(body) {
-  results.hidden = false;
-  const status = body.status || body.analysis_status || "unknown";
-  const blocked = ["blocked", "awaiting_imaging_review", "failed", "interrupted"].includes(status);
-  resultSummary.className = blocked ? "summary warning" : status === "completed" ? "summary success" : "summary";
-  resultSummary.textContent = body.message || `Current status: ${status}.`;
-  const series = body.series || {};
+const TERMINAL = ["completed", "failed", "blocked", "awaiting_imaging_review", "interrupted"];
+// Notes the interface never shows (stage progress text and the unreviewed-mask notice), including in older saved runs.
+const HIDDEN_NOTES = [/ is running\.?$/i, /not visually reviewed/i];
+// Attributes the interface does not present; the backend does not support them yet.
+const HIDDEN_ATTRIBUTES = new Set(["internal_structure", "calcification"]);
+
+function methodRows(body, metadata) {
   const study = body.study || body.study_summary || {};
   const counts = study.brock_prediction_counts || {};
-  const viewer = body.run_id ? `
-    <article class="result-card viewer-card">
-      <h3>CT viewer</h3>
-      <p class="hint">This viewer uses the current run's reconstructed CT slices. Overlays are shown only when the corresponding validated artifacts exist.</p>
-      <div id="viewer-status" class="status info">Loading viewer metadata...</div>
-      <div class="viewer-controls" hidden>
-        <label>Slice <input id="viewer-slice" type="range" min="0" max="0" value="0"></label>
-        <span id="viewer-slice-label"></span>
-        <button id="viewer-previous" type="button">Previous slice</button>
-        <button id="viewer-next" type="button">Next slice</button>
-        <label><input id="viewer-lung" type="checkbox"> Lung mask</label>
-        <label><input id="viewer-heart" type="checkbox"> Heart/exclusion mask</label>
-        <label>Grad-CAM <select id="viewer-gradcam"><option value="">Off</option></select></label>
-      </div>
-      <canvas id="viewer-canvas" class="ct-viewer-image" aria-label="Current CT axial slice" hidden></canvas>
-      <div id="viewer-nodules" class="nodule-list"></div>
-      <div id="viewer-nodule-detail" class="nodule-detail"></div>
-    </article>` : "";
-  resultSections.innerHTML = `
-    <article class="result-card">
-      <h3>CT scan and processing</h3>
-      <p><strong>Upload:</strong> ${escapeHtml(body.status || "unknown")}</p>
-      <p><strong>Analysis:</strong> ${escapeHtml(body.analysis_status || body.status || "unknown")}</p>
-      ${body.run_id ? `<p><strong>Run:</strong> ${escapeHtml(body.run_id)}</p>` : ""}
-      ${body.current_stage ? `<p><strong>Current stage:</strong> ${escapeHtml(body.current_stage)}</p>` : ""}
-      ${body.completed_stages?.length ? `<p><strong>Completed stages:</strong> ${escapeHtml(body.completed_stages.join(", "))}</p>` : ""}
-      ${series.slice_count ? `<p><strong>Series:</strong> ${escapeHtml(series.slice_count)} slices, volume ${escapeHtml((series.volume_shape_zyx || []).join(" x "))} voxels</p>` : ""}
-      ${body.next_step ? `<p class="warning"><strong>Next step:</strong> ${escapeHtml(body.next_step)}</p>` : ""}
-      ${body.blocking_requirements?.length ? `<p class="warning"><strong>Blocking requirements:</strong> ${escapeHtml(body.blocking_requirements.join("; "))}</p>` : ""}
-      ${study.processing_status ? `<p><strong>Study processing:</strong> ${escapeHtml(study.processing_status)} · preprocessing ${escapeHtml(study.preprocessing_status || "unknown")} · masks ${escapeHtml(study.mask_validation_status || "unknown")}</p>` : ""}
-      ${study.eligible_nodule_count != null ? `<p><strong>Nodules:</strong> ${escapeHtml(study.eligible_nodule_count)} eligible · ${escapeHtml(study.excluded_candidate_count ?? "unknown")} excluded · Brock available ${escapeHtml(counts.completed ?? 0)}, incomplete ${escapeHtml(counts.incomplete ?? 0)}, failed ${escapeHtml(counts.failed ?? 0)}, not run ${escapeHtml(counts.not_run ?? 0)}</p>` : ""}
-      ${study.warnings?.length ? `<p class="warning"><strong>Warnings:</strong> ${escapeHtml(study.warnings.join("; "))}</p>` : ""}
-      ${study.errors?.length ? `<p class="error"><strong>Errors:</strong> ${escapeHtml(study.errors.join("; "))}</p>` : ""}
-      ${body.error ? `<p class="error"><strong>Failure:</strong> ${escapeHtml(body.error)}</p>` : ""}
-      ${body.run_id ? `<p class="report-links"><a href="/api/v1/analysis/runs/${encodeURIComponent(body.run_id)}/report/html" target="_blank" rel="noopener">Open readable study report</a> · <a href="/api/v1/analysis/runs/${encodeURIComponent(body.run_id)}/report" target="_blank" rel="noopener">Open structured JSON result</a></p>` : ""}
-      ${clinicalSummary(body.clinical_prediction)}
-      <p class="warning">Only artifacts and predictions produced by this run are displayed. Blocked or unavailable model components are not treated as negative results.</p>
-    </article>`;
-  resultSections.insertAdjacentHTML("beforeend", viewer);
+  const eligible = study.eligible_nodule_count;
+  const rows = [];
+  if (eligible != null) {
+    rows.push(["Detection", eligible, study.errors?.length ? 1 : 0, 0, `${study.excluded_candidate_count ?? "unknown"} candidate(s) excluded by lung-mask gate`]);
+  }
+  if (metadata?.nodules?.length) {
+    const attributed = metadata.nodules.filter((n) => Object.keys(n.classification?.attributes || {}).some((name) => !HIDDEN_ATTRIBUTES.has(name))).length;
+    rows.push(["Attribute classification", attributed, 0, metadata.nodules.length - attributed, metadata.nodules.length - attributed ? "No attribute output for some nodules" : "–"]);
+  }
+  if (eligible != null) {
+    const unavailable = (counts.incomplete ?? 0) + (counts.not_run ?? 0);
+    rows.push(["Brock risk", counts.completed ?? 0, counts.failed ?? 0, unavailable, unavailable ? "Missing clinical inputs or not run" : "–"]);
+  }
+  const prediction = body.clinical_prediction;
+  if (prediction) {
+    for (const [label, model] of [["Cancer-type model", prediction.cancer_type], ["Survival model", prediction.survival]]) {
+      const outcome = modelOutcome(model);
+      rows.push([label, outcome === "ok" ? 1 : 0, outcome === "failed" ? 1 : 0, outcome === "unavailable" ? 1 : 0, outcome === "ok" ? "–" : model?.reason || modelIssues(model).join(" ") || model?.status || "unavailable"]);
+    }
+  }
+  return rows;
+}
+
+function renderMethods(body, metadata) {
+  const rows = methodRows(body, metadata);
+  document.querySelector("#methods").innerHTML = rows.length
+    ? rows.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`).join("")
+    : '<tr><td colspan="5">No method outcomes are available for this run.</td></tr>';
+}
+
+function renderResult(body) {
+  if (!body.run_id) return;
+  const status = body.status || "unknown";
+  renderStages(body);
+  if (!TERMINAL.includes(status)) return;
+  results.hidden = false;
+  const study = body.study || body.study_summary || {};
+  const series = body.series || {};
+  const stats = [
+    ["Status", String(status).replaceAll("_", " ")],
+    ["Eligible nodules", study.eligible_nodule_count ?? "unknown"],
+    ["Excluded candidates", study.excluded_candidate_count ?? "unknown"],
+    ["Run ID", body.run_id],
+  ];
+  if (series.slice_count) stats.splice(1, 0, ["Slices", series.slice_count]);
+  document.querySelector("#stats").innerHTML = stats
+    .map(([key, value]) => `<div class="stat"><b>${escapeHtml(value)}</b>${escapeHtml(key)}</div>`).join("");
+  const gateOk = status === "completed" && !["blocked", "failed"].includes(study.mask_validation_status);
+  document.querySelector("#gate").innerHTML = `<div class="alert ${gateOk ? "ok" : "bad"}">Mask validation: <b>${escapeHtml(study.mask_validation_status || "unknown")}</b>. Preprocessing: <b>${escapeHtml(study.preprocessing_status || "unknown")}</b>. Downstream analysis: <b>${escapeHtml(gateOk ? "eligible" : status.replaceAll("_", " "))}</b>.</div>`;
+  const notes = [];
+  if (body.message && status !== "completed" && !HIDDEN_NOTES.some((pattern) => pattern.test(body.message))) notes.push(["warn", body.message]);
+  if (body.next_step) notes.push(["warn", `Next step: ${body.next_step}`]);
+  if (body.blocking_requirements?.length) notes.push(["bad", `Blocking requirements: ${body.blocking_requirements.join("; ")}`]);
+  const warnings = (study.warnings || []).filter((text) => !HIDDEN_NOTES.some((pattern) => pattern.test(text)));
+  if (warnings.length) notes.push(["warn", `Warnings: ${warnings.join("; ")}`]);
+  const errors = [...new Set(study.errors || [])];
+  if (errors.length) notes.push(["bad", `Errors: ${errors.join("; ")}`]);
+  if (body.error && !errors.includes(body.error)) notes.push(["bad", `Failure: ${body.error}`]);
+  document.querySelector("#result-notes").innerHTML = notes.map(([kind, text]) => `<div class="alert ${kind}">${escapeHtml(text)}</div>`).join("");
+  renderMethods(body, null);
+  const base = `/api/v1/analysis/runs/${encodeURIComponent(body.run_id)}`;
+  document.querySelector("#report-html").href = `${base}/report/html`;
+  document.querySelector("#report-json").href = `${base}/report`;
+  document.querySelector("#clinical-results").innerHTML = clinicalSummary(body.clinical_prediction);
   technicalResult.textContent = JSON.stringify(body, null, 2);
-  if (body.run_id) loadViewer(body.run_id);
+  loadViewer(body.run_id);
+}
+
+const viewer = {runId: null, metadata: null, selected: null, requestNumber: 0, wired: false};
+
+function viewerElements() {
+  return {
+    status: document.querySelector("#viewer-status"),
+    controls: document.querySelector(".viewer-controls"),
+    canvas: document.querySelector("#viewer-canvas"),
+    slice: document.querySelector("#viewer-slice"),
+    label: document.querySelector("#viewer-slice-label"),
+    lung: document.querySelector("#viewer-lung"),
+    heart: document.querySelector("#viewer-heart"),
+    gradcamAttribute: document.querySelector("#viewer-gradcam-attribute"),
+    gradcamNodules: document.querySelector("#viewer-gradcam-nodules"),
+    gradcamAlpha: document.querySelector("#viewer-gradcam-alpha"),
+    gradcamAlphaLabel: document.querySelector("#viewer-gradcam-alpha-label"),
+    previous: document.querySelector("#viewer-previous"),
+    next: document.querySelector("#viewer-next"),
+    nodules: document.querySelector("#viewer-nodules"),
+  };
+}
+
+function setViewerStatus(message, kind = "") {
+  const {status} = viewerElements();
+  status.className = `sub ${kind}`.trim();
+  status.textContent = message;
+}
+
+function stepSlice(delta) {
+  const {slice} = viewerElements();
+  const target = Math.min(Number(slice.max), Math.max(0, Number(slice.value) + delta));
+  if (target === Number(slice.value)) return;
+  slice.value = String(target);
+  updateViewer().catch(() => setViewerStatus("The requested CT slice could not be loaded.", "warning"));
+}
+
+async function updateViewer() {
+  const el = viewerElements();
+  const metadata = viewer.metadata;
+  if (!metadata) return;
+  const maxIndex = Math.max(0, Number(metadata.shape_zyx?.[0] || 1) - 1);
+  const index = Math.min(maxIndex, Math.max(0, Number(el.slice.value) || 0));
+  const params = new URLSearchParams({
+    lung_overlay: String(el.lung.checked && !el.lung.disabled),
+    heart_overlay: String(el.heart.checked && !el.heart.disabled),
+  });
+  const attribute = el.gradcamAttribute.value;
+  const camNodules = [...el.gradcamNodules.querySelectorAll("input:checked")].map((box) => box.value);
+  if (attribute && camNodules.length) {
+    params.set("gradcam_attribute", attribute);
+    for (const id of camNodules) params.append("gradcam_nodule_id", id);
+    params.set("gradcam_alpha", String(Number(el.gradcamAlpha.value) / 100));
+  }
+  const currentRequest = ++viewer.requestNumber;
+  const response = await apiFetch(`/api/v1/analysis/runs/${encodeURIComponent(viewer.runId)}/viewer/slices/${index}?${params}`);
+  if (!response.ok) throw new Error("slice unavailable");
+  if (currentRequest !== viewer.requestNumber) return;
+  const blob = await response.blob();
+  const image = new Image();
+  image.onload = () => {
+    if (currentRequest !== viewer.requestNumber) return;
+    el.canvas.width = image.naturalWidth;
+    el.canvas.height = image.naturalHeight;
+    const context = el.canvas.getContext("2d");
+    context.drawImage(image, 0, 0);
+    context.lineWidth = 3;
+    context.font = "12px sans-serif";
+    for (const nodule of metadata.nodules || []) {
+      const start = nodule.geometry?.bbox_start_zyx;
+      const end = nodule.geometry?.bbox_end_zyx_exclusive;
+      if (!Array.isArray(start) || !Array.isArray(end) || index < start[0] || index >= end[0]) continue;
+      const selected = nodule.stable_nodule_id === viewer.selected;
+      context.strokeStyle = selected ? "#ffd24a" : "rgba(255, 207, 51, .6)";
+      context.strokeRect(start[2], start[1], end[2] - start[2], end[1] - start[1]);
+      context.fillStyle = "#ffd24a";
+      context.fillText(nodule.stable_nodule_id || "eligible nodule", start[2], Math.max(12, start[1] - 3));
+    }
+    URL.revokeObjectURL(image.src);
+  };
+  image.src = URL.createObjectURL(blob);
+  el.label.textContent = `${index + 1} of ${maxIndex + 1}`;
+  el.previous.disabled = index === 0;
+  el.next.disabled = index === maxIndex;
+}
+
+function wireViewer() {
+  if (viewer.wired) return;
+  viewer.wired = true;
+  const el = viewerElements();
+  const refresh = () => updateViewer().catch(() => setViewerStatus("The requested CT slice could not be loaded.", "warning"));
+  el.slice.addEventListener("input", refresh);
+  for (const control of [el.lung, el.heart, el.gradcamNodules]) control.addEventListener("change", refresh);
+  el.gradcamAttribute.addEventListener("change", () => {
+    renderGradcamNodules();
+    refresh();
+  });
+  let alphaTimer = null;
+  el.gradcamAlpha.addEventListener("input", () => {
+    el.gradcamAlphaLabel.textContent = `${el.gradcamAlpha.value}%`;
+    clearTimeout(alphaTimer);
+    alphaTimer = setTimeout(refresh, 120);
+  });
+  el.previous.addEventListener("click", () => stepSlice(-1));
+  el.next.addEventListener("click", () => stepSlice(1));
+  el.canvas.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    stepSlice(event.deltaY > 0 ? 1 : -1);
+  }, {passive: false});
+  el.canvas.addEventListener("keydown", (event) => {
+    const delta = ["ArrowUp", "ArrowRight"].includes(event.key) ? 1 : ["ArrowDown", "ArrowLeft"].includes(event.key) ? -1 : 0;
+    if (!delta) return;
+    event.preventDefault();
+    stepSlice(delta);
+  });
+  el.nodules.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-nodule-index]");
+    if (button) selectNodule(Number(button.dataset.noduleIndex), true);
+  });
+}
+
+function selectNodule(index, focus = false) {
+  const nodule = viewer.metadata?.nodules?.[index];
+  if (!nodule) return;
+  const {slice, nodules} = viewerElements();
+  viewer.selected = nodule.stable_nodule_id;
+  nodules.querySelectorAll("button").forEach((button, i) => button.setAttribute("aria-pressed", String(i === index)));
+  showNoduleDetails(nodule, focus);
+  const center = nodule.geometry?.center_zyx?.[0];
+  if (Number.isFinite(center)) slice.value = String(Math.min(Number(slice.max), Math.max(0, Math.round(center))));
+  updateViewer().catch(() => setViewerStatus("The requested CT slice could not be loaded.", "warning"));
+}
+
+function formatMm(value) {
+  return Number.isFinite(value) ? `${value.toFixed(1)} mm` : "unknown";
+}
+
+function renderGradcamNodules() {
+  const el = viewerElements();
+  const attribute = el.gradcamAttribute.value;
+  const ids = (viewer.metadata?.gradcam_options || [])
+    .filter((option) => option.attribute === attribute)
+    .map((option) => option.stable_nodule_id);
+  el.gradcamNodules.innerHTML = attribute
+    ? ids.map((id) => `<label class="check"><input type="checkbox" value="${escapeHtml(id)}" checked> ${escapeHtml(id)}</label>`).join("")
+    : "";
+}
+
+function brockLabel(nodule) {
+  const brock = nodule.malignancy?.selected_prediction || nodule.malignancy?.brock || {};
+  const status = brock.status || "unavailable";
+  const kind = ["available", "completed"].includes(status) ? "ok" : status === "failed" ? "bad" : "warn";
+  const probability = Number.isFinite(brock.probability) ? ` ${(brock.probability * 100).toFixed(0)}%` : "";
+  return badge(`Brock ${status}${probability}`, kind);
+}
+
+function brockShapHtml(brock) {
+  const items = (brock.feature_contributions || []).filter((item) => Number.isFinite(item.contribution_logit));
+  if (!items.length) return '<p class="hint">Brock explanation unavailable for this nodule.</p>';
+  const base = items.find((item) => item.feature === "intercept");
+  const drivers = items.filter((item) => item.feature !== "intercept" && item.contribution_logit !== 0)
+    .sort((a, b) => Math.abs(b.contribution_logit) - Math.abs(a.contribution_logit));
+  const zeroCount = items.length - drivers.length - (base ? 1 : 0);
+  const scale = Math.max(...drivers.map((item) => Math.abs(item.contribution_logit)), 1e-9);
+  const label = (item) => {
+    const name = String(item.feature).replaceAll("_", " ");
+    return Number.isFinite(item.input_value) ? `${name} = ${item.input_value}${item.unit ? ` ${item.unit}` : ""}` : name;
+  };
+  const rows = drivers.map((item) => {
+    const value = item.contribution_logit;
+    const width = Math.abs(value) / scale * 50;
+    return `<div class="shap-row"><span>${escapeHtml(label(item))}</span><div class="shap-track"><i class="shap-bar ${value > 0 ? "pos" : "neg"}" style="width:${width}%"></i></div><span class="shap-val">${value > 0 ? "+" : ""}${value.toFixed(2)}</span></div>`;
+  }).join("");
+  const probability = Number.isFinite(brock.probability) ? `${(brock.probability * 100).toFixed(1)}%` : "unavailable";
+  return `<div class="shap" role="img" aria-label="Brock feature contributions to the malignancy log-odds">${rows || "<p class='hint'>All inputs contribute zero.</p>"}</div>
+    <div class="shap-key"><span><b style="background:var(--bad)"></b>raises risk</span><span><b style="background:var(--accent)"></b>lowers risk</span></div>
+    <p class="hint">Contributions are in log-odds from the published Brock (PanCan) formula, which is additive, so they are exact. Baseline (intercept) ${base ? base.contribution_logit.toFixed(2) : "n/a"}; total log-odds ${Number.isFinite(brock.logit) ? brock.logit.toFixed(2) : "n/a"}; probability ${probability}.${zeroCount > 0 ? ` ${zeroCount} input(s) contribute zero and are not shown.` : ""}</p>`;
 }
 
 async function loadViewer(runId) {
-  const viewerStatus = document.querySelector("#viewer-status");
-  const controls = document.querySelector(".viewer-controls");
-  const canvas = document.querySelector("#viewer-canvas");
-  if (!viewerStatus || !controls || !canvas) return;
+  if (viewer.runId === runId && viewer.metadata) return;
+  const el = viewerElements();
+  wireViewer();
+  viewerSection.hidden = false;
+  setViewerStatus("Loading viewer metadata...");
   try {
-    const response = await fetch(`/api/v1/analysis/runs/${encodeURIComponent(runId)}/viewer`);
+    const response = await apiFetch(`/api/v1/analysis/runs/${encodeURIComponent(runId)}/viewer`);
     const metadata = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(metadata.detail || "Viewer artifacts are unavailable.");
-    const slice = document.querySelector("#viewer-slice");
-    const label = document.querySelector("#viewer-slice-label");
-    const lung = document.querySelector("#viewer-lung");
-    const heart = document.querySelector("#viewer-heart");
-    const gradcam = document.querySelector("#viewer-gradcam");
-    const previous = document.querySelector("#viewer-previous");
-    const next = document.querySelector("#viewer-next");
+    if (!response.ok) throw new Error(errorMessage(metadata, "Viewer artifacts are unavailable."));
+    viewer.runId = runId;
+    viewer.metadata = metadata;
+    viewer.selected = null;
     const maxIndex = Math.max(0, Number(metadata.shape_zyx?.[0] || 1) - 1);
-    slice.max = String(maxIndex);
-    controls.hidden = false;
-    lung.disabled = !metadata.overlays?.lung_mask;
-    heart.disabled = !metadata.overlays?.heart_mask;
-    let requestNumber = 0;
-    for (const option of metadata.gradcam_options || []) {
+    el.slice.max = String(maxIndex);
+    el.slice.value = String(Math.round(maxIndex / 2));
+    el.controls.hidden = false;
+    el.lung.disabled = !metadata.overlays?.lung_mask;
+    el.heart.disabled = !metadata.overlays?.heart_mask;
+    el.lung.checked = false;
+    el.heart.checked = false;
+    el.gradcamAttribute.innerHTML = '<option value="">Off</option>';
+    const attributes = [...new Set((metadata.gradcam_options || []).map((option) => option.attribute))]
+      .filter((name) => !HIDDEN_ATTRIBUTES.has(name));
+    for (const attribute of attributes) {
       const item = document.createElement("option");
-      item.value = `${option.stable_nodule_id}|${option.attribute}`;
-      item.textContent = `${option.stable_nodule_id} / ${option.attribute}`;
-      gradcam.appendChild(item);
+      item.value = attribute;
+      item.textContent = attribute.replaceAll("_", " ");
+      el.gradcamAttribute.appendChild(item);
     }
-    const update = async () => {
-      const index = Math.min(maxIndex, Math.max(0, Number(slice.value) || 0));
-      const params = new URLSearchParams({
-        lung_overlay: String(lung.checked && !lung.disabled),
-        heart_overlay: String(heart.checked && !heart.disabled),
-      });
-      const [gradcamNodule, gradcamAttribute] = gradcam.value.split("|");
-      if (gradcamNodule && gradcamAttribute) {
-        params.set("gradcam_nodule_id", gradcamNodule);
-        params.set("gradcam_attribute", gradcamAttribute);
-      }
-      const currentRequest = ++requestNumber;
-      const response = await fetch(`/api/v1/analysis/runs/${encodeURIComponent(runId)}/viewer/slices/${index}?${params}`);
-      if (!response.ok || currentRequest !== requestNumber) return;
-      const blob = await response.blob();
-      const image = new Image();
-      image.onload = () => {
-        if (currentRequest !== requestNumber) return;
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
-        const context = canvas.getContext("2d");
-        context.drawImage(image, 0, 0);
-        context.strokeStyle = "#ffcf33";
-        context.lineWidth = 3;
-        for (const nodule of metadata.nodules || []) {
-          const geometry = nodule.geometry || {};
-          const start = geometry.bbox_start_zyx;
-          const end = geometry.bbox_end_zyx_exclusive;
-          if (!Array.isArray(start) || !Array.isArray(end) || index < start[0] || index >= end[0]) continue;
-          context.strokeRect(start[2], start[1], end[2] - start[2], end[1] - start[1]);
-          context.fillStyle = "#ffcf33";
-          context.font = "12px sans-serif";
-          context.fillText(nodule.stable_nodule_id || "eligible nodule", start[2], Math.max(12, start[1] - 3));
-        }
-        canvas.hidden = false;
-        URL.revokeObjectURL(image.src);
-      };
-      image.src = URL.createObjectURL(blob);
-      label.textContent = `Slice ${index + 1} of ${maxIndex + 1}`;
-      previous.disabled = index === 0;
-      next.disabled = index === maxIndex;
-    };
-    slice.addEventListener("input", update);
-    lung.addEventListener("change", update);
-    heart.addEventListener("change", update);
-    gradcam.addEventListener("change", update);
-    previous.addEventListener("click", () => {
-      slice.value = String(Math.max(0, Number(slice.value) - 1));
-      update().catch(() => {});
-    });
-    next.addEventListener("click", () => {
-      slice.value = String(Math.min(maxIndex, Number(slice.value) + 1));
-      update().catch(() => {});
-    });
-    canvas.addEventListener("wheel", (event) => {
-      event.preventDefault();
-      const direction = event.deltaY > 0 ? 1 : -1;
-      const target = Math.min(maxIndex, Math.max(0, Number(slice.value) + direction));
-      if (target !== Number(slice.value)) {
-        slice.value = String(target);
-        update().catch(() => {});
-      }
-    }, {passive: false});
-    update().catch(() => {
-      viewerStatus.className = "status warning";
-      viewerStatus.textContent = "The requested CT slice could not be loaded.";
-    });
-    viewerStatus.className = "status success";
-    viewerStatus.textContent = `CT volume available: ${metadata.shape_zyx.join(" x ")} voxels.`;
-    const noduleList = document.querySelector("#viewer-nodules");
+    renderGradcamNodules();
+    setViewerStatus(`CT volume available: ${metadata.shape_zyx.join(" x ")} voxels. Overlays are shown only when validated artifacts exist.`);
+    renderMethods(analysisResult || {}, metadata);
     if (metadata.nodules?.length) {
-      noduleList.innerHTML = `<h4>Detected nodules</h4>${metadata.nodules.map((nodule, index) => `
-        <button type="button" class="nodule-item" data-nodule-index="${index}">
-          <strong>${escapeHtml(nodule.stable_nodule_id)}</strong>
-          <span>${escapeHtml(nodule.geometry?.diameter_mm ?? "unknown")} mm</span>
-          <span>${escapeHtml(nodule.anatomical_location?.region || nodule.anatomical_location?.primary || "Location unavailable")}</span>
-          <span>Sources: ${escapeHtml((nodule.detection_sources || []).join(", ") || "unavailable")}</span>
-          <span>Classification: ${escapeHtml(Object.entries(nodule.classification?.attributes || {}).map(([name, value]) => `${name}: ${value?.expected_rating ?? value?.value ?? "unavailable"}`).join("; ") || "unavailable")}</span>
-          <span>Brock: ${escapeHtml(nodule.malignancy?.selected_prediction?.status || nodule.malignancy?.brock?.status || "unavailable")}</span>
-          <span>Quality: ${escapeHtml(nodule.quality_status || "unknown")}</span>
-        </button>`).join("")}`;
-      noduleList.querySelectorAll("[data-nodule-index]").forEach((button) => {
-        button.addEventListener("click", () => {
-          const nodule = metadata.nodules[Number(button.dataset.noduleIndex)];
-          showNoduleDetails(nodule);
-          const center = nodule?.geometry?.center_zyx?.[0];
-          if (Number.isFinite(center)) {
-            slice.value = String(Math.min(maxIndex, Math.max(0, Math.round(center))));
-            update().catch(() => {});
-          }
-        });
-      });
+      el.nodules.innerHTML = metadata.nodules.map((nodule, index) => `<li>
+        <button type="button" data-nodule-index="${index}" aria-pressed="false">
+          <span><b>${escapeHtml(nodule.stable_nodule_id)}</b> · ${escapeHtml(formatMm(nodule.geometry?.diameter_mm))}</span>
+          ${brockLabel(nodule)}
+          <span class="sub" style="margin:0;flex-basis:100%">${escapeHtml(nodule.anatomical_location?.region || nodule.anatomical_location?.primary || "Location unavailable")} · quality ${escapeHtml(nodule.quality_status || "unknown")}</span>
+        </button></li>`).join("");
+      selectNodule(0);
     } else {
-      noduleList.textContent = metadata.status === "completed"
+      el.nodules.innerHTML = `<li>${metadata.status === "completed"
         ? "No nodule records were included in the validated contract."
-        : "Nodule list unavailable until candidate detection completes.";
+        : "Nodule list unavailable until candidate detection completes."}</li>`;
+      detailSection.hidden = true;
+      await updateViewer();
     }
   } catch (error) {
-    viewerStatus.className = "status warning";
-    viewerStatus.textContent = error.message;
+    viewer.metadata = null;
+    el.controls.hidden = true;
+    el.nodules.innerHTML = "";
+    setViewerStatus(error.message, "warning");
   }
 }
 
-function showNoduleDetails(nodule) {
+function showNoduleDetails(nodule, focus = false) {
   const target = document.querySelector("#viewer-nodule-detail");
   if (!target || !nodule) return;
-  const classification = nodule.classification?.attributes || {};
+  const classification = Object.entries(nodule.classification?.attributes || {}).filter(([name]) => !HIDDEN_ATTRIBUTES.has(name));
   const brock = nodule.malignancy?.brock || {};
-  const explanations = nodule.gradcam_refs || {};
-  const classificationRows = Object.entries(classification).map(([name, item]) =>
-    `<li>${escapeHtml(name)}: ${escapeHtml(item?.expected_rating ?? item?.value ?? "unavailable")} (${escapeHtml(item?.status || "prediction")})</li>`,
+  const explanations = Object.entries(nodule.gradcam_refs || {}).filter(([name]) => !HIDDEN_ATTRIBUTES.has(name));
+  const classificationRows = classification.map(([name, item]) =>
+    `<dt>${escapeHtml(name)}</dt><dd>${escapeHtml(item?.expected_rating ?? item?.value ?? "unavailable")} (${escapeHtml(item?.status || "prediction")})</dd>`,
   ).join("");
-  const explanationRows = Object.entries(explanations).map(([name, refs]) => {
+  const explanationRows = explanations.map(([name, refs]) => {
     const path = refs?.ct_cam_path || refs?.patch_cam_path;
-    if (!path) return `<li>${escapeHtml(name)}: unavailable</li>`;
-    const href = `/api/v1/analysis/runs/${encodeURIComponent(analysisResult?.run_id || "")}/artifacts/${path.split("/").map(encodeURIComponent).join("/")}`;
-    return `<li>${escapeHtml(name)}: <a href="${href}" target="_blank" rel="noopener">Grad-CAM artifact</a></li>`;
+    if (!path) return `<dt>${escapeHtml(name)}</dt><dd>unavailable</dd>`;
+    const href = `/api/v1/analysis/runs/${encodeURIComponent(viewer.runId || "")}/artifacts/${path.split("/").map(encodeURIComponent).join("/")}`;
+    return `<dt>${escapeHtml(name)}</dt><dd><a href="${href}" target="_blank" rel="noopener">Grad-CAM artifact</a></dd>`;
   }).join("");
+  const missing = (brock.features_missing || brock.missing_inputs || []);
+  const brockStatus = brock.status || "unavailable";
+  const probability = Number.isFinite(brock.probability) ? Math.min(100, Math.max(0, brock.probability * 100)) : null;
+  const geometry = nodule.geometry || {};
+  const box = Array.isArray(geometry.bbox_start_zyx) && Array.isArray(geometry.bbox_end_zyx_exclusive)
+    ? `${geometry.bbox_start_zyx.join(",")} to ${geometry.bbox_end_zyx_exclusive.join(",")} (end exclusive)`
+    : "unavailable";
+  const mm = Array.isArray(geometry.center_lps_mm) ? geometry.center_lps_mm.map((v) => Number(v).toFixed(1)).join(", ") : "unavailable";
   target.innerHTML = `
-    <h4>${escapeHtml(nodule.stable_nodule_id)}</h4>
-    <p>Diameter: ${escapeHtml(nodule.geometry?.diameter_mm ?? "unavailable")} mm · Sources: ${escapeHtml((nodule.detection_sources || []).join(", "))}</p>
-    <p>Brock malignancy-risk estimate: ${escapeHtml(brock.probability ?? "unavailable")} (${escapeHtml(brock.status || "unavailable")}); missing inputs: ${escapeHtml((brock.features_missing || brock.missing_inputs || []).join(", ") || "none reported")}.</p>
-    <p>Classification model outputs (reader-attribute predictions, not diagnosis):</p><ul>${classificationRows || "<li>Unavailable</li>"}</ul>
-    <p>Explanation artifacts:</p><ul>${explanationRows || "<li>Unavailable</li>"}</ul>
+    <h3>${escapeHtml(nodule.stable_nodule_id)}</h3>
+    <h4>Brock malignancy-risk estimate</h4>
+    ${probability === null
+      ? `<div class="alert warn">Brock ${escapeHtml(brockStatus)}. Missing inputs: ${escapeHtml(missing.join(", ") || "none reported")}.</div>`
+      : `<p><b>${probability.toFixed(0)}%</b> (${escapeHtml(brockStatus)})</p><div class="bar" style="max-width:360px"><i style="width:${probability}%"></i></div>`}
+    <h4>Brock SHAP-style explanation</h4>
+    ${brockShapHtml(brock)}
+    <h4>Attributes (reader-attribute predictions, not diagnosis)</h4>
+    <dl>${classificationRows || "<dt>Classification</dt><dd>Unavailable</dd>"}</dl>
+    <h4>Explanation artifacts</h4>
+    <dl>${explanationRows || "<dt>Grad-CAM</dt><dd>Unavailable</dd>"}</dl>
+    <h4>Location</h4>
+    <dl>
+      <dt>Diameter</dt><dd>${escapeHtml(formatMm(geometry.diameter_mm))}</dd>
+      <dt>Detection sources</dt><dd>${escapeHtml((nodule.detection_sources || []).join(", ") || "unavailable")}</dd>
+      <dt>Physical LPS (mm)</dt><dd>${escapeHtml(mm)}</dd>
+      <dt>Voxel box (z,y,x)</dt><dd>${escapeHtml(box)}</dd>
+    </dl>
     <p class="hint">Brock is a risk estimate, not a confirmed diagnosis or pathology result.</p>`;
+  detailSection.hidden = false;
+  if (focus) detailSection.focus();
 }
 
 async function startAnalysis(data, upload) {
-  const response = await fetch("/api/v1/analysis/runs", {
+  const response = await apiFetch("/api/v1/analysis/runs", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
@@ -381,36 +666,37 @@ async function startAnalysis(data, upload) {
       upload_job_id: upload.job_id,
       requested_malignancy_method: "brock",
       data_provenance: "operator_submitted",
+      baseline_definition: data.get("baseline_confirmed") ? "initial_pathologic_diagnosis" : "other_or_unverified",
       clinician_inputs: clinicalInputs(data),
     }),
   });
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.detail || `Analysis could not be started (HTTP ${response.status}).`);
+  if (!response.ok) throw new Error(errorMessage(body, `Analysis could not be started (HTTP ${response.status}).`));
   return body;
 }
 
 async function pollAnalysis(runId) {
   for (;;) {
-    const response = await fetch(`/api/v1/analysis/runs/${encodeURIComponent(runId)}`);
+    const response = await apiFetch(`/api/v1/analysis/runs/${encodeURIComponent(runId)}`);
     const body = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(body.detail || `Analysis status could not be read (HTTP ${response.status}).`);
+    if (!response.ok) throw new Error(errorMessage(body, `Analysis status could not be read (HTTP ${response.status}).`));
     analysisResult = body;
     renderResult(body);
-    if (["completed", "failed", "blocked", "awaiting_imaging_review"].includes(body.status)) return body;
-    setStatus(body.message || `Analysis status: ${body.status}`, "info");
+    if (TERMINAL.includes(body.status)) return body;
+    setRunMessage("Analysis running…");
     await new Promise((resolve) => setTimeout(resolve, 1500));
   }
 }
 
 async function persistClinicalRecord(data, {quiet = false} = {}) {
   const patientId = String(data.get("patient_id") || "").trim();
-  const response = await fetch(`/api/v1/clinical/records/${encodeURIComponent(patientId)}`, {
+  const response = await apiFetch(`/api/v1/clinical/records/${encodeURIComponent(patientId)}`, {
     method: "PUT",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({clinician_inputs: clinicalInputs(data)}),
   });
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.detail || `Clinical information could not be saved (HTTP ${response.status}).`);
+  if (!response.ok) throw new Error(errorMessage(body, `Clinical information could not be saved (HTTP ${response.status}).`));
   if (!quiet) {
     clinicalRecordStatus.className = "status success";
     clinicalRecordStatus.textContent = `Clinical information saved for ${patientId}.`;
@@ -442,6 +728,11 @@ function applyClinicalRecord(inputs) {
     const control = form.elements.namedItem(name);
     if (control) control.value = inputs[key] == null ? "" : String(inputs[key]);
   }
+  form.elements.symptoms_status.value = inputs.symptoms_status === "reported" && !(inputs.symptoms || []).length
+    ? "no_symptoms"
+    : (inputs.symptoms_status ?? "");
+  form.elements.kps_unknown.checked = inputs.kps == null;
+  form.elements.kps.disabled = inputs.kps == null;
   for (const [name, values] of [
     ["medical_history", inputs.medical_history_conditions || []],
     ["symptoms", inputs.symptoms || []],
@@ -457,9 +748,9 @@ function applyClinicalRecord(inputs) {
 async function restoreClinicalRecord() {
   const patientId = String(new FormData(form).get("patient_id") || "").trim();
   if (!patientId) throw new Error("Enter a patient identifier to load its saved clinical information.");
-  const response = await fetch(`/api/v1/clinical/records/${encodeURIComponent(patientId)}`);
+  const response = await apiFetch(`/api/v1/clinical/records/${encodeURIComponent(patientId)}`);
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.detail || `Clinical information could not be loaded (HTTP ${response.status}).`);
+  if (!response.ok) throw new Error(errorMessage(body, `Clinical information could not be loaded (HTTP ${response.status}).`));
   applyClinicalRecord(body.clinician_inputs || {});
   clinicalRecordStatus.className = "status success";
   clinicalRecordStatus.textContent = `Saved clinical information loaded (saved ${body.saved_at}).`;
@@ -468,31 +759,117 @@ async function restoreClinicalRecord() {
 async function restoreStudies() {
   const patientId = String(new FormData(form).get("patient_id") || "").trim();
   if (!patientId) throw new Error("Enter a patient identifier to find saved studies.");
-  const response = await fetch(`/api/v1/analysis/patients/${encodeURIComponent(patientId)}/studies`);
+  const response = await apiFetch(`/api/v1/analysis/patients/${encodeURIComponent(patientId)}/studies`);
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.detail || `Saved studies could not be loaded (HTTP ${response.status}).`);
+  if (!response.ok) throw new Error(errorMessage(body, `Saved studies could not be loaded (HTTP ${response.status}).`));
   const studies = body.studies || [];
   savedStudies.innerHTML = studies.length
-    ? `<strong>Persisted studies for ${escapeHtml(patientId)}</strong>${studies.map((study) => `
-        <button class="saved-study" type="button" data-run-id="${escapeHtml(study.run_id)}">
-          ${escapeHtml(study.run_id)} · ${escapeHtml(study.status)} · ${escapeHtml(study.eligible_nodule_count ?? "unknown")} eligible nodule(s)
-        </button>`).join("")}`
-    : "No persisted analysis runs found for this patient.";
+    ? studies.map((study) => `<li>
+        <button type="button" data-run-id="${escapeHtml(study.run_id)}">
+          <span>${escapeHtml(study.run_id)} · ${escapeHtml(study.created_at || "date unknown")}</span>
+          <span>${badge(study.status || "unknown", study.status === "completed" ? "ok" : "warn")} ${escapeHtml(study.eligible_nodule_count ?? "unknown")} eligible nodule(s)</span>
+        </button></li>`).join("")
+    : "<li>No persisted analysis runs found for this patient.</li>";
   savedStudies.querySelectorAll("[data-run-id]").forEach((button) => {
     button.addEventListener("click", async () => {
       try {
-        const result = await fetch(`/api/v1/analysis/runs/${encodeURIComponent(button.dataset.runId)}`);
+        const result = await apiFetch(`/api/v1/analysis/runs/${encodeURIComponent(button.dataset.runId)}`);
         const saved = await result.json().catch(() => ({}));
-        if (!result.ok) throw new Error(saved.detail || "Saved study could not be reopened.");
+        if (!result.ok) throw new Error(errorMessage(saved, "Saved study could not be reopened."));
         analysisResult = saved;
+        detailSection.hidden = true;
         renderResult(saved);
-        results.scrollIntoView({behavior: "smooth", block: "start"});
+        setRunMessage(`Reopened ${button.dataset.runId} (${saved.status}).`);
+        results.focus();
       } catch (error) {
-        clinicalRecordStatus.className = "status error";
-        clinicalRecordStatus.textContent = error.message;
+        savedStudies.insertAdjacentHTML("afterbegin", `<li class="err" role="alert">${escapeHtml(error.message)}</li>`);
       }
     });
   });
+}
+
+const requiredFields = [
+  ["patient_id", "Patient ID"],
+  ["age_status", "Age"],
+  ["sex", "Sex"],
+  ["race", "Race"],
+  ["ethnicity", "Ethnicity"],
+  ["smoking_status", "Smoking information"],
+  ["family_history_lung_cancer", "Family history"],
+  ["symptoms_status", "Symptoms"],
+];
+
+function setFieldError(name, message) {
+  const control = form.elements.namedItem(name);
+  if (!control) return;
+  const host = control.closest("label") || control.parentElement;
+  let note = host.querySelector(`.field-error[data-error-for="${name}"]`);
+  if (!note) {
+    note = document.createElement("span");
+    note.className = "field-error";
+    note.dataset.errorFor = name;
+    note.id = `error-${name}`;
+    host.append(note);
+  }
+  note.textContent = message;
+  control.setAttribute("aria-invalid", message ? "true" : "false");
+  if (message) control.setAttribute("aria-describedby", note.id);
+  else control.removeAttribute("aria-describedby");
+}
+
+// Returns true only when every required field has an explicit answer; each missing field gets an inline message.
+function checkRequiredFields(data) {
+  let valid = true;
+  for (const [name, label] of requiredFields) {
+    const hint = name === "patient_id" ? "" : " Choose an option.";
+    const message = String(data.get(name) || "").trim() ? "" : `${label} is required.${hint}`;
+    setFieldError(name, message);
+    valid = valid && !message;
+  }
+  const ageMessage = data.get("age_status") === "reported" && optionalNumber(data.get("age")) === null
+    ? "Enter age in years (18 to 120), or choose Unknown or Not reported."
+    : "";
+  setFieldError("age", ageMessage);
+  const kpsMessage = data.get("kps_unknown") || data.get("kps") !== ""
+    ? ""
+    : "KPS is required. Enter a value from 0 to 100, or tick KPS unknown.";
+  setFieldError("kps", kpsMessage);
+  return valid && !ageMessage && !kpsMessage;
+}
+
+async function confirmAndUploadCt() {
+  const patientId = String(new FormData(form).get("patient_id") || "").trim();
+  logEvent("confirm_upload_clicked", {files: selectedFiles.length});
+  if (!selectedFiles.length) {
+    setStatus("Select a CT folder or DICOM files before uploading.", "error");
+    return;
+  }
+  if (!patientId) {
+    setFieldError("patient_id", "Patient ID is required before uploading the CT.");
+    form.elements.patient_id.focus();
+    setStatus("Enter the Patient ID before uploading the CT.", "error");
+    return;
+  }
+  setFieldError("patient_id", "");
+  requestInProgress = true;
+  uploadResult = null;
+  uploadedPatientId = null;
+  uploadProgress.hidden = false;
+  uploadProgress.value = 0;
+  updateReview();
+  try {
+    uploadResult = await uploadFiles(selectedFiles, patientId);
+    uploadedPatientId = patientId;
+    setStatus(`CT uploaded and validated: ${uploadResult.series?.slice_count ?? "unknown"} slices. Review the case, then submit it.`, "success");
+    logEvent("upload_completed", {job_id: uploadResult.job_id, status: uploadResult.status});
+  } catch (error) {
+    logError("upload_failed", error);
+    setStatus(`CT upload failed: ${error.message}`, "error");
+  } finally {
+    requestInProgress = false;
+    uploadProgress.hidden = true;
+    updateReview();
+  }
 }
 
 function validateForm(data, {requireScan = true} = {}) {
@@ -532,13 +909,44 @@ function validateForm(data, {requireScan = true} = {}) {
   if (requireScan && !selectedFiles.length) throw new Error("Select a CT series before uploading.");
 }
 
+document.querySelector("#select-folder").addEventListener("click", () => {
+  logEvent("select_folder_clicked");
+  folderInput.click();
+});
+document.querySelector("#select-files").addEventListener("click", () => {
+  logEvent("select_files_clicked");
+  filesInput.click();
+});
 folderInput.addEventListener("change", () => showSelection(folderInput.files));
 filesInput.addEventListener("change", () => showSelection(filesInput.files));
+confirmUploadButton.addEventListener("click", () => {
+  confirmAndUploadCt().catch((error) => logError("confirm_upload_crashed", error));
+});
+printReportButton.addEventListener("click", () => {
+  logEvent("print_report_clicked");
+  window.print();
+});
+form.addEventListener("change", (event) => {
+  if (event.target?.name !== "kps_unknown") return;
+  form.elements.kps.disabled = event.target.checked;
+  if (event.target.checked) form.elements.kps.value = "";
+  updateReview();
+});
 saveClinicalButton.addEventListener("click", async () => {
   try {
-    validateForm(new FormData(form), {requireScan: false});
-    await persistClinicalRecord(new FormData(form));
+    const data = new FormData(form);
+    logEvent("save_clinical_clicked");
+    if (!checkRequiredFields(data)) {
+      clinicalRecordStatus.className = "status error";
+      clinicalRecordStatus.textContent = "Complete the highlighted required fields before saving.";
+      form.querySelector('[aria-invalid="true"]')?.focus();
+      logEvent("save_blocked_missing_fields");
+      return;
+    }
+    validateForm(data, {requireScan: false});
+    await persistClinicalRecord(data);
   } catch (error) {
+    logError("save_clinical_failed", error);
     clinicalRecordStatus.className = "status error";
     clinicalRecordStatus.textContent = error.message;
   }
@@ -551,7 +959,7 @@ loadClinicalButton.addEventListener("click", () => {
 });
 loadStudiesButton.addEventListener("click", () => {
   restoreStudies().catch((error) => {
-    savedStudies.textContent = error.message;
+    savedStudies.innerHTML = `<li class="err" role="alert">${escapeHtml(error.message)}</li>`;
   });
 });
 removeScanButton.addEventListener("click", () => {
@@ -592,25 +1000,36 @@ form.addEventListener("submit", async (event) => {
   formError.textContent = "";
   try {
     const data = new FormData(form);
+    logEvent("submit_case_clicked");
+    if (!checkRequiredFields(data)) {
+      formError.textContent = "Complete the highlighted required fields before submitting.";
+      form.querySelector('[aria-invalid="true"]')?.focus();
+      logEvent("submit_blocked_missing_fields");
+      return;
+    }
     validateForm(data);
-    await persistClinicalRecord(data, {quiet: true});
+    if (!uploadResult || uploadedPatientId !== String(data.get("patient_id")).trim()) {
+      throw new Error("Confirm and upload the CT scan before submitting the case.");
+    }
     requestInProgress = true;
-    analyseButton.disabled = true;
-    setStatus("Validating and reconstructing the CT series...", "info");
-    uploadResult = await uploadFiles(selectedFiles, String(data.get("patient_id")).trim());
-    uploadedPatientId = String(data.get("patient_id")).trim();
-    renderResult(uploadResult);
-    setStatus("CT uploaded and DICOM validation completed. Starting the operator-controlled analysis run...", "info");
+    updateReview();
+    results.hidden = true;
+    viewerSection.hidden = true;
+    detailSection.hidden = true;
+    viewer.metadata = null;
+    stagesList.innerHTML = "";
+    await persistClinicalRecord(data, {quiet: true});
+    setRunMessage("Clinical information saved. Starting the analysis run...");
     analysisResult = await startAnalysis(data, uploadResult);
     const finalResult = await pollAnalysis(analysisResult.run_id);
-    setStatus(
-      finalResult.status === "completed" ? "Analysis completed." : "Analysis did not complete.",
-      finalResult.status === "completed" ? "success" : "warning",
-    );
+    setRunMessage(finalResult.status === "completed"
+      ? "Analysis completed."
+      : `Analysis did not complete (${String(finalResult.status).replaceAll("_", " ")}). ${finalResult.message || ""}`.trim());
   } catch (error) {
-    setStatus(analysisResult ? `Analysis did not complete: ${error.message}` : `CT upload did not complete: ${error.message}`, "error");
+    logError("case_submission_failed", error);
+    setRunMessage(analysisResult ? `Analysis did not complete: ${error.message}` : `Case submission did not complete: ${error.message}`);
     formError.textContent = error.message;
-    if (analysisResult) renderResult({...analysisResult, status: analysisResult.status || "failed", message: error.message, error: error.message});
+    if (analysisResult?.run_id) renderResult({...analysisResult, status: "failed", message: error.message, error: error.message});
   } finally {
     requestInProgress = false;
     updateReview();

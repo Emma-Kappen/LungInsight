@@ -4,7 +4,9 @@ import argparse
 import hashlib
 import json
 import math
+import shutil
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -119,6 +121,14 @@ def parse_args() -> argparse.Namespace:
         "--allow-missing-cams", dest="require_all_patches", action="store_false",
         help="Allow partial CAM artifacts for diagnostic runs; no complete clinical contract is generated.",
     )
+    parser.add_argument(
+        "--render-all-slices", action="store_true",
+        help="Diagnostic: render a PNG for every covered axial slice (about 1 s each). Default renders nodule slices only.",
+    )
+    parser.add_argument(
+        "--render-slice-z", type=int, default=None,
+        help="On-demand: render one overlay PNG for --attribute at this CT z index from the saved mapped volume, then exit.",
+    )
     add_verbose_argument(parser)
     return parser.parse_args()
 
@@ -205,11 +215,35 @@ def validate_stage06_record(record: dict[str, Any]) -> None:
         raise ValueError("Stage 06 record must contain its attribute-specific Grad-CAM references.")
 
 
+def gradcam_refs_for_identity(
+    patient_root: Path,
+    cam_artifacts: dict[tuple[str, int], dict[str, dict[str, Any]]],
+    candidate_id: str,
+    patch_id: int,
+) -> dict[str, dict[str, Any]]:
+    """Return the attribute CAM refs registered for one nodule/patch identity.
+
+    An attribute is registered only when both its patch-space and CT-space
+    artifacts exist on disk. Anything else is omitted, so the contract reports
+    the attribute as missing instead of accepting a partial reference.
+    """
+    refs: dict[str, dict[str, Any]] = {}
+    for attribute, entry in cam_artifacts.get((candidate_id, patch_id), {}).items():
+        patch_rel = entry.get("patch_cam_path")
+        ct_rel = entry.get("ct_cam_path")
+        if not patch_rel or not ct_rel:
+            continue
+        if not (patient_root / str(patch_rel)).is_file() or not (patient_root / str(ct_rel)).is_file():
+            continue
+        refs[attribute] = dict(entry)
+    return refs
+
+
 def build_stage06_nodule_records(
     patient_root: Path,
     manifest_data: dict[str, Any],
     patch_records: list[dict[str, Any]],
-    cam_artifacts_by_patch: dict[int, dict[str, dict[str, Any]]],
+    cam_artifacts_by_identity: dict[tuple[str, int], dict[str, dict[str, Any]]],
 ) -> dict[str, Any]:
     """Join only accepted Stage 02 patches to their Stage 03/04 outputs."""
     stage02_root = patient_root / str(STAGE02_PATHS["directory"])
@@ -235,7 +269,7 @@ def build_stage06_nodule_records(
     if actual_identities != expected_identities:
         raise RuntimeError("Stage 06 input patches do not exactly match the current validated Stage 02 manifest.")
     source_values = {str(row.get("source", row.get("detection_source", ""))) for row in patch_records}
-    if not source_values.issubset({"ViTDet3D", "LoG", "Merged"}):
+    if not source_values.issubset({"ViTDet3D", "Merged"}):
         raise ValueError(f"Stage 06 requires recognized fused detector provenance; got {sorted(source_values)}.")
     accepted_path = stage02_root / str(STAGE02_FILES["candidates_json"])
     try:
@@ -304,7 +338,7 @@ def build_stage06_nodule_records(
         bbox_end = patch.get("bbox_end_zyx")
         if not isinstance(bbox_start, list) or not isinstance(bbox_end, list):
             raise ValueError(f"Stage 02 patch record {identity} is missing its detector bounding box.")
-        raw_cam_refs = cam_artifacts_by_patch.get(patch_id, {})
+        gradcam_refs = gradcam_refs_for_identity(patient_root, cam_artifacts_by_identity, candidate_id, patch_id)
         record = {
             "nodule_id": candidate_id,
             "stable_nodule_id": stable_id,
@@ -333,11 +367,8 @@ def build_stage06_nodule_records(
             "detector": {
                 "source": patch.get("source", patch.get("detection_source")),
                 "score": patch.get("detector_score"),
-                "log_response": patch.get("log_response"),
                 "vitdet_score": patch.get("vitdet_score"),
-                "log_score": patch.get("log_score"),
                 "source_members": patch.get("source_members", []),
-                "scale_mm": patch.get("scale_mm"),
                 "purpose": "accepted_fused_candidate",
             },
             "attributes": stage03.get("attributes"),
@@ -345,12 +376,10 @@ def build_stage06_nodule_records(
             "malignancy": {
                 "brock": stage04.get("brock", {}),
                 "selected_prediction": stage04.get("selected_prediction", {}),
-                "input_completeness": stage04.get("input_completeness", {}),
-                "input_provenance": stage04.get("input_provenance", {}),
-                "diagnosis": stage04.get("diagnosis", {"status": "not_predicted", "value": None}),
-                "pathology": stage04.get("pathology", {"status": "not_provided", "value": None}),
             },
+            "input_completeness": stage04.get("input_completeness", {}),
             "model_identity": {
+                "stage04_input_provenance": stage04.get("input_provenance", {}),
                 "stage03_prediction_json": _relative_artifact(stage03_path, patient_root),
                 "stage03_checkpoint_metadata": stage03_payload.get("checkpoint_metadata"),
                 "stage03_attribute_support_audit": stage03_payload.get("attribute_support_audit"),
@@ -366,11 +395,13 @@ def build_stage06_nodule_records(
             "uncertainty_and_limitations": {
                 "stage04_validation_warning": stage04.get("validation_warning"),
                 "stage04_target_semantics": stage04.get("target_semantics"),
+                "stage04_diagnosis": stage04.get("diagnosis", {"status": "not_predicted", "value": None}),
+                "stage04_pathology": stage04.get("pathology", {"status": "not_provided", "value": None}),
                 "stage04_risk_uncertainty": stage04.get("risk_uncertainty"),
                 "cam_semantics": "Relative per-patch Grad-CAM display; raw signed map is separately preserved and color is not voxelwise attribute probability.",
             },
             "explanations": {
-                "gradcam": raw_cam_refs,
+                "gradcam": gradcam_refs,
                 "shap": {
                     "status": "not_applicable",
                     "reason": "Brock uses analytical formula decomposition, not SHAP.",
@@ -664,6 +695,85 @@ def create_montage(slice_paths: list[Path], out_path: Path, columns: int = 5) ->
     montage.save(out_path, quality=92)
 
 
+def representative_z_indices(
+    records_with_cams: list[tuple[dict[str, Any], tuple[int, int, int]]],
+    covered_z: list[int],
+) -> list[int]:
+    """Covered axial slices through each accepted nodule's detector box: first, centre and last slice."""
+    covered = set(covered_z)
+    chosen: set[int] = set()
+    for record, cam_shape in records_with_cams:
+        bbox_start = record.get("bbox_start_zyx")
+        bbox_end = record.get("bbox_end_zyx")
+        if bbox_start is not None and bbox_end is not None:
+            z0 = int(math.floor(float(bbox_start[0]) + 1e-6))
+            z1 = int(math.ceil(float(bbox_end[0]) - 1e-6)) - 1
+        else:
+            start = int(round(float(record["crop_start_zyx"][0])))
+            z0, z1 = start, start + int(cam_shape[0]) - 1
+        hits = [z for z in {z0, (z0 + z1) // 2, z1} if z in covered]
+        if not hits and covered_z:
+            centre = (z0 + z1) / 2.0
+            hits = [min(covered_z, key=lambda value: abs(value - centre))]
+        chosen.update(hits)
+    return sorted(chosen)
+
+
+def render_overlay_on_demand(
+    *,
+    ct_volume: np.ndarray,
+    output_dir: Path,
+    attribute: str,
+    z: int,
+    records: list[dict[str, Any]],
+    alpha: float,
+    window_level: float,
+    window_width: float,
+) -> Path:
+    """Render one overlay PNG from the saved mapped Grad-CAM volume and the Stage 06 report."""
+    volume_path = output_dir / STAGE06_SCHEMA["volume_filename_pattern"].format(attribute=attribute)
+    report_path = output_dir / STAGE06_SCHEMA["report_filename"]
+    if not volume_path.is_file() or not report_path.is_file():
+        raise FileNotFoundError(
+            f"Stage 06 must run for {attribute} first; missing {volume_path} or {report_path}."
+        )
+    if not 0 <= z < ct_volume.shape[0]:
+        raise ValueError(f"--render-slice-z {z} is outside the CT z range 0..{ct_volume.shape[0] - 1}.")
+    attr_report = read_json(report_path).get("attributes", {}).get(attribute, {})
+    used = {int(item["patch_id"]): item for item in attr_report.get("used_patches", [])}
+    if not used:
+        raise RuntimeError(f"No used patches are recorded for {attribute}; cannot render an overlay.")
+    with np.load(volume_path, allow_pickle=False) as data:
+        cam_volume = data["cam"]
+        coverage_count = data["coverage_count"]
+    if not coverage_count[z].any():
+        raise ValueError(f"z={z} has no Grad-CAM coverage for {attribute}.")
+    records_with_cams = []
+    signed_info: dict[int, dict[str, float] | None] = {}
+    for record in records:
+        pid = int(record["patch_id"])
+        if pid not in used:
+            continue
+        records_with_cams.append((record, tuple(int(v) for v in used[pid]["cam_shape_zyx"])))
+        signed_info[pid] = used[pid].get("raw_signed_summary")
+    out_path = output_dir / "slices" / attribute / STAGE06_SCHEMA["slice_filename_pattern"].format(attribute=attribute, z=z)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    render_slice(
+        ct_volume=ct_volume,
+        cam_volume=cam_volume,
+        coverage_count=coverage_count,
+        z=z,
+        attr=attribute,
+        out_path=out_path,
+        records_with_cams=records_with_cams,
+        signed_info=signed_info,
+        alpha=alpha,
+        window_level=window_level,
+        window_width=window_width,
+    )
+    return out_path
+
+
 def main() -> None:
     args = parse_args()
     configure_console(args.verbose)
@@ -709,9 +819,23 @@ def main() -> None:
     check_meta_schema_version(manifest_data, SCHEMA, context=str(manifest_path), require=False)
     validate_stage_version(manifest_data.get("schema_version"), STAGE02_SCHEMA["manifest_schema_version"], context="Stage 02 patch manifest")
     records = prepare_records(manifest_data)
+    if args.render_slice_z is not None:
+        if args.attribute == "all":
+            raise ValueError("--render-slice-z requires a single --attribute, not 'all'.")
+        written = render_overlay_on_demand(
+            ct_volume=ct_volume,
+            output_dir=output_dir,
+            attribute=args.attribute,
+            z=int(args.render_slice_z),
+            records=records,
+            alpha=args.alpha,
+            window_level=args.window_level,
+            window_width=args.window_width,
+        )
+        print(f"On-demand overlay: {written}")
+        return
     manifest_data["_manifest_path"] = str(manifest_path.resolve())
     nodule_records = build_stage06_nodule_records(patient_root, manifest_data, records, {})
-
     selected_attributes = ATTRIBUTES if args.attribute == "all" else (args.attribute,)
     output_dir.mkdir(parents=True, exist_ok=True)
     report: dict[str, Any] = {
@@ -730,7 +854,7 @@ def main() -> None:
         "attributes": {},
         "status": "completed",
     }
-    cam_artifacts_by_patch: dict[int, dict[str, dict[str, Any]]] = {}
+    cam_artifacts_by_identity: dict[tuple[str, int], dict[str, dict[str, Any]]] = {}
 
     print(f"Patient:  {args.patient_id}")
     print(f"CT:       {ct_path} shape={ct_shape}")
@@ -761,6 +885,7 @@ def main() -> None:
         missing_patch_ids: list[int] = []
         used_patch_data: list[dict[str, Any]] = []
         signed_info: dict[int, dict[str, float] | None] = {}
+        cam_started = time.perf_counter()
 
         for record in records:
             pid = int(record["patch_id"])
@@ -828,7 +953,7 @@ def main() -> None:
             cam_metadata = read_json(metadata_path) if metadata_path.is_file() else {}
             if cam_metadata and cam_metadata.get("attribute") != attribute:
                 raise ValueError(f"Grad-CAM metadata attribute mismatch at {metadata_path}.")
-            cam_artifacts_by_patch.setdefault(pid, {})[attribute] = {
+            cam_artifacts_by_identity.setdefault((stable_id, pid), {})[attribute] = {
                 "attribute": attribute,
                 "scaled_path": _relative_artifact(scaled_path, patient_root) if scaled_path.is_file() else None,
                 "raw_signed_path": _relative_artifact(raw_path, patient_root) if raw_path.is_file() else None,
@@ -870,7 +995,7 @@ def main() -> None:
             per_nodule_attribute_dir.mkdir(parents=True, exist_ok=True)
             ct_cam_path = per_nodule_attribute_dir / "attribute_ct_cam.npy"
             np.save(ct_cam_path, ct_cam, allow_pickle=False)
-            cam_artifacts_by_patch[pid][attribute]["ct_cam_path"] = _relative_artifact(ct_cam_path, patient_root)
+            cam_artifacts_by_identity[(stable_id, pid)][attribute]["ct_cam_path"] = _relative_artifact(ct_cam_path, patient_root)
             used_patch_data.append({
                 "patch_id": pid,
                 "candidate_id": record.get("candidate_id"),
@@ -913,11 +1038,16 @@ def main() -> None:
             cam=sum_cam,
             coverage_count=coverage_count,
         )
+        cam_seconds = time.perf_counter() - cam_started
 
-        z_indices = np.flatnonzero(covered.any(axis=(1, 2))).astype(int).tolist()
+        covered_z = np.flatnonzero(covered.any(axis=(1, 2))).astype(int).tolist()
+        render_z = covered_z if args.render_all_slices else representative_z_indices(loaded_records, covered_z)
         slice_dir = output_dir / "slices" / attribute
+        if slice_dir.exists():
+            shutil.rmtree(slice_dir)
         slice_paths: list[Path] = []
-        for z in z_indices:
+        render_started = time.perf_counter()
+        for z in render_z:
             image_path = slice_dir / STAGE06_SCHEMA["slice_filename_pattern"].format(attribute=attribute, z=z)
             render_slice(
                 ct_volume=ct_volume,
@@ -933,16 +1063,27 @@ def main() -> None:
                 window_width=args.window_width,
             )
             slice_paths.append(image_path)
+        render_seconds = time.perf_counter() - render_started
 
         montage_path = output_dir / STAGE06_SCHEMA["montage_filename_pattern"].format(attribute=attribute)
+        montage_started = time.perf_counter()
         create_montage(slice_paths, montage_path)
+        montage_seconds = time.perf_counter() - montage_started
 
         report["attributes"][attribute] = {
             "status": "complete",
             "cam_volume_npz": str(volume_path),
             "montage_png": str(montage_path),
-            "slice_count": len(z_indices),
-            "z_indices_with_cam": z_indices,
+            "render_mode": "all_covered_slices" if args.render_all_slices else "nodule_slices",
+            "slice_count": len(render_z),
+            "covered_slice_count": len(covered_z),
+            "rendered_z_indices": render_z,
+            "z_indices_with_cam": covered_z,
+            "timing_seconds": {
+                "cam_projection_and_volume": round(cam_seconds, 3),
+                "overlay_render": round(render_seconds, 3),
+                "montage": round(montage_seconds, 3),
+            },
             "missing_patch_ids": missing_patch_ids,
             "used_patches": used_patch_data,
             "overlap_rule": STAGE06_SCHEMA["overlap_rule"],
@@ -950,13 +1091,18 @@ def main() -> None:
         }
         print(f"  Saved mapped volume: {volume_path}")
         print(f"  Saved axial montage: {montage_path}")
-        print(f"  Rendered {len(slice_paths)} full-CT axial slices.")
+        print(
+            f"  Rendered {len(slice_paths)} of {len(covered_z)} covered axial slices "
+            f"in {render_seconds:.1f} s (CAM {cam_seconds:.1f} s, montage {montage_seconds:.1f} s)."
+        )
 
         del sum_cam, coverage_count
 
     record_path = output_dir / str(STAGE06_SCHEMA["record_filename"])
+    nodule_records = build_stage06_nodule_records(
+        patient_root, manifest_data, records, cam_artifacts_by_identity
+    )
     record_path.write_text(json.dumps(nodule_records, indent=2, allow_nan=False), encoding="utf-8")
-    report["nodule_record_file"] = str(record_path)
     report["nodule_record_count"] = len(nodule_records["records"])
     if not records:
         report["status"] = "no_eligible_candidates"

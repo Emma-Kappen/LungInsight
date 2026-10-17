@@ -130,6 +130,42 @@ def _write_nodule_box(
     return f"assets/{filename}"
 
 
+def _brock_decomposition_html(brock: dict[str, Any]) -> str:
+    """Render Brock inputs, coefficients, and logit contributions as a table."""
+    contributions = [item for item in brock.get("feature_contributions", []) if isinstance(item, dict)]
+    if not contributions:
+        return "<p class=\"unavailable\">Brock formula decomposition unavailable.</p>"
+    rows: list[str] = []
+    for item in contributions:
+        feature = str(item.get("feature"))
+        if "input_value" in item:
+            unit = f" {item['unit']}" if item.get("unit") else ""
+            input_text = f"{item['input_value']}{unit}"
+        elif feature == "intercept":
+            input_text = "—"
+        else:
+            input_text = f"indicator {item.get('encoded_value')}"
+        coefficient = item.get("coefficient")
+        rows.append(
+            "<tr>"
+            f"<td>{html.escape(feature)}</td>"
+            f"<td>{html.escape(input_text)}</td>"
+            f"<td>{html.escape('—' if coefficient is None else str(coefficient))}</td>"
+            f"<td>{html.escape(str(item.get('contribution_logit')))}</td>"
+            "</tr>"
+        )
+    rows.append(
+        "<tr><th>Total logit</th><td>—</td><td>—</td>"
+        f"<td>{html.escape(str(brock.get('logit', 'unavailable')))}</td></tr>"
+        "<tr><th>Probability (sigmoid of total logit)</th><td>—</td><td>—</td>"
+        f"<td>{html.escape(str(brock.get('probability', 'unavailable')))}</td></tr>"
+    )
+    return (
+        "<table><thead><tr><th>Feature</th><th>Input</th><th>Coefficient</th>"
+        "<th>Logit contribution</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+    )
+
+
 def _cam_sprite(cam: np.ndarray) -> np.ndarray:
     """Encode a patch CAM as a vertical RGBA sprite for canvas rendering."""
     values = np.asarray(cam, dtype=np.float32)
@@ -312,7 +348,7 @@ def _interactive_viewer_body(viewer_data: dict[str, Any] | None, *, tab: str) ->
         "if(attributes.includes(current))attributeSelect.value=current;zInput.value=String(Math.round(nodule.center_zyx[0]));renderShap();}"
         "function renderShap(){const nodule=selected();rating.textContent='Brock probability: '+(nodule.brock?.probability??'unavailable')+' ('+(nodule.brock?.status||'unavailable')+').';shap.replaceChildren();"
         "if(!nodule.formula_contributions.length){shap.textContent='Brock formula explanation unavailable.';return}"
-        "for(const item of nodule.formula_contributions){const row=document.createElement('div');row.className='shap-row';row.textContent=item.feature+': '+(item.contribution_logit??'unavailable');shap.append(row)}}"
+        "for(const item of nodule.formula_contributions){const row=document.createElement('div');row.className='shap-row';row.textContent=item.feature+' (input '+(item.input_value??item.encoded_value??'n/a')+'): logit contribution '+(item.contribution_logit??'unavailable');shap.append(row)}}"
         "function render(){const z=Number(zInput.value),attribute=attributeSelect.value,ctImage=ctImages[z],selectedNodules=checked();"
         "document.getElementById('viewer-z-value').textContent=String(z);document.getElementById('viewer-alpha-value').textContent=Number(alphaInput.value).toFixed(2);"
         "ctx.clearRect(0,0,canvas.width,canvas.height);if(ctImage.complete)ctx.drawImage(ctImage,0,0,canvas.width,canvas.height);else ctImage.onload=render;"
@@ -418,7 +454,7 @@ def generate_patient_report(
             "<tr>"
             f"<td><code>{html.escape(stable_id)}</code></td>"
             f"<td>{html.escape(str(detector.get('source', row.get('source', 'Unavailable'))))}</td>"
-            f"<td>ViTDet3D: {html.escape(str(detector.get('vitdet_score')))}<br>LoG: {html.escape(str(detector.get('log_score')))}</td>"
+            f"<td>ViTDet3D: {html.escape(str(detector.get('vitdet_score')))}</td>"
             f"<td>Diameter: {html.escape(str(geometry.get('diameter_mm', 'unavailable')))} mm<br>"
             f"Volume: {html.escape(str(geometry.get('volume_mm3', 'unavailable')))} mm³</td>"
             f"<td>{html.escape(classification)}</td>"
@@ -500,16 +536,10 @@ def generate_patient_report(
             f"<p>Brock/PanCan probability: {html.escape(str(brock.get('probability', 'unavailable')))}; "
             f"status: {html.escape(str(brock.get('status', 'unavailable')))}. "
             "This is a research/POC risk estimate, not a pathology diagnosis.</p>"
-            f"<p>Brock formula contributions: {html.escape(json.dumps(brock.get('feature_contributions', []), ensure_ascii=False))}</p>"
             f"<p>Uncertainty: {html.escape(json.dumps(record.get('uncertainty', {'status': 'not_estimated'}), ensure_ascii=False))}</p>"
             f"<p>Limitations: {html.escape(json.dumps(limitations, ensure_ascii=False))}</p>"
         )
-        contribution_rows = "".join(
-            f"<li>{html.escape(str(item.get('feature')))}: "
-            f"logit contribution {html.escape(str(item.get('contribution_logit')))}</li>"
-            for item in contributions if isinstance(item, dict)
-        )
-        shap_content = rating_content + "<h3>Brock formula decomposition</h3><ul>" + contribution_rows + "</ul>"
+        shap_content = rating_content + "<h3>Brock formula decomposition</h3>" + _brock_decomposition_html(brock)
         shap_sections.append(f"<section><h2>{html.escape(stable_id)}</h2>{shap_content}</section>")
         lineage_sections.append(
             f"<section><h2>{html.escape(stable_id)}</h2><p>Detection → Stage 03 → Stage 04 → Stage 05 → Stage 06 → Stage 07</p>"
@@ -523,7 +553,7 @@ def generate_patient_report(
         "<th>Centroid LPS mm</th><th>Bounding box</th></tr></thead><tbody>"
         + "".join(nodule_rows) + "</tbody></table>"
         + f"<p>Accepted: {len(accepted)}; excluded from display: {len(excluded)} (audit only).</p>"
-        + "<p>Bounding boxes use magenta. Detector scores are shown separately; no cross-detector confidence color scale is applied because ViTDet3D scores and LoG responses are not calibrated to a shared scale.</p>"
+        + "<p>Bounding boxes use magenta. Detector scores are shown separately; no cross-detector confidence color scale is applied.</p>"
     )
     gradcam_body = "".join(gradcam_sections) or "<p>No accepted nodules.</p>"
     shap_body = "".join(shap_sections) or "<p>No accepted nodules.</p>"

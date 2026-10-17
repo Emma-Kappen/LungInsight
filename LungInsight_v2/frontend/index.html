@@ -1,216 +1,266 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>LungInsight clinical research workflow</title>
-    <link rel="stylesheet" href="styles.css">
-  </head>
-  <body>
-    <main>
-      <header class="hero">
-        <p class="eyebrow">LungInsight v2 · Research interface</p>
-        <h1>Review a lung CT and clinical prediction</h1>
-        <p class="notice" role="note">
-          Research/POC only. This tool does not diagnose cancer, replace pathology,
-          clinician judgement, or established prediction instruments.
-        </p>
-      </header>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LungInsight – research CT analysis</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <h1>LungInsight</h1>
+  <p class="sub">Upload a lung CT, run the analysis, and review each nodule with its status, evidence, and source artifacts. Predictions are research outputs; blocked or unavailable components are never treated as negative results.</p>
+</header>
+<main>
+<form id="clinical-form" novalidate>
 
-      <form id="clinical-form" novalidate>
-        <ol class="workflow">
-          <li>
-            <fieldset>
-              <legend><span class="step-number">1</span> Patient and baseline</legend>
-              <div class="field-grid">
-                <label>Patient identifier
-                  <input name="patient_id" autocomplete="off" required maxlength="128">
-                </label>
-              </div>
-              <div class="upload-actions">
-                <button id="load-studies" class="secondary" type="button">Find saved studies</button>
-                <button id="load-clinical-record" class="secondary" type="button">Load saved clinical information</button>
-                <button id="save-clinical-record" class="secondary" type="button">Save clinical information</button>
-              </div>
-              <div id="saved-studies" class="saved-studies" aria-live="polite"></div>
-              <div id="clinical-record-status" class="status" role="status" aria-live="polite"></div>
-              <p class="hint">The prediction timestamp is generated automatically in UTC when the run starts. This interface does not collect pathology-confirmed diagnosis as an inference input.</p>
-            </fieldset>
-          </li>
+<section aria-labelledby="h-intake">
+  <h2 id="h-intake">1. Patient and clinical details</h2>
+  <div class="grid">
+    <label>Patient ID <span class="required" aria-hidden="true">*</span>
+      <input name="patient_id" autocomplete="off" required maxlength="128">
+    </label>
+    <label>Age at baseline (years)
+      <input name="age" type="number" min="18" max="120" step="1">
+    </label>
+    <label>Age status <span class="required" aria-hidden="true">*</span>
+      <select name="age_status" required>
+        <option value="" disabled selected>Select an option</option>
+        <option value="reported">Reported</option>
+        <option value="unknown">Unknown</option>
+        <option value="not_reported">Not reported</option>
+      </select>
+    </label>
+    <label>Sex as recorded <span class="required" aria-hidden="true">*</span>
+      <select name="sex" required>
+        <option value="" disabled selected>Select an option</option>
+        <option value="not_reported">Not reported</option>
+        <option value="unknown">Unknown</option>
+        <option value="female">Female</option>
+        <option value="male">Male</option>
+        <option value="other_or_unspecified">Other / unspecified</option>
+      </select>
+    </label>
+    <label>Race (distinct from ethnicity) <span class="required" aria-hidden="true">*</span>
+      <select name="race" required>
+        <option value="" disabled selected>Select an option</option>
+        <option value="not_reported">Not reported</option>
+        <option value="unknown">Unknown</option>
+        <option value="american_indian_or_alaska_native">American Indian or Alaska Native</option>
+        <option value="asian">Asian</option>
+        <option value="black_or_african_american">Black or African American</option>
+        <option value="native_hawaiian_or_pacific_islander">Native Hawaiian or Pacific Islander</option>
+        <option value="white">White</option>
+        <option value="multiple">Multiple races</option>
+        <option value="other">Other</option>
+      </select>
+    </label>
+    <label>Ethnicity <span class="required" aria-hidden="true">*</span>
+      <select name="ethnicity" required>
+        <option value="" disabled selected>Select an option</option>
+        <option value="not_reported">Not reported</option>
+        <option value="unknown">Unknown</option>
+        <option value="hispanic_or_latino">Hispanic or Latino</option>
+        <option value="not_hispanic_or_latino">Not Hispanic or Latino</option>
+        <option value="other">Other</option>
+      </select>
+    </label>
+    <label>Smoking status <span class="required" aria-hidden="true">*</span>
+      <select name="smoking_status" required>
+        <option value="" disabled selected>Select an option</option>
+        <option value="not_reported">Not reported</option>
+        <option value="unknown">Unknown</option>
+        <option value="never">Never smoked</option>
+        <option value="former">Former smoker</option>
+        <option value="current">Current smoker</option>
+      </select>
+    </label>
+    <label>Years smoked
+      <input name="years_smoked" type="number" min="0" max="100" step="0.1">
+    </label>
+    <label>Years smoked information
+      <select name="years_smoked_status">
+        <option value="not_reported">Not reported</option>
+        <option value="unknown">Unknown</option>
+        <option value="reported">Reported</option>
+      </select>
+    </label>
+    <label>Average packs per day
+      <input name="packs_per_day" type="number" min="0" max="20" step="0.1">
+    </label>
+    <label>Packs per day information
+      <select name="packs_per_day_status">
+        <option value="not_reported">Not reported</option>
+        <option value="unknown">Unknown</option>
+        <option value="reported">Reported</option>
+      </select>
+    </label>
+    <label>Years since quitting (former smokers)
+      <input name="years_since_cessation" type="number" min="0" max="100" step="0.1">
+    </label>
+    <div>
+      <span class="label">Pack-years</span>
+      <p class="py"><output id="pack-years" aria-live="polite">–</output></p>
+    </div>
+    <label>Family history of lung cancer <span class="required" aria-hidden="true">*</span>
+      <select name="family_history_lung_cancer" required>
+        <option value="" disabled selected>Select an option</option>
+        <option value="not_reported">Not reported</option>
+        <option value="unknown">Unknown</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+    </label>
+    <label>Karnofsky Performance Status (KPS) <span class="required" aria-hidden="true">*</span>
+      <input name="kps" type="number" min="0" max="100" step="10" inputmode="numeric">
+    </label>
+    <label class="check"><input type="checkbox" name="kps_unknown" value="on"> KPS unknown (no value is guessed)</label>
+    <label class="check"><input type="checkbox" name="baseline_confirmed" value="on"> This CT was acquired at initial pathologic diagnosis (needed for the Cancer-type and Survival models)</label>
+  </div>
+  <p class="hint">Pack-years = years smoked × average packs per day. No smoking history is inferred from dataset-derived predictions. KPS is required: enter a value in 10-point steps, or tick KPS unknown.</p>
 
-          <li>
-            <fieldset>
-              <legend><span class="step-number">2</span> CT scan</legend>
-              <p class="hint">Choose one CT series as a folder or select its DICOM files together.</p>
-              <div class="upload-actions">
-                <label class="button secondary" for="dicom-folder">Select DICOM folder
-                  <input id="dicom-folder" type="file" webkitdirectory directory multiple hidden>
-                </label>
-                <label class="button secondary" for="dicom-files">Select DICOM files
-                  <input id="dicom-files" type="file" multiple accept=".dcm,application/dicom" hidden>
-                </label>
-              </div>
-              <div id="scan-selection" class="selection empty" aria-live="polite">No CT scan selected.</div>
-              <button id="remove-scan" class="text-button" type="button" hidden>Remove selected scan</button>
-              <div id="upload-status" class="status" role="status" aria-live="polite"></div>
-            </fieldset>
-          </li>
+  <fieldset class="nested">
+    <legend>Relevant medical history</legend>
+    <label>History information
+      <select name="medical_history_status">
+        <option value="not_reported">Not reported</option>
+        <option value="unknown">Unknown</option>
+        <option value="reported">Reviewed / reported</option>
+      </select>
+    </label>
+    <div class="checks">
+      <label class="check"><input type="checkbox" name="medical_history" value="emphysema"> Emphysema</label>
+      <label class="check"><input type="checkbox" name="medical_history" value="copd"> COPD</label>
+      <label class="check"><input type="checkbox" name="medical_history" value="asthma"> Asthma</label>
+      <label class="check"><input type="checkbox" name="medical_history" value="pulmonary_fibrosis"> Pulmonary fibrosis</label>
+      <label class="check"><input type="checkbox" name="medical_history" value="prior_cancer"> Prior cancer</label>
+      <label class="check"><input type="checkbox" name="medical_history" value="other"> Other relevant history</label>
+    </div>
+  </fieldset>
+  <fieldset class="nested">
+    <legend>Symptoms <span class="required" aria-hidden="true">*</span></legend>
+    <label>Symptom information
+      <select name="symptoms_status" required>
+        <option value="" disabled selected>Select an option</option>
+        <option value="no_symptoms">No symptoms</option>
+        <option value="not_reported">Not reported</option>
+        <option value="unknown">Unknown</option>
+        <option value="reported">Reviewed / reported</option>
+      </select>
+    </label>
+    <div class="checks">
+      <label class="check"><input type="checkbox" name="symptoms" value="cough"> Cough</label>
+      <label class="check"><input type="checkbox" name="symptoms" value="dyspnea"> Dyspnea</label>
+      <label class="check"><input type="checkbox" name="symptoms" value="hemoptysis"> Hemoptysis</label>
+      <label class="check"><input type="checkbox" name="symptoms" value="chest_pain"> Chest pain</label>
+      <label class="check"><input type="checkbox" name="symptoms" value="weight_loss"> Unintended weight loss</label>
+      <label class="check"><input type="checkbox" name="symptoms" value="fatigue"> Fatigue</label>
+      <label class="check"><input type="checkbox" name="symptoms" value="other"> Other symptom</label>
+    </div>
+  </fieldset>
+  <div class="row">
+    <button id="load-clinical-record" class="ghost" type="button">Load saved clinical information</button>
+    <button id="save-clinical-record" class="ghost" type="button">Save clinical information</button>
+  </div>
+  <p id="clinical-record-status" class="status" role="status" aria-live="polite"></p>
+  <p class="hint">The prediction timestamp is generated automatically in UTC when the run starts. Pathology-confirmed diagnosis is not collected as an inference input.</p>
+</section>
 
-          <li>
-            <fieldset>
-              <legend><span class="step-number">3</span> Clinical information</legend>
-              <div class="field-grid">
-                <label>Age at baseline (years)
-                  <input name="age" type="number" min="18" max="120" step="1">
-                </label>
-                <label>Age information
-                  <select name="age_status">
-                    <option value="reported">Reported</option>
-                    <option value="unknown">Unknown</option>
-                    <option value="not_reported">Not reported</option>
-                  </select>
-                </label>
-                <label>Sex as recorded
-                  <select name="sex">
-                    <option value="not_reported">Not reported</option>
-                    <option value="unknown">Unknown</option>
-                    <option value="female">Female</option>
-                    <option value="male">Male</option>
-                    <option value="other_or_unspecified">Other / unspecified</option>
-                  </select>
-                </label>
-                <label>Race (distinct from ethnicity)
-                  <select name="race">
-                    <option value="not_reported">Not reported</option>
-                    <option value="unknown">Unknown</option>
-                    <option value="american_indian_or_alaska_native">American Indian or Alaska Native</option>
-                    <option value="asian">Asian</option>
-                    <option value="black_or_african_american">Black or African American</option>
-                    <option value="native_hawaiian_or_pacific_islander">Native Hawaiian or Pacific Islander</option>
-                    <option value="white">White</option>
-                    <option value="multiple">Multiple races</option>
-                    <option value="other">Other</option>
-                  </select>
-                </label>
-                <label>Ethnicity
-                  <select name="ethnicity">
-                    <option value="not_reported">Not reported</option>
-                    <option value="unknown">Unknown</option>
-                    <option value="hispanic_or_latino">Hispanic or Latino</option>
-                    <option value="not_hispanic_or_latino">Not Hispanic or Latino</option>
-                    <option value="other">Other</option>
-                  </select>
-                </label>
-              </div>
-              <div class="field-grid">
-                <label>Smoking status
-                  <select name="smoking_status">
-                    <option value="not_reported">Not reported</option>
-                    <option value="unknown">Unknown</option>
-                    <option value="never">Never smoked</option>
-                    <option value="former">Former smoker</option>
-                    <option value="current">Current smoker</option>
-                  </select>
-                </label>
-                <label>Years smoked
-                  <input name="years_smoked" type="number" min="0" max="100" step="0.1">
-                </label>
-                <label>Years smoked information
-                  <select name="years_smoked_status">
-                    <option value="not_reported">Not reported</option>
-                    <option value="unknown">Unknown</option>
-                    <option value="reported">Reported</option>
-                  </select>
-                </label>
-                <label>Average packs per day
-                  <input name="packs_per_day" type="number" min="0" max="20" step="0.1">
-                </label>
-                <label>Packs per day information
-                  <select name="packs_per_day_status">
-                    <option value="not_reported">Not reported</option>
-                    <option value="unknown">Unknown</option>
-                    <option value="reported">Reported</option>
-                  </select>
-                </label>
-                <label>Years since quitting (former smokers)
-                  <input name="years_since_cessation" type="number" min="0" max="100" step="0.1">
-                </label>
-              </div>
-              <p class="hint">Calculated pack-years: <output id="pack-years">Unavailable</output>. Pack-years are calculated as years smoked × average packs per day; no smoking history is inferred from dataset-derived smoking predictions.</p>
-              <label>Family history of lung cancer
-                <select name="family_history_lung_cancer">
-                  <option value="not_reported">Not reported</option>
-                  <option value="unknown">Unknown</option>
-                  <option value="yes">Yes</option>
-                  <option value="no">No</option>
-                </select>
-              </label>
-              <fieldset class="nested-fields">
-                <legend>Relevant medical history</legend>
-                <label>History information
-                  <select name="medical_history_status">
-                    <option value="not_reported">Not reported</option>
-                    <option value="unknown">Unknown</option>
-                    <option value="reported">Reviewed / reported</option>
-                  </select>
-                </label>
-                <div class="checkbox-group">
-                  <label><input type="checkbox" name="medical_history" value="emphysema"> Emphysema</label>
-                  <label><input type="checkbox" name="medical_history" value="copd"> COPD</label>
-                  <label><input type="checkbox" name="medical_history" value="asthma"> Asthma</label>
-                  <label><input type="checkbox" name="medical_history" value="pulmonary_fibrosis"> Pulmonary fibrosis</label>
-                  <label><input type="checkbox" name="medical_history" value="prior_cancer"> Prior cancer</label>
-                  <label><input type="checkbox" name="medical_history" value="other"> Other relevant history</label>
-                </div>
-              </fieldset>
-              <fieldset class="nested-fields">
-                <legend>Symptoms</legend>
-                <label>Symptom information
-                  <select name="symptoms_status">
-                    <option value="not_reported">Not reported</option>
-                    <option value="unknown">Unknown</option>
-                    <option value="reported">Reviewed / reported</option>
-                  </select>
-                </label>
-                <div class="checkbox-group">
-                  <label><input type="checkbox" name="symptoms" value="cough"> Cough</label>
-                  <label><input type="checkbox" name="symptoms" value="dyspnea"> Dyspnea</label>
-                  <label><input type="checkbox" name="symptoms" value="hemoptysis"> Hemoptysis</label>
-                  <label><input type="checkbox" name="symptoms" value="chest_pain"> Chest pain</label>
-                  <label><input type="checkbox" name="symptoms" value="weight_loss"> Unintended weight loss</label>
-                  <label><input type="checkbox" name="symptoms" value="fatigue"> Fatigue</label>
-                  <label><input type="checkbox" name="symptoms" value="other"> Other symptom</label>
-                </div>
-              </fieldset>
-              <label>Karnofsky Performance Status (KPS)
-                <input name="kps" type="number" min="0" max="100" step="10" inputmode="numeric">
-              </label>
-              <p class="hint">Use a standard KPS value in 10-point increments. Leave blank if unavailable; no value will be guessed. KPS is used only where supported by the selected clinical model.</p>
-            </fieldset>
-          </li>
+<section aria-labelledby="h-up">
+  <h2 id="h-up">2. CT upload</h2>
+  <p class="sub">Choose one CT series as a folder, or select its DICOM files together.</p>
+  <div class="row" style="margin-top:0">
+    <button id="select-folder" class="ghost" type="button">Select CT folder</button>
+    <button id="select-files" class="ghost" type="button">Select DICOM files</button>
+    <input id="dicom-folder" type="file" webkitdirectory directory multiple hidden aria-label="CT folder">
+    <input id="dicom-files" type="file" multiple accept=".dcm,application/dicom" hidden aria-label="DICOM files">
+  </div>
+  <p id="scan-selection" class="selection empty" aria-live="polite">No CT scan selected.</p>
+  <div class="row">
+    <button id="confirm-upload" type="button" disabled>Confirm and upload CT</button>
+    <button id="remove-scan" class="ghost" type="button" hidden>Remove selected scan</button>
+  </div>
+  <progress id="upload-progress" max="100" value="0" hidden aria-label="Upload progress"></progress>
+  <p id="upload-status" class="status" role="status" aria-live="polite"></p>
+</section>
 
-          <li>
-            <fieldset>
-              <legend><span class="step-number">4</span> Review and analyse</legend>
-              <div id="review-summary" class="review-box">Complete the scan and clinical fields to review the request.</div>
-              <button id="analyse-button" type="submit" disabled>Upload and analyse CT</button>
-              <div id="form-error" class="error" role="alert"></div>
-            </fieldset>
-          </li>
-        </ol>
-      </form>
+<section aria-labelledby="h-an">
+  <h2 id="h-an">3. Analysis</h2>
+  <div id="review-summary" class="review-box">Complete the scan and clinical fields to review the request.</div>
+  <div class="row"><button id="analyse-button" type="submit" disabled>Submit case and run analysis</button></div>
+  <p id="form-error" class="err" role="alert"></p>
+  <p id="run-message" class="sub" role="status" aria-live="polite"></p>
+  <ol class="stages" id="stages"></ol>
+</section>
 
-      <section id="results" aria-labelledby="results-heading" hidden>
-        <h2 id="results-heading">5. Results</h2>
-        <button id="print-report" type="button">Print report</button>
-        <div id="result-summary" class="summary"></div>
-        <div id="result-sections" class="result-sections"></div>
-        <details>
-          <summary>Technical details</summary>
-          <pre id="technical-result"></pre>
-        </details>
-      </section>
-    </main>
-    <script src="app.js" defer></script>
-  </body>
+</form>
+
+<section id="results" hidden aria-labelledby="h-res" tabindex="-1">
+  <h2 id="h-res">4. Results summary</h2>
+  <div class="stats" id="stats"></div>
+  <div id="gate"></div>
+  <div id="result-notes"></div>
+  <div class="scroll"><table><caption class="sr">Per-method outcomes</caption><thead><tr><th>Method</th><th>Succeeded</th><th>Failed</th><th>Unavailable</th><th>Reason</th></tr></thead><tbody id="methods"></tbody></table></div>
+  <div class="row"><a href="#" id="report-html" target="_blank" rel="noopener">HTML report</a><a href="#" id="report-json" target="_blank" rel="noopener">JSON report</a><button id="print-report" class="ghost" type="button">Print report</button></div>
+  <div id="clinical-results"></div>
+  <details>
+    <summary>Technical details</summary>
+    <pre id="technical-result"></pre>
+  </details>
+  <details>
+    <summary>Activity log (button clicks, requests, responses, errors)</summary>
+    <ol id="activity-log" aria-live="off"></ol>
+  </details>
+</section>
+
+<section id="viewer-section" hidden aria-labelledby="h-view">
+  <h2 id="h-view">5. Nodule viewer</h2>
+  <div class="viewer">
+    <div>
+      <canvas id="viewer-canvas" width="256" height="256" tabindex="0" role="img" aria-label="CT slice viewer. Use arrow keys or the mouse wheel to change slice."></canvas>
+      <div class="viewer-controls" hidden>
+        <label for="viewer-slice">Slice <span id="viewer-slice-label"></span></label>
+        <input id="viewer-slice" type="range" min="0" max="0" value="0">
+        <div class="row">
+          <button id="viewer-previous" class="ghost" type="button">Previous</button>
+          <button id="viewer-next" class="ghost" type="button">Next</button>
+        </div>
+        <div class="row">
+          <label class="check"><input type="checkbox" id="viewer-lung"> Lung mask</label>
+          <label class="check"><input type="checkbox" id="viewer-heart"> Heart/exclusion mask</label>
+        </div>
+        <fieldset class="nested" id="gradcam-group">
+          <legend>Grad-CAM</legend>
+          <label for="viewer-gradcam-attribute">Attribute (one at a time)</label>
+          <select id="viewer-gradcam-attribute"><option value="">Off</option></select>
+          <div id="viewer-gradcam-nodules" class="checks" aria-label="Nodules to overlay"></div>
+          <label for="viewer-gradcam-alpha">Opacity <span id="viewer-gradcam-alpha-label">55%</span></label>
+          <input id="viewer-gradcam-alpha" type="range" min="0" max="100" step="5" value="55">
+          <div class="cam-legend" aria-hidden="true"><span>low</span><i></i><span>high</span></div>
+        </fieldset>
+      </div>
+      <p id="viewer-status" class="sub" role="status" aria-live="polite"></p>
+    </div>
+    <div>
+      <h3>Nodules</h3>
+      <ul class="nlist" id="viewer-nodules"></ul>
+    </div>
+  </div>
+</section>
+
+<section id="detail" hidden aria-labelledby="h-det" tabindex="-1">
+  <h2 id="h-det">6. Nodule detail</h2>
+  <div id="viewer-nodule-detail"></div>
+</section>
+
+<section aria-labelledby="h-saved">
+  <h2 id="h-saved">7. Saved studies</h2>
+  <p class="sub">Every analysis run is stored on the server. Enter a Patient ID above and load its past runs; click one to reopen its results, viewer and report. Runs for the same patient share one set of image files, so a reopened older run shows that patient's most recent images.</p>
+  <div class="row" style="margin-top:0"><button id="load-studies" class="ghost" type="button">Load studies for this patient</button></div>
+  <ul id="saved-studies" class="nlist" style="margin-top:.6rem" aria-live="polite"></ul>
+</section>
+</main>
+<footer>LungInsight v2 research interface.</footer>
+<script src="app.js" defer></script>
+</body>
 </html>

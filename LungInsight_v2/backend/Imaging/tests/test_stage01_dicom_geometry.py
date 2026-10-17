@@ -36,6 +36,27 @@ def slice_record(position, orientation=(1, 0, 0, 0, 1, 0), pixel_spacing=(0.7, 0
     )
 
 
+class PatientScanRootTests(unittest.TestCase):
+    def test_upload_input_under_output_patient_folder_scans_only_its_own_tree(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            outer = Path(tmp) / "output" / "LIDC-IDRI-0007"
+            upload_input = outer / "dicom_uploads" / "job1" / "stage01_input" / "LIDC-IDRI-0007"
+            upload_input.mkdir(parents=True)
+            (outer / "dicom_uploads" / "job2" / "stage01_input" / "LIDC-IDRI-0007").mkdir(parents=True)
+            root, patient_id = STAGE01_MODULE.resolve_patient_dir(str(upload_input))
+            self.assertEqual(root, upload_input.resolve())
+            self.assertEqual(patient_id, "LIDC-IDRI-0007")
+
+    def test_dataset_study_series_path_returns_patient_folder(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            patient = Path(tmp) / "LIDC-IDRI-0003"
+            series = patient / "30178" / "03192"
+            series.mkdir(parents=True)
+            root, patient_id = STAGE01_MODULE.resolve_patient_dir(str(series))
+            self.assertEqual(root, patient.resolve())
+            self.assertEqual(patient_id, "LIDC-IDRI-0003")
+
+
 class DicomGeometryTests(unittest.TestCase):
     def test_orders_by_oblique_plane_normal_not_patient_z(self):
         orientation = (0, 1, 0, 0, 0, 1)

@@ -15,7 +15,6 @@ from lunginsight_candidate_fusion import (  # noqa: E402
     filter_detections_by_lung_mask,
     load_canonical_contract,
     merge_detections,
-    rank_filtered_log_candidates,
     select_fused_candidates,
 )
 
@@ -40,74 +39,66 @@ def vit(cid, center, score=0.8, low=None, high=None):
     return row
 
 
-def log(cid, center, response=2.0, scale=8.0):
-    return {
-        "diagnostic_id": cid,
-        "purpose": "research_comparison_only",
-        "coordinate_order": "ZYX",
-        "center_zyx": list(center),
-        "log_response": response,
-        "scale_mm": scale,
-        "space": SPACE,
-    }
-
-
 class MergeTests(unittest.TestCase):
-    def merge(self, logs, vits, spacing=(2.5, 0.7, 0.7), **kwargs):
-        return merge_detections(logs, vits, spacing_zyx_mm=spacing, expected_space=SPACE, **kwargs)
+    def merge(self, vits, spacing=(2.5, 0.7, 0.7), **kwargs):
+        return merge_detections(vits, spacing_zyx_mm=spacing, expected_space=SPACE, **kwargs)
 
     def test_empty_detector_outputs(self):
-        records, report = self.merge([], [])
+        records, report = self.merge([])
         self.assertEqual(records, [])
-        self.assertEqual(report["union_count_before_deduplication"], 0)
+        self.assertEqual(report["vitdet3d_count"], 0)
         self.assertEqual(report["deduplicated_count"], 0)
 
-    def test_empty_log_keeps_vit(self):
-        records, report = self.merge([], [vit("v1", (4, 10, 10))])
+    def test_single_vitdet_candidate_survives_without_secondary_detector(self):
+        records, report = self.merge([vit("v1", (4, 10, 10))])
         self.assertEqual(len(records), 1)
         self.assertEqual(report["vitdet3d_count"], 1)
         self.assertEqual(records[0]["detector_provenance"], ["ViTDet3D"])
+        self.assertEqual(records[0]["primary_geometry_source"], "vitdet3d_single")
 
-    def test_duplicate_log_and_vit_merge_and_keep_provenance_scores(self):
+    def test_secondary_detector_label_is_rejected(self):
+        with self.assertRaises(ValueError):
+            self.merge([{**vit("l1", (4, 10, 10)), "detection_source": "LoG", "source": "LoG"}])
+
+    def test_nearby_vitdet_duplicates_merge_and_keep_provenance(self):
         records, report = self.merge(
-            [log("l1", (4.0, 10.0, 10.0), response=3.4)],
-            [vit("v1", (4.2, 10.0, 10.0), score=0.91, low=[2, 8, 8], high=[7, 13, 13])],
+            [
+                vit("v1", (10, 10, 10), score=0.91, low=[8, 8, 8], high=[12, 12, 12]),
+                vit("v2", (10, 10, 11), score=0.40, low=[8, 8, 9], high=[12, 12, 13]),
+            ],
         )
         self.assertEqual(len(records), 1)
-        self.assertEqual(report["union_count_before_deduplication"], 2)
+        self.assertEqual(report["vitdet3d_count"], 2)
         self.assertEqual(report["deduplicated_count"], 1)
-        self.assertEqual(records[0]["primary_geometry_source"], "equal_weight_fusion")
-        self.assertEqual(records[0]["center_zyx"], [4.1, 10.0, 10.0])
-        self.assertEqual(set(records[0]["detector_provenance"]), {"LoG", "ViTDet3D"})
-        self.assertAlmostEqual(records[0]["detector_scores"]["ViTDet3D"][0]["value"], 0.91)
-        self.assertAlmostEqual(records[0]["detector_scores"]["LoG"][0]["value"], 3.4)
-        evidence = {record["detector"]: record["record"] for record in records[0]["provenance_records"]}
-        self.assertEqual(evidence["ViTDet3D"]["candidate_id"], "v1")
-        self.assertEqual(evidence["LoG"]["diagnostic_id"], "l1")
-        self.assertAlmostEqual(evidence["LoG"]["log_response"], 3.4)
+        self.assertEqual(report["duplicates_removed"], 1)
+        self.assertEqual(records[0]["primary_geometry_source"], "vitdet3d_cluster_mean")
+        self.assertEqual(records[0]["merged_member_count"], 2)
+        self.assertEqual(records[0]["detector_provenance"], ["ViTDet3D"])
+        self.assertAlmostEqual(records[0]["vitdet_score"], 0.91)
+        self.assertEqual({m["candidate_id"] for m in records[0]["source_members"]}, {"v1", "v2"})
 
-    def test_single_detector_candidates_survive_fusion(self):
-        records, _ = self.merge(
-            [log("log-alone", (3, 5, 7))],
-            [vit("vit-alone", (15, 5, 7))],
-        )
-        self.assertEqual(len(records), 2)
-        self.assertEqual({row["source"] for row in records}, {"LoG", "ViTDet3D"})
-
-    def test_geometry_fusion_weights_detectors_not_duplicate_record_count(self):
+    def test_single_vitdet_candidates_are_not_dropped_for_lack_of_agreement(self):
         records, _ = self.merge(
             [
-                log("log-1", (10, 10, 10), scale=2),
-                log("log-2", (10, 10, 11), scale=2),
+                vit("vit-alone-1", (3, 5, 7)),
+                vit("vit-alone-2", (15, 5, 7)),
             ],
-            [vit("vit-1", (10, 10, 12), low=[9, 9, 11], high=[11, 11, 13])],
+        )
+        self.assertEqual(len(records), 2)
+        self.assertEqual({row["source"] for row in records}, {"ViTDet3D"})
+
+    def test_cluster_center_is_mean_of_vitdet_members(self):
+        records, _ = self.merge(
+            [
+                vit("v1", (10, 10, 12)),
+                vit("v2", (10, 10, 11)),
+            ],
         )
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]["center_zyx"], [10.0, 10.0, 11.25])
+        self.assertEqual(records[0]["center_zyx"], [10.0, 10.0, 11.5])
 
     def test_distinct_nearby_nodules_not_merged_by_small_bbox_overlap_alone(self):
         records, report = self.merge(
-            [],
             [
                 vit("v1", (10, 20, 20), low=[8, 18, 18], high=[12, 22, 22]),
                 vit("v2", (10, 26, 20), low=[8, 24, 18], high=[12, 28, 22]),
@@ -120,8 +111,10 @@ class MergeTests(unittest.TestCase):
     def test_anisotropic_spacing_used_for_physical_distance(self):
         # 2 z voxels at 3 mm = 6 mm, so this is not a 2 mm near-center match.
         records, _ = self.merge(
-            [log("l1", (10, 10, 10), scale=2)],
-            [vit("v1", (12, 10, 10), low=[11, 9, 9], high=[13, 11, 11])],
+            [
+                vit("v1", (10, 10, 10), low=[9, 9, 9], high=[11, 11, 11]),
+                vit("v2", (12, 10, 10), low=[11, 9, 9], high=[13, 11, 11]),
+            ],
             spacing=(3.0, 0.5, 0.5), center_distance_mm=2.0,
             max_center_distance_mm=4.0, min_overlap_iou=0.2,
         )
@@ -129,17 +122,16 @@ class MergeTests(unittest.TestCase):
 
     def test_coordinate_frame_mismatch_fails_closed(self):
         with self.assertRaisesRegex(ValueError, "convert geometry"):
-            self.merge([], [dict(vit("v1", (1, 2, 3)), space="patch_local_ct")])
+            self.merge([dict(vit("v1", (1, 2, 3)), space="patch_local_ct")])
 
     def test_invalid_spacing_rejected(self):
         with self.assertRaises(ValueError):
-            self.merge([], [], spacing=(1, 0, 1))
+            self.merge([], spacing=(1, 0, 1))
 
     def test_merge_stable_ids_and_order(self):
-        logs = [log("l2", (20, 20, 20)), log("l1", (5, 5, 5))]
         vits = [vit("v2", (20.2, 20, 20)), vit("v1", (5.2, 5, 5))]
-        first, _ = self.merge(logs, vits)
-        second, _ = self.merge(list(reversed(logs)), list(reversed(vits)))
+        first, _ = self.merge(vits)
+        second, _ = self.merge(list(reversed(vits)))
         self.assertEqual([x["nodule_id"] for x in first], [x["nodule_id"] for x in second])
         self.assertEqual([x["center_zyx"] for x in first], [x["center_zyx"] for x in second])
 
@@ -152,75 +144,53 @@ class MergeTests(unittest.TestCase):
             "direction_lps": [[0, 1, 0], [0, 0, 1], [1, 0, 0]],
         }
         first, _ = self.merge(
-            [{**log("log-1", (10, 20, 30), response=2.5), "center_lps_mm": [-86.0, -179.0, -275.0]}],
             [{**vit("vit-1", (10.2, 20, 30), score=0.9), "center_lps_mm": [-86.0, -179.0, -274.5]}],
             **kwargs,
         )
         second, _ = self.merge(
-            [{**log("log-1", (10, 20, 30), response=2.5), "center_lps_mm": [-86.0, -179.0, -275.0]}],
             [{**vit("vit-1", (10.2, 20, 30), score=0.9), "center_lps_mm": [-86.0, -179.0, -274.5]}],
             **kwargs,
         )
         self.assertEqual(first[0]["stable_nodule_id"], second[0]["stable_nodule_id"])
         self.assertEqual(first[0]["candidate_id"], first[0]["stable_nodule_id"])
-        self.assertEqual(first[0]["source"], "Merged")
-        self.assertEqual({item["candidate_id"] for item in first[0]["source_members"]}, {"vit-1", "log-1"})
+        self.assertEqual(first[0]["source"], "ViTDet3D")
+        self.assertEqual({item["candidate_id"] for item in first[0]["source_members"]}, {"vit-1"})
         self.assertEqual(first[0]["vitdet_score"], 0.9)
-        self.assertEqual(first[0]["log_score"], 2.5)
+        self.assertNotIn("log_score", first[0])
 
-    def test_stable_identity_does_not_change_with_detector_agreement(self):
-        kwargs = {
-            "patient_id": "p1",
-            "study_uid": "study1",
-            "series_uid": "series1",
-            "origin_lps_mm": [-100.0, -200.0, -300.0],
-            "direction_lps": [[0, 1, 0], [0, 0, 1], [1, 0, 0]],
-        }
-        physical = {"center_lps_mm": [-86.0, -179.0, -275.0]}
-        log_only, _ = self.merge(
-            [{**log("l1", (10, 20, 30)), **physical}], [], **kwargs
+    def test_stable_identity_uses_merged_namespace(self):
+        from nodule_identity import stable_nodule_id
+
+        origin = [-100.0, -200.0, -300.0]
+        direction = [[0, 1, 0], [0, 0, 1], [1, 0, 0]]
+        records, _ = self.merge(
+            [{**vit("v1", (10, 20, 30)), "center_lps_mm": [-86.0, -179.0, -275.0]}],
+            patient_id="p1", study_uid="study1", series_uid="series1",
+            origin_lps_mm=origin, direction_lps=direction,
         )
-        vit_only, _ = self.merge(
-            [], [{**vit("v1", (10, 20, 30)), **physical}], **kwargs
-        )
-        self.assertEqual(log_only[0]["stable_nodule_id"], vit_only[0]["stable_nodule_id"])
+        spacing = np.asarray([2.5, 0.7, 0.7])
+        center_lps = np.asarray(origin) + np.asarray(direction) @ (np.asarray([10, 20, 30]) * spacing)
+        expected = stable_nodule_id("p1", "study1", "series1", center_lps, "Merged")
+        self.assertEqual(records[0]["stable_nodule_id"], expected)
 
     def test_partial_stable_identity_context_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "requires patient_id"):
-            self.merge(
-                [],
-                [vit("v1", (4, 10, 10))],
-                patient_id="p1",
-            )
+            self.merge([vit("v1", (4, 10, 10))], patient_id="p1")
 
-    def test_filtered_log_candidates_are_ranked_before_limit(self):
-        rows = [log(f"l{score}", (score, 10, 10), response=score) for score in range(60)]
-        selected = rank_filtered_log_candidates(rows, limit=50)
-        self.assertEqual(len(selected), 50)
-        self.assertEqual(selected[0]["log_response"], 59)
-        self.assertEqual(selected[-1]["log_response"], 10)
-        self.assertEqual(rank_filtered_log_candidates(list(reversed(rows)), limit=50), selected)
-
-    def test_log_ranking_rejects_missing_score(self):
-        with self.assertRaisesRegex(ValueError, "no finite log_response"):
-            rank_filtered_log_candidates([{"diagnostic_id": "missing"}])
-
-    def test_selection_is_detector_neutral_and_keeps_single_source_candidates(self):
+    def test_selection_ranks_vitdet_candidates_and_keeps_all_within_limit(self):
         fused, _ = self.merge(
-            [log("log-only", (30, 30, 30), response=100.0)],
             [
                 vit("vit-only-1", (4, 4, 4), score=0.2),
                 vit("vit-only-2", (8, 8, 8), score=0.1),
+                vit("vit-only-3", (16, 16, 16), score=0.9),
             ],
         )
         selected = select_fused_candidates(fused, limit=2)
         self.assertEqual(len(selected), 2)
-        self.assertEqual({row["source"] for row in selected}, {"LoG", "ViTDet3D"})
-        self.assertIn(
-            "log-only",
-            {member["candidate_id"] for row in selected for member in row["source_members"]},
-        )
+        self.assertEqual(selected[0]["vitdet_score"], 0.9)
+        self.assertEqual({row["source"] for row in selected}, {"ViTDet3D"})
         self.assertTrue(all(0.0 <= row["fusion_rank_percentile"] <= 1.0 for row in fused))
+
 
 
 class FilterTests(unittest.TestCase):

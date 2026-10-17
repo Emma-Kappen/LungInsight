@@ -10,7 +10,7 @@ hex characters of SHA-256 over canonical JSON containing:
 - DICOM `series_uid`
 - `centroid_lps_mm`, rounded to the nearest micrometre and encoded as integer
   micrometres in LPS axis order
-- fused-record `detector_source`: `ViTDet3D`, `LoG`, or `Merged`
+- fused-record `detector_source`: `Merged`
 
 The JSON uses sorted keys and compact separators. Empty identifiers, malformed
 centroids, and non-finite physical coordinates are errors; they are never

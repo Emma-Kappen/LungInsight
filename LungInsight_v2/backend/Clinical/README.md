@@ -164,6 +164,27 @@ MSK-CHORD research population; they are not cancer-versus-benign probabilities.
 The single-feature model has limited discrimination and is research-only, not
 an externally validated or clinically deployable histology classifier.
 
+## Deployed models
+
+The API loads `models/clinical-research-v1.joblib` automatically when it exists
+(or the bundle named by `LUNGINSIGHT_CLINICAL_ARTIFACT`), and analysis runs use
+it. Retrain either model from the repository root; each command preserves the
+other model in the bundle, reloads the saved artifact and checks that fixed
+examples score identically before succeeding:
+
+```powershell
+.\LungInsight_v2\l-env\Scripts\python.exe -m LungInsight_v2.backend.Clinical.train_cancer_type --datasets-root datasets
+.\LungInsight_v2\l-env\Scripts\python.exe -m LungInsight_v2.backend.Clinical.train_survival --datasets-root datasets
+```
+
+`train_survival` fits the TCGA-LUAD/LUSC random survival forest on age and sex
+(stage is excluded as target leakage), refuses to deploy if the held-out
+concordance index is not above 0.5, and rewrites
+`reports/survival-evaluation.json` and `reports/cross-cohort-evaluation.json`.
+Both models only predict when the run is submitted with the "CT acquired at
+initial pathologic diagnosis" confirmation (`baseline_definition` of
+`initial_pathologic_diagnosis`); otherwise they report why they abstained.
+
 ## Clinical explainability
 
 Classifier explanations use the fitted feature contract and report
@@ -211,11 +232,11 @@ The survival model's time origin and predictor baseline are initial pathologic
 diagnosis. A caller must explicitly confirm that the imaging study timestamp
 is that same baseline; otherwise the model returns `blocked`. Equal timestamps
 alone do not establish baseline semantics.
-To start the local API:
+To start the local API (use any free port; 8010 may already be in use):
 
 ```powershell
 .\LungInsight_v2\l-env\Scripts\python.exe -m uvicorn `
-  LungInsight_v2.backend.Clinical.api:app --host 127.0.0.1 --port 8010
+  LungInsight_v2.backend.Clinical.api:app --host 127.0.0.1 --port 8011
 ```
 
 The API returns `not_trained` for model components without loaded artifacts and
@@ -236,10 +257,30 @@ The form posts DICOM folder/file selections to `/api/v1/imaging/dicom/upload`
 through the local API, shows explicit preprocessing and model-unavailable/abstention
 statuses, and does not fabricate results. The upload endpoint validates one
 CT series, applies DICOM rescale slope/intercept to reconstruct an HU volume,
-and stores only the minimum hashed study/series provenance. It deliberately
-reports analysis as blocked until the existing staged Imaging runner completes
-its review and model gates; preprocessing success is not an analysis result.
-Open `http://127.0.0.1:8010/` after starting the local API to use the intake.
+and stores only the minimum hashed study/series provenance. A successful upload only prepares the CT for analysis. `POST /api/v1/analysis/runs`
+returns 202 and the existing staged Imaging runner then executes Stages 01-07
+and the Clinical stage in the background. Poll the run status endpoint for
+progress; preprocessing success is not an analysis result.
+Open `http://127.0.0.1:8011/` (or the port you chose) after starting the local API.
+
+Required intake fields (marked `*` in the form): Patient ID, Age (status, and
+a value when reported), Sex, Race, Ethnicity, Smoking information, Family
+history of lung cancer, Symptoms (use "No symptoms" for none), and KPS (or the
+"KPS unknown" checkbox, which stores `null`). Save and Submit both block when a
+required field is missing and mark the field with an error. Submission also
+requires a confirmed CT upload for the same Patient ID.
+
+Upload workflow: click "Select CT folder" (or "Select files"), review the
+folder name and file count, then click "Confirm and upload CT". Progress is
+shown during the upload. Select only the CT series folder; multi-series uploads
+are rejected.
+
+Diagnostics: the browser records events in the "Activity log" panel
+(`<details>` on the page) and in the developer console with the `[LungInsight]`
+prefix. The server logs each request, validation failure, upload stage, and
+unhandled exception under the `lunginsight` logger hierarchy
+(`lunginsight.clinical_api`, `lunginsight.imaging_api.dicom`), written to the
+uvicorn console. Each response carries an `X-Request-ID` header for correlation.
 
 The browser starts an analysis through the backend-controlled run resource:
 
@@ -255,8 +296,9 @@ The browser starts an analysis through the backend-controlled run resource:
   metadata, mask availability, and nodule review geometry.
 - `GET /api/v1/analysis/runs/{run_id}/viewer/slices/{index}` for bounded PNG
   slice delivery. The optional `lung_overlay`, `heart_overlay`,
-  `gradcam_nodule_id`, and `gradcam_attribute` query values select overlays
-  from artifacts belonging to that run; arbitrary filesystem paths are not
+  `gradcam_attribute` (one attribute), repeatable `gradcam_nodule_id`
+  (several nodules at once) and `gradcam_alpha` (0 to 1) query values select
+  overlays from artifacts belonging to that run; arbitrary filesystem paths are not
   accepted.
 
 The server resolves the upload job to its validated input tree and invokes the

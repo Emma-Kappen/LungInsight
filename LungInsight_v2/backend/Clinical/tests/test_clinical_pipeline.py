@@ -57,7 +57,7 @@ def _valid_imaging_contract(patient_id: str = "synthetic-patient") -> dict:
             "processing_status": "completed",
             "preprocessing_status": "completed",
             "mask_validation_status": "validated_automated",
-            "raw_detection_counts": {"ViTDet3D": None, "LoG": None},
+            "raw_detection_counts": {"ViTDet3D": None},
             "fused_candidate_count": None,
             "excluded_candidate_count": None,
             "eligible_nodule_count": 1,
@@ -80,12 +80,11 @@ def _valid_imaging_contract(patient_id: str = "synthetic-patient") -> dict:
                 "quality_status": "passed",
                 "detector": {
                     "candidate_id": "candidate-1",
-                    "source": "LoG",
+                    "source": "ViTDet3D",
                     "source_members": [],
-                    "vitdet_score": None,
-                    "log_score": 0.99,
+                    "vitdet_score": 0.99,
                 },
-                "detection_sources": ["LoG"],
+                "detection_sources": ["ViTDet3D"],
                 "bbox_voxel": {"start_zyx": [0, 0, 0], "end_zyx_exclusive": [1, 1, 1]},
                 "bbox_lps_mm": {"min_lps_mm": [0, 0, 0], "max_lps_mm": [1, 1, 1]},
                 "centroid_voxel": [0.5, 0.5, 0.5],
@@ -238,6 +237,31 @@ def test_clinical_form_preserves_unknown_and_absent_values_and_calculates_pack_y
             "packs_per_day_status": "reported",
             "pack_years": 5,
         })
+
+
+def test_saved_clinician_record_round_trips_through_validation() -> None:
+    saved = validate_clinician_inputs({
+        "age_at_baseline_years": 62,
+        "sex_at_baseline": "female",
+        "race_at_baseline": "white",
+        "ethnicity_at_baseline": "not_hispanic_or_latino",
+        "smoking_status": "former",
+        "years_smoked": 30,
+        "packs_per_day": 1,
+        "years_since_cessation": 5,
+        "family_history_lung_cancer": "no",
+        "medical_history_status": "reported",
+        "medical_history_conditions": [],
+        "symptoms_status": "reported",
+        "symptoms": [],
+        "kps": 90,
+    })
+    assert "performance_status" in saved and "kps_category" in saved
+    reread = validate_clinician_inputs(saved)
+    assert reread == saved
+    tampered = dict(saved, kps_category="0-10", sex_at_baseline_status="reported")
+    assert validate_clinician_inputs(tampered)["kps_category"] == saved["kps_category"]
+    assert validate_clinician_inputs(tampered)["sex_at_baseline_status"] == saved["sex_at_baseline_status"]
 
 
 def test_prediction_uses_system_utc_timestamp_without_pathological_stage() -> None:
@@ -438,7 +462,7 @@ def test_api_serves_frontend_and_reports_no_models_as_untrained() -> None:
     )
     assert "!uploadResult" not in frontend_script.split("analyseButton.disabled =", 1)[1].split(";", 1)[0]
     assert "selected; not uploaded" in frontend_script
-    assert "uploaded and DICOM validation completed" in frontend_script
+    assert "CT uploaded and validated" in frontend_script
     assert "/viewer/slices/" in frontend_script
     assert "viewer-lung" in frontend_script
     assert "viewer-previous" in frontend_script
@@ -499,6 +523,90 @@ def test_analysis_viewer_serves_bounded_ct_slices(monkeypatch: pytest.MonkeyPatc
         assert invalid.status_code == 404
     finally:
         analysis_api._RUNS.pop("viewer-run", None)
+
+
+def test_analysis_viewer_gradcam_overlay_tolerates_nan_outside_coverage(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    import io
+    from PIL import Image
+    from LungInsight_v2.backend.Imaging.api import analysis as analysis_api
+
+    patient_root = tmp_path / "cam-patient"
+    patient_root.mkdir()
+    volume = np.full((3, 4, 2), -600.0, dtype=np.float32)
+    np.save(patient_root / "volume_hu_cropped.npy", volume)
+    cam = np.full((3, 4, 2), np.nan, dtype=np.float32)
+    cam[1, 0, 0] = 1.0
+    cam[1, 1, 1] = 0.5
+    np.save(patient_root / "attribute_ct_cam.npy", cam)
+    (patient_root / "imaging_clinical_contract_v2.json").write_text("{}", encoding="utf-8")
+    fake_contract = {
+        "nodules": [
+            {
+                "stable_nodule_id": "nodule_test",
+                "gradcam_refs": {"spiculation": {"ct_cam_path": "attribute_ct_cam.npy"}},
+            }
+        ]
+    }
+    monkeypatch.setattr(analysis_api, "read_json", lambda _path: fake_contract)
+    monkeypatch.setattr(analysis_api, "validate_contract", lambda _contract: None)
+    analysis_api._RUNS["cam-run"] = {"run_id": "cam-run", "patient_id": "cam-patient", "status": "completed"}
+    try:
+        def render(index: int, **kwargs: str) -> np.ndarray:
+            png = analysis_api.render_viewer_slice("cam-run", index, output_root=tmp_path, **kwargs)
+            return np.asarray(Image.open(io.BytesIO(png)).convert("RGB"), dtype=np.int16)
+
+        base = render(1)
+        overlay = render(1, gradcam_nodule_id="nodule_test", gradcam_attribute="spiculation")
+        assert overlay[0, 0, 0] > base[0, 0, 0]
+        assert np.array_equal(overlay[0, 1], base[0, 1])
+        nan_slice_base = render(0)
+        nan_slice_overlay = render(0, gradcam_nodule_id="nodule_test", gradcam_attribute="spiculation")
+        assert np.array_equal(nan_slice_overlay, nan_slice_base)
+    finally:
+        analysis_api._RUNS.pop("cam-run", None)
+
+
+def test_analysis_viewer_gradcam_multi_nodule_colormap_and_alpha(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    import io
+    from PIL import Image
+    from LungInsight_v2.backend.Imaging.api import analysis as analysis_api
+
+    patient_root = tmp_path / "cam2-patient"
+    patient_root.mkdir()
+    np.save(patient_root / "volume_hu_cropped.npy", np.full((2, 4, 4), -600.0, dtype=np.float32))
+    first = np.zeros((2, 4, 4), dtype=np.float32)
+    first[0, 0, 0] = 1.0
+    first[0, 0, 1] = 0.5
+    second = np.zeros((2, 4, 4), dtype=np.float32)
+    second[0, 3, 3] = 1.0
+    np.save(patient_root / "cam_a.npy", first)
+    np.save(patient_root / "cam_b.npy", second)
+    (patient_root / "imaging_clinical_contract_v2.json").write_text("{}", encoding="utf-8")
+    fake_contract = {
+        "nodules": [
+            {"stable_nodule_id": "n1", "gradcam_refs": {"margin": {"ct_cam_path": "cam_a.npy"}}},
+            {"stable_nodule_id": "n2", "gradcam_refs": {"margin": {"ct_cam_path": "cam_b.npy"}}},
+        ]
+    }
+    monkeypatch.setattr(analysis_api, "read_json", lambda _path: fake_contract)
+    monkeypatch.setattr(analysis_api, "validate_contract", lambda _contract: None)
+    analysis_api._RUNS["cam2-run"] = {"run_id": "cam2-run", "patient_id": "cam2-patient", "status": "completed"}
+    try:
+        def render(**kwargs: object) -> np.ndarray:
+            png = analysis_api.render_viewer_slice("cam2-run", 0, output_root=tmp_path, **kwargs)
+            return np.asarray(Image.open(io.BytesIO(png)).convert("RGB"), dtype=np.int16)
+
+        base = render()
+        both = render(gradcam_nodule_ids=["n1", "n2"], gradcam_attribute="margin", gradcam_alpha=1.0)
+        only_first = render(gradcam_nodule_ids=["n1"], gradcam_attribute="margin", gradcam_alpha=1.0)
+        transparent = render(gradcam_nodule_ids=["n1", "n2"], gradcam_attribute="margin", gradcam_alpha=0.0)
+        assert np.array_equal(transparent, base)
+        assert both[0, 0, 0] == 255 and both[0, 0, 1] == 0 and both[0, 0, 2] == 0
+        assert both[3, 3, 0] == 255 and np.array_equal(only_first[3, 3], base[3, 3])
+        assert both[0, 1, 1] > both[0, 1, 0] + 50 and both[0, 1, 1] > both[0, 1, 2] + 50
+        assert np.array_equal(both[2, 2], base[2, 2])
+    finally:
+        analysis_api._RUNS.pop("cam2-run", None)
 
 
 def test_analysis_run_records_only_observed_completed_stages() -> None:

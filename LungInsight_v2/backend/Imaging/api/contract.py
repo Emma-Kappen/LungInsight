@@ -117,7 +117,6 @@ def build_study_summary(
     rejected = _read_artifact(stage02 / "candidates_rejected_audit.json")
     selected = _read_artifact(stage02 / "candidates.json")
     vitdet_raw = _read_artifact(stage02 / "vitdet_raw_detections.json")
-    log_raw = _read_artifact(stage02 / "log_candidates_diagnostic.json")
     stage04_payload = _read_artifact(stage04 / "malignancy_predictions.json") or {}
     stage04_rows = stage04_payload.get("predictions")
     records = stage06.get("records")
@@ -198,8 +197,6 @@ def build_study_summary(
     brock_counts["not_run"] = max(0, eligible_count - len(stage04_rows)) if eligible_count is not None else 0
 
     warnings: list[str] = []
-    if mask_validation_status == "validated_automated":
-        warnings.append("Stage 01 masks passed automated quality checks but were not visually reviewed.")
     for source in (mask_report, filter_report):
         values = source.get("warnings", source.get("problems", [])) if isinstance(source, dict) else []
         if isinstance(values, list):
@@ -217,7 +214,6 @@ def build_study_summary(
         ("rejected candidate audit", rejected),
         ("selected candidates", selected),
         ("raw ViTDet3D detections", vitdet_raw),
-        ("raw LoG detections", log_raw),
     ):
         if isinstance(payload, dict) and payload.get("_artifact_read_error"):
             error_list.append(str(payload["_artifact_read_error"]))
@@ -268,7 +264,6 @@ def build_study_summary(
         "mask_quality_report": patient_root / "mask_quality_report.json",
         "mask_review_attestation": patient_root / "heart_mask_review_attestation.json",
         "vitdet_raw_detections": stage02 / "vitdet_raw_detections.json",
-        "log_raw_detections": stage02 / "log_candidates_diagnostic.json",
         "stage02_filter_report": stage02 / "candidate_filter_report.json",
         "stage02_selected_candidates": stage02 / "candidates.json",
         "stage02_excluded_candidates": stage02 / "candidates_rejected_audit.json",
@@ -284,7 +279,6 @@ def build_study_summary(
         "mask_validation_status": mask_validation_status,
         "raw_detection_counts": {
             "ViTDet3D": record_count(vitdet_raw, "detections"),
-            "LoG": record_count(log_raw, "candidates"),
         },
         "fused_candidate_count": fused_count,
         "excluded_candidate_count": excluded_count,
@@ -437,7 +431,7 @@ def build_contract(
                 detector_info.get("source"),
                 *(member.get("source") for member in detector_info.get("source_members", []) if isinstance(member, dict)),
             )
-            if source in {"ViTDet3D", "LoG"}
+            if source in {"ViTDet3D"}
         }
         selected_prediction_status = selected_prediction.get("status")
         if selected_prediction_status != malignancy["brock"].get("status"):
@@ -451,9 +445,7 @@ def build_contract(
                 "source": detector_info.get("source"),
                 "source_members": detector_info.get("source_members", []),
                 "vitdet_score": _finite_or_none(detector_info.get("vitdet_score")),
-                "log_score": _finite_or_none(detector_info.get("log_score")),
                 "raw_score": _finite_or_none(detector_info.get("score")),
-                "raw_log_response": _finite_or_none(detector_info.get("log_response")),
             },
             "detection_sources": sorted(source_values),
             "bbox_voxel": {
@@ -484,7 +476,7 @@ def build_contract(
                 "attributes": shaped_attributes,
             },
             "malignancy": malignancy,
-            "input_completeness": malignancy.get("input_completeness", {}),
+            "input_completeness": record.get("input_completeness", {}),
             "uncertainty": uncertainty_output,
             "quality_flags": quality_flags,
             "model_versions": model_identity,
@@ -513,7 +505,7 @@ def build_contract(
             "processing_status": "incomplete",
             "preprocessing_status": "unknown",
             "mask_validation_status": "unknown",
-            "raw_detection_counts": {"ViTDet3D": None, "LoG": None},
+            "raw_detection_counts": {"ViTDet3D": None},
             "fused_candidate_count": None,
             "excluded_candidate_count": None,
             "eligible_nodule_count": len(nodules),

@@ -34,31 +34,28 @@ class Stage02GateWiringTests(unittest.TestCase):
         self.assertLess(selection, extraction)
         self.assertLess(extraction, manifest_write)
 
-    def test_detector_candidates_are_fused_before_the_single_mask_gate(self):
+    def test_vitdet_candidates_are_fused_before_the_single_mask_gate(self):
         vit_run = self.source.index("raw_detections = run_vitdet3d_raw(")
-        log_run = self.source.index("log_candidates = run_log_detector(")
         fusion = self.source.index("fused_candidates, fusion_report = merge_detections(")
         gate = self.source.index(
             "accepted_candidates, rejected_candidates, candidate_filter_report = filter_detections_by_lung_mask("
         )
-        self.assertLess(vit_run, log_run)
-        self.assertLess(log_run, fusion)
+        self.assertLess(vit_run, fusion)
         self.assertLess(fusion, gate)
-        self.assertNotIn("accepted_log_candidates, rejected_log_candidates, log_filter_report = filter_detections_by_lung_mask(", self.source)
 
     def test_rejected_and_accepted_records_have_distinct_schema_paths(self):
         stage2 = self.schema["stage_02_detect_and_patch"]
         filenames = stage2["filenames"]
         self.assertNotEqual(filenames["candidates_json"], filenames["rejected_candidates_audit"])
-        self.assertNotEqual(filenames["log_diagnostic"], filenames["log_rejected_candidates_audit"])
         self.assertTrue(stage2["candidate_acceptance_filter"]["require_nonempty_heart_mask"])
         self.assertFalse(stage2["candidate_acceptance_filter"]["require_human_review_attestation"])
         self.assertEqual(self.schema["schema_version"], "2.15")
         self.assertIn("2.12", self.schema["metadata_policy"]["supported_schema_versions"])
 
-    def test_legacy_log_manifest_is_empty_and_not_a_second_inference_stream(self):
-        self.assertIn("log_patch_candidates: list[dict[str, Any]] = []", self.source)
-        self.assertIn("legacy diagnostic manifest is deliberately empty", self.source)
+    def test_log_detector_is_fully_removed_from_stage02(self):
+        for token in ("run_log_detector", "LogDiagnosticCandidate", "build_log_patch_candidates", "--skip-log"):
+            self.assertNotIn(token, self.source)
+        self.assertNotIn("log_diagnostic", self.schema["stage_02_detect_and_patch"]["filenames"])
 
 
 if __name__ == "__main__":

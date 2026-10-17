@@ -20,10 +20,9 @@ def stage06_record():
         "nodule_id": "nodule-api-001",
         "patient_id": "patient-api",
         "detector": {
-            "source": "LoG",
-            "source_members": [{"candidate_id": "log-member"}],
-            "vitdet_score": None,
-            "log_score": 1.4,
+            "source": "Merged",
+            "source_members": [{"candidate_id": "vit-member", "source": "ViTDet3D"}],
+            "vitdet_score": 0.8,
         },
         "geometry": {
             "center_zyx": [1.0, 1.0, 1.0],

@@ -517,14 +517,10 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "ViTDet3D",
-              "LoG"
+              "ViTDet3D"
             ],
             "properties": {
               "ViTDet3D": {
-                "$ref": "#/components/schemas/ImagingClinicalContractV2_count"
-              },
-              "LoG": {
                 "$ref": "#/components/schemas/ImagingClinicalContractV2_count"
               }
             }
@@ -631,8 +627,7 @@
               "candidate_id",
               "source",
               "source_members",
-              "vitdet_score",
-              "log_score"
+              "vitdet_score"
             ],
             "properties": {
               "candidate_id": {
@@ -642,7 +637,6 @@
               "source": {
                 "enum": [
                   "ViTDet3D",
-                  "LoG",
                   "Merged"
                 ]
               },
@@ -657,12 +651,6 @@
                   "number",
                   "null"
                 ]
-              },
-              "log_score": {
-                "type": [
-                  "number",
-                  "null"
-                ]
               }
             },
             "additionalProperties": true
@@ -673,8 +661,7 @@
             "uniqueItems": true,
             "items": {
               "enum": [
-                "ViTDet3D",
-                "LoG"
+                "ViTDet3D"
               ]
             }
           },

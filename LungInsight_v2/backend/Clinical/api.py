@@ -1,17 +1,22 @@
 from __future__ import annotations
 
+import logging
 import os
 import json
+import secrets
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
-from fastapi import File, Form, FastAPI, HTTPException, Query, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, Response
+from fastapi import File, Form, FastAPI, HTTPException, Query, Request, UploadFile
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from pydantic import BaseModel, ConfigDict, Field
 from fastapi.staticfiles import StaticFiles
 
-from .inference import ClinicalInferenceError, load_artifacts, run_inference
+from .inference import ClinicalInferenceError, configured_artifact_path, load_artifacts, run_inference
 from .harmonization import ClinicalValidationError, validate_clinician_inputs
 from ..Imaging.api.contract import CONTRACT_FILENAME, read_json, validate_contract
 from ..Imaging.api.app import OUTPUT_ROOT as IMAGING_OUTPUT_ROOT
@@ -28,6 +33,15 @@ from ..Imaging.api.analysis import (
     resume_analysis,
     viewer_metadata,
 )
+
+
+logger = logging.getLogger("lunginsight.clinical_api")
+_lunginsight_logger = logging.getLogger("lunginsight")
+if not _lunginsight_logger.handlers:
+    _console = logging.StreamHandler()
+    _console.setFormatter(logging.Formatter("%(asctime)s %(levelname)s %(name)s %(message)s"))
+    _lunginsight_logger.addHandler(_console)
+    _lunginsight_logger.setLevel(logging.INFO)
 
 
 class ClinicalRequest(BaseModel):
@@ -49,6 +63,7 @@ class AnalysisRequest(BaseModel):
     clinician_inputs: dict[str, Any]
     requested_malignancy_method: Literal["brock"] | None = "brock"
     data_provenance: str | None = None
+    baseline_definition: Literal["initial_pathologic_diagnosis", "other_or_unverified"] = "other_or_unverified"
 
 
 class ClinicalRecordRequest(BaseModel):
@@ -69,6 +84,50 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
         ),
     )
 
+    @app.middleware("http")
+    async def log_requests(request: Request, call_next):
+        request_id = secrets.token_hex(6)
+        request.state.request_id = request_id
+        started = time.perf_counter()
+        logger.info("request_received id=%s method=%s path=%s", request_id, request.method, request.url.path)
+        response = await call_next(request)
+        duration_ms = (time.perf_counter() - started) * 1000
+        logger.info(
+            "request_completed id=%s status=%s duration_ms=%.1f",
+            request_id,
+            response.status_code,
+            duration_ms,
+        )
+        response.headers["X-Request-ID"] = request_id
+        return response
+
+    @app.exception_handler(RequestValidationError)
+    async def log_validation_failure(request: Request, exc: RequestValidationError):
+        locations = [".".join(str(part) for part in error.get("loc", ())) for error in exc.errors()]
+        logger.warning(
+            "request_validation_failed id=%s method=%s path=%s fields=%s",
+            getattr(request.state, "request_id", "-"),
+            request.method,
+            request.url.path,
+            locations,
+        )
+        return await request_validation_exception_handler(request, exc)
+
+    @app.exception_handler(Exception)
+    async def log_unhandled_exception(request: Request, exc: Exception):
+        logger.error(
+            "unhandled_exception id=%s method=%s path=%s error_type=%s",
+            getattr(request.state, "request_id", "-"),
+            request.method,
+            request.url.path,
+            type(exc).__name__,
+            exc_info=exc,
+        )
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Unexpected server error. See the server log for the request ID."},
+        )
+
     @app.put("/api/v1/clinical/records/{patient_id}")
     def save_clinical_record(patient_id: str, request: ClinicalRecordRequest) -> dict[str, Any]:
         if not PATIENT_ID_PATTERN.fullmatch(patient_id):
@@ -76,6 +135,7 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
         try:
             normalized = validate_clinician_inputs(request.clinician_inputs)
         except ClinicalValidationError as exc:
+            logger.warning("clinical_record_rejected patient_id=%s reason=%s", patient_id, exc)
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         record_root = IMAGING_OUTPUT_ROOT / ".clinical_records"
         record_root.mkdir(parents=True, exist_ok=True)
@@ -89,6 +149,7 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
         temporary_path = record_path.with_suffix(".tmp")
         temporary_path.write_text(json.dumps(document, indent=2, allow_nan=False), encoding="utf-8")
         temporary_path.replace(record_path)
+        logger.info("clinical_record_saved patient_id=%s path=%s", patient_id, record_path)
         return {"status": "saved", "patient_id": patient_id, "saved_at": document["saved_at"]}
 
     @app.get("/api/v1/clinical/records/{patient_id}")
@@ -130,8 +191,9 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
         index: int,
         lung_overlay: bool = Query(False),
         heart_overlay: bool = Query(False),
-        gradcam_nodule_id: str | None = Query(None, max_length=128),
+        gradcam_nodule_id: list[str] | None = Query(None, max_length=128),
         gradcam_attribute: str | None = Query(None, max_length=64),
+        gradcam_alpha: float = Query(0.55, ge=0.0, le=1.0),
     ) -> Response:
         try:
             image = render_viewer_slice(
@@ -140,8 +202,9 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
                 output_root=IMAGING_OUTPUT_ROOT,
                 lung_overlay=lung_overlay,
                 heart_overlay=heart_overlay,
-                gradcam_nodule_id=gradcam_nodule_id,
+                gradcam_nodule_ids=gradcam_nodule_id,
                 gradcam_attribute=gradcam_attribute,
+                gradcam_alpha=gradcam_alpha,
             )
         except (KeyError, FileNotFoundError, ValueError, IndexError) as exc:
             raise HTTPException(status_code=404, detail="Requested CT slice is unavailable.") from exc
@@ -159,8 +222,17 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
 
     @app.post("/api/v1/analysis/runs", status_code=202)
     def create_analysis(request: AnalysisRequest) -> dict[str, Any]:
+        logger.info(
+            "analysis_requested patient_id=%s upload_job_id=%s",
+            request.patient_id,
+            request.upload_job_id,
+        )
         try:
             validate_clinician_inputs(request.clinician_inputs)
+        except ClinicalValidationError as exc:
+            logger.warning("analysis_rejected patient_id=%s reason=%s", request.patient_id, exc)
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        try:
             return start_analysis(
                 project_root=Path(__file__).resolve().parents[2],
                 output_root=IMAGING_OUTPUT_ROOT,
@@ -169,6 +241,7 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
                 clinical_inputs=request.clinician_inputs,
                 requested_malignancy_method=request.requested_malignancy_method,
                 data_provenance=request.data_provenance,
+                baseline_definition=request.baseline_definition,
             )
         except (ValueError, DicomUploadError, ClinicalValidationError) as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -393,16 +466,21 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
         patient_id: str = Form(..., min_length=1, max_length=128),
         files: list[UploadFile] = File(...),
     ) -> dict[str, Any]:
+        logger.info("dicom_upload_received patient_id=%s file_count=%d", patient_id, len(files))
         try:
-            return await process_dicom_upload(
+            result = await process_dicom_upload(
                 files,
                 patient_id=patient_id,
                 output_root=IMAGING_OUTPUT_ROOT,
             )
         except DicomUploadError as exc:
+            logger.warning("dicom_upload_rejected patient_id=%s reason=%s", patient_id, exc)
             raise HTTPException(status_code=422, detail=str(exc)) from exc
         except OSError as exc:
+            logger.error("dicom_upload_storage_failed patient_id=%s error=%s", patient_id, exc)
             raise HTTPException(status_code=500, detail="The CT upload could not be stored safely.") from exc
+        logger.info("dicom_upload_accepted patient_id=%s job_id=%s", patient_id, result.get("job_id"))
+        return result
 
     @app.get("/api/v1/imaging/dicom/jobs/{job_id}")
     def imaging_dicom_job_status(job_id: str) -> dict[str, Any]:
@@ -416,4 +494,5 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
     return app
 
 
-app = create_app()
+_deployed_artifact = configured_artifact_path()
+app = create_app(str(_deployed_artifact) if _deployed_artifact else None)
