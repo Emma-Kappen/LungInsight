@@ -63,6 +63,15 @@ def load_clinical_inputs(record_path: Path, patient_id: str) -> dict[str, Any] |
     inputs = payload.get("clinician_inputs")
     if not isinstance(inputs, dict):
         raise ValueError(f"Clinical record {record_path} lacks object-valued clinician_inputs.")
+    if inputs.get("date_of_birth"):
+        # Records store the date of birth; the age Brock needs is derived from it now.
+        from date_of_birth import age_from_date_of_birth
+
+        inputs = {
+            **inputs,
+            "age_at_baseline_years": age_from_date_of_birth(inputs["date_of_birth"]),
+            "age_at_baseline_years_status": "reported",
+        }
     return inputs
 
 

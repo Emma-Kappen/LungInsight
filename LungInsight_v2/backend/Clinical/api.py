@@ -145,6 +145,10 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
         except ClinicalValidationError as exc:
             logger.warning("clinical_record_rejected patient_id=%s reason=%s", patient_id, exc)
             raise HTTPException(status_code=422, detail=str(exc)) from exc
+        if normalized.get("date_of_birth"):
+            # Store the date of birth, not the age: age is derived from it whenever the record is used.
+            normalized.pop("age_at_baseline_years", None)
+            normalized.pop("age_at_baseline_years_status", None)
         record_root = IMAGING_OUTPUT_ROOT / ".clinical_records"
         record_root.mkdir(parents=True, exist_ok=True)
         record_path = record_root / f"{patient_id}.json"

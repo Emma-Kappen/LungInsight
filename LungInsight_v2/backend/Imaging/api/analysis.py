@@ -492,7 +492,14 @@ def start_analysis(
         raise ValueError("The upload job input is not a valid server-side artifact.")
     from ...Clinical.harmonization import validate_clinician_inputs
 
-    validate_clinician_inputs(clinical_inputs)
+    validated = validate_clinician_inputs(clinical_inputs)
+    if validated.get("date_of_birth"):
+        # The run carries the age derived from the date of birth at submission time.
+        clinical_inputs = {
+            **clinical_inputs,
+            "age_at_baseline_years": validated["age_at_baseline_years"],
+            "age_at_baseline_years_status": "reported",
+        }
     state_dir = output_root / ".analysis_runs"
     with _LOCK:
         duplicate = next(
@@ -648,6 +655,7 @@ def viewer_metadata(run_id: str, *, output_root: Path) -> dict[str, Any]:
     nodules: list[dict[str, Any]] = []
     gradcam_options: list[dict[str, str]] = []
     manual_brock = _read_manual_brock(root, run_id)
+    spacing = _volume_spacing(root)
     contract_path = root / CONTRACT_FILENAME
     if contract_path.is_file():
         try:
@@ -664,6 +672,7 @@ def viewer_metadata(run_id: str, *, output_root: Path) -> dict[str, Any]:
                 "geometry": {
                     "bbox_start_zyx": bbox.get("start_zyx"),
                     "bbox_end_zyx_exclusive": bbox.get("end_zyx_exclusive"),
+                    "bbox_refined": _nodule_extent(root, nodule, spacing),
                     "center_zyx": nodule.get("centroid_voxel"),
                     "center_lps_mm": nodule.get("centroid_lps_mm"),
                     "diameter_mm": nodule.get("measurements", {}).get("diameter_mm"),
@@ -698,7 +707,7 @@ def viewer_metadata(run_id: str, *, output_root: Path) -> dict[str, Any]:
         },
         "nodules": nodules,
         "gradcam_options": gradcam_options,
-        "gradcam_window_sigma_mm": CAM_WINDOW_SIGMA_MM,
+        "gradcam_inverted_attributes": sorted(INVERTED_CAM_ATTRIBUTES),
         "slice_url_template": f"/api/v1/analysis/runs/{run_id}/viewer/slices/{{index}}",
     }
 
@@ -724,17 +733,16 @@ _CAM_COLOR_STOPS = np.array(
 )
 
 
+# Display polarity: for these attributes the colour map is shown inverted (red = lowest relative activation).
+INVERTED_CAM_ATTRIBUTES = frozenset({"spiculation", "lobulation"})
+
+
 def _cam_colormap(values: np.ndarray) -> np.ndarray:
     """Map activations in [0, 1] onto the Stage 05/06 rainbow palette."""
     position = np.clip(values, 0, 1) * (len(_CAM_COLOR_STOPS) - 1)
     lower = np.minimum(position.astype(np.int64), len(_CAM_COLOR_STOPS) - 2)
     fraction = (position - lower)[..., None]
     return _CAM_COLOR_STOPS[lower] * (1 - fraction) + _CAM_COLOR_STOPS[lower + 1] * fraction
-
-
-# Grad-CAM is a coarse (8x8x8 upsampled to the 64^3 patch) model-sensitivity map and is not localised on the
-# nodule. The viewer therefore shows it only around each nodule: full opacity on the box, Gaussian falloff.
-CAM_WINDOW_SIGMA_MM = 8.0
 
 
 def _volume_spacing(root: Path) -> tuple[float, float, float]:
@@ -758,53 +766,113 @@ def _valid_box(start: Any, end: Any) -> bool:
     )
 
 
-def _axis_gap_mm(coords: np.ndarray, start: float, end: float, step: float) -> np.ndarray:
-    """Distance in mm from each voxel coordinate to the interval [start, end) along one axis."""
-    return np.maximum(np.maximum(start - coords, coords - (end - 1)), 0.0).astype(np.float32) * step
+def _ellipsoid(radius_mm: float, spacing: tuple[float, float, float]) -> np.ndarray:
+    reach = [int(np.ceil(radius_mm / step)) for step in spacing]
+    z, y, x = np.meshgrid(*[np.arange(-k, k + 1) for k in reach], indexing="ij")
+    return (z * spacing[0]) ** 2 + (y * spacing[1]) ** 2 + (x * spacing[2]) ** 2 <= radius_mm ** 2
 
 
-def _window_weight(
-    index: int,
-    shape: tuple[int, ...],
-    start: tuple[float, ...],
-    end: tuple[float, ...],
-    spacing: tuple[float, float, float],
-) -> np.ndarray:
-    dz = _axis_gap_mm(np.asarray([index], dtype=np.float32), start[0], end[0], spacing[0])[0]
-    dy = _axis_gap_mm(np.arange(shape[1], dtype=np.float32), start[1], end[1], spacing[1])[:, None]
-    dx = _axis_gap_mm(np.arange(shape[2], dtype=np.float32), start[2], end[2], spacing[2])[None, :]
-    squared = dz * dz + dy * dy + dx * dx
-    sigma = CAM_WINDOW_SIGMA_MM
-    weight = np.exp(-squared / (2 * sigma * sigma)).astype(np.float32)
-    weight[squared > (3 * sigma) ** 2] = 0.0
-    return weight
-
-
-@lru_cache(maxsize=128)
-def _cam_window_range(
-    path: str,
+@lru_cache(maxsize=256)
+def _refine_nodule_extent(
+    volume_path: str,
+    lung_path: str,
     mtime_ns: int,
     start: tuple[float, ...],
     end: tuple[float, ...],
     spacing: tuple[float, float, float],
-) -> tuple[float, float]:
-    """Finite CAM min/max over the nodule neighbourhood (where the display window is above 10%)."""
-    cam = np.load(path, mmap_mode="r")
-    bounds = []
-    for axis in range(3):
-        margin = int(np.ceil(3 * CAM_WINDOW_SIGMA_MM / spacing[axis]))
-        bounds.append((max(0, int(np.floor(start[axis])) - margin), min(cam.shape[axis], int(np.ceil(end[axis])) + margin)))
-    region = np.asarray(cam[tuple(slice(lo, hi) for lo, hi in bounds)], dtype=np.float32)
-    gaps = [
-        _axis_gap_mm(np.arange(lo, hi, dtype=np.float32), start[axis], end[axis], spacing[axis])
-        for axis, (lo, hi) in enumerate(bounds)
-    ]
-    squared = gaps[0][:, None, None] ** 2 + gaps[1][None, :, None] ** 2 + gaps[2][None, None, :] ** 2
-    inside = np.isfinite(region) & (squared <= 2 * np.log(10) * CAM_WINDOW_SIGMA_MM ** 2)
-    if not inside.any():
-        return _cam_finite_range(path, mtime_ns)
-    values = region[inside]
-    return float(values.min()), float(values.max())
+) -> dict[str, Any] | None:
+    """Grow the detector box to the full extent of the nodule seen in the CT.
+
+    The nodule is the connected component of dense voxels that overlaps the detector box. Vessels and wall
+    attachments are separated by a morphological opening sized to the nodule, then edges are restored. Growth is
+    bounded by a margin proportional to the detected size, and the result always contains the detector box.
+    """
+    from scipy import ndimage
+
+    volume = np.load(volume_path, mmap_mode="r")
+    step = np.asarray(spacing, dtype=np.float64)
+    det_start = np.floor(np.asarray(start)).astype(int)
+    det_end = np.ceil(np.asarray(end)).astype(int)
+    det_mm = (det_end - det_start) * step
+    inplane = float(max(det_mm[1], det_mm[2]))
+    margin_mm = np.array([np.clip(0.5 * det_mm[0], 2.5, 7.5), np.clip(0.5 * inplane, 3.0, 8.0), np.clip(0.5 * inplane, 3.0, 8.0)])
+    margin = np.ceil(margin_mm / step).astype(int)
+    low = np.maximum(det_start - margin, 0)
+    high = np.minimum(det_end + margin, np.asarray(volume.shape))
+    window = tuple(slice(int(a), int(b)) for a, b in zip(low, high))
+    region = np.asarray(volume[window], dtype=np.float32)
+    seed = np.zeros(region.shape, dtype=bool)
+    seed[tuple(slice(int(max(a - l, 0)), int(b - l)) for a, b, l in zip(det_start, det_end, low))] = True
+    if not seed.any():
+        return None
+    core = float(np.percentile(region[seed], 90))
+    background = float(np.percentile(region, 20))
+    if core - background < 150.0:
+        return None  # no tissue denser than the surrounding lung inside the detector box
+    threshold = float(np.clip((core + background) / 2.0, -700.0, -300.0))
+    mask = region > threshold
+    if lung_path:
+        lung = np.asarray(np.load(lung_path, mmap_mode="r")[window], dtype=bool)
+        mask &= ndimage.binary_dilation(lung, structure=np.ones((1, 3, 3), dtype=bool), iterations=3)
+    radius = max(1.2, 0.35 * inplane)
+    component = None
+    used_radius = radius
+    for candidate in (radius, radius * 0.7, radius * 0.5, 1.0):
+        structure = _ellipsoid(candidate, spacing)
+        labels, count = ndimage.label(ndimage.binary_opening(mask, structure=structure), structure=np.ones((3, 3, 3)))
+        if count == 0:
+            continue
+        overlap = np.bincount(labels[seed & (labels > 0)], minlength=count + 1)
+        overlap[0] = 0
+        if overlap.max() == 0:
+            continue
+        component = ndimage.binary_dilation(labels == overlap.argmax(), structure=structure) & mask
+        used_radius = candidate
+        break
+    if component is None or not component.any():
+        return None
+    found = np.argwhere(component)
+    comp_start = low + found.min(axis=0)
+    comp_end = low + found.max(axis=0) + 1
+    slice_boxes: dict[str, list[int]] = {}
+    for z in np.flatnonzero(component.any(axis=(1, 2))):
+        ys, xs = np.nonzero(component[z])
+        slice_boxes[str(int(low[0] + z))] = [
+            int(low[1] + ys.min()), int(low[2] + xs.min()), int(low[1] + ys.max() + 1), int(low[2] + xs.max() + 1),
+        ]
+    return {
+        "start": [int(v) for v in np.minimum(comp_start, det_start)],
+        "end": [int(v) for v in np.maximum(comp_end, det_end)],
+        "slice_boxes": slice_boxes,
+        "threshold_hu": round(threshold, 1),
+        "opening_radius_mm": round(float(used_radius), 2),
+    }
+
+
+def _nodule_extent(root: Path, nodule: dict[str, Any], spacing: tuple[float, float, float]) -> dict[str, Any] | None:
+    bbox = nodule.get("bbox_voxel") or {}
+    start, end = bbox.get("start_zyx"), bbox.get("end_zyx_exclusive")
+    if not _valid_box(start, end):
+        return None
+    volume_path = root / "volume_hu_cropped.npy"
+    if not volume_path.is_file():
+        volume_path = root / "volume_hu.npy"
+    lung_path = root / "lung_mask.npy"
+    start_key = tuple(float(v) for v in start)
+    end_key = tuple(float(v) for v in end)
+    try:
+        refined = _refine_nodule_extent(
+            str(volume_path), str(lung_path) if lung_path.is_file() else "",
+            volume_path.stat().st_mtime_ns, start_key, end_key, spacing,
+        )
+    except (OSError, ValueError):
+        refined = None
+    if refined is None:
+        return {
+            "method": "detector_box",
+            "start": [int(np.floor(v)) for v in start], "end": [int(np.ceil(v)) for v in end], "slice_boxes": {},
+        }
+    return {"method": "ct_region_growing_union_detector", **refined}
 
 
 MANUAL_BROCK_FIELDS = frozenset({
@@ -965,34 +1033,21 @@ def render_viewer_slice(
                 finite = np.isfinite(activation)
                 if not finite.any():
                     continue
-                bbox = nodule.get("bbox_voxel") or {}
-                box_start, box_end = bbox.get("start_zyx"), bbox.get("end_zyx_exclusive")
-                windowed = _valid_box(box_start, box_end)
-                if windowed:
-                    start_key = tuple(float(v) for v in box_start)
-                    end_key = tuple(float(v) for v in box_end)
-                    low, high = _cam_window_range(
-                        str(resolved), resolved.stat().st_mtime_ns, start_key, end_key, spacing
-                    )
-                    weight = _window_weight(index, volume.shape, start_key, end_key, spacing)
-                else:
-                    low, high = _cam_finite_range(str(resolved), resolved.stat().st_mtime_ns)
-                    weight = np.ones(activation.shape, dtype=np.float32)
-                # Per-nodule min-max, as in the Stage 05/06 Grad-CAM images, but taken over the nodule's
-                # neighbourhood only. Opacity is full on the nodule box and fades with distance from it.
+                # Same per-nodule min-max convention as the Stage 05/06 Grad-CAM images. The CAM covers the
+                # nodule-centred 64^3 patch, so it is drawn as that full square at constant opacity (no fading).
+                low, high = _cam_finite_range(str(resolved), resolved.stat().st_mtime_ns)
                 normalized = (
                     np.clip((np.where(finite, activation, low) - low) / (high - low), 0.0, 1.0)
                     if high - low > 1e-12
                     else np.full(activation.shape, 0.5, dtype=np.float32)
                 )
                 normalized = np.where(finite, normalized, 0.0)
-                visible = np.where(finite, weight, 0.0)
-                if strength is None:
-                    strength, covered = normalized, visible
+                if gradcam_attribute in INVERTED_CAM_ATTRIBUTES:
+                    normalized = np.where(finite, 1.0 - normalized, 0.0)
+                    strength, covered = normalized, finite
                 else:
-                    stronger = visible * normalized > covered * strength
-                    strength = np.where(stronger, normalized, strength)
-                    covered = np.maximum(covered, visible)
+                    strength = np.where(finite & (~covered | (normalized > strength)), normalized, strength)
+                    covered = covered | finite
             if strength is not None and covered is not None:
                 heat = _cam_colormap(strength)
                 opacity = (covered * gradcam_alpha)[..., None]

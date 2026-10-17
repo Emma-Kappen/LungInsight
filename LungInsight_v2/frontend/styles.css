@@ -71,14 +71,15 @@ progress{width:100%;max-width:420px;height:10px;accent-color:var(--accent);margi
 .summary .links button{padding:.1rem .6rem}
 .grid3{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
 .col{display:flex;flex-direction:column;gap:6px;min-width:0;min-height:0}
-.win{background:var(--panel);border:1px solid var(--line);border-radius:4px;display:flex;flex-direction:column;min-height:0;flex:0 1 auto}
+.win{background:var(--panel);border:1px solid var(--line);border-radius:4px;display:flex;flex-direction:column;flex:0 0 auto}
 .win-h{display:flex;justify-content:space-between;align-items:center;gap:.5rem;background:var(--head);padding:.2rem .5rem;border-bottom:1px solid var(--line);flex:0 0 auto}
 .win-h h2{font-size:.88rem}
 .win-t{padding:.05rem .5rem;font-size:.75rem;background:transparent;color:var(--accent)}
-.win-b{padding:.45rem .55rem;overflow:auto;min-height:0;flex:1 1 auto}
+.win-b{padding:.45rem .55rem;flex:1 1 auto}
 .win.collapsed{flex:0 0 auto}
 .win.collapsed .win-b{display:none}
-.scroll{overflow-x:auto}
+.scroll{overflow:visible}
+.dt td,.dt th{overflow-wrap:anywhere}
 table.dt{width:100%;border-collapse:collapse;font-size:.84rem}
 .dt th,.dt td{text-align:left;padding:.25rem .4rem;border-bottom:1px solid var(--line);vertical-align:top}
 .dt th{font-weight:700;color:var(--mute)}
@@ -98,14 +99,16 @@ dl.kv dt{color:var(--mute)}dl.kv dd{margin:0;overflow-wrap:anywhere}
 .shap-legend{display:flex;justify-content:space-between;font-size:.78rem;font-weight:700;margin-bottom:.2rem}
 .shap-legend .lo{color:var(--lower)}.shap-legend .hi{color:var(--raise)}
 .shap-row{display:grid;grid-template-columns:minmax(7rem,38%) 1fr 3.4rem;align-items:center;gap:.4rem;margin:.18rem 0;font-size:.82rem}
-.shap-name small{display:block;color:var(--mute);font-size:.72rem}
+.shap-name small{display:block;color:var(--mute);font-size:.72rem;font-weight:400}
+.shap-sum{display:flex;flex-wrap:wrap;gap:.2rem .9rem;margin-top:.5rem;padding:.35rem .5rem;border:1px solid var(--line);border-radius:4px;background:var(--bg);font-size:.88rem}
+.shap-sum b{font-variant-numeric:tabular-nums}
 .shap-track{position:relative;height:16px;background:var(--bg);border:1px solid var(--line);border-radius:3px}
 .shap-track::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--mute)}
 .shap-bar{position:absolute;top:1px;bottom:1px;border-radius:2px}
 .shap-bar.pos{left:50%;background:var(--raise)}
 .shap-bar.neg{right:50%;background:var(--lower)}
 .shap-val{text-align:right;font-variant-numeric:tabular-nums}
-.viewer-b{display:flex;flex-direction:column;gap:.3rem;overflow:hidden}
+.viewer-b{display:flex;flex-direction:column;gap:.3rem}
 .vctl{display:flex;flex-wrap:wrap;gap:.3rem .8rem;align-items:center;font-size:.84rem;flex:0 0 auto}
 .vctl label{margin:0;font-weight:600}
 .vctl label.check{font-weight:400}
@@ -113,24 +116,38 @@ dl.kv dt{color:var(--mute)}dl.kv dd{margin:0;overflow-wrap:anywhere}
 .camnods{display:inline-flex;flex-wrap:wrap;gap:.2rem .6rem}
 .camnods label.check{font-size:.78rem}
 .cam-legend{display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--mute)}
+.sub-h{font-size:.9rem;margin:.5rem 0 .2rem}
+svg.chart{width:100%;height:auto;display:block}
+svg.chart text{fill:var(--mute);font-size:11px}
+svg.chart .grid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 3}
+svg.chart .axis{stroke:var(--mute);stroke-width:1.2}
+svg.chart .curve{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round}
+svg.chart .pt{fill:var(--accent);stroke:var(--panel);stroke-width:2}
+svg.chart .lbl{fill:var(--ink);font-weight:700}
+.manual{margin-top:.6rem;padding:.5rem .6rem;border:1px solid var(--line);border-radius:4px;background:var(--bg)}
+.manual-row{display:grid;grid-template-columns:9rem 1fr;gap:.5rem;align-items:center;margin:.25rem 0;font-weight:400}
+.ct-row{display:grid;grid-template-columns:3.2rem 1fr 3.4rem;gap:.5rem;align-items:center;margin:.25rem 0}
+.ct-val{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
 .cam-legend i{width:90px;height:8px;border-radius:4px;background:linear-gradient(90deg,#1538d6,#00a651,#ffff00,#ff9900,#d7191c)}
 .canvas-wrap{position:relative;flex:1 1 0;min-height:160px;background:#000;border-radius:4px;overflow:hidden}
 .canvas-wrap canvas{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#000;display:block}
 #viewer-status{flex:0 0 auto;margin:0;font-size:.8rem}
 
-/* One-screen report on large displays */
+/* Large displays: three columns filling the screen. Windows size to their content and never scroll
+   internally; if the content is taller than the screen, the page scrolls as a whole. */
 @media(min-width:1101px) and (min-height:681px){
-  body[data-view=report]{height:100vh;overflow:hidden;display:flex;flex-direction:column}
+  body[data-view=report]{min-height:100vh;display:flex;flex-direction:column}
   body[data-view=report] .notice{padding:.15rem 1rem;font-size:.78rem}
   body[data-view=report] .topbar{padding:.1rem 1rem}
-  body[data-view=report] main{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:.4rem .6rem}
-  body[data-view=report] #view-report{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
-  body[data-view=report] .grid3{flex:1 1 auto;min-height:0;grid-template-columns:minmax(300px,22%) minmax(0,1fr) minmax(360px,30%)}
-  .win.grow{flex:1 1 0}
+  body[data-view=report] main{flex:1 1 auto;display:flex;flex-direction:column;padding:.4rem .6rem}
+  body[data-view=report] #view-report{flex:1 1 auto;display:flex;flex-direction:column}
+  body[data-view=report] .grid3{flex:1 1 auto;grid-template-columns:minmax(300px,22%) minmax(0,1fr) minmax(360px,30%)}
+  body[data-view=report] .col{min-height:0}
+  body[data-view=report] .win.grow{flex:1 1 auto;min-height:420px}
+  body[data-view=report] .canvas-wrap{flex:1 1 auto;min-height:320px}
 }
 @media(max-width:1100px),(max-height:680px){
   .grid3{grid-template-columns:minmax(0,1fr)}
-  .win-b{overflow:visible}
   .viewer-b .canvas-wrap{flex:none;aspect-ratio:1;min-height:0;max-height:75vh;margin:0 auto;width:100%;max-width:75vh}
 }
 @media print{

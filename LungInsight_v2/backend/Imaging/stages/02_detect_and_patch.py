@@ -67,6 +67,7 @@ from lunginsight_candidate_fusion import (
     merge_detections,
     select_fused_candidates,
 )
+from paravertebral_gate import EXCLUSION_REASON as PARAVERTEBRAL_REASON, apply_paravertebral_gate
 
 SCHEMA = load_schema(__file__)
 STAGE02_SCHEMA = get_required(SCHEMA, "stage_02_detect_and_patch", expected_type=dict)
@@ -3062,6 +3063,22 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             "Stage 02 fused-candidate lung/heart gate blocked downstream processing: "
             f"{candidate_filter_report['gate_status']}."
         )
+    # Candidates on the vertebral column pass the lung mask's centre rule but are not pulmonary nodules.
+    accepted_candidates, paravertebral_rejected, paravertebral_report = apply_paravertebral_gate(
+        accepted_candidates, volume_hu, lung_mask, spacing_zyx
+    )
+    if paravertebral_rejected:
+        rejected_candidates = list(rejected_candidates) + paravertebral_rejected
+        candidate_filter_report["accepted_count"] = len(accepted_candidates)
+        candidate_filter_report["rejected_count"] = len(rejected_candidates)
+        counts = dict(candidate_filter_report["rejection_counts"])
+        counts[PARAVERTEBRAL_REASON] = counts.get(PARAVERTEBRAL_REASON, 0) + len(paravertebral_rejected)
+        candidate_filter_report["rejection_counts"] = dict(sorted(counts.items()))
+        print(
+            f"Paravertebral gate rejected {len(paravertebral_rejected)} candidate(s) on the vertebral column: "
+            f"{paravertebral_report['rejected_ids']}"
+        )
+    candidate_filter_report["paravertebral_gate"] = paravertebral_report
     if len(accepted_candidates) + len(rejected_candidates) != len(fused_candidates):
         raise RuntimeError("Stage 02 fused-candidate gate counts do not reconcile.")
     selected_candidates = select_fused_candidates(accepted_candidates, limit=50)

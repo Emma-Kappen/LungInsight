@@ -4,6 +4,8 @@ import math
 from dataclasses import asdict, dataclass
 from typing import Any
 
+from ..Imaging.date_of_birth import age_from_date_of_birth
+
 PERFORMANCE_STATUS_MAPPING_VERSION = "ecog-kps-interval-v1"
 ECOG_TO_KPS_INTERVAL: dict[int, tuple[int, int]] = {
     0: (90, 100),
@@ -116,6 +118,7 @@ def validate_clinician_inputs(values: dict[str, Any]) -> dict[str, Any]:
     allowed = {
         "age_at_baseline_years",
         "age_at_baseline_years_status",
+        "date_of_birth",
         "sex_at_baseline",
         "race_at_baseline",
         "ethnicity_at_baseline",
@@ -141,6 +144,13 @@ def validate_clinician_inputs(values: dict[str, Any]) -> dict[str, Any]:
     if extra:
         raise ClinicalValidationError(f"Unsupported clinician fields: {sorted(extra)}.")
     result = dict(values)
+    # The date of birth is the stored fact; age is derived from it at validation time and any supplied age is ignored.
+    if result.get("date_of_birth") is not None:
+        try:
+            result["age_at_baseline_years"] = age_from_date_of_birth(result["date_of_birth"])
+        except ValueError as exc:
+            raise ClinicalValidationError(str(exc)) from exc
+        result["age_at_baseline_years_status"] = "reported"
     age = result.get("age_at_baseline_years")
     if age is not None:
         if isinstance(age, bool):

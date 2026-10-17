@@ -614,42 +614,46 @@ def test_analysis_viewer_gradcam_multi_nodule_colormap_and_alpha(monkeypatch: py
         analysis_api._RUNS.pop("cam2-run", None)
 
 
-def test_analysis_viewer_gradcam_is_windowed_around_the_nodule(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_analysis_viewer_gradcam_is_a_constant_opacity_square(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     import io
     from PIL import Image
     from LungInsight_v2.backend.Imaging.api import analysis as analysis_api
 
-    patient_root = tmp_path / "win-patient"
+    patient_root = tmp_path / "sq-patient"
     patient_root.mkdir()
     np.save(patient_root / "volume_hu_cropped.npy", np.full((3, 48, 48), -600.0, dtype=np.float32))
-    cam = np.full((3, 48, 48), 0.1, dtype=np.float32)
-    cam[1, 11, 11] = 0.5  # on the nodule box
-    cam[1, 45, 45] = 1.0  # strongest value, but ~45 mm from the nodule
+    cam = np.full((3, 48, 48), np.nan, dtype=np.float32)
+    cam[1, 8:24, 8:24] = 0.1  # the nodule-centred patch footprint
+    cam[1, 16, 16] = 1.0
     np.save(patient_root / "cam.npy", cam)
     (patient_root / "imaging_clinical_contract_v2.json").write_text("{}", encoding="utf-8")
     fake_contract = {
         "nodules": [{
             "stable_nodule_id": "n1",
-            "bbox_voxel": {"start_zyx": [1, 10, 10], "end_zyx_exclusive": [2, 14, 14]},
+            "bbox_voxel": {"start_zyx": [1, 14, 14], "end_zyx_exclusive": [2, 18, 18]},
             "gradcam_refs": {"margin": {"ct_cam_path": "cam.npy"}},
         }]
     }
     monkeypatch.setattr(analysis_api, "read_json", lambda _path: fake_contract)
     monkeypatch.setattr(analysis_api, "validate_contract", lambda _contract: None)
-    analysis_api._RUNS["win-run"] = {"run_id": "win-run", "patient_id": "win-patient", "status": "completed"}
+    analysis_api._RUNS["sq-run"] = {"run_id": "sq-run", "patient_id": "sq-patient", "status": "completed"}
     try:
         def render(**kwargs: object) -> np.ndarray:
-            png = analysis_api.render_viewer_slice("win-run", 1, output_root=tmp_path, **kwargs)
+            png = analysis_api.render_viewer_slice("sq-run", 1, output_root=tmp_path, **kwargs)
             return np.asarray(Image.open(io.BytesIO(png)).convert("RGB"), dtype=np.int16)
 
         base = render()
-        shown = render(gradcam_nodule_ids=["n1"], gradcam_attribute="margin", gradcam_alpha=1.0)
-        assert shown[11, 11].tolist() == [0xD7, 0x19, 0x1C]  # window maximum inside the box is red
-        assert np.array_equal(shown[45, 45], base[45, 45])  # a stronger but distant value is not drawn
-        assert not np.array_equal(shown[16, 11], base[16, 11])  # fades out gradually just beyond the box
+        shown = render(gradcam_nodule_ids=["n1"], gradcam_attribute="margin", gradcam_alpha=0.6)
+        square = shown[8:24, 8:24]
+        assert not (square == base[8:24, 8:24]).all(axis=-1).any()  # every pixel of the square is tinted
+        assert shown[16, 16].tolist() != shown[8, 8].tolist()  # the peak is coloured differently from the minimum
+        outside = np.ones(base.shape[:2], dtype=bool)
+        outside[8:24, 8:24] = False
+        assert np.array_equal(shown[outside], base[outside])  # nothing beyond the square, and no fading at its edge
+        edge, interior = shown[8, 8], shown[9, 9]
+        assert edge.tolist() == interior.tolist()  # the border pixels are as strong as the interior
     finally:
-        analysis_api._RUNS.pop("win-run", None)
-
+        analysis_api._RUNS.pop("sq-run", None)
 
 def test_manual_brock_fills_only_missing_inputs_and_persists(tmp_path: Path) -> None:
     import json
@@ -699,6 +703,43 @@ def test_manual_brock_fills_only_missing_inputs_and_persists(tmp_path: Path) -> 
     finally:
         analysis_api._RUNS.pop("a" * 32, None)
 
+
+def test_date_of_birth_is_stored_and_age_is_derived_from_it(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    import json
+    import sys
+    from datetime import date
+    from fastapi.testclient import TestClient
+    from LungInsight_v2.backend.Clinical import api as clinical_api
+    from LungInsight_v2.backend.Clinical.harmonization import validate_clinician_inputs
+    from LungInsight_v2.backend.Imaging.date_of_birth import age_from_date_of_birth
+
+    assert age_from_date_of_birth("1958-03-14", as_of=date(2026, 3, 13)) == 67
+    assert age_from_date_of_birth("1958-03-14", as_of=date(2026, 3, 14)) == 68
+    normalized = validate_clinician_inputs({"date_of_birth": "1958-03-14", "age_at_baseline_years": 20})
+    assert normalized["age_at_baseline_years"] == age_from_date_of_birth("1958-03-14")  # supplied age is ignored
+    assert normalized["age_at_baseline_years_status"] == "reported"
+    for bad in ("14/03/1958", "2999-01-01", "1958-02-30"):
+        with pytest.raises(ClinicalValidationError):
+            validate_clinician_inputs({"date_of_birth": bad})
+
+    monkeypatch.setattr(clinical_api, "IMAGING_OUTPUT_ROOT", tmp_path)
+    client = TestClient(create_app())
+    response = client.put("/api/v1/clinical/records/DOB-1", json={"clinician_inputs": {"date_of_birth": "1958-03-14", "sex_at_baseline": "female"}})
+    assert response.status_code == 200, response.text
+    stored = json.loads((tmp_path / ".clinical_records" / "DOB-1.json").read_text(encoding="utf-8"))["clinician_inputs"]
+    assert stored["date_of_birth"] == "1958-03-14"
+    assert "age_at_baseline_years" not in stored and "age_at_baseline_years_status" not in stored
+    loaded = client.get("/api/v1/clinical/records/DOB-1").json()["clinician_inputs"]
+    assert loaded["date_of_birth"] == "1958-03-14"
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "Imaging"))
+    try:
+        from brock_inputs import load_clinical_inputs, patient_fields_from_clinical
+
+        inputs = load_clinical_inputs(tmp_path / ".clinical_records" / "DOB-1.json", "DOB-1")
+    finally:
+        sys.path.pop(0)
+    assert patient_fields_from_clinical(inputs)["age_years"] == age_from_date_of_birth("1958-03-14")
 
 def test_analysis_run_records_only_observed_completed_stages() -> None:
     from LungInsight_v2.backend.Imaging.api import analysis as analysis_api

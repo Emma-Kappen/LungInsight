@@ -98,6 +98,13 @@ function ageFromDob(text, now = new Date()) {
   return {age};
 }
 
+/* Age for display: stored records carry the date of birth, so derive it when no age is present. */
+function ageOfInputs(inputs) {
+  if (fin(inputs?.age_at_baseline_years)) return inputs.age_at_baseline_years;
+  const derived = inputs?.date_of_birth ? ageFromDob(inputs.date_of_birth) : null;
+  return derived && fin(derived.age) ? derived.age : null;
+}
+
 function readForm() {
   const number = (name) => {
     const text = val(name).trim();
@@ -375,12 +382,10 @@ $("remove-scan").addEventListener("click", () => {
 });
 
 /* ---------- clinical payload, save/load ---------- */
-function clinicalInputs(f, now = new Date()) {
-  const age = f.dob ? ageFromDob(f.dob, now).age ?? null : null;
+function clinicalInputs(f) {
   const hasHistory = f.history.length > 0;
   return {
-    age_at_baseline_years: age,
-    age_at_baseline_years_status: age === null ? "not_reported" : "reported",
+    date_of_birth: f.dob || null,
     sex_at_baseline: f.sex,
     race_at_baseline: f.race,
     ethnicity_at_baseline: f.ethnicity,
@@ -423,7 +428,7 @@ $("save-clinical-record").addEventListener("click", async () => {
   if (!e.clinicalReady) return setRecordStatus("Complete the highlighted required fields before saving.", "error");
   try {
     await persistClinicalRecord(clinicalInputs(e.f), e.f.patientId);
-    setRecordStatus(`Clinical information saved for ${e.f.patientId}. Date of birth is not stored; only the calculated age is.`, "success");
+    setRecordStatus(`Clinical information saved for ${e.f.patientId}. The date of birth is stored; age is calculated from it when used.`, "success");
   } catch (error) {
     setRecordStatus(error.message, "error");
   }
@@ -431,6 +436,7 @@ $("save-clinical-record").addEventListener("click", async () => {
 
 function applyClinicalRecord(inputs) {
   const set = (name, value) => { form.elements.namedItem(name).value = value == null ? "" : String(value); };
+  set("dob", inputs.date_of_birth);
   set("sex", inputs.sex_at_baseline ?? (inputs.sex_at_baseline_status ? "not_reported" : ""));
   set("race", inputs.race_at_baseline);
   set("ethnicity", inputs.ethnicity_at_baseline);
@@ -464,8 +470,10 @@ $("load-clinical-record").addEventListener("click", async () => {
     const body = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(errorMessage(body, `Clinical information could not be loaded (HTTP ${response.status}).`));
     applyClinicalRecord(body.clinician_inputs || {});
-    const age = body.clinician_inputs?.age_at_baseline_years;
-    setRecordStatus(`Saved clinical information loaded (saved ${body.saved_at}). Date of birth is not stored${age != null ? `; the saved age was ${age}` : ""}: please enter it.`, "success");
+    const dob = body.clinician_inputs?.date_of_birth;
+    setRecordStatus(dob
+      ? `Saved clinical information loaded (saved ${body.saved_at}), including the date of birth.`
+      : `Saved clinical information loaded (saved ${body.saved_at}). This older record has no date of birth${fin(body.clinician_inputs?.age_at_baseline_years) ? ` (saved age ${body.clinician_inputs.age_at_baseline_years})` : ""}: please enter it.`, "success");
   } catch (error) {
     setRecordStatus(error.message, "error");
   }
@@ -686,44 +694,63 @@ function validateBox(nodule, shape) {
   return null;
 }
 
-const brockOf = (nodule) => nodule.malignancy?.brock || {};
+const MALIGNANCY_THRESHOLD = 0.10; // BTS-style 10% Brock threshold: a display setting, not a diagnosis
+const manualBrockOf = (nodule) => (nodule.manual_brock?.brock?.status === "available" ? nodule.manual_brock.brock : null);
+const contractBrockOf = (nodule) => nodule.malignancy?.brock || {};
+const brockIsManual = (nodule) => contractBrockOf(nodule).status !== "available" && Boolean(manualBrockOf(nodule));
+const brockOf = (nodule) => (brockIsManual(nodule) ? manualBrockOf(nodule) : contractBrockOf(nodule));
 const brockUsable = (b) => b.status === "available" && fin(b.probability);
+
+function assessment(nodule) {
+  const b = brockOf(nodule);
+  if (!brockUsable(b)) return {state: "unavailable", label: "Not assessed"};
+  return b.probability >= MALIGNANCY_THRESHOLD ? {state: "elevated", label: "Elevated", p: b.probability} : {state: "unlikely", label: "Unlikely", p: b.probability};
+}
+
+/* Detector box grown to the nodule's CT extent by the backend; falls back to the detector box. */
+function boxOf(nodule) {
+  const refined = nodule.geometry?.bbox_refined;
+  if (refined && Array.isArray(refined.start) && Array.isArray(refined.end)) {
+    return {start: refined.start, end: refined.end, slices: refined.slice_boxes || {}, method: refined.method};
+  }
+  return {start: nodule.geometry?.bbox_start_zyx, end: nodule.geometry?.bbox_end_zyx_exclusive, slices: {}, method: "detector_box"};
+}
 const contributions = (b) => Object.fromEntries((b.feature_contributions || []).map((item) => [item.feature, item]));
 const pct = (p) => `${(p * 100).toFixed(p < 0.1 ? 1 : 0)}%`;
 const formatMm = (v) => (fin(v) ? `${v.toFixed(1)} mm` : "Unavailable");
 const flagText = (item, yes, no) => (item && fin(item.encoded_value) ? (item.encoded_value === 1 ? yes : no) : null);
 
 const BROCK_PARAMS = [
-  {key: "age", name: "Age", source: "Case entry (date of birth)", missing: ["age_years"], enters: "Continuous",
+  {key: "age", name: "Age", source: "Case entry (date of birth)", missing: ["age_years"], enters: "0.0287 × (age − 62)",
     value: (c) => (fin(c.age_years?.input_value) ? `${c.age_years.input_value} years` : null),
-    fallback: (x) => (fin(x.inputs?.age_at_baseline_years) ? `${x.inputs.age_at_baseline_years} years` : null),
+    fallback: (x) => (fin(ageOfInputs(x.inputs)) ? `${ageOfInputs(x.inputs)} years` : null),
     contrib: (c) => c.age_years?.contribution_logit},
-  {key: "sex", name: "Sex", source: "Case entry", missing: ["sex"], enters: "Female = 0.6011, male = 0",
+  {key: "sex", name: "Sex", source: "Case entry", missing: ["sex"], enters: "0.6011 × sex (female = 1, male = 0)",
     value: (c) => flagText(c.female, "Female", "Male"),
     fallback: (x) => ({female: "Female", male: "Male"}[x.inputs?.sex_at_baseline] ?? null),
     contrib: (c) => c.female?.contribution_logit},
-  {key: "fh", name: "Family history", source: "Case entry", missing: ["family_history_lung_cancer"], enters: "Yes = 0.2961, no = 0",
+  {key: "fh", name: "Family history", source: "Case entry", missing: ["family_history_lung_cancer"], enters: "0.2961 × family history (yes = 1)",
     value: (c) => flagText(c.family_history_lung_cancer, "Yes", "No"),
     fallback: (x) => ({yes: "Yes", no: "No"}[x.inputs?.family_history_lung_cancer] ?? null),
     contrib: (c) => c.family_history_lung_cancer?.contribution_logit},
-  {key: "emph", name: "Emphysema", source: "Case entry (medical history)", missing: ["emphysema"], enters: "Yes = 0.2953, no = 0",
+  {key: "emph", name: "Emphysema", source: "Case entry (medical history)", missing: ["emphysema"], enters: "0.2953 × emphysema (yes = 1)",
     value: (c) => flagText(c.emphysema, "Yes", "No"),
     fallback: (x) => (x.inputs?.medical_history_status === "reported" ? ((x.inputs.medical_history_conditions || []).includes("emphysema") ? "Yes" : "No") : null),
     contrib: (c) => c.emphysema?.contribution_logit},
-  {key: "size", name: "Nodule size", source: "Imaging (detector)", missing: ["nodule_size_mm"], enters: "Nonlinear transformation",
+  {key: "size", name: "Nodule size", source: "Imaging (detector)", missing: ["nodule_size_mm"], enters: "−5.3854 × ((diameter/10)^−0.5 − 1.58113883)",
     value: (c) => (fin(c.nodule_size_mm?.input_value) ? `${c.nodule_size_mm.input_value.toFixed(1)} mm` : null),
     fallback: (x) => (fin(x.nodule.geometry?.diameter_mm) ? `${x.nodule.geometry.diameter_mm.toFixed(1)} mm` : null),
     contrib: (c) => c.nodule_size_mm?.contribution_logit},
-  {key: "type", name: "Nodule type", source: "Attribute models (texture)", missing: ["nodule_type"], enters: "Categorical: nonsolid/GGO, part-solid or solid",
+  {key: "type", name: "Nodule type", source: "Attribute models (texture)", missing: ["nodule_type"], enters: "Solid 0 (reference), part-solid +0.3770, non-solid −0.1276",
     value: (c) => (c.pure_ground_glass && c.part_solid ? (c.part_solid.encoded_value === 1 ? "Part-solid" : c.pure_ground_glass.encoded_value === 1 ? "Nonsolid (GGO)" : "Solid") : null),
     contrib: (c) => (c.pure_ground_glass || c.part_solid ? (c.pure_ground_glass?.contribution_logit ?? 0) + (c.part_solid?.contribution_logit ?? 0) : undefined)},
-  {key: "lobe", name: "Upper-lobe location", source: "Imaging (location)", missing: ["upper_lobe"], enters: "Yes = 0.6581, no = 0",
+  {key: "lobe", name: "Upper-lobe location", source: "Imaging (location)", missing: ["upper_lobe"], enters: "0.6581 × upper lobe (yes = 1)",
     value: (c) => flagText(c.upper_lobe, "Upper lobe", "Not upper lobe"), contrib: (c) => c.upper_lobe?.contribution_logit},
-  {key: "count", name: "Nodule count", source: "Imaging (valid boxes)", missing: ["nodule_count"], enters: "Centred at 4",
+  {key: "count", name: "Nodule count", source: "Imaging (valid boxes)", missing: ["nodule_count"], enters: "−0.0824 × (nodule count − 4)",
     value: (c) => (fin(c.nodule_count?.input_value) ? String(c.nodule_count.input_value) : null),
     fallback: (x) => String(x.nodules.filter((n) => !n._boxErr).length),
     contrib: (c) => c.nodule_count?.contribution_logit},
-  {key: "spic", name: "Spiculation", source: "Attribute models", missing: ["spiculation"], enters: "Yes = 0.7729, no = 0",
+  {key: "spic", name: "Spiculation", source: "Attribute models", missing: ["spiculation"], enters: "0.7729 × spiculation (yes = 1)",
     value: (c) => flagText(c.spiculation, "Present", "Absent"), contrib: (c) => c.spiculation?.contribution_logit},
 ];
 
@@ -733,9 +760,119 @@ const MISSING_LABELS = {
 };
 
 function missingBrockInputs(nodule) {
-  const b = brockOf(nodule);
+  if (brockIsManual(nodule)) return [];
+  const b = contractBrockOf(nodule);
   const names = new Set([...(b.features_missing || []), ...(b.missing_inputs || []), ...(nodule.input_completeness?.fields_missing || [])]);
   return [...names];
+}
+
+/* Controls for supplying a missing Brock input by hand (posted to the backend, which refuses to overwrite known values). */
+const MANUAL_CONTROLS = {
+  upper_lobe: {label: "Upper-lobe location", options: [["", "Select"], ["true", "Upper lobe"], ["false", "Not upper lobe"]], parse: (v) => v === "true"},
+  emphysema: {label: "Emphysema", options: [["", "Select"], ["true", "Yes"], ["false", "No"]], parse: (v) => v === "true"},
+  family_history_lung_cancer: {label: "Family history", options: [["", "Select"], ["true", "Yes"], ["false", "No"]], parse: (v) => v === "true"},
+  spiculation: {label: "Spiculation", options: [["", "Select"], ["1", "Present"], ["0", "Absent"]], parse: (v) => Number(v)},
+  nodule_type: {label: "Nodule type", options: [["", "Select"], ["pure_ground_glass", "Nonsolid (GGO)"], ["part_solid", "Part-solid"], ["solid", "Solid"]], parse: (v) => v},
+  sex: {label: "Sex", options: [["", "Select"], ["female", "Female"], ["male", "Male"]], parse: (v) => v},
+  nodule_size_mm: {label: "Nodule size (mm)", number: {min: 1, max: 100, step: 0.1}, parse: (v) => Number(v)},
+  age_years: {label: "Age (years)", number: {min: 18, max: 120, step: 1}, parse: (v) => Number(v)},
+  nodule_count: {label: "Nodule count", number: {min: 1, max: 20, step: 1}, parse: (v) => Number(v)},
+};
+
+function manualFormHtml(nodule, missingNames) {
+  const fields = missingNames.filter((name) => MANUAL_CONTROLS[name]);
+  if (!fields.length) return "";
+  const controls = fields.map((name) => {
+    const def = MANUAL_CONTROLS[name];
+    const control = def.number
+      ? `<input type="number" data-manual="${name}" min="${def.number.min}" max="${def.number.max}" step="${def.number.step}">`
+      : `<select data-manual="${name}">${def.options.map(([value, text]) => `<option value="${value}">${esc(text)}</option>`).join("")}</select>`;
+    return `<label class="manual-row"><span>${esc(def.label)}</span>${control}</label>`;
+  }).join("");
+  return `<form class="manual" id="manual-brock-form" data-nodule="${esc(nodule.stable_nodule_id)}" novalidate>
+    <b>Supply the missing input${fields.length > 1 ? "s" : ""}</b>
+    <p class="hint" style="margin:.2rem 0 .4rem">Entered by you, not derived by the pipeline. Brock is then calculated with the same published formula and labelled as clinician-supplied. Inputs that already have a known value cannot be changed here.</p>
+    ${controls}
+    <div class="btns" style="margin-top:.4rem"><button type="submit">Calculate Brock with these values</button></div>
+    <p class="err" id="manual-brock-error" role="alert"></p></form>`;
+}
+
+async function submitManualBrock(formEl) {
+  const nodule = V.nodules.find((n) => n.stable_nodule_id === formEl.dataset.nodule);
+  const error = formEl.querySelector("#manual-brock-error");
+  error.textContent = "";
+  const values = {};
+  for (const control of formEl.querySelectorAll("[data-manual]")) {
+    if (control.value === "") { error.textContent = "Fill in every listed input."; control.focus(); return; }
+    values[control.dataset.manual] = MANUAL_CONTROLS[control.dataset.manual].parse(control.value);
+  }
+  const button = formEl.querySelector("button[type=submit]");
+  button.disabled = true;
+  try {
+    const response = await apiFetch(`${analysisBase}/runs/${encodeURIComponent(V.runId)}/nodules/${encodeURIComponent(nodule.stable_nodule_id)}/brock`, {
+      method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({values}),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(errorMessage(body, `Brock could not be calculated (HTTP ${response.status}).`));
+    nodule.manual_brock = body;
+    renderNoduleTable();
+    renderBrock();
+    renderShap();
+    renderMethods();
+    renderSummary();
+  } catch (failure) {
+    error.textContent = failure.message;
+    button.disabled = false;
+  }
+}
+
+/* Survival curve as an SVG line graph (years on x, survival probability on y). */
+function survivalChartHtml(model) {
+  const curve = model?.prediction?.survival_function;
+  const days = curve?.time_days, prob = curve?.probability;
+  if (!Array.isArray(days) || !Array.isArray(prob) || days.length < 2 || days.length !== prob.length) return "";
+  const W = 480, H = 230, L = 42, R = 14, T = 12, B = 38;
+  const horizons = Object.entries(model.prediction.probability_at_horizons_days || {}).map(([d, p]) => [Number(d) / 365.25, p]);
+  const maxYears = Math.max(...days) / 365.25;
+  const xMax = Math.max(1, Math.ceil(maxYears));
+  const x = (years) => L + (years / xMax) * (W - L - R);
+  const y = (p) => T + (1 - p) * (H - T - B);
+  const points = days.map((d, i) => `${x(d / 365.25).toFixed(1)},${y(prob[i]).toFixed(1)}`).join(" ");
+  const yTicks = [0, 0.25, 0.5, 0.75, 1].map((p) => `<line class="grid" x1="${L}" x2="${W - R}" y1="${y(p)}" y2="${y(p)}"/><text x="${L - 6}" y="${y(p) + 4}" text-anchor="end">${Math.round(p * 100)}%</text>`).join("");
+  const xTicks = Array.from({length: xMax + 1}, (_, i) => `<line class="grid" x1="${x(i)}" x2="${x(i)}" y1="${T}" y2="${H - B}"/><text x="${x(i)}" y="${H - B + 16}" text-anchor="middle">${i}</text>`).join("");
+  const marks = horizons.map(([years, p]) => `<circle class="pt" cx="${x(years)}" cy="${y(p)}" r="4"/><text class="lbl" x="${x(years)}" y="${y(p) - 9}" text-anchor="middle">${Math.round(p * 100)}%</text>`).join("");
+  const summary = horizons.map(([years, p]) => `${Math.round(years * 10) / 10} years ${Math.round(p * 100)}%`).join(", ");
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted overall survival curve: ${esc(summary)}">
+    <title>Predicted overall survival from diagnosis</title>${yTicks}${xTicks}
+    <line class="axis" x1="${L}" x2="${L}" y1="${T}" y2="${H - B}"/><line class="axis" x1="${L}" x2="${W - R}" y1="${H - B}" y2="${H - B}"/>
+    <polyline class="curve" points="${points}"/>${marks}
+    <text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle">Years since diagnosis</text>
+    <text transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Survival probability</text></svg>`;
+}
+
+function cancerTypeHtml(model) {
+  if (model?.status === "research_prediction" && model.probabilities) {
+    const rows = Object.entries(model.probabilities).sort((a, b) => b[1] - a[1]).map(([name, p]) =>
+      `<div class="ct-row"><span><b>${esc(name)}</b></span><div class="bar" role="img" aria-label="${esc(name)} ${(p * 100).toFixed(1)} percent"><i style="width:${Math.min(100, Math.max(0, p * 100))}%"></i></div><span class="ct-val">${(p * 100).toFixed(1)}%</span></div>`).join("");
+    const names = {LUAD: "adenocarcinoma", LUSC: "squamous cell carcinoma"};
+    return `<div class="ct"><p class="hint" style="margin:.2rem 0">If cancer is present, the most likely type is <b>${esc(model.predicted_class)}</b> (${esc(names[model.predicted_class] || "")}). Patient-level model comparing LUAD and LUSC only.</p>${rows}</div>`;
+  }
+  return `<div class="ct">${modelResultHtml(model)}</div>`;
+}
+
+function assessmentHtml(nodule) {
+  const a = assessment(nodule);
+  const manual = brockIsManual(nodule) ? " Based on clinician-supplied inputs." : "";
+  const note = `<p class="hint" style="margin:.2rem 0 0">Threshold ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock risk; a research display setting, not a diagnosis.${esc(manual)}</p>`;
+  if (a.state === "unavailable") {
+    return `<div class="alert warn"><b>Not assessed.</b> Brock is unavailable for this nodule. This is not a negative result.</div>`;
+  }
+  if (a.state === "unlikely") {
+    return `<div class="alert ok"><b>Chances of cancer are unlikely.</b> Brock risk ${esc(pct(a.p))} is below ${Math.round(MALIGNANCY_THRESHOLD * 100)}%.</div>${note}`;
+  }
+  const model = S.run?.body?.clinical_prediction?.cancer_type;
+  return `<div class="alert bad"><b>Elevated malignancy risk.</b> Brock risk ${esc(pct(a.p))} is at or above ${Math.round(MALIGNANCY_THRESHOLD * 100)}%.</div>${note}
+    <h3 style="margin:.6rem 0 .1rem">Likely cancer type</h3>${cancerTypeHtml(model)}`;
 }
 
 function modelResultHtml(model) {
@@ -801,15 +938,18 @@ function renderSummary() {
 function renderNoduleTable() {
   const body = $("nodule-table").querySelector("tbody");
   if (!V.nodules.length) {
-    body.innerHTML = `<tr><td colspan="4">${V.meta ? "No nodule records in the validated contract." : esc(S.run.metaError || "Nodule records unavailable.")}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="5">${V.meta ? "No nodule records in the validated contract." : esc(S.run.metaError || "Nodule records unavailable.")}</td></tr>`;
     return;
   }
   body.innerHTML = V.nodules.map((n, index) => {
     const b = brockOf(n);
+    const a = assessment(n);
+    const kind = {unlikely: "ok", elevated: "bad", unavailable: "mute"}[a.state];
     return `<tr data-row="${index}" class="${index === V.selected ? "sel" : ""}">
       <td><button type="button" class="link" data-nodule-index="${index}" aria-pressed="${index === V.selected}" title="${esc(n.stable_nodule_id)}">${esc(n.stable_nodule_id)}</button></td>
       <td>${esc(formatMm(n.geometry?.diameter_mm))}</td>
-      <td>${brockUsable(b) ? esc(pct(b.probability)) : "Unavailable"}</td>
+      <td>${brockUsable(b) ? esc(pct(b.probability)) + (brockIsManual(n) ? " (supplied)" : "") : "Unavailable"}</td>
+      <td>${badge(a.label, kind)}</td>
       <td title="${esc(n._boxErr || "Box passes validation")}">${n._boxErr ? badge("Invalid", "bad") : badge("Valid", "ok")}</td></tr>`;
   }).join("");
 }
@@ -852,10 +992,12 @@ function renderBrock() {
   const c = contributions(b);
   const missingNames = missingBrockInputs(n);
   const usable = brockUsable(b);
+  const manualNote = brockIsManual(n) ? `<div class="hint" style="margin:0 0 .3rem">Calculated from clinician-supplied inputs (${esc(Object.keys(n.manual_brock.supplied || {}).map(label).join(", "))}).</div>` : "";
   const head = usable
-    ? `<div class="big">${esc(pct(b.probability))}</div><div class="hint" style="margin:0 0 .4rem">Probability of malignancy (Brock)</div>`
+    ? `<div class="big">${esc(pct(b.probability))}</div><div class="hint" style="margin:0 0 .4rem">Probability of malignancy (Brock)</div>${manualNote}`
     : `<div class="alert bad"><b>Brock unavailable.</b> ${missingNames.length ? `Missing: ${esc(missingNames.map((m) => MISSING_LABELS[m] || label(m)).join(", "))}.` : esc(b.status ? `Status: ${label(b.status)}.` : "No Brock result for this nodule.")}</div>`;
   const ctx = {inputs: S.run?.inputs, nodule: n, nodules: V.nodules};
+  const supplied = brockIsManual(n) ? (n.manual_brock.supplied || {}) : {};
   const rows = BROCK_PARAMS.map((p) => {
     const reported = p.value(c);
     const value = reported ?? p.fallback?.(ctx) ?? null;
@@ -863,15 +1005,30 @@ function renderBrock() {
     let cell;
     if (missing) cell = '<span class="tag-miss">Missing</span>';
     else if (value == null) cell = "Derived by the model";
-    else cell = esc(value);
+    else cell = esc(value) + (p.missing.some((name) => name in supplied) ? " (supplied)" : "");
     return `<tr><td>${esc(p.source)}</td><td>${esc(p.name)}</td><td>${cell}</td><td>${esc(p.enters)}</td></tr>`;
   }).join("");
   const vertical = n.anatomical_location?.vertical_region;
   const why = missingNames.includes("upper_lobe") && vertical
     ? `<p class="hint">Upper-lobe location is withheld, not guessed: a “${esc(vertical)}” vertical position has no unambiguous upper-lobe mapping.</p>` : "";
-  target.innerHTML = `${head}<div class="scroll"><table class="dt"><caption class="sr">Brock inputs for ${esc(n.stable_nodule_id)}</caption><thead><tr><th>Source</th><th>Brock input</th><th>Value</th><th>Enters model as</th></tr></thead><tbody>${rows}</tbody></table></div>${why}
+  target.innerHTML = `${head}<h3 class="sub-h">Assessment</h3>${assessmentHtml(n)}
+    <div class="scroll"><table class="dt"><caption class="sr">Brock inputs for ${esc(n.stable_nodule_id)}</caption><thead><tr><th>Source</th><th>Brock input</th><th>Value</th><th>Enters model as</th></tr></thead><tbody>${rows}</tbody></table></div>${why}${usable ? "" : manualFormHtml(n, missingNames)}
     <p class="hint">Brock (PanCan) derives malignancy risk from the nodule characteristics and clinical data; there is no separate malignancy classifier. ${esc(b.reference || "")}</p>`;
 }
+
+/* The nine Brock terms with the patient's values substituted, exactly as the published formula computes them. */
+const sgn = (v, d = 2) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(d)}`;
+const BROCK_TERMS = {
+  age: (c) => `0.0287 × (${c.age_years.input_value} − 62)`,
+  sex: (c) => `0.6011 × ${c.female.encoded_value}`,
+  fh: (c) => `0.2961 × ${c.family_history_lung_cancer.encoded_value}`,
+  emph: (c) => `0.2953 × ${c.emphysema.encoded_value}`,
+  size: (c) => `−5.3854 × ((${c.nodule_size_mm.input_value.toFixed(1)}/10)^−0.5 − 1.5811)`,
+  type: (c) => (c.part_solid.encoded_value ? "part-solid: +0.3770" : c.pure_ground_glass.encoded_value ? "non-solid: −0.1276" : "solid: 0 (reference)"),
+  lobe: (c) => `0.6581 × ${c.upper_lobe.encoded_value}`,
+  count: (c) => `−0.0824 × (${c.nodule_count.input_value} − 4)`,
+  spic: (c) => `0.7729 × ${c.spiculation.encoded_value}`,
+};
 
 function renderShap() {
   const target = $("b-shap");
@@ -883,22 +1040,30 @@ function renderShap() {
     return;
   }
   const c = contributions(b);
-  const items = BROCK_PARAMS.map((p) => ({p, value: p.value(c), contribution: p.contrib(c)}));
+  const items = BROCK_PARAMS.map((p) => {
+    let term = "";
+    try { term = BROCK_TERMS[p.key](c); } catch { term = ""; }
+    return {p, value: p.value(c), contribution: p.contrib(c), term};
+  });
+  const intercept = c.intercept?.contribution_logit;
   const peak = Math.max(...items.map((item) => Math.abs(item.contribution ?? 0)), 1e-9);
-  const rows = items.map(({p, value, contribution}) => {
+  const rows = items.map(({p, value, contribution, term}) => {
     const known = fin(contribution);
     const width = known ? Math.abs(contribution) / peak * 48 : 0;
     const bar = known && contribution !== 0 ? `<i class="shap-bar ${contribution > 0 ? "pos" : "neg"}" style="width:${width}%"></i>` : "";
-    const text = known ? `${contribution > 0 ? "+" : contribution < 0 ? "−" : ""}${Math.abs(contribution).toFixed(2)}` : "n/a";
-    return `<div class="shap-row"><span class="shap-name" title="${esc(`${p.name}: ${p.enters}`)}">${esc(p.name)}<small>${esc(value ?? "Missing")}</small></span><div class="shap-track">${bar}</div><span class="shap-val">${text}</span></div>`;
+    return `<div class="shap-row"><span class="shap-name" title="${esc(`${p.name}: ${p.enters}`)}">${esc(p.name)}: <b>${esc(value ?? "Missing")}</b><small>${esc(term)}</small></span><div class="shap-track">${bar}</div><span class="shap-val">${known ? sgn(contribution) : "n/a"}</span></div>`;
   }).join("");
-  const intercept = c.intercept?.contribution_logit;
   const net = items.reduce((sum, item) => sum + (fin(item.contribution) ? item.contribution : 0), 0);
+  const lp = fin(b.logit) ? b.logit : (fin(intercept) ? intercept + net : null);
   const baseline = fin(intercept) ? 1 / (1 + Math.exp(-intercept)) : null;
-  target.innerHTML = `<div class="shap-legend"><span class="lo">← lowers risk</span><span class="hi">raises risk →</span></div>${rows}
-    <p class="hint">${baseline === null ? "" : `Baseline risk ${esc(pct(baseline))} (log-odds ${intercept.toFixed(2)}). `}Net contribution of the nine inputs ${net >= 0 ? "+" : "−"}${Math.abs(net).toFixed(2)} log-odds. Brock probability ${esc(pct(b.probability))}${fin(b.logit) ? ` (log-odds ${b.logit.toFixed(2)})` : ""}. Contributions are exact for this additive formula, not a sampled approximation.</p>`;
+  target.innerHTML = `<p class="hint formula" style="margin:0 0 .3rem">P = 1 / (1 + e<sup>−LP</sup>), with LP = −6.7892 + Σ the nine terms below. Each bar is that term's push on the log-odds relative to the reference nodule
+      (62-year-old male, no family history or emphysema, 4 mm solid nodule, lower/middle lobe, 4 nodules, not spiculated), whose LP is the intercept alone${baseline === null ? "" : ` (risk ${esc(pct(baseline))})`}.</p>
+    <div class="shap-legend"><span class="lo">← lowers risk</span><span class="hi">raises risk →</span></div>${rows}
+    <div class="shap-sum" role="group" aria-label="Sum of terms">
+      <span>Intercept <b>${fin(intercept) ? sgn(intercept) : "n/a"}</b></span><span>+ terms <b>${sgn(net)}</b></span>
+      <span>= LP <b>${lp === null ? "n/a" : sgn(lp)}</b></span><span>→ P <b>${esc(pct(b.probability))}</b></span></div>
+    <p class="hint">Exact for this additive model (not a sampled approximation). Model: ${esc(b.model_name || "Brock PanCan")}, ${esc(b.formula_version || "")}.</p>`;
 }
-
 function renderClinicalInputs() {
   const inputs = S.run.inputs;
   const target = $("b-inputs");
@@ -908,7 +1073,7 @@ function renderClinicalInputs() {
   const emphysema = inputs.medical_history_status === "reported" ? (inputs.medical_history_conditions || []).includes("emphysema") ? "Yes" : "No" : "Not reported";
   const packs = fin(inputs.pack_years) ? ` (${inputs.pack_years.toFixed(1)} pack-years)` : "";
   target.innerHTML = `<dl class="kv">
-    <dt>Age</dt><dd>${fin(inputs.age_at_baseline_years) ? `${inputs.age_at_baseline_years} years` : "Not reported"}</dd>
+    <dt>Age</dt><dd>${fin(ageOfInputs(inputs)) ? `${ageOfInputs(inputs)} years` : "Not reported"}</dd>
     <dt>Sex</dt><dd>${esc(text(sex))}</dd>
     <dt>Smoking</dt><dd>${esc(text(inputs.smoking_status))}${esc(packs)}</dd>
     <dt>Family history</dt><dd>${esc(text(inputs.family_history_lung_cancer))}</dd>
@@ -918,10 +1083,15 @@ function renderClinicalInputs() {
 
 function renderClinicalModels() {
   const prediction = S.run.body.clinical_prediction;
-  $("b-models").innerHTML = prediction
-    ? `<dl class="kv"><dt>Cancer type</dt><dd>${modelResultHtml(prediction.cancer_type)}</dd><dt>Survival</dt><dd>${modelResultHtml(prediction.survival)}</dd></dl>
-       <p class="hint">Research-only. These models use age and sex only.</p>`
-    : "<p class='hint' style='margin:0'>Not available for this run.</p>";
+  const survival = prediction?.survival;
+  if (!prediction) {
+    $("b-models").innerHTML = "<p class='hint' style='margin:0'>Survival model not available for this run.</p>";
+    return;
+  }
+  const chart = survivalChartHtml(survival);
+  $("b-models").innerHTML = chart
+    ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
+    : `<div>${modelResultHtml(survival)}</div>`;
 }
 
 function renderMethods() {
@@ -940,8 +1110,9 @@ function renderMethods() {
     rows.push(["Attribute ranking", ranked, 0, nodules.length - ranked, nodules.length - ranked ? "No attribute output for some nodules" : "–"]);
   }
   if (eligible != null) {
-    const unavailable = (counts.incomplete ?? 0) + (counts.not_run ?? 0);
-    rows.push(["Brock", counts.completed ?? 0, counts.failed ?? 0, unavailable, unavailable ? "Missing inputs or not run" : "–"]);
+    const manualOk = nodules.filter((n) => brockIsManual(n)).length;
+    const unavailable = Math.max(0, (counts.incomplete ?? 0) + (counts.not_run ?? 0) - manualOk);
+    rows.push(["Brock", (counts.completed ?? 0) + manualOk, counts.failed ?? 0, unavailable, unavailable ? "Missing inputs or not run" : manualOk ? `${manualOk} calculated from clinician-supplied inputs` : "–"]);
   }
   if (nodules.length) {
     const explained = nodules.filter((n) => brockUsable(brockOf(n)) && (brockOf(n).feature_contributions || []).length).length;
@@ -985,6 +1156,11 @@ $("summary").addEventListener("click", (event) => {
 $("nodule-table").addEventListener("click", (event) => {
   const button = event.target.closest("[data-nodule-index]");
   if (button) selectNodule(Number(button.dataset.noduleIndex), true);
+});
+$("b-brock").addEventListener("submit", (event) => {
+  if (event.target.id !== "manual-brock-form") return;
+  event.preventDefault();
+  submitManualBrock(event.target);
 });
 
 /* ---------- report: viewer ---------- */
@@ -1103,11 +1279,21 @@ function stepSlice(delta) {
 function boxStatus(nodule, index) {
   if (!nodule) return "";
   if (nodule._boxErr) return `${nodule.stable_nodule_id}: box not drawn. ${nodule._boxErr}.`;
-  const [z0, , ] = nodule.geometry.bbox_start_zyx;
-  const z1 = nodule.geometry.bbox_end_zyx_exclusive[0];
+  const box = boxOf(nodule);
+  const z0 = box.start[0], z1 = box.end[0];
+  const kind = box.method === "detector_box" ? "detector box (no distinct tissue found to refine it)" : "box fitted to the nodule in the CT";
   return index >= z0 && index < z1
-    ? `${nodule.stable_nodule_id}: box shown on this slice (z ${z0}–${z1 - 1}).`
+    ? `${nodule.stable_nodule_id}: ${kind} shown on this slice (z ${z0 + 1}–${z1}).`
     : `${nodule.stable_nodule_id}: box spans slices ${z0 + 1}–${z1}; this slice is outside it.`;
+}
+
+/* Box for one slice: the nodule's own outline on that slice when known, otherwise the overall extent (dashed). */
+function sliceRect(nodule, index) {
+  const box = boxOf(nodule);
+  if (index < box.start[0] || index >= box.end[0]) return null;
+  const own = box.slices[String(index)];
+  if (own) return {y0: own[0], x0: own[1], y1: own[2], x1: own[3], dashed: false};
+  return {y0: box.start[1], x0: box.start[2], y1: box.end[1], x1: box.end[2], dashed: true};
 }
 
 async function updateViewer() {
@@ -1141,16 +1327,17 @@ async function updateViewer() {
     context.font = "13px sans-serif";
     V.nodules.forEach((nodule, i) => {
       if (nodule._boxErr) return;
-      const [z0, y0, x0] = nodule.geometry.bbox_start_zyx;
-      const [z1, y1, x1] = nodule.geometry.bbox_end_zyx_exclusive;
-      if (index < z0 || index >= z1) return;
+      const rect = sliceRect(nodule, index);
+      if (!rect) return;
       const selected = i === V.selected;
       context.lineWidth = selected ? 3 : 1.5;
       context.strokeStyle = selected ? "#ffd24a" : "rgba(255, 210, 74, .5)";
-      context.strokeRect(x0, y0, x1 - x0, y1 - y0);
+      context.setLineDash(rect.dashed ? [6, 4] : []);
+      context.strokeRect(rect.x0, rect.y0, rect.x1 - rect.x0, rect.y1 - rect.y0);
+      context.setLineDash([]);
       if (selected) {
         context.fillStyle = "#ffd24a";
-        context.fillText(nodule.stable_nodule_id.slice(-6), x0, Math.max(13, y0 - 4));
+        context.fillText(nodule.stable_nodule_id.slice(-6), rect.x0, Math.max(13, rect.y0 - 4));
       }
     });
     URL.revokeObjectURL(image.src);
@@ -1159,7 +1346,7 @@ async function updateViewer() {
   el.label.textContent = `${index + 1} of ${maxIndex + 1}`;
   el.previous.disabled = index === 0;
   el.next.disabled = index === maxIndex;
-  const note = camOn ? " Grad-CAM colours are relative within each nodule's patch (red = highest); a model-sensitivity map, not an attribute probability." : "";
+  const note = camOn ? " Grad-CAM is drawn over the nodule-centred patch (the square). Colours are relative within that patch (red = highest); a model-sensitivity map, not an attribute probability." : "";
   setViewerStatus(`${boxStatus(V.nodules[V.selected], index)}${note}`.trim() || `CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
 }
 
@@ -1169,7 +1356,9 @@ function selectNodule(index, focus = false) {
   V.selected = index;
   const el = viewerEls();
   if (!nodule._boxErr) {
-    const z = Math.floor((nodule.geometry.bbox_start_zyx[0] + nodule.geometry.bbox_end_zyx_exclusive[0] - 1) / 2);
+    const box = boxOf(nodule);
+    const own = Object.entries(box.slices).map(([z, [y0, x0, y1, x1]]) => [Number(z), (y1 - y0) * (x1 - x0)]);
+    const z = own.length ? own.sort((a, b) => b[1] - a[1])[0][0] : Math.floor((box.start[0] + box.end[0] - 1) / 2);
     el.slice.value = String(Math.min(Number(el.slice.max), Math.max(0, z)));
   }
   if (el.cam.checked) {

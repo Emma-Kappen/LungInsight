@@ -19,6 +19,7 @@
       "additionalProperties": false,
       "properties": {
         "age_at_baseline_years": {"type": ["number", "null"], "minimum": 18, "maximum": 120},
+        "date_of_birth": {"type": ["string", "null"], "format": "date"},
         "age_at_baseline_years_status": {"enum": ["reported", "unknown", "not_reported"]},
         "sex_at_baseline": {"enum": ["female", "male", "other_or_unspecified", "unknown", "not_reported", null]},
         "race_at_baseline": {"enum": ["american_indian_or_alaska_native", "asian", "black_or_african_american", "native_hawaiian_or_pacific_islander", "white", "multiple", "other", "unknown", "not_reported", null]},

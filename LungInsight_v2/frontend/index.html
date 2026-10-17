@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LungInsight v2 – research CT analysis</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=20261017h">
 </head>
 <body data-view="entry">
 <div class="notice" role="note">Research / proof of concept only. Not for diagnosis. Does not replace pathology, clinician judgement, or established prediction instruments.</div>
@@ -213,13 +213,11 @@
   <div id="report-grid" class="grid3" hidden>
     <div class="col col-l">
       <section class="win" id="win-nodules"><header class="win-h"><h2>Nodules</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-nodules">Collapse</button></header>
-        <div class="win-b" id="b-nodules"><div class="scroll"><table class="dt" id="nodule-table"><caption class="sr">Detected nodules</caption><thead><tr><th>ID</th><th>Size</th><th>Brock risk</th><th>Box</th></tr></thead><tbody></tbody></table></div></div></section>
+        <div class="win-b" id="b-nodules"><div class="scroll"><table class="dt" id="nodule-table"><caption class="sr">Detected nodules</caption><thead><tr><th>ID</th><th>Size</th><th>Brock risk</th><th>Result</th><th>Box</th></tr></thead><tbody></tbody></table></div></div></section>
       <section class="win" id="win-chars"><header class="win-h"><h2>Characteristics (attribute ranking models)</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-chars">Collapse</button></header>
         <div class="win-b" id="b-chars"></div></section>
       <section class="win" id="win-inputs"><header class="win-h"><h2>Clinical inputs</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-inputs">Collapse</button></header>
         <div class="win-b" id="b-inputs"></div></section>
-      <section class="win" id="win-models"><header class="win-h"><h2>Clinical models</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-models">Collapse</button></header>
-        <div class="win-b" id="b-models"></div></section>
     </div>
 
     <div class="col col-c">
@@ -247,6 +245,8 @@
           <div class="canvas-wrap" id="canvas-wrap"><canvas id="viewer-canvas" width="512" height="512" tabindex="0" role="img" aria-label="CT axial slice. Use arrow keys or the mouse wheel to change slice."></canvas></div>
           <p id="viewer-status" class="status" role="status" aria-live="polite"></p>
         </div></section>
+      <section class="win" id="win-models"><header class="win-h"><h2>Survival analysis</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-models">Collapse</button></header>
+        <div class="win-b" id="b-models"></div></section>
       <section class="win" id="win-methods"><header class="win-h"><h2>Methods</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-methods">Collapse</button></header>
         <div class="win-b" id="b-methods"><div class="scroll"><table class="dt"><caption class="sr">Per-method outcomes</caption><thead><tr><th>Method</th><th>OK</th><th>Failed</th><th>Unavail.</th><th>Reason</th></tr></thead><tbody id="methods"></tbody></table></div></div></section>
     </div>
@@ -260,6 +260,6 @@
   </div>
 </section>
 </main>
-<script src="app.js" defer></script>
+<script src="app.js?v=20261017h" defer></script>
 </body>
 </html>
