@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import sys
@@ -25,6 +26,7 @@ from pipeline_schema import get_required, load_schema, check_meta_schema_version
 from gradcam_projection import project_patch_cam_to_ct
 from api.contract import create_contract_file
 from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+from stage02_eligibility import load_validated_stage02
 
 SCHEMA = load_schema(__file__)
 STAGE06_SCHEMA = get_required(SCHEMA, "stage_06_full_ct_gradcam", expected_type=dict)
@@ -211,10 +213,6 @@ def build_stage06_nodule_records(
 ) -> dict[str, Any]:
     """Join only accepted Stage 02 patches to their Stage 03/04 outputs."""
     stage02_root = patient_root / str(STAGE02_PATHS["directory"])
-    source_values = {str(row.get("source", row.get("detection_source", ""))) for row in patch_records}
-    if not source_values.issubset({"ViTDet3D", "LoG", "Merged"}):
-        raise ValueError(f"Stage 06 requires recognized fused detector provenance; got {sorted(source_values)}.")
-    is_log = False
     filter_path = stage02_root / str(STAGE02_FILES["candidate_filter_report"])
     filter_report = read_json(filter_path)
     if filter_report.get("gate_status") != "passed":
@@ -222,6 +220,23 @@ def build_stage06_nodule_records(
             f"Stage 06 refused fused records because the Stage 02 acceptance gate did not pass: "
             f"{filter_report.get('gate_status')!r} in {filter_path}."
         )
+    manifest_path = Path(str(manifest_data.get("_manifest_path", patient_root / STAGE02_PATCH_OUTPUTS["manifest"]))).resolve()
+    _, validated_patches, accepted_candidates = load_validated_stage02(
+        patient_root, manifest_path, verify_stage01_volume=True
+    )
+    expected_identities = {
+        (str(row["candidate_id"]), int(row["patch_id"]))
+        for row in validated_patches
+    }
+    actual_identities = {
+        (str(row.get("candidate_id")), int(row.get("patch_id", -1)))
+        for row in patch_records
+    }
+    if actual_identities != expected_identities:
+        raise RuntimeError("Stage 06 input patches do not exactly match the current validated Stage 02 manifest.")
+    source_values = {str(row.get("source", row.get("detection_source", ""))) for row in patch_records}
+    if not source_values.issubset({"ViTDet3D", "LoG", "Merged"}):
+        raise ValueError(f"Stage 06 requires recognized fused detector provenance; got {sorted(source_values)}.")
     accepted_path = stage02_root / str(STAGE02_FILES["candidates_json"])
     try:
         accepted_payload = json.loads(accepted_path.read_text(encoding="utf-8-sig"))
@@ -234,20 +249,28 @@ def build_stage06_nodule_records(
     if not isinstance(accepted_rows, list) or any(not isinstance(row, dict) for row in accepted_rows):
         raise ValueError(f"Accepted Stage 02 candidate file is malformed: {accepted_path}.")
     accepted_ids = {str(row.get("candidate_id")) for row in accepted_rows}
+    if accepted_ids != set(accepted_candidates):
+        raise RuntimeError("Stage 06 selected candidates differ from the validated Stage 02 candidate set.")
 
-    stage03_name = (
-        STAGE03_OUTPUTS["log_diagnostic_predictions_json"]
-        if is_log else STAGE03_OUTPUTS["predictions_json"]
-    )
-    stage03_path = patient_root / str(STAGE03_PATHS["directory"]) / str(stage03_name)
-    stage04_name = (
-        STAGE04_PATHS["log_diagnostic_output_json"]
-        if is_log else STAGE04_PATHS["output_json"]
-    )
-    stage04_path = patient_root / str(STAGE04_PATHS["directory"]) / str(stage04_name)
+    stage03_path = patient_root / str(STAGE03_PATHS["directory"]) / str(STAGE03_OUTPUTS["predictions_json"])
+    stage04_path = patient_root / str(STAGE04_PATHS["directory"]) / str(STAGE04_PATHS["output_json"])
     stage03_payload = read_json(stage03_path)
     stage03_lookup = _record_lookup(stage03_path, label="Stage 03")
     stage04_lookup = _record_lookup(stage04_path, label="Stage 04")
+    if stage03_payload.get("stage04_eligible") is not True:
+        raise RuntimeError("Stage 06 requires Stage 03 predictions explicitly marked stage04_eligible=true.")
+    stage04_payload = read_json(stage04_path)
+    manifest_hash = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    stage03_hash = hashlib.sha256(stage03_path.read_bytes()).hexdigest()
+    if (
+        stage03_payload.get("patch_manifest_sha256") != manifest_hash
+        or stage04_payload.get("stage02_manifest_sha256") != manifest_hash
+        or stage04_payload.get("source_predictions_sha256") != stage03_hash
+        or Path(str(stage04_payload.get("source_predictions_json", ""))).resolve() != stage03_path.resolve()
+    ):
+        raise RuntimeError("Stage 03/04 predictions are not bound to the current Stage 02 manifest and source records.")
+    if set(stage03_lookup) != expected_identities or set(stage04_lookup) != expected_identities:
+        raise RuntimeError("Stage 03/04 output identities do not exactly match the selected Stage 02 set.")
 
     declared_fields = get_required(STAGE06_SCHEMA, "record_required_fields", expected_type=list)
     output_records: list[dict[str, Any]] = []
@@ -275,8 +298,8 @@ def build_stage06_nodule_records(
             raise RuntimeError(
                 f"Stage 06 cannot link accepted candidate {identity} to both Stage 03 and Stage 04 outputs."
             )
-        if stage03.get("stage04_eligible") is False and not is_log:
-            raise RuntimeError(f"Stage 06 found a non-eligible authoritative Stage 03 record for {identity}.")
+        if stage03.get("stage04_eligible") is not True or stage04.get("stage04_eligible") is not True:
+            raise RuntimeError(f"Stage 06 found a record not explicitly eligible for downstream processing: {identity}.")
         bbox_start = patch.get("bbox_start_zyx")
         bbox_end = patch.get("bbox_end_zyx")
         if not isinstance(bbox_start, list) or not isinstance(bbox_end, list):
@@ -322,24 +345,28 @@ def build_stage06_nodule_records(
             "malignancy": {
                 "brock": stage04.get("brock", {}),
                 "selected_prediction": stage04.get("selected_prediction", {}),
+                "input_completeness": stage04.get("input_completeness", {}),
+                "input_provenance": stage04.get("input_provenance", {}),
+                "diagnosis": stage04.get("diagnosis", {"status": "not_predicted", "value": None}),
+                "pathology": stage04.get("pathology", {"status": "not_provided", "value": None}),
             },
             "model_identity": {
                 "stage03_prediction_json": _relative_artifact(stage03_path, patient_root),
                 "stage03_checkpoint_metadata": stage03_payload.get("checkpoint_metadata"),
                 "stage03_attribute_support_audit": stage03_payload.get("attribute_support_audit"),
                 "stage03_schema_version": stage03_payload.get("schema_version"),
+                "stage04_prediction_json": _relative_artifact(stage04_path, patient_root),
                 "stage04_model_type": "Brock_PanCan_full",
                 "stage04_model_version": stage04.get("model_version"),
+                "stage04_formula_version": stage04.get("formula_version"),
                 "stage04_model_file": stage04.get("model_file"),
-                "stage04_input_feature_order": [
-                    "age_years", "sex", "family_history_lung_cancer", "emphysema",
-                    "nodule_size_mm", "nodule_type", "upper_lobe", "nodule_count", "spiculation",
-                ],
+                "stage04_input_feature_order": STAGE04_SCHEMA["input_feature_order"],
                 "stage04_preprocessing": "Validated Brock input envelope; no LIDC-derived inputs.",
             },
             "uncertainty_and_limitations": {
                 "stage04_validation_warning": stage04.get("validation_warning"),
                 "stage04_target_semantics": stage04.get("target_semantics"),
+                "stage04_risk_uncertainty": stage04.get("risk_uncertainty"),
                 "cam_semantics": "Relative per-patch Grad-CAM display; raw signed map is separately preserved and color is not voxelwise attribute probability.",
             },
             "explanations": {
@@ -683,7 +710,7 @@ def main() -> None:
     validate_stage_version(manifest_data.get("schema_version"), STAGE02_SCHEMA["manifest_schema_version"], context="Stage 02 patch manifest")
     records = prepare_records(manifest_data)
     manifest_data["_manifest_path"] = str(manifest_path.resolve())
-    build_stage06_nodule_records(patient_root, manifest_data, records, {})
+    nodule_records = build_stage06_nodule_records(patient_root, manifest_data, records, {})
 
     selected_attributes = ATTRIBUTES if args.attribute == "all" else (args.attribute,)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -701,6 +728,7 @@ def main() -> None:
         "overlap_rule": STAGE06_SCHEMA["overlap_rule"],
         "display_palette_low_to_high": [item["name"] for item in PALETTE],
         "attributes": {},
+        "status": "completed",
     }
     cam_artifacts_by_patch: dict[int, dict[str, dict[str, Any]]] = {}
 
@@ -710,6 +738,20 @@ def main() -> None:
     print(f"CAM root: {cam_root}")
     print(f"Output:   {output_dir}")
     print("Mapping patch coordinates using Stage 02 crop_start_zyx in the Stage 01 CT voxel frame.")
+
+    if not records:
+        record_path = output_dir / str(STAGE06_SCHEMA["record_filename"])
+        record_path.write_text(json.dumps(nodule_records, indent=2, allow_nan=False), encoding="utf-8")
+        report["status"] = "no_eligible_candidates"
+        report["nodule_record_file"] = str(record_path)
+        report["nodule_record_count"] = 0
+        report["imaging_clinical_contract"] = None
+        report["attributes"] = {name: {"status": "no_eligible_candidates"} for name in selected_attributes}
+        report_path = output_dir / STAGE06_SCHEMA["report_filename"]
+        report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+        print(f"\nReport: {report_path}")
+        stage_complete(6, "06")
+        return
 
     for attribute in selected_attributes:
         print(f"\n[{attribute}] Loading per-patch CAMs...")
@@ -912,17 +954,14 @@ def main() -> None:
 
         del sum_cam, coverage_count
 
-    nodule_records = build_stage06_nodule_records(
-        patient_root,
-        manifest_data,
-        records,
-        cam_artifacts_by_patch,
-    )
     record_path = output_dir / str(STAGE06_SCHEMA["record_filename"])
     record_path.write_text(json.dumps(nodule_records, indent=2, allow_nan=False), encoding="utf-8")
     report["nodule_record_file"] = str(record_path)
     report["nodule_record_count"] = len(nodule_records["records"])
-    if args.attribute == "all" and args.require_all_patches:
+    if not records:
+        report["status"] = "no_eligible_candidates"
+        report["imaging_clinical_contract"] = None
+    elif args.attribute == "all" and args.require_all_patches:
         contract_path = create_contract_file(patient_root, args.patient_id, record_path)
         report["imaging_clinical_contract"] = str(contract_path)
     else:

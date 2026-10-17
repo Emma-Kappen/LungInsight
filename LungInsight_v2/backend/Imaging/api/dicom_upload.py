@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import json
 import re
 import secrets
 import shutil
@@ -22,10 +23,27 @@ MAX_FILE_BYTES = 512 * 1024 * 1024
 MAX_TOTAL_BYTES = 2 * 1024 * 1024 * 1024
 PATIENT_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 _JOBS: dict[str, dict[str, Any]] = {}
+_JOB_INDEX_DIR = ".imaging_upload_jobs"
+_JOB_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{16,64}$")
 
 
 class DicomUploadError(ValueError):
     """Raised when a raw upload cannot be safely converted to one CT series."""
+
+
+def _job_index_path(output_root: Path, job_id: str) -> Path:
+    if not _JOB_ID_PATTERN.fullmatch(job_id):
+        raise DicomUploadError("Invalid DICOM processing job identifier.")
+    return output_root / _JOB_INDEX_DIR / f"{job_id}.json"
+
+
+def _store_job(job_id: str, record: dict[str, Any], output_root: Path) -> None:
+    _JOBS[job_id] = dict(record)
+    path = _job_index_path(output_root, job_id)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(json.dumps(record, indent=2), encoding="utf-8")
+    temporary.replace(path)
 
 
 @dataclass(frozen=True)
@@ -190,7 +208,7 @@ async def process_dicom_upload(
     if job_root.parent.parent.parent != output_root.resolve():
         raise DicomUploadError("Invalid upload destination.")
     temp_root = Path(tempfile.mkdtemp(prefix="lunginsight-dicom-"))
-    _JOBS[job_id] = {"job_id": job_id, "status": "uploading", "patient_id": patient_id}
+    _store_job(job_id, {"job_id": job_id, "status": "uploading", "patient_id": patient_id}, output_root)
     total_bytes = 0
     try:
         for index, upload in enumerate(files):
@@ -205,7 +223,11 @@ async def process_dicom_upload(
                     if written > MAX_FILE_BYTES or total_bytes > MAX_TOTAL_BYTES:
                         raise DicomUploadError("The upload exceeds the permitted file or total size.")
                     handle.write(chunk)
-        _JOBS[job_id]["status"] = "validating_series"
+        _store_job(
+            job_id,
+            {"job_id": job_id, "status": "validating_series", "patient_id": patient_id},
+            output_root,
+        )
         series = _reconstruct(*_select_series(_read_datasets(temp_root)))
         job_root.mkdir(parents=True, exist_ok=False)
         stage01_input_root = job_root / "stage01_input" / patient_id
@@ -235,9 +257,9 @@ async def process_dicom_upload(
                 "Imaging pipeline must be run before an analysis result can be reported."
             ),
             "next_step": (
-                "An authorized operator must review the Stage 01 montage, create the hash-bound "
-                "heart-mask attestation, then run the supplied runner command. This upload "
-                "artifact is not an automatic Stage 01-07 pipeline invocation."
+                "Run the supplied pipeline command to perform automated Stage 01 mask/geometry "
+                "validation and downstream inference. Visual mask review is optional; this upload "
+                "artifact is not itself a completed Stage 01-07 pipeline run."
             ),
             "series": {
                 "file_count": len(files),
@@ -252,17 +274,19 @@ async def process_dicom_upload(
                 f"\"backend\\output\\{patient_id}\\dicom_uploads\\{job_id}\\stage01_input\\{patient_id}\" -NoGui"
             ),
         }
-        _JOBS[job_id] = result
+        _store_job(job_id, result, output_root)
         return result
     except Exception as exc:
-        _JOBS[job_id] = {
+        failure = {
             "job_id": job_id,
             "status": "failed",
             "analysis_status": "blocked",
-            "message": str(exc) if isinstance(exc, DicomUploadError) else "DICOM preprocessing failed.",
+            "patient_id": patient_id,
+            "message": str(exc) if isinstance(exc, (DicomUploadError, OSError)) else "DICOM preprocessing failed.",
         }
         if not isinstance(exc, DicomUploadError):
             logger.exception("dicom_preprocessing_failed")
+        _store_job(job_id, failure, output_root)
         raise
     finally:
         shutil.rmtree(temp_root, ignore_errors=True)
@@ -270,8 +294,16 @@ async def process_dicom_upload(
             await upload.close()
 
 
-def get_dicom_job(job_id: str) -> dict[str, Any]:
+def get_dicom_job(job_id: str, *, output_root: Path | None = None) -> dict[str, Any]:
     job = _JOBS.get(job_id)
+    if job is None and output_root is not None:
+        path = _job_index_path(output_root, job_id)
+        try:
+            job = json.loads(path.read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            job = None
+        except json.JSONDecodeError as exc:
+            raise DicomUploadError("Persisted DICOM job record is invalid.") from exc
     if job is None:
         raise DicomUploadError("DICOM processing job not found.")
     return dict(job)

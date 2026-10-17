@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -17,6 +18,7 @@ if str(IMAGING_DIR) not in sys.path:
 from brock import estimate_brock
 from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print
 from pipeline_schema import check_meta_schema_version, get_required, load_schema, validate_stage_version
+from stage02_eligibility import load_validated_stage02
 
 SUPPORTED_MALIGNANCY_METHODS = ("brock",)
 BROCK_MODEL_VERSION = "published-coefficients-verified-v1"
@@ -53,8 +55,8 @@ def unpack_stage03_payload(payload: Any) -> tuple[list[dict[str, Any]], dict[str
         )
     else:
         raise ValueError("Stage 03 predictions JSON must be an object or list.")
-    if not records or any(not isinstance(record, dict) for record in records):
-        raise ValueError("Stage 03 predictions must contain at least one object record.")
+    if any(not isinstance(record, dict) for record in records):
+        raise ValueError("Stage 03 predictions must contain only object records.")
     return records, metadata
 
 
@@ -155,6 +157,53 @@ def main() -> int:
 
     payload = read_json(input_path)
     records, metadata = unpack_stage03_payload(payload)
+    if not isinstance(metadata, dict) or metadata.get("stage04_eligible") is not True:
+        raise RuntimeError("Stage 04 requires a Stage 03 output explicitly marked stage04_eligible=true.")
+    manifest_value = metadata.get("patch_manifest")
+    if not isinstance(manifest_value, str) or not manifest_value.strip():
+        raise RuntimeError("Stage 03 output does not identify the gated Stage 02 primary manifest.")
+    manifest_path = Path(manifest_value).expanduser().resolve()
+    patient_root = manifest_path.parents[2]
+    stage02_manifest, accepted_patches, accepted_candidates = load_validated_stage02(patient_root, manifest_path)
+    del stage02_manifest
+    expected_ids = {
+        (str(row["candidate_id"]), int(row["patch_id"]))
+        for row in accepted_patches
+    }
+    declared_hash = metadata.get("patch_manifest_sha256")
+    actual_hash = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+    if not isinstance(declared_hash, str) or declared_hash != actual_hash:
+        raise RuntimeError("Stage 03 predictions are not bound to the current Stage 02 manifest hash.")
+    seen_stage03: set[tuple[str, int]] = set()
+    eligible_records: list[dict[str, Any]] = []
+    excluded_candidates: list[dict[str, Any]] = []
+    for record in records:
+        stable_id = record.get("stable_nodule_id", record.get("nodule_id"))
+        try:
+            identity = (str(record["candidate_id"]), int(record["patch_id"]))
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("Stage 03 record lacks a valid candidate_id/patch_id identity.") from exc
+        if identity in seen_stage03:
+            raise ValueError(f"Stage 03 contains duplicate candidate/patch identity {identity}.")
+        seen_stage03.add(identity)
+        if (
+            identity not in expected_ids
+            or stable_id != identity[0]
+            or identity[0] not in accepted_candidates
+            or record.get("stage04_eligible") is not True
+        ):
+            excluded_candidates.append({
+                "candidate_id": identity[0],
+                "patch_id": identity[1],
+                "stable_nodule_id": stable_id,
+                "reason": "not_in_current_selected_stage02_set_or_not_explicitly_eligible",
+            })
+            continue
+        eligible_records.append(record)
+    if seen_stage03 != expected_ids:
+        raise RuntimeError("Stage 03 records do not exactly match the selected Stage 02 patch set.")
+    records = eligible_records
+
     brock_payload: dict[str, Any] = {}
     if args.brock_inputs is not None:
         loaded = read_json(args.brock_inputs.resolve())
@@ -166,6 +215,23 @@ def main() -> int:
             raise ValueError(
                 "Brock input envelope must contain object-valued 'patient' and 'nodules' fields."
             )
+        patient_fields = {"age_years", "sex", "family_history_lung_cancer", "emphysema"}
+        nodule_fields = {"nodule_size_mm", "nodule_type", "upper_lobe", "nodule_count", "spiculation"}
+        unknown_patient = set(loaded["patient"]) - patient_fields
+        if unknown_patient:
+            raise ValueError(f"Unknown patient-level Brock input(s): {sorted(unknown_patient)}")
+        for stable_id, nodule_values in loaded["nodules"].items():
+            if not isinstance(stable_id, str) or not isinstance(nodule_values, dict):
+                raise ValueError("Brock nodules must map stable nodule IDs to input objects.")
+            unknown_nodule = set(nodule_values) - nodule_fields
+            if unknown_nodule:
+                raise ValueError(f"Unknown Brock inputs for {stable_id}: {sorted(unknown_nodule)}")
+            if set(nodule_values) & patient_fields:
+                raise ValueError(f"Patient-level Brock predictors must not be overridden per nodule: {stable_id}")
+        known_ids = {str(row["candidate_id"]) for row in accepted_patches}
+        unknown_ids = set(loaded["nodules"]) - known_ids
+        if unknown_ids:
+            raise ValueError(f"Brock input envelope contains unselected candidate IDs: {sorted(unknown_ids)}")
         brock_payload = loaded
 
     predictions: list[dict[str, Any]] = []
@@ -173,8 +239,7 @@ def main() -> int:
     for record in records:
         stable_id = record.get("stable_nodule_id", record.get("nodule_id"))
         if not isinstance(stable_id, str) or not stable_id.strip():
-            invalid_candidates.append({"status": "invalid_input", "reason": "missing stable_nodule_id"})
-            continue
+            raise ValueError("Eligible Stage 03 record is missing stable_nodule_id.")
         nodule_inputs = brock_payload.get("nodules", {}).get(stable_id, {})
         if not isinstance(nodule_inputs, dict):
             brock = _invalid_brock_inputs(stable_id, "nodule Brock inputs must be an object")
@@ -190,7 +255,11 @@ def main() -> int:
             "patient_id": record.get("patient_id") or record.get("patient") or metadata.get("patient_id") or patient_id_arg,
             "source": record.get("source", record.get("detection_source")),
             "detection_source": record.get("detection_source", "fused_candidate_set"),
-            "stage04_eligible": record.get("stage04_eligible", True),
+            "stage04_eligible": True,
+            "model_name": "Brock_PanCan_full",
+            "model_version": BROCK_MODEL_VERSION,
+            "formula_version": STAGE04_SCHEMA["formula_version"],
+            "model_file": None,
             "center_zyx": record.get("center_zyx"),
             "center_lps_mm": record.get("center_lps_mm"),
             "anatomical_location": record.get("anatomical_location"),
@@ -202,6 +271,28 @@ def main() -> int:
             "brock": brock,
             "selected_prediction": selected_prediction(brock),
             "ct_or_image_used_by_malignancy_predictor": False,
+            "input_completeness": {
+                "status": brock.get("status"),
+                "required_fields": [
+                    "age_years", "sex", "family_history_lung_cancer", "emphysema",
+                    "nodule_size_mm", "nodule_type", "upper_lobe", "nodule_count", "spiculation",
+                ],
+                "fields_missing": brock.get("features_missing", []),
+                "source": str(args.brock_inputs.resolve()) if args.brock_inputs is not None else None,
+            },
+            "input_provenance": {
+                "patient_fields": sorted(brock_payload.get("patient", {})),
+                "nodule_fields": sorted(nodule_inputs) if isinstance(nodule_inputs, dict) else [],
+                "nodule_size_unit": "mm",
+                "stage03_predictions_used_as_brock_predictors": False,
+                "stage02_detector_size_used_as_brock_size": False,
+            },
+            "risk_uncertainty": {
+                "status": "not_estimated",
+                "reason": "The published Brock formula output is a point risk estimate; calibrated patient-specific uncertainty is unavailable.",
+            },
+            "diagnosis": {"status": "not_predicted", "value": None},
+            "pathology": {"status": "not_provided", "value": None},
         })
 
     parent_patient_id = (
@@ -217,7 +308,7 @@ def main() -> int:
         "schema_version": STAGE04_SCHEMA["output_schema_version"],
         "meta_schema_version": SCHEMA["schema_version"],
         "stage": "04_malignancy_prediction",
-        "status": "completed",
+        "status": "completed" if predictions else "no_eligible_candidates",
         "patient_id": parent_patient_id,
         "malignancy_method": "brock",
         "model_name": "Brock_PanCan_full",
@@ -225,9 +316,20 @@ def main() -> int:
         "target_semantics": "research-only pulmonary nodule malignancy-risk probability; not pathology diagnosis",
         "input_source": f"validated Brock envelope plus Stage 03 stable nodule identifiers ({input_path})",
         "source_predictions_json": str(input_path),
+        "source_predictions_sha256": hashlib.sha256(input_path.read_bytes()).hexdigest(),
         "candidate_count": len(records),
         "scored_candidate_count": len(predictions),
         "invalid_candidates": invalid_candidates,
+        "excluded_candidates": excluded_candidates,
+        "input_completeness": {
+            "status": "provided" if args.brock_inputs is not None else "missing",
+            "envelope": str(args.brock_inputs.resolve()) if args.brock_inputs is not None else None,
+            "incomplete_prediction_count": sum(row["brock"].get("status") == "incomplete" for row in predictions),
+        },
+        "diagnosis": {"status": "not_predicted", "value": None},
+        "pathology": {"status": "not_provided", "value": None},
+        "stage02_manifest": str(manifest_path),
+        "stage02_manifest_sha256": actual_hash,
         "research_only": True,
         "limitations": [
             "Brock is the only malignancy-risk model supported by this POC.",

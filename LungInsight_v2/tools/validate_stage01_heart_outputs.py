@@ -76,7 +76,7 @@ def main() -> int:
         "heart_mask_review_status": meta.get("heart_mask_review_status"),
         "heart_mask_exclusion_verified": bool(meta.get("heart_mask_exclusion_verified", False)),
         "outputs": {k: str(v) for k, v in paths.items() if k not in ("meta", "tracking")},
-        "note": "Shape/dtype/value consistency is checked here. A nonempty mask still requires visual review; this is not clinical validation.",
+        "note": "Shape/dtype/value consistency is checked here. Visual review is optional research QA; automated validation is not clinical validation.",
     }
     output = args.report.expanduser().resolve() if args.report else patient / "stage01_heart_output_validation.json"
     output.parent.mkdir(parents=True, exist_ok=True)

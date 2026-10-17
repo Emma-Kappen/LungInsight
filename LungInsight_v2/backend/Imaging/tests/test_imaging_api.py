@@ -128,7 +128,7 @@ class ImagingApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["nodule"]["stable_nodule_id"], "nodule-api-001")
 
-        contract_path = self.root / "patient-api" / "imaging_clinical_contract_v1.json"
+        contract_path = self.root / "patient-api" / "imaging_clinical_contract_v2.json"
         from api.app import _flatten_artifacts
         artifact = next(
             item for item in _flatten_artifacts(contract, contract_path.parent)

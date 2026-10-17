@@ -18,8 +18,9 @@ def stable_nodule_id(
 
     Position is quantized to micrometres before hashing so harmless JSON
     float-format differences do not change an ID, while detector output
-    precision is retained. The detector source is the fused record's source
-    (ViTDet3D, LoG or Merged), not an array/list position.
+    precision is retained. Production fusion uses the canonical "Merged"
+    namespace for all source combinations, so detector agreement does not
+    change the identity of the same physical nodule.
     """
     if detector_source not in {"ViTDet3D", "LoG", "Merged"}:
         raise ValueError("detector_source must be one of ViTDet3D, LoG, or Merged.")

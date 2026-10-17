@@ -102,7 +102,17 @@ def _write_nodule_box(
     if center.shape != (3,) or start.shape != (3,) or end.shape != (3,):
         return None
     z = int(np.rint(center[0]))
-    if not 0 <= z < ct.shape[0]:
+    if (
+        not np.isfinite(center).all()
+        or not np.isfinite(start).all()
+        or not np.isfinite(end).all()
+        or not 0 <= z < ct.shape[0]
+        or np.any(start < 0)
+        or np.any(end <= start)
+        or np.any(end > np.asarray(ct.shape))
+        or np.any(center < start)
+        or np.any(center >= end)
+    ):
         return None
     gray = np.clip((np.asarray(ct[z], dtype=np.float32) + 1000.0) / 1400.0 * 255.0, 0, 255).astype(np.uint8)
     image = Image.fromarray(np.repeat(gray[..., None], 3, axis=-1))
@@ -112,6 +122,7 @@ def _write_nodule_box(
     x1 = min(ct.shape[2] - 1, int(end[2]) - 1)
     y1 = min(ct.shape[1] - 1, int(end[1]) - 1)
     draw.rectangle((x0, y0, x1, y1), outline=(255, 0, 255), width=2)
+    draw.text((x0, max(0, y0 - 12)), stable_id, fill=(255, 0, 255))
     filename = "nodule_" + "".join(char for char in stable_id if char.isalnum() or char in "-_") + ".png"
     path = report_root / "assets" / filename
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -231,6 +242,12 @@ def _write_interactive_viewer_assets(
                 "source": record.get("detector", {}).get("source"),
                 "probability": brock.get("probability") if isinstance(brock, dict) else None,
                 "brock": brock,
+                "diameter_mm": record.get("geometry", {}).get("diameter_mm"),
+                "classification": {
+                    name: value.get("expected_rating")
+                    for name, value in record.get("attributes", {}).items()
+                    if isinstance(value, dict) and value.get("expected_rating") is not None
+                },
                 "center_zyx": center,
                 "bbox_start_zyx": bbox_start,
                 "bbox_end_zyx_exclusive": bbox_end,
@@ -272,7 +289,9 @@ def _interactive_viewer_body(viewer_data: dict[str, Any] | None, *, tab: str) ->
         "</div>"
         "<fieldset class='nodule-checklist'><legend>Show nodule Grad-CAM</legend><div id='viewer-nodules'></div></fieldset>"
         "<p id='viewer-status' class='viewer-status'></p>"
-        "<canvas id='viewer-canvas' width='512' height='512' aria-label='Axial CT slice with selected nodule Grad-CAM overlay'></canvas>"
+        f"<canvas id='viewer-canvas' width='{int(viewer_data['ct_shape_zyx'][2])}' "
+        f"height='{int(viewer_data['ct_shape_zyx'][1])}' "
+        "aria-label='Axial CT slice with selected eligible nodule bounding boxes and Grad-CAM overlay'></canvas>"
         "<section class='shap-panel'><h3>Last checked nodule Brock explanation</h3><p id='viewer-rating'></p><div id='viewer-shap'></div></section>"
         "</section>"
         f"<script id='viewer-data' type='application/json'>{payload}</script>"
@@ -284,7 +303,8 @@ def _interactive_viewer_body(viewer_data: dict[str, Any] | None, *, tab: str) ->
         "const ctImages=data.ct_slices.map(src=>{const image=new Image();image.src=src;return image}),lungImages=(data.lung_mask_slices||[]).map(src=>{const image=new Image();image.src=src;return image}),heartImages=(data.heart_mask_slices||[]).map(src=>{const image=new Image();image.src=src;return image}),sprites=new Map();"
         "for(const nodule of data.nodules){for(const [attribute,cam] of Object.entries(nodule.cams)){const image=new Image();image.src=cam.sprite;sprites.set(nodule.id+'|'+attribute,image)}}"
         "let activeId=data.nodules[0].id;for(const [index,nodule] of data.nodules.entries()){const label=document.createElement('label'),box=document.createElement('input');box.type='checkbox';box.value=nodule.id;box.checked=index===0;box.dataset.noduleId=nodule.id;"
-        "label.append(box,document.createTextNode(' '+(index+1)+'. '+nodule.id+' | Brock '+(nodule.brock?.probability??'unavailable')+' | '+(nodule.source||'unknown source')));checklist.append(label)}"
+        "const classification=Object.entries(nodule.classification||{}).map(([name,value])=>name+': '+value).join(', ')||'classification unavailable',explanations=Object.keys(nodule.cams||{}).join(', ')||'explanation unavailable';"
+        "label.append(box,document.createTextNode(' '+(index+1)+'. '+nodule.id+' | '+(nodule.diameter_mm??'unknown')+' mm | Brock '+(nodule.brock?.probability??'unavailable')+' ('+(nodule.brock?.status||'unavailable')+') | '+(nodule.source||'unknown source')+' | '+classification+' | Grad-CAM: '+explanations));checklist.append(label)}"
         "zInput.min='0';zInput.max=String(data.ct_shape_zyx[0]-1);"
         "function selected(){return data.nodules.find(nodule=>nodule.id===activeId)||data.nodules[0]}function checked(){return [...checklist.querySelectorAll('input:checked')].map(box=>data.nodules.find(nodule=>nodule.id===box.value)).filter(Boolean)}"
         "function populateAttributes(){const nodule=selected(),current=attributeSelect.value;attributeSelect.replaceChildren();const attributes=Object.keys(nodule.cams);"
@@ -298,7 +318,7 @@ def _interactive_viewer_body(viewer_data: dict[str, Any] | None, *, tab: str) ->
         "ctx.clearRect(0,0,canvas.width,canvas.height);if(ctImage.complete)ctx.drawImage(ctImage,0,0,canvas.width,canvas.height);else ctImage.onload=render;"
         "if(showMasks.checked){for(const image of [lungImages[z],heartImages[z]]){if(image&&image.complete)ctx.drawImage(image,0,0,canvas.width,canvas.height)}}"
         "let overlays=0;for(const nodule of selectedNodules){const start=nodule.bbox_start_zyx,end=nodule.bbox_end_zyx_exclusive;"
-        "if(z>=start[0]&&z<end[0]){ctx.strokeStyle='#ff00ff';ctx.lineWidth=2;ctx.strokeRect(start[2],start[1],end[2]-start[2],end[1]-start[1])}"
+        "if(z>=start[0]&&z<end[0]){ctx.strokeStyle='#ff00ff';ctx.lineWidth=2;ctx.strokeRect(start[2],start[1],end[2]-start[2],end[1]-start[1]);ctx.fillStyle='#ff00ff';ctx.font='12px sans-serif';ctx.fillText(nodule.id,start[2],Math.max(12,start[1]-3))}"
         "const cam=nodule.cams[attribute];if(!cam)continue;const relativeZ=z-nodule.crop_start_zyx[0],shape=nodule.patch_shape_zyx,sprite=sprites.get(nodule.id+'|'+attribute);"
         "if(relativeZ>=0&&relativeZ<shape[0]){const sx=Math.max(0,-nodule.crop_start_zyx[2]),sy=Math.max(0,-nodule.crop_start_zyx[1]),dx=Math.max(0,nodule.crop_start_zyx[2]),dy=Math.max(0,nodule.crop_start_zyx[1]),width=Math.min(shape[2]-sx,canvas.width-dx),height=Math.min(shape[1]-sy,canvas.height-dy);"
         "if(sprite.complete&&width>0&&height>0){ctx.save();ctx.globalAlpha=Number(alphaInput.value);ctx.drawImage(sprite,sx,relativeZ*shape[1]+sy,width,height,dx,dy,width,height);ctx.restore();overlays++}else sprite.onload=render}}"
@@ -381,6 +401,14 @@ def generate_patient_report(
         malignancy = record.get("malignancy", {})
         brock = malignancy.get("brock", {}) if isinstance(malignancy, dict) else {}
         selected = malignancy.get("selected_prediction", {}) if isinstance(malignancy, dict) else {}
+        geometry = record.get("geometry", {})
+        attributes = record.get("attributes")
+        attributes = attributes if isinstance(attributes, dict) else {}
+        classification = ", ".join(
+            f"{name}: {value.get('expected_rating')}"
+            for name, value in sorted(attributes.items())
+            if isinstance(value, dict) and value.get("expected_rating") is not None
+        ) or "Unavailable"
         bbox_preview = _write_nodule_box(ct, record, stable_id, report_root)
         preview_cell = (
             f"<img src='{_href(bbox_preview)}' alt='CT bounding box for {html.escape(stable_id)}'>"
@@ -391,10 +419,14 @@ def generate_patient_report(
             f"<td><code>{html.escape(stable_id)}</code></td>"
             f"<td>{html.escape(str(detector.get('source', row.get('source', 'Unavailable'))))}</td>"
             f"<td>ViTDet3D: {html.escape(str(detector.get('vitdet_score')))}<br>LoG: {html.escape(str(detector.get('log_score')))}</td>"
+            f"<td>Diameter: {html.escape(str(geometry.get('diameter_mm', 'unavailable')))} mm<br>"
+            f"Volume: {html.escape(str(geometry.get('volume_mm3', 'unavailable')))} mm³</td>"
+            f"<td>{html.escape(classification)}</td>"
             f"<td>Selected: {html.escape(str(selected.get('method', 'not specified')))} "
             f"({html.escape(str(selected.get('status', 'unavailable')))})"
             f"<br>Selected value: {html.escape(str(selected.get('value', 'unavailable')))}"
-            f"<br>Brock probability: {html.escape(str(brock.get('probability', 'unavailable')))}</td>"
+            f"<br>Brock risk estimate: {html.escape(str(brock.get('probability', 'unavailable')))} "
+            f"({html.escape(str(brock.get('status', 'unavailable')))})</td>"
             f"<td>{html.escape(str(row.get('center_lps_x_mm')))}, {html.escape(str(row.get('center_lps_y_mm')))}, {html.escape(str(row.get('center_lps_z_mm')))}</td>"
             f"<td>{preview_cell}</td>"
             "</tr>"
@@ -487,7 +519,8 @@ def generate_patient_report(
 
     nodules_body = (
         "<table><thead><tr><th>Stable ID</th><th>Detector source</th><th>Separate detector scores</th>"
-        "<th>Model output</th><th>Centroid LPS mm</th><th>Bounding box</th></tr></thead><tbody>"
+        "<th>Measurements</th><th>Predicted classification attributes</th><th>Model output</th>"
+        "<th>Centroid LPS mm</th><th>Bounding box</th></tr></thead><tbody>"
         + "".join(nodule_rows) + "</tbody></table>"
         + f"<p>Accepted: {len(accepted)}; excluded from display: {len(excluded)} (audit only).</p>"
         + "<p>Bounding boxes use magenta. Detector scores are shown separately; no cross-detector confidence color scale is applied because ViTDet3D scores and LoG responses are not calibrated to a shared scale.</p>"

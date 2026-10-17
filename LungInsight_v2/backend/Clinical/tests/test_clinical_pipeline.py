@@ -41,7 +41,7 @@ from LungInsight_v2.backend.Clinical.training import (
 
 def _valid_imaging_contract(patient_id: str = "synthetic-patient") -> dict:
     return {
-        "contract_version": "1.0.0",
+        "contract_version": "2.0.0",
         "patient_id": patient_id,
         "study_id": "synthetic-study",
         "study_uid": "synthetic-study-uid",
@@ -53,9 +53,31 @@ def _valid_imaging_contract(patient_id: str = "synthetic-patient") -> dict:
             "spacing_zyx_mm": [1, 1, 1],
             "direction_lps": [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
         },
+        "study": {
+            "processing_status": "completed",
+            "preprocessing_status": "completed",
+            "mask_validation_status": "validated_automated",
+            "raw_detection_counts": {"ViTDet3D": None, "LoG": None},
+            "fused_candidate_count": None,
+            "excluded_candidate_count": None,
+            "eligible_nodule_count": 1,
+            "brock_prediction_counts": {"completed": 0, "incomplete": 1, "failed": 0, "not_run": 0},
+            "warnings": [],
+            "errors": [],
+            "provenance": {
+                "run_id": "synthetic-run",
+                "meta_schema_version": "2.14",
+                "imaging_model_versions": {"stage06": "synthetic-v1"},
+                "review_attestation_verified": False,
+                "mask_visual_review_status": "not_performed",
+            },
+            "artifact_refs": {},
+        },
         "nodules": [
             {
                 "stable_nodule_id": "synthetic-nodule",
+                "eligibility_status": "eligible",
+                "quality_status": "passed",
                 "detector": {
                     "candidate_id": "candidate-1",
                     "source": "LoG",
@@ -63,16 +85,24 @@ def _valid_imaging_contract(patient_id: str = "synthetic-patient") -> dict:
                     "vitdet_score": None,
                     "log_score": 0.99,
                 },
+                "detection_sources": ["LoG"],
                 "bbox_voxel": {"start_zyx": [0, 0, 0], "end_zyx_exclusive": [1, 1, 1]},
                 "bbox_lps_mm": {"min_lps_mm": [0, 0, 0], "max_lps_mm": [1, 1, 1]},
                 "centroid_voxel": [0.5, 0.5, 0.5],
                 "centroid_lps_mm": [0.5, 0.5, 0.5],
-                "diameter_mm": 12.5,
-                "volume_mm3": 100.0,
+                "measurements": {
+                    "diameter_mm": 12.5,
+                    "volume_mm3": 100.0,
+                    "source": "stage02_detector_bbox_estimate",
+                    "status": "detector_estimate",
+                },
                 "anatomical_location": {},
-                "attributes": {
-                    key: {}
-                    for key in (
+                "classification": {
+                    "status": "available",
+                    "source": "synthetic-v1",
+                    "attributes": {
+                        key: {}
+                        for key in (
                         "subtlety",
                         "internal_structure",
                         "calcification",
@@ -82,6 +112,7 @@ def _valid_imaging_contract(patient_id: str = "synthetic-patient") -> dict:
                         "spiculation",
                         "texture",
                     )
+                    },
                 },
                 "malignancy": {
                     "brock": {
@@ -106,6 +137,7 @@ def _valid_imaging_contract(patient_id: str = "synthetic-patient") -> dict:
                     },
                 },
                 "uncertainty": {},
+                "input_completeness": {"status": "incomplete", "fields_missing": ["age_years"]},
                 "quality_flags": [],
                 "model_versions": {"stage04": "synthetic-v1"},
                 "gradcam_refs": {},
@@ -122,8 +154,8 @@ def _imaging_evidence(patient_id: str = "synthetic-patient", scan_datetime: str 
         "source_timestamp": "2026-01-01T12:00:00+00:00",
         "scan_datetime": scan_datetime,
         "gate_status": "passed",
-        "imaging_pipeline_version": "synthetic-imaging-v1",
-        "imaging_model_versions": {"stage06": "synthetic-v1"},
+        "imaging_pipeline_version": "meta_schema-2.14",
+        "imaging_model_versions": _valid_imaging_contract(patient_id)["study"]["provenance"]["imaging_model_versions"],
     }
 
 
@@ -167,6 +199,45 @@ def test_clinician_input_ranges_and_whitespace_validation() -> None:
         validate_clinician_inputs({"age_at_baseline_years": 121})
     with pytest.raises(ClinicalValidationError):
         validate_clinician_inputs({"stage_at_baseline": "Stage IIA"})
+
+
+def test_clinical_form_preserves_unknown_and_absent_values_and_calculates_pack_years() -> None:
+    values = validate_clinician_inputs({
+        "age_at_baseline_years": None,
+        "age_at_baseline_years_status": "unknown",
+        "sex_at_baseline": "unknown",
+        "race_at_baseline": "not_reported",
+        "ethnicity_at_baseline": "hispanic_or_latino",
+        "smoking_status": "former",
+        "years_smoked": 20,
+        "years_smoked_status": "reported",
+        "packs_per_day": 1.5,
+        "packs_per_day_status": "reported",
+        "years_since_cessation": 4,
+        "family_history_lung_cancer": "no",
+        "medical_history_status": "reported",
+        "medical_history_conditions": [],
+        "symptoms_status": "unknown",
+        "symptoms": [],
+    })
+    assert values["age_at_baseline_years_status"] == "unknown"
+    assert values["sex_at_baseline"] is None
+    assert values["sex_at_baseline_status"] == "unknown"
+    assert values["race_at_baseline"] == "not_reported"
+    assert values["ethnicity_at_baseline"] == "hispanic_or_latino"
+    assert values["pack_years"] == 30
+    assert values["medical_history_status"] == "reported"
+    assert values["medical_history_conditions"] == []
+    assert values["symptoms_status"] == "unknown"
+    with pytest.raises(ClinicalValidationError, match="must match"):
+        validate_clinician_inputs({
+            "smoking_status": "former",
+            "years_smoked": 20,
+            "years_smoked_status": "reported",
+            "packs_per_day": 1,
+            "packs_per_day_status": "reported",
+            "pack_years": 5,
+        })
 
 
 def test_prediction_uses_system_utc_timestamp_without_pathological_stage() -> None:
@@ -368,6 +439,102 @@ def test_api_serves_frontend_and_reports_no_models_as_untrained() -> None:
     assert "!uploadResult" not in frontend_script.split("analyseButton.disabled =", 1)[1].split(";", 1)[0]
     assert "selected; not uploaded" in frontend_script
     assert "uploaded and DICOM validation completed" in frontend_script
+    assert "/viewer/slices/" in frontend_script
+    assert "viewer-lung" in frontend_script
+    assert "viewer-previous" in frontend_script
+    assert 'addEventListener("wheel"' in frontend_script
+    assert "printReportButton" in frontend_script
+
+
+def test_analysis_run_rejects_unknown_upload_job() -> None:
+    from fastapi.testclient import TestClient
+
+    client = TestClient(create_app())
+    response = client.post(
+        "/api/v1/analysis/runs",
+        json={
+            "patient_id": "functional-test-patient",
+            "upload_job_id": "missing-upload-job",
+            "clinician_inputs": {
+                "age_at_baseline_years": 67,
+                "sex_at_baseline": "female",
+                "kps": 80,
+            },
+            "requested_malignancy_method": "brock",
+            "data_provenance": "synthetic_functional_test",
+        },
+    )
+    assert response.status_code == 422
+    assert "not found" in response.json()["detail"].lower()
+
+
+def test_analysis_viewer_serves_bounded_ct_slices(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    from fastapi.testclient import TestClient
+    from LungInsight_v2.backend.Clinical import api as clinical_api
+    from LungInsight_v2.backend.Imaging.api import analysis as analysis_api
+
+    patient_root = tmp_path / "viewer-patient"
+    patient_root.mkdir()
+    volume = np.linspace(-1000, 400, 24, dtype=np.float32).reshape(3, 4, 2)
+    np.save(patient_root / "volume_hu_cropped.npy", volume)
+    np.save(patient_root / "lung_mask.npy", np.ones_like(volume, dtype=bool))
+    np.save(patient_root / "heart_mask.npy", np.zeros_like(volume, dtype=bool))
+    monkeypatch.setattr(clinical_api, "IMAGING_OUTPUT_ROOT", tmp_path)
+    analysis_api._RUNS["viewer-run"] = {
+        "run_id": "viewer-run",
+        "patient_id": "viewer-patient",
+        "status": "completed",
+    }
+    try:
+        client = TestClient(create_app())
+        metadata = client.get("/api/v1/analysis/runs/viewer-run/viewer")
+        image = client.get("/api/v1/analysis/runs/viewer-run/viewer/slices/1?lung_overlay=true")
+        invalid = client.get("/api/v1/analysis/runs/viewer-run/viewer/slices/99")
+        assert metadata.status_code == 200
+        assert metadata.json()["shape_zyx"] == [3, 4, 2]
+        assert metadata.json()["overlays"] == {"lung_mask": True, "heart_mask": True}
+        assert image.status_code == 200
+        assert image.headers["content-type"] == "image/png"
+        assert image.content.startswith(b"\x89PNG")
+        assert invalid.status_code == 404
+    finally:
+        analysis_api._RUNS.pop("viewer-run", None)
+
+
+def test_analysis_run_records_only_observed_completed_stages() -> None:
+    from LungInsight_v2.backend.Imaging.api import analysis as analysis_api
+
+    analysis_api._RUNS["status-run"] = {"run_id": "status-run", "completed_stages": []}
+    try:
+        analysis_api._record_completed_stage("status-run", "[01/07] Stage 01 Complete")
+        analysis_api._record_completed_stage("status-run", "[01/07] Stage 01 Complete")
+        analysis_api._record_completed_stage("status-run", "[02/07] Stage 03 Complete")
+        assert analysis_api.get_analysis("status-run", output_root=Path("."))["completed_stages"] == ["stage01"]
+    finally:
+        analysis_api._RUNS.pop("status-run", None)
+
+
+def test_analysis_run_status_survives_process_local_cache_loss(tmp_path: Path) -> None:
+    from LungInsight_v2.backend.Imaging.api import analysis as analysis_api
+
+    run_id = "0123456789abcdef0123456789abcdef"
+    run = {
+        "run_id": run_id,
+        "patient_id": "persisted-patient",
+        "status": "completed",
+        "completed_stages": ["stage01", "stage02"],
+        "_state_path": str(tmp_path / ".analysis_runs" / f"{run_id}.json"),
+    }
+    analysis_api._RUNS[run_id] = run
+    try:
+        analysis_api._save_run(run)
+        analysis_api._RUNS.pop(run_id)
+        restored = analysis_api.get_analysis(run_id, output_root=tmp_path)
+        assert restored["status"] == "completed"
+        assert restored["completed_stages"] == ["stage01", "stage02"]
+        assert "_state_path" not in restored
+    finally:
+        analysis_api._RUNS.pop(run_id, None)
 
 
 def test_model_failure_does_not_invalidate_independent_survival_output() -> None:

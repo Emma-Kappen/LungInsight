@@ -169,6 +169,16 @@ class PipelineSchemaTests(unittest.TestCase):
         self.assertNotEqual(stage4["output_json"], stage4["log_diagnostic_output_json"])
         self.assertIn("log_diagnostic_predictions_json", stage3)
 
+    def test_fused_candidate_stream_is_the_only_downstream_inference_path(self):
+        stage3 = self.schema["stage_03_nodule_classification"]
+        self.assertFalse(stage3["inputs"]["process_log_diagnostic_default"])
+        runner = (ROOT / "run_pipeline.ps1").read_text(encoding="utf-8")
+        self.assertIn("[string]$BrockInputs", runner)
+        self.assertIn("Stage 03 - frozen attribute inference for selected fused candidates", runner)
+        self.assertIn("Stage 05 - Grad-CAM for all eligible fused candidates", runner)
+        self.assertNotIn("$LogStage03", runner)
+        self.assertNotIn("$LogStage06", runner)
+
     def test_stage05_batch_gradcam_uses_manifest_and_cached_checkpoints(self):
         stage5_path = INFERENCE / "05_gradcam.py"
         source = stage5_path.read_text(encoding="utf-8")
@@ -206,6 +216,14 @@ class PipelineSchemaTests(unittest.TestCase):
         self.assertIn("authoritative_brock_predictions", runner)
         self.assertIn("$Schema.stage_04_malignancy_prediction.formula_version", runner)
         self.assertNotIn("$Schema.stage_04_malignancy_prediction.model_path", runner)
+
+    def test_runner_publishes_completed_contract_after_run_summary(self):
+        runner = (ROOT / "run_pipeline.ps1").read_text(encoding="utf-8")
+        summary_write = runner.index("$RunSummary | ConvertTo-Json")
+        contract_publish = runner.index("Publish completed Imaging-to-Clinical contract")
+        self.assertLess(summary_write, contract_publish)
+        self.assertIn("$Schema.imaging_clinical_contract.filename", runner)
+        self.assertIn('processing_status="completed"', runner)
 
     def test_runner_accepts_explicit_uploaded_dicom_input_tree(self):
         runner = (ROOT / "run_pipeline.ps1").read_text(encoding="utf-8")

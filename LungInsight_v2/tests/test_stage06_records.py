@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import hashlib
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
@@ -40,6 +42,74 @@ class Stage06RecordTests(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(value), encoding="utf-8")
 
+    def _write_stage01_gate(self, patient_root: Path, candidate, patch):
+        stage02 = patient_root / "02_detect_and_patch"
+        stage02.mkdir(parents=True, exist_ok=True)
+        shape = (64, 64, 64)
+        volume = np.full(shape, -500.0, dtype=np.float32)
+        lung = np.ones(shape, dtype=bool)
+        lung[0, 0, 0] = False
+        heart = np.zeros(shape, dtype=bool)
+        heart[0, 0, 0] = True
+        np.save(patient_root / "volume_hu_cropped.npy", volume, allow_pickle=False)
+        np.save(patient_root / "lung_mask.npy", lung, allow_pickle=False)
+        np.save(patient_root / "heart_mask.npy", heart, allow_pickle=False)
+        quality = {
+            "status": "validated_automated",
+            "shape_zyx": list(shape),
+            "problems": [],
+            "lung_voxels": int(lung.sum()),
+            "heart_voxels": int(heart.sum()),
+            "lung_heart_overlap_voxels": 0,
+        }
+        self._write_json(patient_root / "meta.json", {
+            "patient_id": patient_root.name,
+            "meta_schema_version": self.stage06.SCHEMA["schema_version"],
+            "coordinate_system": "DICOM_LPS",
+            "array_axes": ["z", "y", "x"],
+            "spacing_zyx_mm": [2.5, 0.7, 0.7],
+            "origin_mm": [0.0, 0.0, 0.0],
+            "direction_lps": np.eye(3).tolist(),
+            "mask_quality": quality,
+        })
+        self._write_json(patient_root / "mask_quality_report.json", quality)
+        hashes = {
+            "volume_hu_cropped.npy": hashlib.sha256((patient_root / "volume_hu_cropped.npy").read_bytes()).hexdigest(),
+            "lung_mask.npy": hashlib.sha256((patient_root / "lung_mask.npy").read_bytes()).hexdigest(),
+            "heart_mask.npy": hashlib.sha256((patient_root / "heart_mask.npy").read_bytes()).hexdigest(),
+        }
+        self._write_json(patient_root / "heart_mask_review_attestation.json", {
+            "schema_version": "heart-mask-review-attestation-v1",
+            "meta_schema_version": self.stage06.SCHEMA["schema_version"],
+            "patient_id": patient_root.name,
+            "reviewed": True,
+            "reviewer": "test reviewer",
+            "clinical_validation": False,
+            "artifacts_sha256": hashes,
+        })
+        self._write_json(stage02 / "candidate_filter_report.json", {
+            "gate_status": "passed",
+            "review_attestation": {"verified": True, "artifact_hashes": hashes},
+        })
+        self._write_json(stage02 / "candidates.json", [candidate])
+        manifest_path = patient_root / "02_detect_and_patch" / "patches" / "patches_manifest.json"
+        manifest_patch = dict(patch)
+        manifest_patch["crop_start_zyx"] = np.asarray(patch["crop_start_zyx"]).tolist()
+        manifest = {
+            "schema_version": self.stage06.STAGE02_SCHEMA["manifest_schema_version"],
+            "coordinate_system": self.stage06.SCHEMA["coordinate_system"],
+            "coordinate_order": "ZYX",
+            "ct_geometry": {
+                "shape_zyx": list(shape),
+                "spacing_zyx_mm": [2.5, 0.7, 0.7],
+                "origin_lps_mm": [0.0, 0.0, 0.0],
+                "direction_lps": np.eye(3).tolist(),
+            },
+            "patches": [manifest_patch],
+        }
+        self._write_json(manifest_path, manifest)
+        return manifest_path, hashlib.sha256(manifest_path.read_bytes()).hexdigest()
+
     def test_stage06_record_joins_only_accepted_stable_identity(self):
         with tempfile.TemporaryDirectory() as temporary_directory:
             patient_root = Path(temporary_directory) / "patient"
@@ -53,14 +123,16 @@ class Stage06RecordTests(unittest.TestCase):
                 "detection_source": "ViTDet3D",
                 "patient_id": "patient",
                 "stage04_eligible": True,
+                "center_inside_lung_mask": True,
                 "checkpoint_metadata": {"group": "test"},
                 "center_zyx": [10, 20, 30],
-                "center_lps_mm": [1.0, 2.0, 3.0],
+                "center_lps_mm": [25.0, 14.0, 21.0],
                 "bbox_start_zyx": [9, 19, 29],
                 "bbox_end_zyx": [11, 21, 31],
                 "crop_start_zyx": [0, 0, 0],
                 "crop_end_zyx": [64, 64, 64],
                 "patch_size_vox_zyx": [64, 64, 64],
+                "source_space": "stage01_final_cropped_ct",
                 "attributes": {
                     name: {"expected_rating": 3.0}
                     for name in self.stage06.ATTRIBUTES
@@ -72,6 +144,7 @@ class Stage06RecordTests(unittest.TestCase):
                 "patient_id": "patient",
                 "stable_nodule_id": "candidate-abc",
                 "model_version": "published-coefficients-verified-v1",
+                "stage04_eligible": True,
                 "brock": {
                     "status": "incomplete",
                     "method": "brock_formula_decomposition",
@@ -94,19 +167,10 @@ class Stage06RecordTests(unittest.TestCase):
                 },
                 "target_semantics": "research-only pulmonary nodule malignancy-risk probability",
             }
-            self._write_json(stage02 / "candidate_filter_report.json", {"gate_status": "passed"})
-            self._write_json(stage02 / "candidates.json", [candidate])
             support_audit = {
                 name: {"status": "supported"}
                 for name in self.stage06.ATTRIBUTES
             }
-            self._write_json(stage03 / "predictions.json", {
-                "schema_version": "3.0-spatial-hybrid",
-                "checkpoint_metadata": {},
-                "attribute_support_audit": support_audit,
-                "predictions": [candidate],
-            })
-            self._write_json(stage04 / "malignancy_predictions.json", {"predictions": [score]})
             patch = {
                 "candidate_id": "candidate-abc",
                 "patch_id": 7,
@@ -115,7 +179,7 @@ class Stage06RecordTests(unittest.TestCase):
                 "coordinate_order": ["z", "y", "x"],
                 "source_space": "stage01_final_cropped_ct",
                 "center_zyx": [10, 20, 30],
-                "center_lps_mm": [1.0, 2.0, 3.0],
+                "center_lps_mm": [25.0, 14.0, 21.0],
                 "bbox_start_zyx": [9, 19, 29],
                 "bbox_end_zyx": [11, 21, 31],
                 # prepare_records normalizes this field to a NumPy array for
@@ -123,11 +187,36 @@ class Stage06RecordTests(unittest.TestCase):
                 "crop_start_zyx": np.asarray([0, 0, 0], dtype=np.int64),
                 "crop_end_zyx": [64, 64, 64],
                 "patch_size_vox_zyx": [64, 64, 64],
+                "source_space": "stage01_final_cropped_ct",
                 "detector_score": 0.8,
             }
+            manifest_path, manifest_hash = self._write_stage01_gate(patient_root, candidate, patch)
+            self._write_json(stage03 / "predictions.json", {
+                "schema_version": "3.0-spatial-hybrid",
+                "stage04_eligible": True,
+                "patch_manifest_sha256": manifest_hash,
+                "checkpoint_metadata": {},
+                "attribute_support_audit": support_audit,
+                "predictions": [candidate],
+            })
+            stage03_path = stage03 / "predictions.json"
+            self._write_json(stage04 / "malignancy_predictions.json", {
+                "stage02_manifest_sha256": manifest_hash,
+                "source_predictions_json": str(stage03_path.resolve()),
+                "source_predictions_sha256": hashlib.sha256(stage03_path.read_bytes()).hexdigest(),
+                "predictions": [score],
+            })
             result = self.stage06.build_stage06_nodule_records(
                 patient_root,
-                {"ct_geometry": {"spacing_zyx_mm": [2.5, 0.7, 0.7]}},
+                {
+                    "ct_geometry": {
+                        "spacing_zyx_mm": [2.5, 0.7, 0.7],
+                        "shape_zyx": [64, 64, 64],
+                        "origin_lps_mm": [0.0, 0.0, 0.0],
+                        "direction_lps": np.eye(3).tolist(),
+                    },
+                    "_manifest_path": str(manifest_path),
+                },
                 [patch],
                 {7: {"subtlety": {"scaled_path": "cam.npy"}}},
             )
@@ -145,7 +234,7 @@ class Stage06RecordTests(unittest.TestCase):
             patient_root = Path(temporary_directory) / "patient"
             stage02 = patient_root / "02_detect_and_patch"
             self._write_json(stage02 / "candidate_filter_report.json", {"gate_status": "blocked_heart_mask_review_required"})
-            with self.assertRaisesRegex(RuntimeError, "acceptance gate did not pass"):
+            with self.assertRaisesRegex(RuntimeError, "acceptance gate"):
                 self.stage06.build_stage06_nodule_records(
                     patient_root,
                     {},
@@ -212,6 +301,56 @@ class Stage06RecordTests(unittest.TestCase):
             self.assertEqual(len(paths), 1)
             self.assertTrue(Path(paths[0]).is_file())
             self.assertIn("nodule_002_explanation.png", paths[0])
+
+    def test_stage07_slider_draws_native_voxel_bbox_and_stable_id_details(self):
+        geometry = {
+            "center_zyx": [1.0, 4.0, 4.0],
+            "bbox_start_zyx": [1, 3, 3],
+            "bbox_end_zyx_exclusive": [3, 6, 6],
+            "diameter_mm": 9.0,
+            "volume_mm3": 280.0,
+        }
+        row = {
+            "stable_nodule_id": "stable-nodule-123",
+            "center_z_voxel": 1.0,
+            "center_y_voxel": 4.0,
+            "center_x_voxel": 4.0,
+            "bbox_start_zyx": geometry["bbox_start_zyx"],
+            "bbox_end_zyx_exclusive": geometry["bbox_end_zyx_exclusive"],
+            "detection_source": "Merged",
+            "brock_status": "incomplete",
+            "brock_probability": None,
+            "stage06_record": {
+                "geometry": geometry,
+                "attributes": {"spiculation": {"expected_rating": 4.0}},
+            },
+        }
+        with patch.object(self.stage07.plt, "show"):
+            self.stage07.launch_viewer(
+                np.zeros((4, 8, 8), dtype=np.float32),
+                np.ones((4, 8, 8), dtype=bool),
+                np.zeros((4, 8, 8), dtype=bool),
+                np.zeros((4, 8, 8), dtype=bool),
+                [row],
+                "patient",
+                -600.0,
+                1500.0,
+            )
+        figure = self.stage07.plt.gcf()
+        try:
+            axes = figure.axes[0]
+            self.assertEqual(len(axes.patches), 1)
+            rectangle = axes.patches[0]
+            self.assertEqual(rectangle.get_xy(), (3.0, 3.0))
+            self.assertEqual((rectangle.get_width(), rectangle.get_height()), (3.0, 3.0))
+            annotation = "\n".join(text.get_text() for text in axes.texts)
+            self.assertIn("stable-nodule-123", annotation)
+            self.assertIn("Diameter 9.0 mm", annotation)
+            self.assertIn("volume 280.0 mm3", annotation)
+            self.assertIn("spiculation=4.0", annotation)
+            self.assertIn("Brock unavailable (incomplete)", annotation)
+        finally:
+            self.stage07.plt.close(figure)
 
 
 if __name__ == "__main__":

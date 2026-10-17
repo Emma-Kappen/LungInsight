@@ -76,11 +76,34 @@ class MergeTests(unittest.TestCase):
         self.assertEqual(len(records), 1)
         self.assertEqual(report["union_count_before_deduplication"], 2)
         self.assertEqual(report["deduplicated_count"], 1)
-        self.assertEqual(records[0]["primary_geometry_source"], "ViTDet3D")
-        self.assertEqual(records[0]["center_zyx"], [4.2, 10.0, 10.0])
+        self.assertEqual(records[0]["primary_geometry_source"], "equal_weight_fusion")
+        self.assertEqual(records[0]["center_zyx"], [4.1, 10.0, 10.0])
         self.assertEqual(set(records[0]["detector_provenance"]), {"LoG", "ViTDet3D"})
         self.assertAlmostEqual(records[0]["detector_scores"]["ViTDet3D"][0]["value"], 0.91)
         self.assertAlmostEqual(records[0]["detector_scores"]["LoG"][0]["value"], 3.4)
+        evidence = {record["detector"]: record["record"] for record in records[0]["provenance_records"]}
+        self.assertEqual(evidence["ViTDet3D"]["candidate_id"], "v1")
+        self.assertEqual(evidence["LoG"]["diagnostic_id"], "l1")
+        self.assertAlmostEqual(evidence["LoG"]["log_response"], 3.4)
+
+    def test_single_detector_candidates_survive_fusion(self):
+        records, _ = self.merge(
+            [log("log-alone", (3, 5, 7))],
+            [vit("vit-alone", (15, 5, 7))],
+        )
+        self.assertEqual(len(records), 2)
+        self.assertEqual({row["source"] for row in records}, {"LoG", "ViTDet3D"})
+
+    def test_geometry_fusion_weights_detectors_not_duplicate_record_count(self):
+        records, _ = self.merge(
+            [
+                log("log-1", (10, 10, 10), scale=2),
+                log("log-2", (10, 10, 11), scale=2),
+            ],
+            [vit("vit-1", (10, 10, 12), low=[9, 9, 11], high=[11, 11, 13])],
+        )
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["center_zyx"], [10.0, 10.0, 11.25])
 
     def test_distinct_nearby_nodules_not_merged_by_small_bbox_overlap_alone(self):
         records, report = self.merge(
@@ -129,13 +152,13 @@ class MergeTests(unittest.TestCase):
             "direction_lps": [[0, 1, 0], [0, 0, 1], [1, 0, 0]],
         }
         first, _ = self.merge(
-            [log("log-1", (10, 20, 30), response=2.5)],
-            [vit("vit-1", (10.2, 20, 30), score=0.9)],
+            [{**log("log-1", (10, 20, 30), response=2.5), "center_lps_mm": [-86.0, -179.0, -275.0]}],
+            [{**vit("vit-1", (10.2, 20, 30), score=0.9), "center_lps_mm": [-86.0, -179.0, -274.5]}],
             **kwargs,
         )
         second, _ = self.merge(
-            [log("log-1", (10, 20, 30), response=2.5)],
-            [vit("vit-1", (10.2, 20, 30), score=0.9)],
+            [{**log("log-1", (10, 20, 30), response=2.5), "center_lps_mm": [-86.0, -179.0, -275.0]}],
+            [{**vit("vit-1", (10.2, 20, 30), score=0.9), "center_lps_mm": [-86.0, -179.0, -274.5]}],
             **kwargs,
         )
         self.assertEqual(first[0]["stable_nodule_id"], second[0]["stable_nodule_id"])
@@ -144,6 +167,23 @@ class MergeTests(unittest.TestCase):
         self.assertEqual({item["candidate_id"] for item in first[0]["source_members"]}, {"vit-1", "log-1"})
         self.assertEqual(first[0]["vitdet_score"], 0.9)
         self.assertEqual(first[0]["log_score"], 2.5)
+
+    def test_stable_identity_does_not_change_with_detector_agreement(self):
+        kwargs = {
+            "patient_id": "p1",
+            "study_uid": "study1",
+            "series_uid": "series1",
+            "origin_lps_mm": [-100.0, -200.0, -300.0],
+            "direction_lps": [[0, 1, 0], [0, 0, 1], [1, 0, 0]],
+        }
+        physical = {"center_lps_mm": [-86.0, -179.0, -275.0]}
+        log_only, _ = self.merge(
+            [{**log("l1", (10, 20, 30)), **physical}], [], **kwargs
+        )
+        vit_only, _ = self.merge(
+            [], [{**vit("v1", (10, 20, 30)), **physical}], **kwargs
+        )
+        self.assertEqual(log_only[0]["stable_nodule_id"], vit_only[0]["stable_nodule_id"])
 
     def test_partial_stable_identity_context_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "requires patient_id"):
@@ -165,7 +205,7 @@ class MergeTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "no finite log_response"):
             rank_filtered_log_candidates([{"diagnostic_id": "missing"}])
 
-    def test_selection_is_applied_after_fusion_without_cross_source_score_comparison(self):
+    def test_selection_is_detector_neutral_and_keeps_single_source_candidates(self):
         fused, _ = self.merge(
             [log("log-only", (30, 30, 30), response=100.0)],
             [
@@ -175,8 +215,12 @@ class MergeTests(unittest.TestCase):
         )
         selected = select_fused_candidates(fused, limit=2)
         self.assertEqual(len(selected), 2)
-        self.assertEqual({row["source"] for row in selected}, {"ViTDet3D"})
-        self.assertNotIn("log-only", {row["source_members"][0]["candidate_id"] for row in selected})
+        self.assertEqual({row["source"] for row in selected}, {"LoG", "ViTDet3D"})
+        self.assertIn(
+            "log-only",
+            {member["candidate_id"] for row in selected for member in row["source_members"]},
+        )
+        self.assertTrue(all(0.0 <= row["fusion_rank_percentile"] <= 1.0 for row in fused))
 
 
 class FilterTests(unittest.TestCase):
@@ -223,30 +267,16 @@ class FilterTests(unittest.TestCase):
         self.assertEqual(report["gate_status"], "blocked_empty_heart_mask")
         self.assertFalse(report["heart_mask_found"])
 
-    def test_nonempty_heart_mask_still_blocks_until_visual_review_is_approved(self):
+    def test_nonempty_heart_mask_passes_without_visual_review(self):
         accepted, rejected, report = filter_detections_by_lung_mask(
             [vit("good", (3, 3, 3))], self.lung, self.heart,
             expected_space=SPACE,
             require_nonempty_heart_mask=True,
-            require_heart_mask_reviewed=True,
-            heart_mask_reviewed=False,
-        )
-        self.assertEqual(accepted, [])
-        self.assertEqual(len(rejected), 1)
-        self.assertEqual(rejected[0]["exclusion_reason"], "heart_mask_review_required")
-        self.assertEqual(report["gate_status"], "blocked_heart_mask_review_required")
-
-    def test_explicitly_reviewed_nonempty_heart_mask_passes_gate(self):
-        accepted, rejected, report = filter_detections_by_lung_mask(
-            [vit("good", (3, 3, 3))], self.lung, self.heart,
-            expected_space=SPACE,
-            require_nonempty_heart_mask=True,
-            require_heart_mask_reviewed=True,
-            heart_mask_reviewed=True,
         )
         self.assertEqual(len(accepted), 1)
         self.assertEqual(rejected, [])
         self.assertEqual(report["gate_status"], "passed")
+        self.assertTrue(report["heart_mask_found"])
 
     def test_empty_heart_mask_can_be_reported_for_nonproduction_comparison_only(self):
         empty_heart = np.zeros_like(self.lung)
@@ -256,7 +286,7 @@ class FilterTests(unittest.TestCase):
         self.assertEqual(len(accepted), 1)
         self.assertEqual(rejected, [])
         self.assertFalse(report["heart_mask_found"])
-        # CLI callers must opt into the fail-closed heart mask requirement.
+        # Production callers opt into the fail-closed nonempty heart-mask requirement.
 
     def test_invalid_center_rejected(self):
         accepted, rejected, _ = filter_detections_by_lung_mask([vit("bad", (float("nan"), 2, 3))], self.lung, self.heart, expected_space=SPACE)
@@ -275,6 +305,26 @@ class FilterTests(unittest.TestCase):
         self.assertEqual(accepted, [])
         self.assertEqual(rejected[0]["exclusion_reason"], "bbox_lung_mask_occupancy_below_threshold")
         self.assertLess(report["rejected_count"], 2)
+
+    def test_physical_center_must_match_zyx_geometry(self):
+        with self.assertRaisesRegex(ValueError, "does not match"):
+            filter_detections_by_lung_mask(
+                [{**vit("bad-transform", (3, 3, 3)), "center_lps_mm": [99, 99, 99]}],
+                self.lung,
+                self.heart,
+                spacing_zyx_mm=(2, 1, 1),
+                origin_lps_mm=(0, 0, 0),
+                direction_lps=np.eye(3),
+                expected_space=SPACE,
+            )
+
+    def test_missing_candidate_coordinate_frame_fails_closed(self):
+        candidate = vit("missing-space", (3, 3, 3))
+        del candidate["space"]
+        with self.assertRaisesRegex(ValueError, "coordinate space is missing"):
+            filter_detections_by_lung_mask(
+                [candidate], self.lung, self.heart, expected_space=SPACE
+            )
 
 
 class SchemaContractTests(unittest.TestCase):

@@ -26,6 +26,7 @@ class GradCamAcceptanceTests(unittest.TestCase):
             "candidate_id": "accepted",
             "stable_nodule_id": "accepted",
             "patch_id": 0,
+            "stage04_eligible": True,
         }]
         accepted, rejected = filter_accepted_patches(
             manifest,
@@ -34,6 +35,16 @@ class GradCamAcceptanceTests(unittest.TestCase):
         )
         self.assertEqual([row["stable_nodule_id"] for row in accepted], ["accepted"])
         self.assertEqual(rejected[0]["reason"], "missing_supported_attribute")
+
+    def test_missing_stage04_eligibility_is_not_treated_as_accepted(self):
+        manifest = [{"candidate_id": "candidate", "stable_nodule_id": "candidate", "patch_id": 0}]
+        accepted, rejected = filter_accepted_patches(
+            manifest,
+            [{"candidate_id": "candidate", "stable_nodule_id": "candidate", "patch_id": 0}],
+            [],
+        )
+        self.assertEqual(accepted, [])
+        self.assertEqual(rejected[0]["reason"], "not_scored_by_stage04_or_not_stage04_eligible")
 
     def test_rejects_identity_mismatch(self):
         with self.assertRaisesRegex(ValueError, "stable identity mismatch"):

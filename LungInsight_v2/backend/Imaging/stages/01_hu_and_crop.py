@@ -61,6 +61,7 @@ Dependencies:
 import argparse
 import json
 import os
+import struct
 import sys
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -137,6 +138,8 @@ DEFAULT_OUTPUT_ROOT = V2_ROOT / get_required(SCHEMA, "paths.output_root")
 class SeriesSlices:
     series_uid: str
     datasets: List[Any] = field(default_factory=list)
+    study_uid: str = ""
+    patient_id: str = ""
 
 
 def find_dicom_files(patient_dir: str) -> List[str]:
@@ -195,26 +198,43 @@ def load_ct_series(patient_dir: str) -> SeriesSlices:
     """
     candidate_paths = find_dicom_files(patient_dir)
 
-    series_map = {}
+    series_map: dict[tuple[str, str, str], SeriesSlices] = {}
     skipped = 0
     for path in candidate_paths:
         try:
-            ds = pydicom.dcmread(path, force=False)
-        except (InvalidDicomError, Exception):
+            # LIDC slices are often extensionless and some valid objects have
+            # no Part 10 preamble. Parse the object, then verify its modality
+            # and image attributes instead of relying on the filename/header.
+            ds = pydicom.dcmread(path, force=True)
+        except (InvalidDicomError, OSError, EOFError, ValueError, struct.error):
             skipped += 1
             continue
 
-        # Skip non-CT objects (RTSTRUCT, SEG, SR, scout/localizer, etc.)
-        # and anything without actual pixel data.
-        if getattr(ds, "Modality", None) != "CT":
+        if str(getattr(ds, "Modality", "")).upper() != "CT":
             skipped += 1
             continue
         if "PixelData" not in ds:
             skipped += 1
             continue
+        image_type = {str(value).upper() for value in getattr(ds, "ImageType", [])}
+        if image_type.intersection({"LOCALIZER", "SCOUT", "TOPOGRAM"}):
+            skipped += 1
+            continue
 
-        series_uid = getattr(ds, "SeriesInstanceUID", "UNKNOWN_SERIES")
-        series_map.setdefault(series_uid, SeriesSlices(series_uid)).datasets.append(ds)
+        series_uid = str(getattr(ds, "SeriesInstanceUID", "")).strip()
+        study_uid = str(getattr(ds, "StudyInstanceUID", "")).strip()
+        patient_id = str(getattr(ds, "PatientID", "")).strip()
+        if not series_uid or not study_uid:
+            skipped += 1
+            continue
+        key = (patient_id, study_uid, series_uid)
+        if key not in series_map:
+            series_map[key] = SeriesSlices(
+                series_uid=series_uid,
+                study_uid=study_uid,
+                patient_id=patient_id,
+            )
+        series_map[key].datasets.append(ds)
 
     if not series_map:
         raise ValueError(
@@ -222,8 +242,23 @@ def load_ct_series(patient_dir: str) -> SeriesSlices:
             f"({skipped} files skipped as non-CT/no-pixel-data)."
         )
 
-    # Pick the series with the most slices -> the real volumetric scan.
-    best_series = max(series_map.values(), key=lambda s: len(s.datasets))
+    # Select the largest complete CT stack; ties are ambiguous and should not
+    # silently choose a different acquisition on each filesystem traversal.
+    ranked_series = sorted(
+        series_map.values(),
+        key=lambda series: (
+            -len(series.datasets),
+            series.patient_id,
+            series.study_uid,
+            series.series_uid,
+        ),
+    )
+    best_series = ranked_series[0]
+    if len(ranked_series) > 1 and len(ranked_series[0].datasets) == len(ranked_series[1].datasets):
+        raise ValueError(
+            "Multiple CT series have the same largest slice count; select one series explicitly "
+            "instead of combining or choosing an ambiguous acquisition."
+        )
 
     if len(series_map) > 1:
         print(
@@ -236,37 +271,66 @@ def load_ct_series(patient_dir: str) -> SeriesSlices:
 
 
 def order_slices(datasets: List[Any]):
-    """
-    Sort slices into correct spatial (axial) order using the z
-    component of ImagePositionPatient. Falls back to InstanceNumber,
-    and finally to SliceLocation, if position data is missing.
-    Returns (ordered_datasets, slice_spacing_mm).
-    """
+    """Sort one CT stack in its DICOM plane normal and validate its geometry."""
+    if not datasets:
+        raise ValueError("A CT series must contain at least one image slice.")
 
-    def sort_key(ds):
-        if hasattr(ds, "ImagePositionPatient"):
-            return float(ds.ImagePositionPatient[2])
-        if hasattr(ds, "SliceLocation"):
-            return float(ds.SliceLocation)
-        if hasattr(ds, "InstanceNumber"):
-            return float(ds.InstanceNumber)
-        return 0.0
+    def vector(ds: Any, field: str, length: int) -> np.ndarray:
+        try:
+            result = np.asarray(getattr(ds, field), dtype=np.float64)
+        except (TypeError, ValueError, AttributeError) as exc:
+            raise ValueError(f"CT slice is missing valid {field} geometry.") from exc
+        if result.shape != (length,) or not np.isfinite(result).all():
+            raise ValueError(f"CT slice has invalid {field} geometry.")
+        return result
 
-    ordered = sorted(datasets, key=sort_key)
+    first = datasets[0]
+    first_orientation = vector(first, "ImageOrientationPatient", 6)
+    row_direction = first_orientation[:3]
+    column_direction = first_orientation[3:]
+    if (
+        not np.isclose(np.linalg.norm(row_direction), 1.0, atol=1e-4)
+        or not np.isclose(np.linalg.norm(column_direction), 1.0, atol=1e-4)
+        or not np.isclose(np.dot(row_direction, column_direction), 0.0, atol=1e-4)
+    ):
+        raise ValueError("ImageOrientationPatient must contain orthonormal direction cosines.")
+    normal = np.cross(row_direction, column_direction)
+    normal /= np.linalg.norm(normal)
+    first_spacing = vector(first, "PixelSpacing", 2)
+    if np.any(first_spacing <= 0):
+        raise ValueError("PixelSpacing must contain positive finite values.")
+    first_shape = (int(first.Rows), int(first.Columns))
+    positions: list[float] = []
+    for index, ds in enumerate(datasets):
+        orientation = vector(ds, "ImageOrientationPatient", 6)
+        spacing = vector(ds, "PixelSpacing", 2)
+        position = vector(ds, "ImagePositionPatient", 3)
+        if not np.allclose(orientation, first_orientation, rtol=0.0, atol=1e-4):
+            raise ValueError(f"CT slice {index} has an inconsistent image orientation.")
+        if not np.allclose(spacing, first_spacing, rtol=0.0, atol=1e-4):
+            raise ValueError(f"CT slice {index} has inconsistent PixelSpacing.")
+        if (int(ds.Rows), int(ds.Columns)) != first_shape:
+            raise ValueError(f"CT slice {index} has inconsistent image dimensions.")
+        positions.append(float(np.dot(position, normal)))
 
-    # Estimate slice spacing from consecutive z positions (more
-    # reliable than trusting a single SliceThickness tag, which can
-    # disagree with the actual reconstruction increment).
-    zs = []
-    for ds in ordered:
-        if hasattr(ds, "ImagePositionPatient"):
-            zs.append(float(ds.ImagePositionPatient[2]))
-    if len(zs) >= 2:
-        diffs = np.diff(zs)
-        slice_spacing = float(np.median(np.abs(diffs)))
+    ordered = [datasets[index] for index in np.argsort(positions)]
+    ordered_positions = np.sort(np.asarray(positions, dtype=np.float64))
+    if len(ordered) >= 2:
+        differences = np.diff(ordered_positions)
+        slice_spacing = float(np.median(differences))
+        if (
+            not np.isfinite(slice_spacing)
+            or slice_spacing <= 0
+            or not np.allclose(differences, slice_spacing, rtol=0.02, atol=0.01)
+        ):
+            raise ValueError(
+                "CT slices have duplicate or irregular positions along the image normal; "
+                "resampling is not performed."
+            )
     else:
-        slice_spacing = float(getattr(ordered[0], "SliceThickness", 1.0))
-
+        slice_spacing = float(getattr(first, "SpacingBetweenSlices", getattr(first, "SliceThickness", 0.0)))
+        if not np.isfinite(slice_spacing) or slice_spacing <= 0:
+            raise ValueError("A single-slice CT series requires positive slice spacing metadata.")
     return ordered, slice_spacing
 
 
@@ -287,7 +351,7 @@ def slices_to_hu_volume(ordered_datasets):
     volume_hu = np.zeros((n_slices, rows, cols), dtype=np.float32)
 
     for i, ds in enumerate(ordered_datasets):
-        pixel_array = ds.pixel_array.astype(np.float32)
+        pixel_array = np.asarray(ds.pixel_array, dtype=np.float32)
 
         if pixel_array.shape != (rows, cols):
             raise ValueError(
@@ -296,14 +360,28 @@ def slices_to_hu_volume(ordered_datasets):
                 f"be combined into one volume."
             )
 
-        slope = float(getattr(ds, "RescaleSlope", 1.0))
-        intercept = float(getattr(ds, "RescaleIntercept", 0.0))
+        try:
+            slope = float(getattr(ds, "RescaleSlope", 1.0))
+            intercept = float(getattr(ds, "RescaleIntercept", 0.0))
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"Slice {i} has invalid rescale slope/intercept.") from exc
+        if not np.isfinite(slope) or not np.isfinite(intercept):
+            raise ValueError(f"Slice {i} has non-finite rescale slope/intercept.")
 
         hu_slice = pixel_array * slope + intercept
+        padding_value = getattr(ds, "PixelPaddingValue", None)
+        padding_limit = getattr(ds, "PixelPaddingRangeLimit", None)
+        if padding_value is not None:
+            padding_limit = padding_value if padding_limit is None else padding_limit
+            padding_min, padding_max = sorted((int(padding_value), int(padding_limit)))
+            padding = (pixel_array >= padding_min) & (pixel_array <= padding_max)
+            hu_slice[padding] = AIR_REPLACEMENT_HU
 
         # Remap scanner "outside field of view" padding to air so it
         # doesn't masquerade as bone/metal or skew HU statistics.
         hu_slice[hu_slice < OUT_OF_SCAN_PIXEL_HU_FLOOR] = AIR_REPLACEMENT_HU
+        if not np.isfinite(hu_slice).all():
+            raise ValueError(f"Slice {i} contains non-finite calibrated HU values.")
 
         volume_hu[i] = hu_slice
 
@@ -364,26 +442,14 @@ def extract_metadata(ordered_datasets, slice_spacing_mm: float) -> dict:
     orientation = [float(x) for x in getattr(
         first, "ImageOrientationPatient", [1.0, 0.0, 0.0, 0.0, 1.0, 0.0]
     )]
-    row_direction = np.asarray(orientation[:3], dtype=np.float64)
-    column_direction = np.asarray(orientation[3:], dtype=np.float64)
-    slice_direction = np.cross(row_direction, column_direction)
+    column_direction = np.asarray(orientation[:3], dtype=np.float64)
+    row_direction = np.asarray(orientation[3:], dtype=np.float64)
+    slice_direction = np.cross(column_direction, row_direction)
+    # DICOM's first orientation vector follows increasing columns (X), and
+    # its second follows increasing rows (Y). Arrays are stored ZYX.
     direction_lps = np.column_stack((slice_direction, row_direction, column_direction))
 
-    # Direction z moves in as slice index increases, so a later Z-crop
-    # (in step 2) can shift origin_mm by the right sign (superior->
-    # inferior scans usually DECREASE z with index, but this isn't
-    # universal).
-    z_step_sign = -1.0
-    if len(ordered_datasets) >= 2:
-        z0 = getattr(ordered_datasets[0], "ImagePositionPatient", None)
-        z1 = getattr(ordered_datasets[1], "ImagePositionPatient", None)
-        if z0 is not None and z1 is not None:
-            diff = float(z1[2]) - float(z0[2])
-            if diff != 0:
-                z_step_sign = 1.0 if diff > 0 else -1.0
-
     return {
-        "_z_step_sign": z_step_sign,
         "patient_id": str(getattr(first, "PatientID", "UNKNOWN")),
         "study_instance_uid": str(getattr(first, "StudyInstanceUID", "UNKNOWN")),
         "series_instance_uid": str(getattr(first, "SeriesInstanceUID", "UNKNOWN")),
@@ -1262,10 +1328,9 @@ def run_pipeline(
     meta["heart_mask_tracking_successful"] = bool(
         heart_mask.any() and heart_tracking_diag.get("status") == "tracked_central_3d_component"
     )
-    # A nonempty heuristic mask is not, by itself, proof of anatomical quality.
-    # Keep the review gate closed until a person checks the generated QC montage.
+    # Keep visual-review provenance separate from automated mask validation.
     meta["heart_mask_exclusion_verified"] = False
-    meta["heart_mask_review_status"] = "pending_visual_review" if heart_mask.any() else "blocked_tracker_failed"
+    meta["heart_mask_review_status"] = "not_performed_optional" if heart_mask.any() else "blocked_tracker_failed"
 
     if lung_mask.any():
         indices = np.where(lung_mask)
@@ -1360,6 +1425,58 @@ def run_pipeline(
     ).tolist()
     meta["final_outputs"] = dict(OUTPUT_SCHEMA)
 
+    mask_problems = []
+    if not lung_mask.any():
+        mask_problems.append("lung_mask_empty")
+    if not heart_mask.any():
+        mask_problems.append("heart_mask_empty")
+    if np.any(lung_mask & heart_mask):
+        mask_problems.append("lung_heart_mask_overlap")
+    aligned_shapes = (
+        volume_hu_cropped.shape,
+        air_mask.shape,
+        lung_mask.shape,
+        heart_mask.shape,
+        volume_windowed.shape[:3],
+        volume_hu_masked.shape,
+        volume_hu_heart_excluded.shape,
+    )
+    if any(shape != volume_hu_cropped.shape for shape in aligned_shapes):
+        mask_problems.append("aligned_artifact_shape_mismatch")
+    if (
+        not np.isfinite(direction).all()
+        or not np.allclose(direction.T @ direction, np.eye(3), atol=1e-4)
+        or not np.isclose(abs(np.linalg.det(direction)), 1.0, atol=1e-4)
+    ):
+        mask_problems.append("invalid_direction_matrix")
+    if heart_tracking_diag.get("status") != "tracked_central_3d_component":
+        mask_problems.append("heart_tracker_incomplete")
+    meta["mask_quality"] = {
+        "status": "blocked" if mask_problems else "validated_automated",
+        "problems": mask_problems,
+        "lung_voxels": int(lung_mask.sum()),
+        "heart_voxels": int(heart_mask.sum()),
+        "lung_heart_overlap_voxels": int(np.count_nonzero(lung_mask & heart_mask)),
+        "lung_voxel_fraction": float(lung_mask.mean()),
+        "heart_voxel_fraction": float(heart_mask.mean()),
+        "shape_zyx": list(volume_hu_cropped.shape),
+        "coordinate_system": "DICOM_LPS",
+        "array_axes": ["z", "y", "x"],
+        "requires_visual_review": True,
+    }
+    with open(out_dir / STAGE01_FILES["mask_quality_report.json"], "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "meta_schema_version": SCHEMA["schema_version"],
+                "patient_id": patient_id,
+                **meta["mask_quality"],
+                "heart_mask_tracking": heart_tracking_diag,
+            },
+            f,
+            indent=2,
+            allow_nan=False,
+        )
+
     np.save(out_dir / STAGE01_FILES["volume_hu.npy"], original_volume_hu.astype(np.float32))
     np.save(out_dir / STAGE01_FILES["volume_hu_cropped.npy"], np.asarray(volume_hu_cropped, dtype=np.float32))
     np.save(out_dir / STAGE01_FILES["volume_hu_masked.npy"], volume_hu_masked.astype(np.float32))
@@ -1411,6 +1528,7 @@ def run_pipeline(
             "heart_mask_tracking_successful": bool(meta["heart_mask_tracking_successful"]),
             "heart_mask_exclusion_verified": False,
             "heart_mask_review_status": str(meta["heart_mask_review_status"]),
+            "mask_quality": meta["mask_quality"],
             "heart_mask_review_montage_files": review_montages,
             "heart_mask_review_slice_count": len(review_slice_metrics),
             "note": "Heuristic 3D central-rod tracking diagnostic; image-level review is required before candidate filtering is approved.",
@@ -1422,12 +1540,16 @@ def run_pipeline(
     print(f"[done] Full HU volume shape: {original_volume_hu.shape} (Z, Y, X)")
     print(f"[done] Final HU volume shape: {final_shape} (Z, Y, X)")
     print(f"[done] Final spacing: {meta['spacing_zyx_mm']} mm")
+    print(f"[done] Mask quality: {meta['mask_quality']['status']}")
     print(f"[done] Output directory: {out_dir}")
     print(
         "[done] Wrote volume_hu.npy, volume_hu_cropped.npy, "
         "volume_hu_masked.npy, volume_hu_heart_excluded.npy, volume_windowed.npy, "
-        "air_mask.npy, lung_mask.npy, heart_mask.npy, heart_tracking_diagnostics.json, meta.json"
+        "air_mask.npy, lung_mask.npy, heart_mask.npy, mask_quality_report.json, "
+        "heart_tracking_diagnostics.json, meta.json"
     )
+    if meta["mask_quality"]["status"] == "blocked":
+        print(f"[warn] Stage 01 mask validation blocked: {meta['mask_quality']['problems']}")
 
     return out_dir
 

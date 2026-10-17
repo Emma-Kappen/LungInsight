@@ -8,8 +8,9 @@ import numpy as np
 from jsonschema import Draft202012Validator
 
 IMAGING_DIR = Path(__file__).resolve().parents[1]
-SCHEMA_PATH = IMAGING_DIR / "schemas" / "imaging_clinical_contract_v1.schema.json"
-CONTRACT_FILENAME = "imaging_clinical_contract_v1.json"
+SCHEMA_PATH = IMAGING_DIR / "schemas" / "imaging_clinical_contract_v2.schema.json"
+CONTRACT_FILENAME = "imaging_clinical_contract_v2.json"
+CONTRACT_VERSION = "2.0.0"
 ATTRIBUTE_KEYS = (
     "subtlety", "internal_structure", "calcification", "sphericity",
     "margin", "lobulation", "spiculation", "texture",
@@ -73,11 +74,241 @@ def _record_refs(record: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]
     return gradcam, shap
 
 
+def _read_artifact(path: Path) -> Any | None:
+    try:
+        with path.open("r", encoding="utf-8-sig") as handle:
+            return json.load(handle)
+    except FileNotFoundError:
+        return None
+    except (OSError, json.JSONDecodeError) as exc:
+        return {"_artifact_read_error": f"{path.name}: {exc}"}
+
+
+def _relative_refs(patient_root: Path, paths: dict[str, Path]) -> dict[str, str | None]:
+    result: dict[str, str | None] = {}
+    for name, path in paths.items():
+        try:
+            result[name] = (
+                path.resolve().relative_to(patient_root.resolve()).as_posix()
+                if path.is_file()
+                else None
+            )
+        except ValueError:
+            result[name] = None
+    return result
+
+
+def build_study_summary(
+    patient_root: Path,
+    *,
+    stage06: dict[str, Any] | None = None,
+    processing_status: str | None = None,
+    run_id: str | None = None,
+    errors: list[str] | None = None,
+) -> dict[str, Any]:
+    stage02 = patient_root / "02_detect_and_patch"
+    stage03 = patient_root / "03_nodule_classification"
+    stage04 = patient_root / "04_malignancy_prediction"
+    stage06 = stage06 or _read_artifact(patient_root / "06_full_ct_gradcam" / "full_ct_records.json") or {}
+    metadata = _read_artifact(patient_root / "meta.json") or {}
+    mask_report = _read_artifact(patient_root / "mask_quality_report.json") or {}
+    detector_metadata = _read_artifact(stage02 / "detector_metadata.json") or {}
+    filter_report = _read_artifact(stage02 / "candidate_filter_report.json") or {}
+    rejected = _read_artifact(stage02 / "candidates_rejected_audit.json")
+    selected = _read_artifact(stage02 / "candidates.json")
+    vitdet_raw = _read_artifact(stage02 / "vitdet_raw_detections.json")
+    log_raw = _read_artifact(stage02 / "log_candidates_diagnostic.json")
+    stage04_payload = _read_artifact(stage04 / "malignancy_predictions.json") or {}
+    stage04_rows = stage04_payload.get("predictions")
+    records = stage06.get("records")
+    if not isinstance(records, list):
+        records = []
+    if not isinstance(stage04_rows, list):
+        stage04_rows = []
+
+    quality_status = mask_report.get("status") or (
+        metadata.get("mask_quality", {}).get("status")
+        if isinstance(metadata.get("mask_quality"), dict)
+        else None
+    )
+    preprocessing_paths = (
+        "meta.json",
+        "volume_hu_cropped.npy",
+        "lung_mask.npy",
+        "heart_mask.npy",
+        "mask_quality_report.json",
+    )
+    preprocessing_artifacts_present = all(
+        (patient_root / name).is_file() for name in preprocessing_paths
+    )
+    run_summary = _read_artifact(patient_root / "pipeline_run_summary.json")
+    preprocessing_status = (
+        "blocked" if quality_status == "blocked"
+        else "completed" if preprocessing_artifacts_present and quality_status in {"validated_automated", "ready_for_review", "validated"}
+        else "failed" if isinstance(run_summary, dict) and run_summary.get("status") == "failed"
+        else "incomplete" if any((patient_root / name).exists() for name in preprocessing_paths)
+        else "not_started"
+    )
+    reported_attestation = filter_report.get("review_attestation")
+    attestation_verified = (
+        isinstance(reported_attestation, dict)
+        and reported_attestation.get("verified") is True
+    )
+    mask_validation_status = (
+        "validated_visual_review" if attestation_verified
+        else "validated_automated" if quality_status in {"validated_automated", "ready_for_review", "validated"}
+        else "blocked" if quality_status == "blocked"
+        else "unknown" if metadata or mask_report else "not_run"
+    )
+
+    def record_count(value: Any, key: str | None = None) -> int | None:
+        if isinstance(value, list):
+            return len(value)
+        if isinstance(value, dict) and key and isinstance(value.get(key), list):
+            return len(value[key])
+        return None
+
+    overflow_rows = rejected.get("eligible_not_selected") if isinstance(rejected, dict) else None
+    rejected_rows = rejected.get("rejected_candidates") if isinstance(rejected, dict) else None
+    fused_count = (
+        len(selected) + len(rejected_rows) + len(overflow_rows)
+        if isinstance(selected, list)
+        and isinstance(rejected_rows, list)
+        and isinstance(overflow_rows, list)
+        else None
+    )
+    excluded_count = None
+    if isinstance(rejected_rows, list) and isinstance(overflow_rows, list):
+        excluded_count = len(rejected_rows) + len(overflow_rows)
+    stage06_path = patient_root / "06_full_ct_gradcam" / "full_ct_records.json"
+    eligible_count = len(records) if stage06_path.is_file() else record_count(selected)
+    brock_counts = {"completed": 0, "incomplete": 0, "failed": 0, "not_run": 0}
+    for row in stage04_rows:
+        if not isinstance(row, dict):
+            brock_counts["failed"] += 1
+            continue
+        brock = row.get("brock")
+        status = brock.get("status") if isinstance(brock, dict) else None
+        if status == "available":
+            brock_counts["completed"] += 1
+        elif status == "incomplete":
+            brock_counts["incomplete"] += 1
+        else:
+            brock_counts["failed"] += 1
+    brock_counts["not_run"] = max(0, eligible_count - len(stage04_rows)) if eligible_count is not None else 0
+
+    warnings: list[str] = []
+    if mask_validation_status == "validated_automated":
+        warnings.append("Stage 01 masks passed automated quality checks but were not visually reviewed.")
+    for source in (mask_report, filter_report):
+        values = source.get("warnings", source.get("problems", [])) if isinstance(source, dict) else []
+        if isinstance(values, list):
+            warnings.extend(str(value) for value in values)
+    run_failure = run_summary.get("failure") if isinstance(run_summary, dict) else None
+    error_list = [str(value) for value in (errors or [])]
+    if run_failure and processing_status != "completed":
+        error_list.append(str(run_failure))
+    for name, payload in (
+        ("meta.json", metadata),
+        ("mask_quality_report.json", mask_report),
+        ("detector_metadata.json", detector_metadata),
+        ("candidate_filter_report.json", filter_report),
+        ("stage04 predictions", stage04_payload),
+        ("rejected candidate audit", rejected),
+        ("selected candidates", selected),
+        ("raw ViTDet3D detections", vitdet_raw),
+        ("raw LoG detections", log_raw),
+    ):
+        if isinstance(payload, dict) and payload.get("_artifact_read_error"):
+            error_list.append(str(payload["_artifact_read_error"]))
+    if processing_status is None:
+        processing_status = (
+            run_summary.get("status") if isinstance(run_summary, dict) else None
+        ) or ("completed" if stage06_path.is_file() else "incomplete")
+    status_map = {
+        "analysis_queued": "running",
+        "stage01_running": "running",
+        "stage02_running": "running",
+        "stage03_running": "running",
+        "stage04_running": "running",
+        "stage05_running": "running",
+        "stage06_running": "running",
+        "clinical_running": "running",
+        "imaging_complete": "completed",
+        "completed": "completed",
+        "failed": "failed",
+        "awaiting_imaging_review": "blocked",
+        "interrupted": "interrupted",
+    }
+    processing_status = status_map.get(str(processing_status), str(processing_status))
+    if processing_status not in {"not_started", "running", "completed", "incomplete", "blocked", "failed", "interrupted"}:
+        processing_status = "incomplete"
+    stage03_payload = _read_artifact(stage03 / "predictions.json") or {}
+    stage03_metadata = stage03_payload.get("checkpoint_metadata")
+    detector = detector_metadata.get("detector")
+    detector = detector if isinstance(detector, dict) else {}
+    model_versions: dict[str, Any] = {
+        "stage02": {
+            "name": detector.get("name"),
+            "model": detector.get("model"),
+            "checkpoint": detector.get("checkpoint"),
+            "version": detector.get("model_version"),
+        },
+    }
+    if isinstance(stage03_metadata, dict):
+        model_versions["stage03"] = {
+            name: value.get("sha256")
+            for name, value in stage03_metadata.items()
+            if isinstance(value, dict) and value.get("sha256")
+        }
+    if stage04_payload:
+        model_versions["stage04"] = stage04_payload.get("model_version")
+    artifact_paths = {
+        "stage01_metadata": patient_root / "meta.json",
+        "mask_quality_report": patient_root / "mask_quality_report.json",
+        "mask_review_attestation": patient_root / "heart_mask_review_attestation.json",
+        "vitdet_raw_detections": stage02 / "vitdet_raw_detections.json",
+        "log_raw_detections": stage02 / "log_candidates_diagnostic.json",
+        "stage02_filter_report": stage02 / "candidate_filter_report.json",
+        "stage02_selected_candidates": stage02 / "candidates.json",
+        "stage02_excluded_candidates": stage02 / "candidates_rejected_audit.json",
+        "stage02_patch_manifest": stage02 / "patches" / "patches_manifest.json",
+        "stage03_predictions": stage03 / "predictions.json",
+        "stage04_predictions": stage04 / "malignancy_predictions.json",
+        "stage06_records": stage06_path,
+        "pipeline_run_summary": patient_root / "pipeline_run_summary.json",
+    }
+    return {
+        "processing_status": processing_status,
+        "preprocessing_status": preprocessing_status,
+        "mask_validation_status": mask_validation_status,
+        "raw_detection_counts": {
+            "ViTDet3D": record_count(vitdet_raw, "detections"),
+            "LoG": record_count(log_raw, "candidates"),
+        },
+        "fused_candidate_count": fused_count,
+        "excluded_candidate_count": excluded_count,
+        "eligible_nodule_count": eligible_count,
+        "brock_prediction_counts": brock_counts,
+        "warnings": sorted(set(warnings)),
+        "errors": error_list,
+        "provenance": {
+            "run_id": run_id,
+            "meta_schema_version": metadata.get("meta_schema_version"),
+            "imaging_model_versions": model_versions,
+            "review_attestation_verified": attestation_verified,
+            "mask_visual_review_status": "verified" if attestation_verified else "not_performed",
+        },
+        "artifact_refs": _relative_refs(patient_root, artifact_paths),
+    }
+
+
 def build_contract(
     *,
     patient_id: str,
     meta: dict[str, Any],
     stage06: dict[str, Any],
+    study_summary: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     study_uid = meta.get("study_instance_uid")
     series_uid = meta.get("series_instance_uid")
@@ -97,8 +328,13 @@ def build_contract(
     if np.any(spacing <= 0):
         raise ValueError("spacing_zyx_mm must contain three positive values.")
     direction = np.asarray(meta.get("direction_lps"), dtype=np.float64)
-    if direction.shape != (3, 3) or not np.isfinite(direction).all():
-        raise ValueError("direction_lps must be a finite 3x3 matrix.")
+    if (
+        direction.shape != (3, 3)
+        or not np.isfinite(direction).all()
+        or not np.allclose(direction.T @ direction, np.eye(3), atol=1e-4)
+        or not np.isclose(abs(np.linalg.det(direction)), 1.0, atol=1e-4)
+    ):
+        raise ValueError("direction_lps must be a finite orthonormal 3x3 matrix.")
     records = stage06.get("records")
     if not isinstance(records, list):
         raise ValueError("Stage 06 output must contain a records list.")
@@ -195,8 +431,21 @@ def build_contract(
         quality_flags = record.get("quality_flags") or []
         if not isinstance(quality_flags, list) or any(not isinstance(flag, str) for flag in quality_flags):
             raise ValueError(f"Stage 06 record {stable_id} quality_flags must be a string list.")
+        source_values = {
+            source
+            for source in (
+                detector_info.get("source"),
+                *(member.get("source") for member in detector_info.get("source_members", []) if isinstance(member, dict)),
+            )
+            if source in {"ViTDet3D", "LoG"}
+        }
+        selected_prediction_status = selected_prediction.get("status")
+        if selected_prediction_status != malignancy["brock"].get("status"):
+            raise ValueError(f"Stage 06 record {stable_id} has inconsistent Brock status fields.")
         nodules.append({
             "stable_nodule_id": stable_id,
+            "eligibility_status": "eligible",
+            "quality_status": "passed_with_warnings" if quality_flags else "passed",
             "detector": {
                 "candidate_id": str(record.get("candidate_id", stable_id)),
                 "source": detector_info.get("source"),
@@ -206,6 +455,7 @@ def build_contract(
                 "raw_score": _finite_or_none(detector_info.get("score")),
                 "raw_log_response": _finite_or_none(detector_info.get("log_response")),
             },
+            "detection_sources": sorted(source_values),
             "bbox_voxel": {
                 "start_zyx": start.tolist(),
                 "end_zyx_exclusive": end.tolist(),
@@ -213,11 +463,28 @@ def build_contract(
             "bbox_lps_mm": _bounds_lps(start, end, origin_mm, spacing, direction),
             "centroid_voxel": centroid.tolist(),
             "centroid_lps_mm": centroid_lps.tolist(),
-            "diameter_mm": _finite_or_none(geometry.get("diameter_mm")),
-            "volume_mm3": _finite_or_none(geometry.get("volume_mm3")),
-            "anatomical_location": record.get("anatomical_location") or {},
-            "attributes": shaped_attributes,
+            "measurements": {
+                "diameter_mm": _finite_or_none(geometry.get("diameter_mm")),
+                "volume_mm3": _finite_or_none(geometry.get("volume_mm3")),
+                "source": "stage02_detector_bbox_estimate",
+                "status": (
+                    "detector_estimate"
+                    if geometry.get("diameter_mm") is not None or geometry.get("volume_mm3") is not None
+                    else "unavailable"
+                ),
+            },
+            "anatomical_location": record.get("anatomical_location"),
+            "classification": {
+                "status": (
+                    "partial"
+                    if any(value.get("status") == "unsupported_checkpoint_contract" for value in shaped_attributes.values())
+                    else "available"
+                ),
+                "source": "stage03_frozen_spatial_hybrid_ordinal_model",
+                "attributes": shaped_attributes,
+            },
             "malignancy": malignancy,
+            "input_completeness": malignancy.get("input_completeness", {}),
             "uncertainty": uncertainty_output,
             "quality_flags": quality_flags,
             "model_versions": model_identity,
@@ -230,7 +497,7 @@ def build_contract(
             },
         })
     contract = {
-        "contract_version": "1.0.0",
+        "contract_version": CONTRACT_VERSION,
         "patient_id": patient_id,
         "study_id": study_uid,
         "study_uid": study_uid,
@@ -241,6 +508,31 @@ def build_contract(
             "origin_mm": origin_mm.tolist(),
             "spacing_zyx_mm": spacing.tolist(),
             "direction_lps": direction.tolist(),
+        },
+        "study": study_summary or {
+            "processing_status": "incomplete",
+            "preprocessing_status": "unknown",
+            "mask_validation_status": "unknown",
+            "raw_detection_counts": {"ViTDet3D": None, "LoG": None},
+            "fused_candidate_count": None,
+            "excluded_candidate_count": None,
+            "eligible_nodule_count": len(nodules),
+            "brock_prediction_counts": {
+                "completed": sum(n["malignancy"]["selected_prediction"].get("status") == "available" for n in nodules),
+                "incomplete": sum(n["malignancy"]["selected_prediction"].get("status") == "incomplete" for n in nodules),
+                "failed": sum(n["malignancy"]["selected_prediction"].get("status") in {"invalid_input", "unsupported", "error"} for n in nodules),
+                "not_run": 0,
+            },
+            "warnings": [],
+            "errors": [],
+            "provenance": {
+                "run_id": None,
+                "meta_schema_version": meta.get("meta_schema_version"),
+                "imaging_model_versions": {},
+                "review_attestation_verified": False,
+                "mask_visual_review_status": "not_performed",
+            },
+            "artifact_refs": {},
         },
         "nodules": nodules,
     }
@@ -260,18 +552,34 @@ def validate_contract(contract: dict[str, Any]) -> None:
         raise ValueError(f"Imaging contract failed JSON Schema validation: {details}")
 
 
-def create_contract_file(patient_root: Path, patient_id: str, stage06_path: Path) -> Path:
+def create_contract_file(
+    patient_root: Path,
+    patient_id: str,
+    stage06_path: Path,
+    *,
+    processing_status: str = "incomplete",
+    run_id: str | None = None,
+    errors: list[str] | None = None,
+) -> Path:
     meta_path = patient_root / "meta.json"
+    stage06 = read_json(stage06_path)
     contract = build_contract(
         patient_id=patient_id,
         meta=read_json(meta_path),
-        stage06=read_json(stage06_path),
+        stage06=stage06,
+        study_summary=build_study_summary(
+            patient_root,
+            stage06=stage06,
+            processing_status=processing_status,
+            run_id=run_id,
+            errors=errors,
+        ),
     )
     for nodule in contract["nodules"]:
         nodule["artifact_refs"].update({
             "stage06_record": stage06_path.resolve().relative_to(patient_root.resolve()).as_posix(),
             "ct_volume": read_json(stage06_path).get("ct_volume"),
-            "html_report": (patient_root.parent / "reports" / patient_id / "index.html").as_posix(),
+            "html_report": None,
         })
     output = patient_root / CONTRACT_FILENAME
     output.write_text(json.dumps(contract, indent=2, allow_nan=False), encoding="utf-8")

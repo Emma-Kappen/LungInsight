@@ -227,12 +227,24 @@ def validate_localization_bbox(geometry: Any, ct_shape: tuple[int, int, int]) ->
     try:
         start = np.asarray(geometry["bbox_start_zyx"], dtype=np.float64)
         end = np.asarray(geometry["bbox_end_zyx_exclusive"], dtype=np.float64)
+        center = np.asarray(geometry["center_zyx"], dtype=np.float64)
     except (KeyError, TypeError, ValueError):
-        return False, "missing_or_non_numeric_bbox"
-    if start.shape != (3,) or end.shape != (3,) or not np.isfinite(start).all() or not np.isfinite(end).all():
+        return False, "missing_or_non_numeric_geometry"
+    if (
+        start.shape != (3,)
+        or end.shape != (3,)
+        or center.shape != (3,)
+        or not np.isfinite(start).all()
+        or not np.isfinite(end).all()
+        or not np.isfinite(center).all()
+    ):
         return False, "bbox_coordinates_not_finite_or_three_dimensional"
     if np.any(end <= start):
         return False, "bbox_has_non_positive_extent"
+    if np.any(start != np.rint(start)) or np.any(end != np.rint(end)):
+        return False, "bbox_coordinates_are_not_voxel_boundaries"
+    if np.any(center < start) or np.any(center >= end):
+        return False, "center_outside_bbox"
     shape = np.asarray(ct_shape, dtype=np.float64)
     if np.any(start < 0) or np.any(end > shape):
         return False, "bbox_outside_displayed_ct"
@@ -376,6 +388,15 @@ def render_nodule_visualizations(
     written: list[str] = []
     for row in rows:
         record = row["stage06_record"]
+        stable_nodule_id = str(
+            row.get("stable_nodule_id")
+            or record.get("stable_nodule_id")
+            or record.get("nodule_id")
+            or record.get("candidate_id")
+            or ""
+        )
+        if not stable_nodule_id:
+            raise ValueError("Accepted Stage 06 record lacks a stable nodule ID.")
         geometry = record["geometry"]
         center = np.rint(np.asarray(geometry["center_zyx"], dtype=np.float64)).astype(int)
         z, y, x = (int(value) for value in center)
@@ -386,6 +407,11 @@ def render_nodule_visualizations(
         if bbox_start.shape != (3,) or bbox_end.shape != (3,) or not np.isfinite(bbox_start).all() or not np.isfinite(bbox_end).all():
             raise ValueError(f"Stage 06 record {record['nodule_id']} has invalid bbox geometry.")
         crop_start = np.asarray(geometry["crop_start_zyx"], dtype=np.int64)
+        bbox_valid, bbox_reason = validate_localization_bbox(geometry, tuple(int(v) for v in ct.shape))
+        if not bbox_valid:
+            raise ValueError(
+                f"Stage 06 record {record['nodule_id']} has invalid display geometry: {bbox_reason}."
+            )
 
         fig = plt.figure(figsize=(17, 12))
         grid = fig.add_gridspec(3, 3, height_ratios=[1, 1, 0.7])
@@ -399,7 +425,19 @@ def render_nodule_visualizations(
             if right > left and bottom > top:
                 ct_ax.add_patch(Rectangle((left, top), right - left, bottom - top, fill=False, edgecolor="yellow", linewidth=1.5))
         ct_ax.scatter([x], [y], marker="x", s=70, color="cyan")
-        ct_ax.set_title(f"CT z={z}; patch {record['patch_id']}")
+        ct_ax.annotate(
+            stable_nodule_id,
+            (x, y),
+            xytext=(5, 5),
+            textcoords="offset points",
+            fontsize=8,
+            color="white",
+            bbox={"boxstyle": "round,pad=0.15", "fc": "black", "alpha": 0.65},
+        )
+        ct_ax.set_title(
+            f"{stable_nodule_id} | CT z={z} | "
+            f"diameter={geometry.get('diameter_mm', 'unavailable')} mm"
+        )
         ct_ax.set_xlim(-0.5, ct.shape[2] - 0.5)
         ct_ax.set_ylim(ct.shape[1] - 0.5, -0.5)
 
@@ -465,13 +503,21 @@ def render_nodule_visualizations(
             brock_ax.text(0.5, 0.5, "Brock explanation unavailable", ha="center", va="center", transform=brock_ax.transAxes)
         brock_ax.set_xlabel(f"Brock probability={row.get('brock_probability', 'unavailable')}")
 
+        predicted_attributes = record.get("attributes")
+        predicted_attributes = predicted_attributes if isinstance(predicted_attributes, dict) else {}
+        classification_text = ", ".join(
+            f"{name}={rating_value(predicted_attributes.get(name))}"
+            for name in ATTRIBUTES
+            if rating_value(predicted_attributes.get(name)) is not None
+        ) or "classification unavailable"
         fig.suptitle(
-            f"{patient_id} | nodule {record['nodule_id']} | {record['detection_source']} | "
-            f"Brock probability={row.get('brock_probability', 'unavailable')} "
-            f"({row.get('brock_status', 'unavailable')})",
-            fontsize=13,
+            f"{patient_id} | {stable_nodule_id} | {row.get('detection_source', record.get('detection_source', 'unknown'))} | "
+            f"diameter={geometry.get('diameter_mm', 'unavailable')} mm | "
+            f"Brock risk={row.get('brock_probability', 'unavailable')} ({row.get('brock_status', 'unavailable')})\n"
+            f"Predicted attributes (not diagnosis): {classification_text}",
+            fontsize=10,
         )
-        fig.tight_layout(rect=(0, 0, 1, 0.96))
+        fig.tight_layout(rect=(0, 0, 1, 0.92))
         filename = f"nodule_{int(record['patch_id']):03d}_explanation.png"
         image_path = output_dir / filename
         fig.savefig(image_path, dpi=130, bbox_inches="tight")
@@ -496,7 +542,8 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
             preferred.extend(ATTRIBUTES)
         else:
             preferred.append(str(column))
-    extras = sorted({key for row in rows for key in row if key not in preferred})
+    internal = {"stage06_record", "stage06_record_path"}
+    extras = sorted({key for row in rows for key in row if key not in preferred and key not in internal})
     fields = preferred + extras
     with path.open("w", newline="", encoding="utf-8-sig") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields, extrasaction="ignore")
@@ -546,22 +593,43 @@ def launch_viewer(ct: np.ndarray, lung_mask: np.ndarray, air_mask: np.ndarray, h
         if mask_states["Heart mask"] and heart_mask[z].any():
             ax.contour(heart_mask[z].astype(np.uint8), levels=[0.5], colors=["gold"], linewidths=0.7)
 
-        visible = [(row, idx) for row, idx in valid_rows if idx[0] == z]
-        for row, (_, y, x) in visible:
+        visible = []
+        for row, idx in valid_rows:
+            start = np.asarray(row["bbox_start_zyx"], dtype=np.int64)
+            end = np.asarray(row["bbox_end_zyx_exclusive"], dtype=np.int64)
+            if start[0] <= z < end[0]:
+                visible.append((row, idx, start, end))
+        for row, (center_z, y, x), start, end in visible:
             available = row.get("brock_status") == "available"
             source = row.get("detection_source")
             marker = str(VIEWER_SCHEMA["viTdet3d_marker"]) if source == "ViTDet3D" else str(VIEWER_SCHEMA["log_marker"])
             color = str(VIEWER_SCHEMA["brock_available_color"]) if available else str(VIEWER_SCHEMA["brock_unavailable_color"])
-            ax.scatter([x], [y], marker=marker, s=75, c=[color], edgecolors="white", linewidths=0.8)
-            prefix = "V" if source == "ViTDet3D" else "L"
-            label = f"{prefix}{row.get('patch_id')}"
-            nodule_id = str(row.get("stable_nodule_id") or "")
-            if nodule_id:
-                label += f" {nodule_id[:8]}"
+            left = max(float(start[2]), -0.5)
+            top = max(float(start[1]), -0.5)
+            right = min(float(end[2]), ct.shape[2] - 0.5)
+            bottom = min(float(end[1]), ct.shape[1] - 0.5)
+            if right <= left or bottom <= top:
+                raise ValueError(f"Accepted candidate {row.get('stable_nodule_id')} has no visible bbox on CT slice {z}.")
+            ax.add_patch(Rectangle((left, top), right - left, bottom - top, fill=False, edgecolor="yellow", linewidth=1.2))
+            if center_z == z:
+                ax.scatter([x], [y], marker=marker, s=75, c=[color], edgecolors="white", linewidths=0.8)
+            attributes = row["stage06_record"].get("attributes")
+            attributes = attributes if isinstance(attributes, dict) else {}
+            classification = ", ".join(
+                f"{name}={rating_value(attributes.get(name))}"
+                for name in ATTRIBUTES
+                if rating_value(attributes.get(name)) is not None
+            ) or "classification unavailable"
+            label = str(row.get("stable_nodule_id") or "")
             probability = row.get("brock_probability")
-            if probability is not None:
-                label += f" Brock {float(probability):.3f}"
-            ax.annotate(label, (x, y), xytext=(5, 5), textcoords="offset points", fontsize=7,
+            geometry = row["stage06_record"].get("geometry", {})
+            label += (
+                f"\nDiameter {geometry.get('diameter_mm', 'unknown')} mm; "
+                f"volume {geometry.get('volume_mm3', 'unavailable')} mm3 | "
+                f"Brock {probability if probability is not None else 'unavailable'} ({row.get('brock_status')})"
+                f"\n{classification}"
+            )
+            ax.annotate(label, (left, top), xytext=(3, 3), textcoords="offset points", fontsize=5,
                         color="white", bbox={"boxstyle": "round,pad=0.15", "fc": "black", "alpha": 0.6})
         ax.set_title(f"{patient_id} — axial z={z}/{z_count - 1} | in-lung candidates on slice: {len(visible)}")
         ax.set_xlabel("X voxel")
@@ -650,29 +718,143 @@ def main() -> int:
     write_csv(report_csv, accepted)
     write_csv(excluded_csv, excluded)
 
+    def report_reference(value: Any) -> str | None:
+        if not isinstance(value, str) or not value:
+            return None
+        path = Path(value)
+        if path.is_absolute():
+            try:
+                return path.resolve().relative_to(patient_root.resolve()).as_posix()
+            except ValueError:
+                return None
+        return path.as_posix()
+
+    eligible_nodules = []
+    for row in accepted:
+        record = row["stage06_record"]
+        geometry = record["geometry"]
+        attributes = record.get("attributes")
+        attributes = attributes if isinstance(attributes, dict) else {}
+        brock = record.get("malignancy", {}).get("brock", {})
+        brock = brock if isinstance(brock, dict) else {}
+        classification_attributes = {}
+        for name in ATTRIBUTES:
+            item = attributes.get(name)
+            value = rating_value(item)
+            classification_attributes[name] = {
+                "value": value,
+                "status": "predicted" if value is not None else "unavailable",
+                "semantics": item.get("score_semantics") if isinstance(item, dict) else None,
+                "model_version": item.get("model_version") if isinstance(item, dict) else None,
+            }
+        gradcam_refs = {}
+        explanation = record.get("explanations")
+        explanation = explanation if isinstance(explanation, dict) else {}
+        gradcam = explanation.get("gradcam")
+        if isinstance(gradcam, dict):
+            for name, refs in gradcam.items():
+                if not isinstance(refs, dict):
+                    continue
+                gradcam_refs[str(name)] = {
+                    key: report_reference(refs.get(key))
+                    for key in ("patch_cam_path", "scaled_path", "raw_signed_path", "ct_cam_path")
+                    if refs.get(key)
+                }
+        eligible_nodules.append({
+            "stable_nodule_id": row["stable_nodule_id"],
+            "eligibility_status": "eligible_in_lung",
+            "anatomical_location": {
+                key: row.get(key)
+                for key in (
+                    "location_primary", "location_region", "location_compartment",
+                    "laterality", "vertical_region", "wall_relationship",
+                    "airway_type", "airway_proximity_mm",
+                )
+            },
+            "centroid_voxel_zyx": geometry.get("center_zyx"),
+            "centroid_lps_mm": geometry.get("center_lps_mm"),
+            "bbox_voxel_zyx": {
+                "start": geometry.get("bbox_start_zyx"),
+                "end_exclusive": geometry.get("bbox_end_zyx_exclusive"),
+                "coordinate_frame": geometry.get("source_space"),
+            },
+            "measurements": {
+                "diameter_mm": geometry.get("diameter_mm"),
+                "volume_mm3": geometry.get("volume_mm3"),
+                "source": "detector_estimate",
+            },
+            "detection": {
+                "source": row.get("source"),
+                "source_members": row.get("source_members", []),
+                "vitdet_score": row.get("vitdet_score"),
+                "log_score": row.get("log_score"),
+            },
+            "classification": {
+                "status": "available" if any(item["value"] is not None for item in classification_attributes.values()) else "unavailable",
+                "source": "Stage 03 model predictions",
+                "attributes": classification_attributes,
+            },
+            "brock_risk": {
+                "status": brock.get("status", "unavailable"),
+                "probability": brock.get("probability"),
+                "missing_inputs": brock.get("features_missing", brock.get("missing_inputs", [])),
+                "model_name": brock.get("model_name"),
+                "model_version": brock.get("model_version"),
+                "input_completeness": record.get("input_completeness"),
+            },
+            "quality_status": row.get("localization_status"),
+            "explanation_refs": {"gradcam": gradcam_refs},
+            "artifact_refs": {
+                "stage06_record": report_reference(row.get("stage06_record_path")),
+                "visualization": report_reference(row.get("visualization_path")),
+            },
+        })
+
     count_by_source: dict[str, dict[str, int]] = {}
     for source in ("ViTDet3D", "LoG", "Merged"):
         source_rows = [row for row in accepted if row["detection_source"] == source]
+        excluded_source_rows = [row for row in excluded if row["detection_source"] == source]
         count_by_source[source] = {
             "input_candidates": len([row for row in _all_rows if row["detection_source"] == source]),
             "accepted_center_inside_lung_mask": len(source_rows),
-            "excluded_center_outside_lung_mask": len([row for row in excluded if row["detection_source"] == source]),
+            "excluded_from_accepted_list": len(excluded_source_rows),
+            "center_outside_lung_mask": sum(
+                row.get("exclusion_reason") in {"center_outside_lung_mask", "center_outside_ct_volume"}
+                for row in excluded_source_rows
+            ),
+            "center_inside_heart_mask": sum(
+                row.get("exclusion_reason") == "center_inside_heart_mask"
+                for row in excluded_source_rows
+            ),
+            "invalid_localization": sum(
+                row.get("localization_status") == "BLOCKED"
+                for row in excluded_source_rows
+            ),
             "brock_available_count": sum(row["brock_status"] == "available" for row in source_rows),
         }
     summary = {
         "schema_version": STAGE07["report_schema_version"],
         "meta_schema_version": SCHEMA["schema_version"],
         "stage": "07_visualize",
+        "status": "completed",
         "patient_id": args.patient_id,
-        "created_from": input_paths,
-        "ct_volume": str(ct_path.resolve()),
-        "lung_mask": str(lung_path.resolve()),
+        "created_from": {key: report_reference(value) for key, value in input_paths.items()},
+        "ct_volume": report_reference(str(ct_path.resolve())),
+        "lung_mask": report_reference(str(lung_path.resolve())),
         "ct_shape_zyx": list(ct.shape),
         "spacing_zyx_mm": spacing.tolist(),
         "candidate_center_filter": STAGE07["center_in_mask_rule"],
         "input_candidate_count": len(_all_rows),
         "nodule_count_center_inside_lung_mask": len(accepted),
-        "nodule_count_center_outside_lung_mask_excluded": len(excluded),
+        "nodule_count_excluded_from_display": len(excluded),
+        "nodule_count_center_outside_lung_mask": sum(
+            row.get("exclusion_reason") in {"center_outside_lung_mask", "center_outside_ct_volume"}
+            for row in excluded
+        ),
+        "nodule_count_center_inside_heart_mask": sum(
+            row.get("exclusion_reason") == "center_inside_heart_mask"
+            for row in excluded
+        ),
         "nodule_count_localization_blocked": sum(
             row.get("localization_status") == "BLOCKED" for row in excluded
         ),
@@ -684,11 +866,32 @@ def main() -> int:
         ),
         "brock_available_count_inside_lung_mask": sum(row["brock_status"] == "available" for row in accepted),
         "counts_by_source": count_by_source,
-        "accepted_csv": str(report_csv.resolve()),
-        "excluded_outside_lung_csv": str(excluded_csv.resolve()),
-        "visualization_directory": str(visualization_root.resolve()),
+        "accepted_csv": report_reference(str(report_csv.resolve())),
+        "excluded_outside_lung_csv": report_reference(str(excluded_csv.resolve())),
+        "visualization_directory": report_reference(str(visualization_root.resolve())),
         "visualization_count": len(visualization_paths),
-        "accepted_candidate_rows": accepted,
+        "eligible_nodules": eligible_nodules,
+        "artifact_refs": {
+            "report_json": report_reference(str(report_json.resolve())),
+            "accepted_csv": report_reference(str(report_csv.resolve())),
+            "excluded_csv": report_reference(str(excluded_csv.resolve())),
+            "visualization_directory": report_reference(str(visualization_root.resolve())),
+            "html_report": f"../../reports/{args.patient_id}/index.html",
+        },
+        "warnings": [
+            f"{row['stable_nodule_id']}: Brock status is {row['brock_status']}."
+            for row in accepted
+            if row["brock_status"] != "available"
+        ],
+        "errors": [],
+        "provenance": {
+            "coordinate_frame": "stage01_final_cropped_ct",
+            "coordinate_order": "ZYX",
+            "coordinate_system": str(meta.get("coordinate_system", "unknown")),
+            "meta_schema_version": meta.get("meta_schema_version"),
+            "spacing_zyx_mm": spacing.tolist(),
+            "geometry_preserved_from": "Stage 01 volume_hu_cropped.npy",
+        },
         "limitations": list(STAGE07["clinical_limitations"]),
     }
     declared_report_fields = set(get_required(STAGE07, "report_fields", expected_type=list))

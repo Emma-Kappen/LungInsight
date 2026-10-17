@@ -14,21 +14,37 @@ class Stage02GateWiringTests(unittest.TestCase):
         cls.source = STAGE02.read_text(encoding="utf-8-sig")
         cls.schema = json.loads((ROOT / "meta_schema.json").read_text(encoding="utf-8-sig"))
 
-    def test_human_review_is_validated_before_detector_execution(self):
-        review_check = self.source.index("review_attestation = validate_review_attestation(")
+    def test_automated_mask_validation_precedes_detector_execution_without_attestation(self):
+        automated_check = self.source.index("mask_quality.get(\"problems\") != []")
         detector_call = self.source.index("raw_detections = run_vitdet3d_raw(")
-        self.assertLess(review_check, detector_call)
+        self.assertLess(automated_check, detector_call)
+        self.assertNotIn("validate_review_attestation(", self.source)
 
-    def test_authoritative_filter_precedes_patch_extraction_and_manifest_creation(self):
+    def test_fusion_and_lung_gate_precede_top50_and_patch_extraction(self):
+        fusion = self.source.index("fused_candidates, fusion_report = merge_detections(")
         filter_call = self.source.index(
+            "accepted_candidates, rejected_candidates, candidate_filter_report = filter_detections_by_lung_mask(",
+            fusion,
+        )
+        selection = self.source.index("selected_candidates = select_fused_candidates(accepted_candidates, limit=50)")
+        extraction = self.source.index("records = extract_all(", selection)
+        manifest_write = self.source.index("save_json(patch_manifest_path, manifest)", extraction)
+        self.assertLess(fusion, filter_call)
+        self.assertLess(filter_call, selection)
+        self.assertLess(selection, extraction)
+        self.assertLess(extraction, manifest_write)
+
+    def test_detector_candidates_are_fused_before_the_single_mask_gate(self):
+        vit_run = self.source.index("raw_detections = run_vitdet3d_raw(")
+        log_run = self.source.index("log_candidates = run_log_detector(")
+        fusion = self.source.index("fused_candidates, fusion_report = merge_detections(")
+        gate = self.source.index(
             "accepted_candidates, rejected_candidates, candidate_filter_report = filter_detections_by_lung_mask("
         )
-        accepted_list = self.source.index("candidate_dicts = accepted_candidates", filter_call)
-        extraction = self.source.index("records = extract_all(", accepted_list)
-        manifest_write = self.source.index("save_json(patch_manifest_path, manifest)", extraction)
-        self.assertLess(filter_call, accepted_list)
-        self.assertLess(accepted_list, extraction)
-        self.assertLess(extraction, manifest_write)
+        self.assertLess(vit_run, log_run)
+        self.assertLess(log_run, fusion)
+        self.assertLess(fusion, gate)
+        self.assertNotIn("accepted_log_candidates, rejected_log_candidates, log_filter_report = filter_detections_by_lung_mask(", self.source)
 
     def test_rejected_and_accepted_records_have_distinct_schema_paths(self):
         stage2 = self.schema["stage_02_detect_and_patch"]
@@ -36,20 +52,13 @@ class Stage02GateWiringTests(unittest.TestCase):
         self.assertNotEqual(filenames["candidates_json"], filenames["rejected_candidates_audit"])
         self.assertNotEqual(filenames["log_diagnostic"], filenames["log_rejected_candidates_audit"])
         self.assertTrue(stage2["candidate_acceptance_filter"]["require_nonempty_heart_mask"])
-        self.assertTrue(stage2["candidate_acceptance_filter"]["require_human_review_attestation"])
-        self.assertEqual(self.schema["schema_version"], "2.13")
+        self.assertFalse(stage2["candidate_acceptance_filter"]["require_human_review_attestation"])
+        self.assertEqual(self.schema["schema_version"], "2.15")
         self.assertIn("2.12", self.schema["metadata_policy"]["supported_schema_versions"])
 
-    def test_log_gate_precedes_log_patch_extraction(self):
-        filter_call = self.source.index(
-            "accepted_log_candidates, rejected_log_candidates, log_filter_report = filter_detections_by_lung_mask("
-        )
-        accepted_selection = self.source.index("log_candidates = [", filter_call)
-        extraction = self.source.index("log_records = extract_all(", accepted_selection)
-        manifest_write = self.source.index("save_json(log_patch_manifest_path, log_manifest)", extraction)
-        self.assertLess(filter_call, accepted_selection)
-        self.assertLess(accepted_selection, extraction)
-        self.assertLess(extraction, manifest_write)
+    def test_legacy_log_manifest_is_empty_and_not_a_second_inference_stream(self):
+        self.assertIn("log_patch_candidates: list[dict[str, Any]] = []", self.source)
+        self.assertIn("legacy diagnostic manifest is deliberately empty", self.source)
 
 
 if __name__ == "__main__":

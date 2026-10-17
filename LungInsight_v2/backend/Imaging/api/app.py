@@ -53,7 +53,7 @@ def _openapi_schema_ref(value: Any) -> Any:
     if isinstance(value, list):
         return [_openapi_schema_ref(child) for child in value]
     if isinstance(value, str) and value.startswith("#/$defs/"):
-        return value.replace("#/$defs/", "#/components/schemas/ImagingClinicalContractV1_", 1)
+        return value.replace("#/$defs/", "#/components/schemas/ImagingClinicalContractV2_", 1)
     return value
 
 
@@ -64,12 +64,12 @@ def _custom_openapi() -> dict[str, Any]:
     contract_schema = read_json(SCHEMA_PATH)
     definitions = contract_schema.pop("$defs", {})
     components = schema.setdefault("components", {}).setdefault("schemas", {})
-    components["ImagingClinicalContractV1"] = _openapi_schema_ref(contract_schema)
+    components["ImagingClinicalContractV2"] = _openapi_schema_ref(contract_schema)
     for name, definition in definitions.items():
-        components[f"ImagingClinicalContractV1_{name}"] = _openapi_schema_ref(definition)
+        components[f"ImagingClinicalContractV2_{name}"] = _openapi_schema_ref(definition)
     paths = schema["paths"]
-    study_ref = {"$ref": "#/components/schemas/ImagingClinicalContractV1"}
-    nodule_ref = {"$ref": "#/components/schemas/ImagingClinicalContractV1_nodule"}
+    study_ref = {"$ref": "#/components/schemas/ImagingClinicalContractV2"}
+    nodule_ref = {"$ref": "#/components/schemas/ImagingClinicalContractV2_nodule"}
     paths["/api/v1/imaging/study"]["post"]["responses"]["200"]["content"]["application/json"]["schema"] = study_ref
     paths["/api/v1/imaging/study/{study_id}"]["get"]["responses"]["200"]["content"]["application/json"]["schema"] = study_ref
     paths["/api/v1/imaging/nodule/{nodule_id}"]["get"]["responses"]["200"]["content"]["application/json"]["schema"] = {
@@ -114,7 +114,7 @@ async def upload_dicom(
 @app.get("/api/v1/imaging/dicom/jobs/{job_id}")
 def dicom_job_status(job_id: str) -> dict[str, Any]:
     try:
-        return get_dicom_job(job_id)
+        return get_dicom_job(job_id, output_root=OUTPUT_ROOT)
     except DicomUploadError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 

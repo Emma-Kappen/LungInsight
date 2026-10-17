@@ -265,14 +265,14 @@ def main() -> int:
         "heart_mask_voxels": int(heart.sum()),
         "heart_mask_fraction": float(heart.mean()),
         "heart_mask_found": bool(heart.any()),
-        # A non-empty mask is not an approved mask. Only the explicit human
-        # review attestation written by approve_heart_mask_review.py opens the gate.
+        # This diagnostic records whether optional visual QA was performed;
+        # automated mask and geometry checks determine downstream eligibility.
         "heart_exclusion_verified": bool(meta.get("heart_mask_exclusion_verified", False)),
         "heart_mask_review_status": str(meta.get("heart_mask_review_status", "unknown")),
         "heart_mask_tracking_successful": bool(meta.get("heart_mask_tracking_successful", False)),
         "candidate_inputs": source_counts,
         "candidate_file_policy": "LoG remains diagnostic-only unless the authoritative project schema explicitly changes that policy.",
-        "status": "BLOCKED_EMPTY_HEART_MASK" if not heart.any() else "MASKS_REQUIRE_VISUAL_QA",
+        "status": "BLOCKED_EMPTY_HEART_MASK" if not heart.any() else "AUTOMATED_MASKS_PRESENT_VISUAL_QA_OPTIONAL",
         "outputs": {
             "montage_png": str(montage_path),
             "slice_metrics_csv": str(metrics_path),

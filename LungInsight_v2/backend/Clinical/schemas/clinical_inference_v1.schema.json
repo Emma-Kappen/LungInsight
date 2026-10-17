@@ -19,7 +19,30 @@
       "additionalProperties": false,
       "properties": {
         "age_at_baseline_years": {"type": ["number", "null"], "minimum": 18, "maximum": 120},
-        "sex_at_baseline": {"enum": ["female", "male", "other_or_unspecified", null]},
+        "age_at_baseline_years_status": {"enum": ["reported", "unknown", "not_reported"]},
+        "sex_at_baseline": {"enum": ["female", "male", "other_or_unspecified", "unknown", "not_reported", null]},
+        "race_at_baseline": {"enum": ["american_indian_or_alaska_native", "asian", "black_or_african_american", "native_hawaiian_or_pacific_islander", "white", "multiple", "other", "unknown", "not_reported", null]},
+        "ethnicity_at_baseline": {"enum": ["hispanic_or_latino", "not_hispanic_or_latino", "other", "unknown", "not_reported", null]},
+        "smoking_status": {"enum": ["current", "former", "never", "unknown", "not_reported"]},
+        "years_smoked": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "years_smoked_status": {"enum": ["reported", "unknown", "not_reported"]},
+        "packs_per_day": {"type": ["number", "null"], "minimum": 0, "maximum": 20},
+        "packs_per_day_status": {"enum": ["reported", "unknown", "not_reported"]},
+        "pack_years": {"type": ["number", "null"], "minimum": 0},
+        "years_since_cessation": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "family_history_lung_cancer": {"enum": ["yes", "no", "unknown", "not_reported"]},
+        "medical_history_status": {"enum": ["reported", "unknown", "not_reported"]},
+        "medical_history_conditions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["emphysema", "copd", "asthma", "pulmonary_fibrosis", "prior_cancer", "other"]}
+        },
+        "symptoms_status": {"enum": ["reported", "unknown", "not_reported"]},
+        "symptoms": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["cough", "dyspnea", "hemoptysis", "chest_pain", "weight_loss", "fatigue", "other"]}
+        },
         "kps": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
         "ecog": {"type": ["integer", "null"], "minimum": 0, "maximum": 5}
       }

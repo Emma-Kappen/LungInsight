@@ -194,6 +194,48 @@ class HtmlReportTests(unittest.TestCase):
                     (report_root / page).read_text(encoding="utf-8"),
                 )
 
+    def test_interactive_viewer_preserves_native_geometry_and_eligible_nodule_details(self):
+        with TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            patient_root = root / "patient"
+            patient_root.mkdir()
+            report_root = patient_root / "reports" / "patient"
+            record = {
+                "stable_nodule_id": "nodule_stable_001",
+                "geometry": {
+                    "center_zyx": [1.0, 2.0, 3.0],
+                    "bbox_start_zyx": [1, 1, 2],
+                    "bbox_end_zyx_exclusive": [2, 4, 5],
+                    "crop_start_zyx": [0, 0, 0],
+                    "patch_size_vox_zyx": [2, 4, 5],
+                    "diameter_mm": 8.2,
+                    "volume_mm3": 210.0,
+                },
+                "detector": {"source": "Merged"},
+                "attributes": {"spiculation": {"expected_rating": 4.0}},
+                "malignancy": {
+                    "brock": {"status": "incomplete", "probability": None},
+                    "selected_prediction": {"method": "brock", "status": "incomplete", "value": None},
+                },
+                "explanations": {"gradcam": {}},
+            }
+            generate_patient_report(
+                patient_id="patient",
+                patient_root=patient_root,
+                report_root=report_root,
+                accepted=[{"stable_nodule_id": "nodule_stable_001", "stage06_record": record}],
+                excluded=[{"stable_nodule_id": "excluded_nodule_002"}],
+                ct=np.zeros((3, 4, 5), dtype=np.float32),
+            )
+            index = (report_root / "index.html").read_text(encoding="utf-8")
+            self.assertIn("<canvas id='viewer-canvas' width='5' height='4'", index)
+            self.assertIn('"bbox_start_zyx": [1, 1, 2]', index)
+            self.assertIn('"bbox_end_zyx_exclusive": [2, 4, 5]', index)
+            self.assertIn('"diameter_mm": 8.2', index)
+            self.assertIn('"spiculation": 4.0', index)
+            self.assertIn("nodule_stable_001", index)
+            self.assertNotIn("excluded_nodule_002", index)
+
 
 if __name__ == "__main__":
     unittest.main()

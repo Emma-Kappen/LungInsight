@@ -24,6 +24,10 @@ label { display: grid; gap: .35rem; font-weight: 600; }
 input, select, button { min-height: 42px; padding: .6rem; border: 1px solid #9caebe; border-radius: 6px; font: inherit; }
 input:focus-visible, select:focus-visible, button:focus-visible { outline: 3px solid #f4b942; outline-offset: 2px; }
 .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.nested-fields { display: grid; gap: .75rem; margin: 0; padding: 1rem; border: 1px solid #e0e8ee; border-radius: 8px; }
+.checkbox-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: .4rem .8rem; }
+.checkbox-group label { display: flex; align-items: center; gap: .45rem; font-weight: 400; }
+.checkbox-group input[type="checkbox"] { min-height: 1rem; width: 1rem; margin: 0; padding: 0; }
 .hint, .selection span { color: #52687a; font-size: .92rem; }
 .upload-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
 .button, button { border: 0; color: #fff; background: #145d78; font-weight: 700; cursor: pointer; text-align: center; }
@@ -39,6 +43,25 @@ button:disabled { cursor: not-allowed; opacity: .55; }
 dl { display: grid; grid-template-columns: max-content 1fr; gap: .3rem 1rem; margin: .5rem 0 0; }
 dt { font-weight: 700; } dd { margin: 0; }
 .result-sections { display: grid; gap: .75rem; margin-top: 1rem; }
+.error { overflow-wrap: anywhere; }
 .result-card { padding: 1rem; border: 1px solid #d5e0e9; border-radius: 8px; }
+.viewer-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1rem; margin: .75rem 0; }
+.viewer-controls label { display: inline-flex; align-items: center; gap: .35rem; }
+.viewer-controls input[type="range"] { min-height: auto; }
+.ct-viewer-image { display: block; width: min(100%, 640px); image-rendering: auto; background: #111; }
+.nodule-list { display: grid; gap: .5rem; margin-top: 1rem; }
+.nodule-item { display: flex; flex-wrap: wrap; gap: .75rem; padding: .6rem; border: 1px solid #d5e0e9; border-radius: 6px; }
+.saved-studies { display: grid; gap: .4rem; margin-top: .75rem; }
+.saved-study { text-align: left; padding: .65rem; }
+.nodule-detail { margin-top: 1rem; padding: .8rem; border: 1px solid #ccd6e0; border-radius: .4rem; }
+.report-links { display: flex; gap: .75rem; flex-wrap: wrap; }
+.clinical-results { display: grid; gap: .5rem; margin-top: 1rem; }
+.model-result { display: grid; gap: .2rem; padding: .6rem; border: 1px solid #d5e0e9; border-radius: 6px; }
 pre { overflow: auto; max-height: 28rem; padding: 1rem; background: #f0f4f7; white-space: pre-wrap; }
 @media (max-width: 650px) { .field-grid { grid-template-columns: 1fr; } .upload-actions { display: grid; } }
+@media print {
+  body { padding: 0; background: #fff; }
+  .hero, #clinical-form, #print-report, details { display: none !important; }
+  #results { display: block !important; border: 0; margin: 0; padding: 0; }
+  .result-card { break-inside: avoid; }
+}

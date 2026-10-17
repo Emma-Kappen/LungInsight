@@ -73,7 +73,6 @@ import torch.nn as nn
 from matplotlib.patches import Rectangle
 from pipeline_schema import get_required, load_schema, check_meta_schema_version
 from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
-from heart_mask_review import validate_review_attestation
 from lunginsight_candidate_fusion import (
     filter_detections_by_lung_mask,
     merge_detections,
@@ -100,7 +99,6 @@ if PATCH_ARRAY_DTYPE != np.dtype(np.float32):
     raise RuntimeError(
         f"meta_schema.json Stage 02 patch array dtype must remain float32 for the existing Stage 03 checkpoints, got {PATCH_ARRAY_DTYPE}."
     )
-STAGE01_FALLBACK_AIR_THRESHOLD_HU = float(get_required(SCHEMA, "stage_01_hu_and_crop.preprocessing.air_threshold_hu"))
 from matplotlib.widgets import Slider
 from scipy import ndimage
 from scipy.ndimage import gaussian_laplace, maximum_filter
@@ -191,12 +189,10 @@ def load_json(path: str | Path) -> Dict[str, Any]:
 @dataclass
 class DetectorCandidate:
     """
-    The authoritative detector candidate record.
+    Raw ViTDet3D detector proposal record before cross-detector fusion.
 
-    Field set matches the architecture's detector candidate schema
-    exactly (see LungInsight_Imaging_Pipeline_Architecture.pdf,
-    "Recommended record" / "B. ViTDet3D Candidate Record"). This is
-    ONLY ever populated from ViTDet3D output -- see module docstring.
+    This record is populated only from ViTDet3D output; final candidate
+    identities and equal-standing geometry are assigned after fusion.
     """
 
     candidate_id: int
@@ -636,33 +632,49 @@ def load_stage01(
 
     air_mask_path = stage01_dir / STAGE01_FILES["air_mask.npy"]
     heart_mask_path = stage01_dir / STAGE01_FILES["heart_mask.npy"]
+    if not air_mask_path.is_file():
+        raise FileNotFoundError(f"Missing Stage 01 air mask required for validated geometry:\n{air_mask_path}")
+    if not heart_mask_path.is_file():
+        raise FileNotFoundError(f"Missing Stage 01 heart mask required for validated exclusion:\n{heart_mask_path}")
 
     volume = np.asarray(
         np.load(volume_path, allow_pickle=False),
         dtype=np.float32,
     )
-    lung_mask = np.asarray(
-        np.load(lung_mask_path, allow_pickle=False)
-    ).astype(bool)
+    lung_values = np.asarray(np.load(lung_mask_path, allow_pickle=False))
+    lung_mask = lung_values.astype(bool)
     metadata = load_json(meta_path)
     check_meta_schema_version(metadata, SCHEMA, context=str(meta_path), require=False)
 
-    # Stage 01 writes both masks. Keep safe fallbacks so older Stage 01
-    # outputs remain consumable: physical air is reconstructed from the
-    # original -950 HU rule, and a missing heart mask is simply empty.
-    if air_mask_path.is_file():
-        air_mask = np.asarray(
-            np.load(air_mask_path, allow_pickle=False)
-        ).astype(bool)
-    else:
-        air_mask = volume <= STAGE01_FALLBACK_AIR_THRESHOLD_HU
+    air_values = np.asarray(np.load(air_mask_path, allow_pickle=False))
+    heart_values = np.asarray(np.load(heart_mask_path, allow_pickle=False))
+    air_mask = air_values.astype(bool)
+    heart_mask = heart_values.astype(bool)
 
-    if heart_mask_path.is_file():
-        heart_mask = np.asarray(
-            np.load(heart_mask_path, allow_pickle=False)
-        ).astype(bool)
-    else:
-        heart_mask = np.zeros_like(lung_mask, dtype=bool)
+    mask_quality = metadata.get("mask_quality")
+    if not isinstance(mask_quality, dict) or mask_quality.get("status") not in {
+        "validated_automated",
+        "ready_for_review",
+    }:
+        state = mask_quality.get("status") if isinstance(mask_quality, dict) else "missing"
+        raise RuntimeError(
+            f"Stage 01 mask validation is not complete (status={state!r}); Stage 02 is blocked."
+        )
+    if metadata.get("coordinate_system") != "DICOM_LPS" or metadata.get("array_axes") != ["z", "y", "x"]:
+        raise RuntimeError("Stage 01 coordinate system/array axes do not match the canonical DICOM-LPS ZYX contract.")
+    if any(
+        values.dtype != np.bool_ and not np.isin(values, (0, 1)).all()
+        for values in (lung_values, air_values, heart_values)
+    ):
+        raise RuntimeError("Stage 01 masks must contain only boolean/0-1 values.")
+    if (
+        mask_quality.get("shape_zyx") != list(volume.shape)
+        or mask_quality.get("problems") != []
+        or mask_quality.get("lung_voxels") != int(lung_mask.sum())
+        or mask_quality.get("heart_voxels") != int(heart_mask.sum())
+        or mask_quality.get("lung_heart_overlap_voxels") != int(np.count_nonzero(lung_mask & heart_mask))
+    ):
+        raise RuntimeError("Stage 01 mask-quality report does not match the saved masks; Stage 02 is blocked.")
 
     if volume.ndim != 3:
         raise RuntimeError(f"Expected volume shape (Z,Y,X), got {volume.shape}")
@@ -683,6 +695,10 @@ def load_stage01(
             f"Volume/heart-mask shape mismatch:\n"
             f"volume={volume.shape}\nheart_mask={heart_mask.shape}"
         )
+    if not lung_mask.any() or not heart_mask.any():
+        raise RuntimeError("Stage 01 lung and heart masks must both be non-empty; Stage 02 is blocked.")
+    if np.any(lung_mask & heart_mask):
+        raise RuntimeError("Stage 01 lung and heart masks overlap; Stage 02 is blocked.")
 
     spacing_value = metadata.get("spacing_zyx_mm")
     if spacing_value is None:
@@ -701,21 +717,23 @@ def load_stage01(
         raise RuntimeError(f"Unsupported spacing order: {spacing_order}")
 
     origin = np.asarray(
-        metadata.get("origin_mm", [0.0, 0.0, 0.0]),
+        metadata.get("origin_mm"),
         dtype=np.float64,
     )
     if origin.shape != (3,) or not np.all(np.isfinite(origin)):
         raise RuntimeError("Invalid origin_mm in Stage 01 meta.json.")
 
     direction_lps = np.asarray(
-        metadata.get("direction_lps", np.eye(3).tolist()),
+        metadata.get("direction_lps"),
         dtype=np.float64,
     )
     if (
         direction_lps.shape != (3, 3)
         or not np.all(np.isfinite(direction_lps))
+        or not np.allclose(direction_lps.T @ direction_lps, np.eye(3), atol=1e-4)
+        or not np.isclose(abs(np.linalg.det(direction_lps)), 1.0, atol=1e-4)
     ):
-        raise RuntimeError("Invalid direction_lps in Stage 01 meta.json.")
+        raise RuntimeError("Invalid or non-orthonormal direction_lps in Stage 01 meta.json.")
 
     return (
         volume,
@@ -1432,7 +1450,7 @@ def validate_detector_candidate_schema(
     volume_shape_zyx: Sequence[int],
     spacing_zyx_mm: Sequence[float],
 ) -> None:
-    """Validate the detector spatial contract before serialization."""
+    """Validate fused candidate geometry without rejecting out-of-volume audit records."""
 
     required = tuple(STAGE02_DETECTOR["required_candidate_fields"])
     missing = [key for key in required if key not in candidate]
@@ -1453,11 +1471,8 @@ def validate_detector_candidate_schema(
     shape = np.asarray(volume_shape_zyx, dtype=np.float64)
     if center.shape != (3,) or not np.all(np.isfinite(center)):
         raise RuntimeError(f"Invalid center_zyx: {candidate['center_zyx']}")
-    if np.any(center < 0) or np.any(center >= shape):
-        raise RuntimeError(
-            f"Candidate center outside Stage 01 volume: "
-            f"center={center.tolist()}, shape={shape.tolist()}"
-        )
+    if shape.shape != (3,) or not np.all(np.isfinite(shape)) or np.any(shape <= 0):
+        raise RuntimeError(f"Invalid Stage 01 volume shape: {volume_shape_zyx}")
 
     spacing = np.asarray(candidate["spacing_zyx_mm"], dtype=np.float64)
     expected_spacing = np.asarray(spacing_zyx_mm, dtype=np.float64)
@@ -1467,6 +1482,16 @@ def validate_detector_candidate_schema(
         raise RuntimeError(
             "detector candidate spacing does not match detector volume spacing."
         )
+    low = np.asarray(candidate["bbox_start_zyx"], dtype=np.float64)
+    high = np.asarray(candidate["bbox_end_zyx"], dtype=np.float64)
+    if (
+        low.shape != (3,)
+        or high.shape != (3,)
+        or not np.isfinite(low).all()
+        or not np.isfinite(high).all()
+        or np.any(high <= low)
+    ):
+        raise RuntimeError("Fused candidate bbox must be a finite, positive-extent ZYX box.")
 
 
 # ============================================================================
@@ -3236,14 +3261,12 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         stage01_meta,
     ) = load_stage01(patient_root)
 
-    review_attestation = validate_review_attestation(
-        patient_root,
-        SCHEMA,
-        stage01_meta,
-        volume_hu,
-        lung_mask,
-        heart_mask,
-    )
+    review_attestation = {
+        "required": False,
+        "verified": False,
+        "status": "not_performed",
+        "warning": "Visual mask review is not required; automated Stage 01 mask and geometry checks remain mandatory.",
+    }
 
     print(f"CT volume: {volume_hu.shape} (Z, Y, X)")
     print(f"Spacing : {spacing_zyx.tolist()} mm")
@@ -3251,7 +3274,7 @@ def run_pipeline(args: argparse.Namespace) -> Path:
     print(f"Lung voxels: {int(lung_mask.sum()):,}")
 
     # ------------------------------------------------------------------
-    # Authoritative ViTDet3D detector
+    # ViTDet3D peer detector
     # ------------------------------------------------------------------
     model, resolved_commit = load_vitdet3d(
         args.vitdet_model,
@@ -3271,6 +3294,10 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         batch_size=args.batch_size,
         logit_threshold=args.vit_logit_threshold,
     )
+    save_json(
+        output_stage / STAGE02_FILES["vitdet_raw_detections"],
+        {"patient_id": args.patient_id, "detector": "ViTDet3D", "detections": raw_detections},
+    )
 
     kept_detections = nms_by_distance(
         raw_detections,
@@ -3287,90 +3314,11 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         model_version=args.model_version,
     )
 
-    candidate_dicts = [asdict(c) for c in vit_candidates]
+    vit_candidate_dicts = [asdict(candidate) for candidate in vit_candidates]
 
-    # Build the central airway proxy once and reuse it for all detections. This
-    # avoids repeated full-volume connected-component labeling for every LoG point.
-    airway_core_cache, airway_info_cache = _build_airway_core(
-        lung_mask, air_mask, spacing_zyx, origin_lps_mm, direction_lps
-    )
-
-    for candidate in candidate_dicts:
-        validate_detector_candidate_schema(
-            candidate,
-            volume_shape_zyx=volume_hu.shape,
-            spacing_zyx_mm=tuple(float(v) for v in spacing_zyx),
-        )
-        candidate["anatomical_location"] = classify_anatomical_location(
-            np.asarray(candidate["center_zyx"], dtype=np.float64),
-            lung_mask,
-            air_mask,
-            heart_mask,
-            spacing_zyx,
-            origin_lps_mm,
-            direction_lps,
-            wall_distance_mm=ANATOMY_WALL_DISTANCE_MM,
-            airway_proximity_mm=ANATOMY_AIRWAY_PROXIMITY_MM,
-            airway_core=airway_core_cache,
-            airway_info=airway_info_cache,
-        )
-
-    # Keep the typed candidate list in sync with the serialized records so
-    # patch extraction can propagate exactly the same anatomical label.
-    for c, candidate in zip(vit_candidates, candidate_dicts):
-        c.anatomical_location = candidate["anatomical_location"]
-
-    raw_authoritative_count = len(candidate_dicts)
-    accepted_candidates, rejected_candidates, candidate_filter_report = filter_detections_by_lung_mask(
-        candidate_dicts,
-        lung_mask,
-        heart_mask,
-        min_bbox_lung_occupancy=float(STAGE02_ACCEPTANCE_FILTER["minimum_bbox_lung_occupancy"]),
-        spacing_zyx_mm=spacing_zyx,
-        expected_space=CT_SPACE,
-        require_nonempty_heart_mask=bool(STAGE02_ACCEPTANCE_FILTER["require_nonempty_heart_mask"]),
-        require_heart_mask_reviewed=bool(STAGE02_ACCEPTANCE_FILTER["require_human_review_attestation"]),
-        heart_mask_reviewed=bool(review_attestation["verified"]),
-    )
-    if candidate_filter_report["gate_status"] != "passed":
-        raise RuntimeError(
-            "Stage 02 candidate acceptance gate blocked patch extraction: "
-            f"{candidate_filter_report['gate_status']}."
-        )
-    accepted_ids = {str(row["candidate_id"]) for row in accepted_candidates}
-    vit_candidates = [
-        candidate for candidate in vit_candidates
-        if str(candidate.candidate_id) in accepted_ids
-    ]
-    candidate_dicts = accepted_candidates
-    if len(candidate_dicts) + len(rejected_candidates) != raw_authoritative_count:
-        raise RuntimeError("Stage 02 candidate acceptance counts do not reconcile.")
-    candidate_filter_report.update(
-        {
-            "meta_schema_version": SCHEMA["schema_version"],
-            "stage": STAGE02_SCHEMA["stage"],
-            "patient_id": args.patient_id,
-            "detector": str(STAGE02_DETECTOR["name"]),
-            "review_attestation": review_attestation,
-        }
-    )
-    save_json(output_stage / STAGE02_FILES["candidate_filter_report"], candidate_filter_report)
-    save_json(
-        output_stage / STAGE02_FILES["rejected_candidates_audit"],
-        {
-            "meta_schema_version": SCHEMA["schema_version"],
-            "patient_id": args.patient_id,
-            "role": "audit_only_not_for_patch_extraction_or_inference",
-            "rejected_count": len(rejected_candidates),
-            "rejected_candidates": rejected_candidates,
-        },
-    )
-    save_json(output_stage / STAGE02_FILES["candidates_json"], candidate_dicts)
-    write_candidates_csv(output_stage / STAGE02_FILES["candidates_csv"], vit_candidates)
-
-    # ------------------------------------------------------------------
-    # Detect and quality-filter LoG candidates before ranking and fusion.
-    # ------------------------------------------------------------------
+    # LoG and ViTDet3D are peer proposal sources. Fusion happens before the
+    # single validated-mask gate so a one-detector candidate is never dropped
+    # merely for lacking agreement from the other source.
     log_candidates: List[LogDiagnosticCandidate] = []
     if args.with_log_diagnostic:
         log_candidates = run_log_detector(
@@ -3386,32 +3334,6 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         print("LoG candidate detector: SKIPPED")
 
     raw_log_candidate_dicts = [asdict(candidate) for candidate in log_candidates]
-    accepted_log_candidates, rejected_log_candidates, log_filter_report = filter_detections_by_lung_mask(
-        raw_log_candidate_dicts,
-        lung_mask,
-        heart_mask,
-        min_bbox_lung_occupancy=float(STAGE02_ACCEPTANCE_FILTER["minimum_bbox_lung_occupancy"]),
-        spacing_zyx_mm=spacing_zyx,
-        expected_space=CT_SPACE,
-        require_nonempty_heart_mask=bool(STAGE02_ACCEPTANCE_FILTER["require_nonempty_heart_mask"]),
-        require_heart_mask_reviewed=bool(STAGE02_ACCEPTANCE_FILTER["require_human_review_attestation"]),
-        heart_mask_reviewed=bool(review_attestation["verified"]),
-    )
-    if log_filter_report["gate_status"] != "passed":
-        raise RuntimeError(
-            "Stage 02 LoG diagnostic acceptance gate blocked patch extraction: "
-            f"{log_filter_report['gate_status']}."
-        )
-    accepted_log_ids = {
-        str(row.get("diagnostic_id", row.get("candidate_id")))
-        for row in accepted_log_candidates
-    }
-    log_candidates = [
-        candidate for candidate in log_candidates
-        if str(candidate.diagnostic_id) in accepted_log_ids
-    ]
-    if len(accepted_log_candidates) + len(rejected_log_candidates) != len(raw_log_candidate_dicts):
-        raise RuntimeError("Stage 02 LoG candidate acceptance counts do not reconcile.")
 
     patient_id = str(stage01_meta.get("patient_id", args.patient_id))
     study_uid = str(stage01_meta.get("study_instance_uid", ""))
@@ -3423,8 +3345,8 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         )
 
     fused_candidates, fusion_report = merge_detections(
-        accepted_log_candidates,
-        accepted_candidates,
+        raw_log_candidate_dicts,
+        vit_candidate_dicts,
         spacing_zyx_mm=spacing_zyx,
         expected_space=CT_SPACE,
         patient_id=patient_id,
@@ -3433,9 +3355,18 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         origin_lps_mm=origin_lps_mm,
         direction_lps=direction_lps,
     )
-    if fusion_report["deduplicated_count"] > len(accepted_candidates) + len(accepted_log_candidates):
-        raise RuntimeError("Stage 02 fusion output count exceeds its accepted input union.")
+    if fusion_report["deduplicated_count"] > len(vit_candidate_dicts) + len(raw_log_candidate_dicts):
+        raise RuntimeError("Stage 02 fusion output count exceeds its detector input union.")
+    airway_core_cache, airway_info_cache = _build_airway_core(
+        lung_mask, air_mask, spacing_zyx, origin_lps_mm, direction_lps
+    )
     for candidate in fused_candidates:
+        candidate["spacing_zyx_mm"] = spacing_zyx.tolist()
+        validate_detector_candidate_schema(
+            candidate,
+            volume_shape_zyx=volume_hu.shape,
+            spacing_zyx_mm=tuple(float(v) for v in spacing_zyx),
+        )
         candidate["patient_id"] = patient_id
         candidate["study_uid"] = study_uid
         candidate["series_uid"] = series_uid
@@ -3454,29 +3385,48 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             airway_core=airway_core_cache,
             airway_info=airway_info_cache,
         )
-        candidate["spacing_zyx_mm"] = spacing_zyx.tolist()
-    candidate_dicts = select_fused_candidates(fused_candidates, limit=50)
-    selected_ids = {str(row["stable_nodule_id"]) for row in candidate_dicts}
-    for row in fused_candidates:
-        row["selection_status"] = "selected" if str(row["stable_nodule_id"]) in selected_ids else "eligible_not_selected"
-    candidate_dicts = [row for row in fused_candidates if str(row["stable_nodule_id"]) in selected_ids]
+
+    accepted_candidates, rejected_candidates, candidate_filter_report = filter_detections_by_lung_mask(
+        fused_candidates,
+        lung_mask,
+        heart_mask,
+        min_bbox_lung_occupancy=float(STAGE02_ACCEPTANCE_FILTER["minimum_bbox_lung_occupancy"]),
+        spacing_zyx_mm=spacing_zyx,
+        origin_lps_mm=origin_lps_mm,
+        direction_lps=direction_lps,
+        expected_space=CT_SPACE,
+        require_nonempty_heart_mask=bool(STAGE02_ACCEPTANCE_FILTER["require_nonempty_heart_mask"]),
+    )
+    if candidate_filter_report["gate_status"] != "passed":
+        raise RuntimeError(
+            "Stage 02 fused-candidate lung/heart gate blocked downstream processing: "
+            f"{candidate_filter_report['gate_status']}."
+        )
+    if len(accepted_candidates) + len(rejected_candidates) != len(fused_candidates):
+        raise RuntimeError("Stage 02 fused-candidate gate counts do not reconcile.")
+    selected_candidates = select_fused_candidates(accepted_candidates, limit=50)
+    selected_ids = {str(row["stable_nodule_id"]) for row in selected_candidates}
+    eligible_not_selected = []
+    for row in accepted_candidates:
+        row["selection_status"] = (
+            "selected" if str(row["stable_nodule_id"]) in selected_ids else "eligible_not_selected"
+        )
+        if row["selection_status"] == "eligible_not_selected":
+            eligible_not_selected.append(row)
+    candidate_dicts = [row for row in accepted_candidates if str(row["stable_nodule_id"]) in selected_ids]
     fusion_report.update({
         "raw_log_count": len(raw_log_candidate_dicts),
-        "filtered_log_count": len(accepted_log_candidates),
+        "raw_vitdet3d_count": len(vit_candidate_dicts),
+        "lung_gate_accepted_count": len(accepted_candidates),
+        "lung_gate_rejected_count": len(rejected_candidates),
         "selected_count": len(candidate_dicts),
-        "vitdet_accepted_count": len(accepted_candidates),
-        "accepted_candidate_count": len(fused_candidates),
-        "eligible_fused_count": len(fused_candidates),
-        "log_rejection_counts": log_filter_report.get("rejection_counts", {}),
-        "vitdet_rejection_counts": candidate_filter_report.get("rejection_counts", {}),
+        "eligible_fused_count": len(accepted_candidates),
+        "quality_rejected_fused_count": len(rejected_candidates),
     })
     fusion_report_path = output_stage / "DETECTION_FUSION_AUDIT.md"
     rejection_lines = [
-        f"- LoG: `{reason}` — {count}"
-        for reason, count in sorted(fusion_report["log_rejection_counts"].items())
-    ] + [
-        f"- ViTDet3D: `{reason}` — {count}"
-        for reason, count in sorted(fusion_report["vitdet_rejection_counts"].items())
+        f"- `{reason}` — {count}"
+        for reason, count in sorted(candidate_filter_report["rejection_counts"].items())
     ]
     fusion_report_path.write_text(
         "\n".join([
@@ -3485,12 +3435,13 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             f"- Patient: `{patient_id}`",
             f"- Study UID: `{study_uid}`",
             f"- Series UID: `{series_uid}`",
-            f"- ViTDet3D accepted: {fusion_report['vitdet_accepted_count']}",
+            f"- ViTDet3D raw: {fusion_report['raw_vitdet3d_count']}",
             f"- LoG raw: {fusion_report['raw_log_count']}",
-            f"- LoG filtered: {fusion_report['filtered_log_count']}",
+            f"- Lung/heart gate accepted fused candidates: {fusion_report['lung_gate_accepted_count']}",
+            f"- Lung/heart gate rejected fused candidates: {fusion_report['lung_gate_rejected_count']}",
             f"- Eligible fused candidates: {fusion_report['eligible_fused_count']}",
             f"- Selected fused candidates (maximum 50): {fusion_report['selected_count']}",
-            f"- Deduplicated accepted candidates: {fusion_report['accepted_candidate_count']}",
+            f"- Deduplicated candidates before lung gating: {fusion_report['deduplicated_count']}",
             f"- Union before deduplication: {fusion_report['union_count_before_deduplication']}",
             f"- Duplicates removed: {fusion_report['duplicates_removed']}",
             "",
@@ -3498,31 +3449,62 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             "",
             *(rejection_lines or ["- None"]),
             "",
-            "Detector scores remain separate by source and are never averaged or normalized.",
+            "Detector scores remain separate. Selection uses the equal-weight mean of within-source score percentiles.",
         ]) + "\n",
         encoding="utf-8",
     )
 
-    candidate_filter_report["fusion"] = fusion_report
-    candidate_filter_report["stable_identity"] = {
-        "study_uid": study_uid,
-        "series_uid": series_uid,
-        "id_field": "stable_nodule_id",
-    }
-    save_json(output_stage / STAGE02_FILES["candidate_filter_report"], candidate_filter_report)
-    save_json(output_stage / STAGE02_FILES["candidates_json"], candidate_dicts)
-    write_fused_candidates_csv(output_stage / STAGE02_FILES["candidates_csv"], candidate_dicts)
-
-    log_filter_report.update(
+    candidate_filter_report.update(
         {
             "meta_schema_version": SCHEMA["schema_version"],
             "stage": STAGE02_SCHEMA["stage"],
             "patient_id": args.patient_id,
-            "detector": "LoG",
-            "policy": "quality_filtered_before_top50_fusion; source manifest retained for audit only",
+            "detectors": ["LoG", "ViTDet3D"],
             "review_attestation": review_attestation,
+            "fusion": fusion_report,
+            "stable_identity": {
+                "study_uid": study_uid,
+                "series_uid": series_uid,
+                "id_field": "stable_nodule_id",
+            },
         }
     )
+    save_json(output_stage / STAGE02_FILES["candidate_filter_report"], candidate_filter_report)
+    save_json(
+        output_stage / STAGE02_FILES["rejected_candidates_audit"],
+        {
+            "meta_schema_version": SCHEMA["schema_version"],
+            "patient_id": args.patient_id,
+            "role": "audit_only_not_for_patch_extraction_or_inference",
+            "rejected_count": len(rejected_candidates),
+            "rejected_candidates": rejected_candidates,
+            "eligible_not_selected_count": len(eligible_not_selected),
+            "eligible_not_selected": eligible_not_selected,
+        },
+    )
+    save_json(output_stage / STAGE02_FILES["candidates_json"], candidate_dicts)
+    write_fused_candidates_csv(output_stage / STAGE02_FILES["candidates_csv"], candidate_dicts)
+
+    log_filter_report = {
+        "meta_schema_version": SCHEMA["schema_version"],
+        "stage": STAGE02_SCHEMA["stage"],
+        "patient_id": args.patient_id,
+        "detector": "LoG",
+        "policy": "fuse_before_lung_heart_gate; no detector-specific prefilter or downstream manifest",
+        "input_count": len(raw_log_candidate_dicts),
+        "gate_status": candidate_filter_report["gate_status"],
+        "review_attestation": review_attestation,
+    }
+    rejected_log_candidates = [
+        row for row in rejected_candidates
+        if any(member.get("source") == "LoG" for member in row.get("source_members", []))
+    ]
+    accepted_log_candidates = [
+        row for row in accepted_candidates
+        if any(member.get("source") == "LoG" for member in row.get("source_members", []))
+    ]
+    log_filter_report["accepted_fused_count"] = len(accepted_log_candidates)
+    log_filter_report["rejected_fused_count"] = len(rejected_log_candidates)
     save_json(output_stage / STAGE02_FILES["log_candidate_filter_report"], log_filter_report)
     save_json(
         output_stage / STAGE02_FILES["log_rejected_candidates_audit"],
@@ -3530,23 +3512,17 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             "meta_schema_version": SCHEMA["schema_version"],
             "patient_id": args.patient_id,
             "role": "audit_only_not_for_patch_extraction_or_inference",
-            "rejected_count": len(rejected_log_candidates),
-            "rejected_candidates": rejected_log_candidates,
+            "rejected_fused_count": len(rejected_log_candidates),
+            "rejected_fused_candidates": rejected_log_candidates,
         },
     )
-    save_json(
-        output_stage / STAGE02_FILES["log_diagnostic"],
-        accepted_log_candidates,
-    )
+    save_json(output_stage / STAGE02_FILES["log_diagnostic"], raw_log_candidate_dicts)
     agreement_report = compute_diagnostic_agreement(
         vit_candidates,
         log_candidates,
         agreement_distance_mm=args.diagnostic_agreement_distance_mm,
     )
-    save_json(
-        output_stage / STAGE02_FILES["diagnostic_agreement"],
-        agreement_report,
-    )
+    save_json(output_stage / STAGE02_FILES["diagnostic_agreement"], agreement_report)
 
     # ------------------------------------------------------------------
     # Authoritative candidate patch extraction
@@ -3566,8 +3542,7 @@ def run_pipeline(args: argparse.Namespace) -> Path:
     )
 
     # Resolve both manifest paths before constructing metadata that references
-    # them. The LoG extraction records are filled in below, so the authoritative
-    # manifest itself is written only after both extraction branches complete.
+    # them. The legacy LoG manifest stays empty to prevent duplicate inference.
     patch_manifest_path = patient_root / STAGE02_PATCH_OUTPUTS["manifest"]
     log_patch_manifest_path = patient_root / STAGE02_LOG_PATCH_OUTPUTS["manifest"]
 
@@ -3602,6 +3577,7 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         },
         "detector": {
             "name": str(STAGE02_DETECTOR["name"]),
+            "role": "peer_candidate_source_in_equal_standing_fusion",
             "model": args.vitdet_model,
             "checkpoint": checkpoint_ref,
             "model_version": args.model_version,
@@ -3617,7 +3593,7 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         },
         "diagnostic_log_detector": {
             "enabled": bool(args.with_log_diagnostic),
-            "note": "Filtered LoG candidates are fused into the authoritative candidate set. The separate LoG manifest is audit-only and is not another inference input.",
+            "note": "Raw LoG proposals are fused with ViTDet3D before the shared mask gate. The separate LoG manifest is empty and audit-only.",
             "diameters_mm": list(LOG_DIAMETERS_MM),
             "threshold": args.log_threshold,
             "min_distance_mm": args.log_min_distance_mm,
@@ -3750,6 +3726,7 @@ def run_pipeline(args: argparse.Namespace) -> Path:
         "stage01_z_crop_range": stage01_meta.get("z_crop_range"),
         "authoritative_detector": {
             "name": str(STAGE02_DETECTOR["name"]),
+            "role": "peer_candidate_source_in_equal_standing_fusion",
             "model": args.vitdet_model,
             "checkpoint": checkpoint_ref,
             "model_version": args.model_version,
@@ -3782,7 +3759,7 @@ def run_pipeline(args: argparse.Namespace) -> Path:
             "manifest": str(patch_manifest_path),
         },
         "output_files": {
-            "candidates.json": "AUTHORITATIVE - validated LoG + ViTDet3D union after deduplication.",
+            "candidates.json": "AUTHORITATIVE - validated LoG + ViTDet3D union after deduplication and lung/heart gating.",
             "candidates.csv": "Flat mirror of candidates.json.",
             "detector_metadata.json": "Detector and coordinate provenance.",
             "log_candidates_diagnostic.json": "Diagnostic only.",

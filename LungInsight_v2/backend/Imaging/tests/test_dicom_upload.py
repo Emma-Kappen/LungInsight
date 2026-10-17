@@ -16,6 +16,7 @@ sys.path.insert(0, str(IMAGING_DIR))
 
 from fastapi.testclient import TestClient
 from api import app as api_module
+from api import dicom_upload
 
 
 def make_dicom(series_uid: str, position: float, pixel_value: int = 10) -> bytes:
@@ -77,8 +78,8 @@ class DicomUploadTests(unittest.TestCase):
         body = response.json()
         self.assertEqual(body["status"], "preprocessing_complete")
         self.assertEqual(body["analysis_status"], "blocked")
-        self.assertIn("authorized operator", body["next_step"])
-        self.assertIn("not an automatic Stage 01-07", body["next_step"])
+        self.assertIn("automated Stage 01 mask/geometry validation", body["next_step"])
+        self.assertIn("Visual mask review is optional", body["next_step"])
         self.assertEqual(body["series"]["spacing_zyx_mm"], [1.0, 0.7, 0.7])
         volume_path = (
             api_module.OUTPUT_ROOT
@@ -102,6 +103,10 @@ class DicomUploadTests(unittest.TestCase):
         status = self.client.get(f"/api/v1/imaging/dicom/jobs/{body['job_id']}")
         self.assertEqual(status.status_code, 200)
         self.assertEqual(status.json()["job_id"], body["job_id"])
+        dicom_upload._JOBS.pop(body["job_id"], None)
+        restored_status = self.client.get(f"/api/v1/imaging/dicom/jobs/{body['job_id']}")
+        self.assertEqual(restored_status.status_code, 200)
+        self.assertEqual(restored_status.json()["status"], "preprocessing_complete")
 
     def test_rejects_multiple_series_and_unsafe_relative_path(self):
         files = [

@@ -33,7 +33,13 @@ which rounds to 4.49%. The test keeps the rounded tolerance because the
 official calculator displays two decimal percentage places.
 
 Stage 04 accepts an optional JSON envelope with `patient` and per-nodule
-`nodules` values via `--brock-inputs`. The only accepted method selector is
+`nodules` values via `--brock-inputs`, or as `-BrockInputs` to
+`run_pipeline.ps1`. Patient-level predictors are age, sex, family history, and
+emphysema; per-nodule predictors are size (millimetres), type, upper-lobe
+location, total nodule count, and spiculation. The envelope is keyed by the
+selected Stage 02 stable candidate ID. Unknown fields and unselected IDs are
+rejected. Detector diameter and Stage 03 reader-rating predictions are not
+substitutes for Brock inputs. The only accepted method selector is
 `--malignancy-method brock`. The selected method is stored per nodule in
 `malignancy.selected_prediction`; an unavailable Brock result has no numeric
 probability and is never replaced by another score. Stage 07 reports show the
@@ -44,18 +50,40 @@ abstention status otherwise.
 ## Explainability status by stage
 
 - Stage 01: preprocessing and mask QC metadata are the explanation surface;
-  missing, empty, or suspicious masks are retained as QC failures.
+  missing, empty, misaligned, or geometrically invalid masks are retained as
+  QC failures. Visual review is optional and is recorded as such.
 - Stage 02: detector source, fusion, geometry, and rejection provenance are
   retained. No saliency is fabricated for nondifferentiable fusion.
-- Stage 03: existing model-specific attribute evidence is retained.
+- Stage 03: only the selected, mask-validated fused Stage 02 manifest is
+  classified. The six expected LIDC-style ratings are model predictions, not
+  measured current-patient findings or annotation-derived reader labels.
+  Existing ordinal head distributions and derived spread/entropy are recorded;
+  these are not calibrated confidence. Unsupported attributes, diagnosis,
+  pathology, and unavailable measurements remain explicitly unavailable.
 - Stage 04: Brock uses exact formula decomposition; SHAP is not used for
   malignancy risk.
-- Stage 05: per-nodule records carry Brock decomposition and compatible
-  attribute Grad-CAM references, each with its own model identity.
+- Stage 05: eligible fused nodules receive supported attribute Grad-CAM;
+  Brock SHAP is not claimed or generated.
 - Stage 06: Grad-CAM status and spatial-registration failures are explicit.
 - Stage 07: invalid localization or missing explanation evidence is displayed
   as unavailable rather than as a successful result.
 
-The Brock-only malignancy fields are carried by the Imaging-to-Clinical contract
-(`imaging_clinical_contract_v1`); legacy reader-rating malignancy fields are not
-accepted.
+The separate LoG diagnostic manifest is a legacy empty artifact. LoG and
+ViTDet3D detections enter Stages 03–06 only after shared fusion, lung-mask
+validation, and top-50 selection. Every downstream stage rechecks the selected
+candidate set and mask gate; Stage 04 records incomplete Brock inputs without
+blocking otherwise eligible attribute inference or Grad-CAM.
+
+The versioned Imaging-to-Clinical contract is
+[`imaging_clinical_contract_v2.schema.json`](schemas/imaging_clinical_contract_v2.schema.json).
+It reports per-nodule stable identity, detector provenance, voxel/physical
+geometry, estimates, attribute classification, Brock status and completeness,
+quality, model versions, explanations, and artifact references. Automated
+mask validation remains mandatory; human review/attestation is optional and
+is not implied by a successful automated status. Study-level
+counts are derived from persisted raw detections, fusion/filter audits, selected
+candidate lists, and Brock prediction records. Missing files remain unknown;
+failed or blocked processing is never represented as success. Only candidates
+that pass the automated Stage 01 mask and geometry gates are emitted as
+eligible nodule rows.
+Legacy reader-rating malignancy fields are not accepted.

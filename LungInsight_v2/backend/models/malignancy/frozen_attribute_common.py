@@ -255,6 +255,20 @@ def stage03_prediction_map(
     collect_attention: bool = False,
 ) -> tuple[dict[str, float], dict[str, np.ndarray]]:
     """Predict the six frozen hybrid attributes for one raw-HU patch."""
+    predictions, _, attention = stage03_prediction_details(
+        patch_array, models, device, collect_attention=collect_attention
+    )
+    return predictions, attention
+
+
+def stage03_prediction_details(
+    patch_array: np.ndarray,
+    models: dict[str, torch.nn.Module],
+    device: torch.device,
+    *,
+    collect_attention: bool = False,
+) -> tuple[dict[str, float], dict[str, dict[str, Any]], dict[str, np.ndarray]]:
+    """Return expected ratings, ordinal output distributions, and optional attention maps."""
     MODEL_TARGETS, _, _, _, preprocess_hu = _import_model_code()
     if tuple(patch_array.shape) != EXPECTED_PATCH_SHAPE:
         raise ValueError(f"Expected a raw-HU patch shaped {EXPECTED_PATCH_SHAPE}, got {patch_array.shape}")
@@ -263,23 +277,37 @@ def stage03_prediction_map(
         raise ValueError("Patch contains NaN or infinite HU values")
     x = preprocess_hu(torch.from_numpy(np.ascontiguousarray(patch)).unsqueeze(0).unsqueeze(0)).to(device)
     attr_predictions: dict[str, float] = {}
+    attr_distributions: dict[str, dict[str, Any]] = {}
     attr_attention: dict[str, np.ndarray] = {}
     attr_index = {name: MODEL_TARGETS.index(name) for name in FEATURE_NAMES}
     with torch.inference_mode():
         for group, attrs in CHECKPOINT_GROUPS.items():
             model = models[group]
+            outputs = model(x)
+            expected = model.expected_ratings(outputs)
             if collect_attention:
-                expected, weights = forward_with_expected_ratings_and_attention(model, x)
+                _, weights = forward_with_expected_ratings_and_attention(model, x)
                 for name in attrs:
                     j = attr_index[name]
-                    attr_predictions[name] = float(expected[0, j])
                     attr_attention[name] = weights[0, j]
-            else:
-                outputs = model(x)
-                expected = model.expected_ratings(outputs)  # type: ignore[attr-defined]
-                for name in attrs:
-                    j = attr_index[name]
-                    attr_predictions[name] = float(expected[0, j].detach().cpu().item())
+            for name in attrs:
+                j = attr_index[name]
+                attr_predictions[name] = float(expected[0, j].detach().cpu().item())
+                probabilities = model.ordered_probabilities(outputs[j])[0].float()
+                probability_values = probabilities.detach().cpu().numpy().astype(np.float64)
+                probability_values /= probability_values.sum()
+                ratings = np.arange(1, len(probability_values) + 1, dtype=np.float64)
+                entropy = -float(np.sum(probability_values * np.log2(np.maximum(probability_values, 1e-12))))
+                mean = float(np.sum(probability_values * ratings))
+                variance = float(np.sum(probability_values * np.square(ratings - mean)))
+                attr_distributions[name] = {
+                    "rating_values": ratings.astype(int).tolist(),
+                    "probabilities": probability_values.astype(float).tolist(),
+                    "entropy_bits": entropy,
+                    "rating_standard_deviation": float(np.sqrt(max(variance, 0.0))),
+                    "calibrated_confidence": None,
+                    "semantics": "ordinal_model_output_distribution_not_calibrated_confidence",
+                }
     missing = [name for name in FEATURE_NAMES if name not in attr_predictions]
     if missing:
         raise RuntimeError(f"Hybrid inference omitted required feature(s): {missing}")
@@ -294,6 +322,7 @@ def stage03_prediction_map(
             raise RuntimeError(f"{name} expected rating is outside [1,{maximum}]: {val}")
     return (
         {name: attr_predictions[name] for name in FEATURE_NAMES},
+        {name: attr_distributions[name] for name in FEATURE_NAMES},
         {name: attr_attention[name] for name in FEATURE_NAMES if name in attr_attention},
     )
 

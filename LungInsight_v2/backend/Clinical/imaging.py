@@ -9,7 +9,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 CLINICAL_DIR = Path(__file__).resolve().parent
 IMAGING_SCHEMA_PATH = (
-    CLINICAL_DIR.parent / "Imaging" / "schemas" / "imaging_clinical_contract_v1.schema.json"
+    CLINICAL_DIR.parent / "Imaging" / "schemas" / "imaging_clinical_contract_v2.schema.json"
 )
 
 
@@ -61,7 +61,7 @@ def validate_imaging_evidence(
             for error in errors[:5]
         )
         raise ImagingEvidenceError(f"Imaging contract validation failed: {detail}")
-    if contract["contract_version"] != "1.0.0":
+    if contract["contract_version"] != "2.0.0":
         raise ImagingEvidenceError("Unsupported Imaging-to-Clinical contract version.")
     if contract["patient_id"] != patient_id:
         raise ImagingEvidenceError("Imaging patient_id does not match the Clinical request.")
@@ -80,8 +80,31 @@ def validate_imaging_evidence(
         _parse_aware_timestamp(scan_datetime, "scan_datetime")
 
     nodules = contract["nodules"]
+    study = contract["study"]
+    if study["processing_status"] != "completed":
+        raise ImagingEvidenceError(
+            f"Imaging processing is {study['processing_status']}; incomplete or failed studies cannot enter Clinical inference."
+        )
+    if study["preprocessing_status"] != "completed" or study["mask_validation_status"] not in {
+        "validated",
+        "validated_automated",
+        "validated_visual_review",
+    }:
+        raise ImagingEvidenceError("Imaging preprocessing and automated mask-quality validation must both be complete.")
+    if study["eligible_nodule_count"] != len(nodules):
+        raise ImagingEvidenceError("Study eligible_nodule_count does not match the persisted nodule records.")
+    brock_counts = study["brock_prediction_counts"]
+    if sum(brock_counts.values()) != len(nodules):
+        raise ImagingEvidenceError("Study Brock prediction counts do not reconcile with the nodule records.")
+    model_versions = study["provenance"]["imaging_model_versions"]
+    if not isinstance(model_versions, dict) or not model_versions:
+        raise ImagingEvidenceError("Imaging model version provenance is required.")
+    if versions != model_versions:
+        raise ImagingEvidenceError("Clinical Imaging model versions do not match the validated Imaging contract.")
     malignancy_methods: set[str] = set()
     for nodule in nodules:
+        if nodule["eligibility_status"] != "eligible":
+            raise ImagingEvidenceError("Only explicitly eligible nodules may enter Clinical inference.")
         malignancy = nodule.get("malignancy", {})
         selected = malignancy.get("selected_prediction", {}) if isinstance(malignancy, dict) else {}
         method = selected.get("method") if isinstance(selected, dict) else None
@@ -99,9 +122,9 @@ def validate_imaging_evidence(
             )
         malignancy_methods.add(method)
     diameters = [
-        float(nodule["diameter_mm"])
+        float(nodule["measurements"]["diameter_mm"])
         for nodule in nodules
-        if nodule.get("diameter_mm") is not None
+        if nodule["measurements"].get("diameter_mm") is not None
     ]
     return {
         "patient_id": contract["patient_id"],
@@ -112,6 +135,16 @@ def validate_imaging_evidence(
         "source_timestamp": evidence["source_timestamp"],
         "scan_datetime": scan_datetime,
         "gate_status": evidence["gate_status"],
+        "processing_status": study["processing_status"],
+        "preprocessing_status": study["preprocessing_status"],
+        "mask_validation_status": study["mask_validation_status"],
+        "raw_detection_counts": study["raw_detection_counts"],
+        "fused_candidate_count": study["fused_candidate_count"],
+        "excluded_candidate_count": study["excluded_candidate_count"],
+        "eligible_nodule_count": study["eligible_nodule_count"],
+        "brock_prediction_counts": brock_counts,
+        "warnings": study["warnings"],
+        "errors": study["errors"],
         "imaging_pipeline_version": pipeline_version,
         "imaging_model_versions": versions,
         "imaging_candidate_count": len(nodules),

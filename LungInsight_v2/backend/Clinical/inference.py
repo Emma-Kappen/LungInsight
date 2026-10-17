@@ -418,7 +418,7 @@ def run_inference(
         },
         "limitations": [
             "Research-only clinical decision support; not a replacement for pathology, clinician judgment, or established prediction instruments.",
-            "The active Imaging v1 contract does not itself carry timestamps or gate results; a trusted adapter must provide the required evidence envelope.",
+            "The Imaging v2 contract carries study provenance and processing-gate status, but clinical outcome prediction still requires an independently validated baseline and outcome evidence envelope.",
             "The active training cohorts do not contain aligned Imaging measurements; imaging summaries are context-only, not model predictors.",
             "No benign/cancer-negative cohort is available for cancer-presence prediction.",
         ],

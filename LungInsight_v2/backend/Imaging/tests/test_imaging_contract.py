@@ -27,7 +27,10 @@ def sample_inputs():
             "candidate_id": "nodule-stable-001",
             "detector": {
                 "source": "Merged",
-                "source_members": [{"candidate_id": "v1"}, {"candidate_id": "l1"}],
+                "source_members": [
+                    {"candidate_id": "v1", "source": "ViTDet3D"},
+                    {"candidate_id": "l1", "source": "LoG"},
+                ],
                 "vitdet_score": 0.83,
                 "log_score": 2.75,
             },
@@ -115,9 +118,12 @@ class ImagingContractTests(unittest.TestCase):
         self.assertEqual(nodule["bbox_lps_mm"]["min_lps_mm"], [12.0, 26.0, 42.0])
         self.assertEqual(nodule["bbox_lps_mm"]["max_lps_mm"], [16.0, 32.0, 50.0])
         self.assertEqual(
-            nodule["attributes"]["internal_structure"]["status"],
+            nodule["classification"]["attributes"]["internal_structure"]["status"],
             "unsupported_checkpoint_contract",
         )
+        self.assertEqual(contract["contract_version"], "2.0.0")
+        self.assertEqual(nodule["detection_sources"], ["LoG", "ViTDet3D"])
+        self.assertEqual(contract["study"]["eligible_nodule_count"], 1)
 
     def test_missing_checkpoint_supported_attribute_is_rejected(self):
         meta, stage06 = sample_inputs()
@@ -184,6 +190,12 @@ class ImagingContractTests(unittest.TestCase):
             "feature_contributions": [{"feature": "intercept", "contribution_logit": -6.7892}],
             "limitations": ["Research risk estimate; not a pathology diagnosis."],
         }
+        stage06["records"][0]["malignancy"]["selected_prediction"].update({
+            "status": "available",
+            "probability": 0.42,
+            "value": 0.42,
+            "missing_inputs": [],
+        })
         contract = build_contract(patient_id="patient-001", meta=meta, stage06=stage06)
         self.assertEqual(contract["nodules"][0]["malignancy"]["brock"]["probability"], 0.42)
 

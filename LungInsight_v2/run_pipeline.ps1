@@ -4,14 +4,13 @@ param(
     [ValidateNotNullOrEmpty()]
     [string]$PatientId = 'LIDC-IDRI-0001',
     [Parameter()]
-    [ValidateRange(0, 2147483647)]
-    [int]$LogPatchLimit = 100,
-    [Parameter()]
     [switch]$ResumeFromStage02,
     [Parameter()]
     [switch]$RegenerateStage01,
     [Parameter()]
     [string]$InputPatientPath,
+    [Parameter()]
+    [string]$BrockInputs,
     [Parameter()]
     [switch]$NoGui
 )
@@ -61,6 +60,7 @@ Push-Location $RepoRoot
 $RunStartedAt = [DateTime]::UtcNow
 $RunSteps = [System.Collections.Generic.List[object]]::new()
 $RunFailure = $null
+$ContractFinalizationFailure = $null
 $RunStatus = 'failed'
 if ($ResumeFromStage02 -and $RegenerateStage01) {
     Pop-Location
@@ -76,7 +76,7 @@ try {
     if (-not $ResumeFromStage02) {
         if (Test-Path -LiteralPath $PatientOutput -PathType Container) {
             if (-not $RegenerateStage01) {
-                throw "Refusing to overwrite existing patient outputs at $PatientOutput. Back up the outputs, then explicitly use -RegenerateStage01; or use -ResumeFromStage02 only after a valid current review attestation exists."
+                throw "Refusing to overwrite existing patient outputs at $PatientOutput. Back up the outputs, then explicitly use -RegenerateStage01; or use -ResumeFromStage02 only when existing Stage 01 artifacts pass automated validation."
             }
             $BackupName = 'pre_stage01_backup_' + [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssZ')
             $BackupDirectory = Join-Path $PatientOutput $BackupName
@@ -99,70 +99,40 @@ try {
         $Stage01Input = if ($InputPatientPath) { $InputPatientPath } else { $PatientId }
         Invoke-PythonStep 'Stage 01 - HU conversion, masks, crop, and review overlays' @('.\backend\Imaging\01_hu_and_crop.py', $Stage01Input)
     } else {
-        Write-Host 'Resume requested: Stage 01 will not be rerun; existing files must match the saved review attestation.' -ForegroundColor Yellow
+        Write-Host 'Resume requested: Stage 01 will not be rerun; existing Stage 01 artifacts must pass automated validation.' -ForegroundColor Yellow
     }
     Require-File (Join-Path $PatientOutput ([string]$Schema.stage_01_hu_and_crop.filenames.'meta.json'))
     Require-File (Join-Path $PatientOutput ([string]$Schema.stage_01_hu_and_crop.filenames.'volume_hu_cropped.npy'))
     Require-File (Join-Path $PatientOutput ([string]$Schema.stage_01_hu_and_crop.filenames.'heart_mask_review_metrics.json'))
-    $ReviewAttestation = Join-Path $PatientOutput ([string]$Schema.stage_01_hu_and_crop.filenames.'heart_mask_review_attestation.json')
-    if (-not (Test-Path -LiteralPath $ReviewAttestation -PathType Leaf)) {
-        $MontagePattern = [string]$Schema.stage_01_hu_and_crop.filenames.heart_mask_review_montage_pattern
-        Write-Host "Review every montage under $PatientOutput matching $MontagePattern" -ForegroundColor Yellow
-        Write-Host "After review, create the operator attestation with:" -ForegroundColor Yellow
-        Write-Host "& `"$Python`" .\backend\Imaging\attest_heart_mask_review.py --patient-id `"$PatientId`" --reviewer `"YOUR_NAME`" --confirm-review" -ForegroundColor Yellow
-        throw "Stage 02 is blocked until the current Stage 01 masks and review overlays have a valid human attestation. Re-run with -ResumeFromStage02 after attesting."
-    }
-    Invoke-PythonStep 'Verify hash-bound human review of Stage 01 heart/lung masks' @('.\backend\Imaging\attest_heart_mask_review.py', '--patient-id', $PatientId, '--validate-only')
-
     $Stage02Arguments = @('.\backend\Imaging\02_detect_and_patch.py', $PatientId, '--device', 'cpu')
-    if ($LogPatchLimit -gt 0) { $Stage02Arguments += @('--log-patch-limit', [string]$LogPatchLimit) }
-    else { $Stage02Arguments += '--all-log-patches' }
-    Invoke-PythonStep 'Stage 02 - detection and patch extraction (CPU; separate LoG diagnostic manifest)' $Stage02Arguments
+    Invoke-PythonStep 'Stage 02 - fused detection, lung-mask gate, and patch extraction (CPU)' $Stage02Arguments
     Require-File (Join-Path $PatientOutput ([string]$Schema.stage_02_detect_and_patch.patch_outputs.manifest))
-    Require-File (Join-Path $PatientOutput ([string]$Schema.stage_02_detect_and_patch.diagnostic_patch_outputs.manifest))
 
-    Invoke-PythonStep 'Stage 03 - frozen attribute inference (CPU; authoritative + LoG diagnostics)' @('.\backend\Imaging\03_nodule_classification.py', '--patient-id', $PatientId, '--device', 'cpu')
-    # Stage 03 writes both authoritative and LoG predictions inside its own directory.
-    # Keep the stage directory sourced from meta_schema.json to avoid probing the patient root.
+    Invoke-PythonStep 'Stage 03 - frozen attribute inference for selected fused candidates (CPU)' @('.\backend\Imaging\03_nodule_classification.py', '--patient-id', $PatientId, '--device', 'cpu')
     $Stage03Dir = Join-Path $PatientOutput ([string]$Schema.paths.stage_03.directory)
     $PrimaryStage03 = Join-Path $Stage03Dir ([string]$Schema.stage_03_nodule_classification.outputs.predictions_json)
-    $LogStage03 = Join-Path $Stage03Dir ([string]$Schema.stage_03_nodule_classification.outputs.log_diagnostic_predictions_json)
     Require-File $PrimaryStage03
-    Require-File $LogStage03
 
-    Invoke-PythonStep 'Stage 04 - primary Brock/PanCan malignancy-risk inference' @('.\backend\Imaging\04_malignancy_prediction.py', $PatientId)
+    $Stage04Arguments = @('.\backend\Imaging\04_malignancy_prediction.py', $PatientId)
+    if ($BrockInputs) {
+        if (-not (Test-Path -LiteralPath $BrockInputs -PathType Leaf)) { throw "Brock input envelope does not exist: $BrockInputs" }
+        $Stage04Arguments += @('--brock-inputs', (Resolve-Path -LiteralPath $BrockInputs).Path)
+    }
+    Invoke-PythonStep 'Stage 04 - Brock/PanCan malignancy-risk inference' $Stage04Arguments
     $Stage04Dir = Join-Path $PatientOutput ([string]$Schema.paths.stage_04.directory)
     $PrimaryStage04 = Join-Path $Stage04Dir ([string]$Schema.paths.stage_04.output_json)
     Require-File $PrimaryStage04
 
-    $LogStage04Name = [string]$Schema.paths.stage_04.log_diagnostic_output_json
-    if ([string]::IsNullOrWhiteSpace($LogStage04Name)) { throw 'meta_schema.json paths.stage_04.log_diagnostic_output_json is missing.' }
-    $LogStage04 = Join-Path $Stage04Dir $LogStage04Name
-    Invoke-PythonStep 'Stage 04 - Brock/PanCan malignancy-risk inference for LoG diagnostics' @('.\backend\Imaging\04_malignancy_prediction.py', '--predictions', $LogStage03, '--output', $LogStage04)
-    Require-File $LogStage04
-
     $PrimaryManifest = Join-Path $PatientOutput ([string]$Schema.stage_02_detect_and_patch.patch_outputs.manifest)
     $PrimaryCamRoot = Join-Path $PatientOutput ([string]$Schema.paths.stage_05.directory)
-    Invoke-PythonStep 'Stage 05 - Grad-CAM for all accepted authoritative patches (CPU)' @('.\backend\Imaging\05_gradcam.py', '--patient-id', $PatientId, '--manifest', $PrimaryManifest, '--output-dir', $PrimaryCamRoot, '--batch-limit', '0')
-    $PrimaryCamRequired = Join-Path $PrimaryCamRoot 'patch_000\gradcam_subtlety_rainbow_scaled.npy'
-    Require-File $PrimaryCamRequired
-
-    $LogManifestRelative = [string]$Schema.stage_03_nodule_classification.inputs.log_diagnostic_patch_manifest
-    $LogManifest = Join-Path $PatientOutput $LogManifestRelative
-    $LogCamRoot = Join-Path $PatientOutput ([string]$Schema.paths.stage_05.log_diagnostic_directory)
-    Invoke-PythonStep 'Stage 05 - batch Grad-CAM for selected LoG patches (CPU)' @('.\backend\Imaging\05_gradcam.py', '--patient-id', $PatientId, '--manifest', $LogManifest, '--output-dir', $LogCamRoot, '--batch-limit', [string]$LogPatchLimit)
-    Require-File (Join-Path $LogCamRoot 'patch_000\gradcam_subtlety_rainbow_scaled.npy')
+    Invoke-PythonStep 'Stage 05 - Grad-CAM for all eligible fused candidates (CPU)' @('.\backend\Imaging\05_gradcam.py', '--patient-id', $PatientId, '--manifest', $PrimaryManifest, '--output-dir', $PrimaryCamRoot, '--batch-limit', '0')
+    Require-File (Join-Path $PrimaryCamRoot ([string]$Schema.stage_05_gradcam.filenames.acceptance_audit))
 
     Invoke-PythonStep 'Stage 06 - full-CT Grad-CAM projection for authoritative patches' @('.\backend\Imaging\06_full_ct_gradcam.py', '--patient-id', $PatientId)
     $PrimaryStage06 = Join-Path $PatientOutput ([string]$Schema.paths.stage_06.directory)
     Require-File (Join-Path $PrimaryStage06 ([string]$Schema.stage_06_full_ct_gradcam.report_filename))
     $PrimaryNoduleRecords = Join-Path $PrimaryStage06 ([string]$Schema.stage_06_full_ct_gradcam.record_filename)
     Require-File $PrimaryNoduleRecords
-
-    $LogStage06 = Join-Path $PatientOutput ([string]$Schema.paths.stage_06.log_diagnostic_directory)
-    Invoke-PythonStep 'Stage 06 - full-CT Grad-CAM projection for LoG diagnostics' @('.\backend\Imaging\06_full_ct_gradcam.py', '--patient-id', $PatientId, '--manifest', $LogManifest, '--cam-root', $LogCamRoot, '--output-dir', $LogStage06)
-    Require-File (Join-Path $LogStage06 ([string]$Schema.stage_06_full_ct_gradcam.report_filename))
-    Require-File (Join-Path $LogStage06 ([string]$Schema.stage_06_full_ct_gradcam.record_filename))
 
     $Stage07Args = @('.\backend\Imaging\07_visualize.py', '--patient-id', $PatientId)
     if ($NoGui) { $Stage07Args += '--no-gui' }
@@ -172,12 +142,7 @@ try {
     Require-File (Join-Path $Stage07Root ([string]$Schema.paths.stage_07.report_csv))
     Require-File (Join-Path $Stage07Root ([string]$Schema.paths.stage_07.excluded_csv))
 
-    Write-Host "`nPipeline completed for $PatientId." -ForegroundColor Green
-    if ($LogPatchLimit -eq 0) { Write-Host 'All LoG diagnostic candidates selected by Stage 02 were processed.' }
-    else { Write-Host "LoG diagnostic patch limit: $LogPatchLimit" }
-    Write-Host "Nodule report: $(Join-Path $Stage07Root ([string]$Schema.paths.stage_07.report_json))"
-    Write-Host "Nodule CSV:    $(Join-Path $Stage07Root ([string]$Schema.paths.stage_07.report_csv))"
-    Write-Host "Excluded CSV:  $(Join-Path $Stage07Root ([string]$Schema.paths.stage_07.excluded_csv))"
+    Write-Host "`nAll imaging stages completed; publishing final run status and contract."
     $RunStatus = 'completed'
 }
 catch {
@@ -192,20 +157,20 @@ finally {
         $Stage02Root = Join-Path $SummaryDirectory ([string]$Schema.paths.stage_02.directory)
         $Stage03Root = Join-Path $SummaryDirectory ([string]$Schema.paths.stage_03.directory)
         $Stage04Root = Join-Path $SummaryDirectory ([string]$Schema.paths.stage_04.directory)
+        $Stage05Root = Join-Path $SummaryDirectory ([string]$Schema.paths.stage_05.directory)
         $Stage06Root = Join-Path $SummaryDirectory ([string]$Schema.paths.stage_06.directory)
-        $LogStage06Root = Join-Path $SummaryDirectory ([string]$Schema.paths.stage_06.log_diagnostic_directory)
         $Stage07Root = Join-Path $SummaryDirectory ([string]$Schema.paths.stage_07.directory)
         $ExpectedOutputs = @(
             (Join-Path $SummaryDirectory ([string]$Schema.stage_01_hu_and_crop.filenames.'meta.json')),
             (Join-Path $SummaryDirectory ([string]$Schema.stage_01_hu_and_crop.filenames.'volume_hu_cropped.npy')),
-            (Join-Path $SummaryDirectory ([string]$Schema.stage_01_hu_and_crop.filenames.'heart_mask_review_attestation.json')),
             (Join-Path $Stage02Root ([string]$Schema.stage_02_detect_and_patch.filenames.candidate_filter_report)),
             (Join-Path $SummaryDirectory ([string]$Schema.stage_02_detect_and_patch.patch_outputs.manifest)),
             (Join-Path $Stage03Root ([string]$Schema.stage_03_nodule_classification.outputs.predictions_json)),
             (Join-Path $Stage04Root ([string]$Schema.paths.stage_04.output_json)),
+            (Join-Path $Stage05Root ([string]$Schema.stage_05_gradcam.filenames.acceptance_audit)),
             (Join-Path $Stage06Root ([string]$Schema.stage_06_full_ct_gradcam.report_filename)),
             (Join-Path $Stage06Root ([string]$Schema.stage_06_full_ct_gradcam.record_filename)),
-            (Join-Path $LogStage06Root ([string]$Schema.stage_06_full_ct_gradcam.record_filename)),
+            (Join-Path $SummaryDirectory ([string]$Schema.imaging_clinical_contract.filename)),
             (Join-Path $Stage07Root ([string]$Schema.paths.stage_07.report_json)),
             (Join-Path $Stage07Root ([string]$Schema.paths.stage_07.report_csv))
         )
@@ -284,6 +249,7 @@ finally {
                 dicom_patient_directory = Join-Path (Join-Path $RepoRoot ([string]$Schema.stage_01_hu_and_crop.input_root_from_project_root)) $PatientId
                 stage01_output_directory = Join-Path $SummaryRoot $PatientId
                 schema = (Join-Path $RepoRoot 'meta_schema.json')
+                brock_inputs = if ($BrockInputs) { (Resolve-Path -LiteralPath $BrockInputs).Path } else { $null }
             }
             outputs = @($ExpectedOutputs | ForEach-Object {
                 [ordered]@{ path = $_; exists = [bool](Test-Path -LiteralPath $_ -PathType Leaf) }
@@ -295,6 +261,39 @@ finally {
         }
         $RunSummary | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $SummaryPath -Encoding UTF8
         Write-Host "Run summary: $SummaryPath"
+        if ($RunStatus -eq 'completed') {
+            $ContractFinalizer = 'import sys; from pathlib import Path; from backend.Imaging.api.contract import create_contract_file; root = Path(sys.argv[1]); create_contract_file(root, sys.argv[2], Path(sys.argv[3]), processing_status="completed")'
+            try {
+                Invoke-PythonStep 'Publish completed Imaging-to-Clinical contract' @(
+                    '-c',
+                    $ContractFinalizer,
+                    $SummaryDirectory,
+                    $PatientId,
+                    $Stage06RecordPath
+                )
+            } catch {
+                $RunStatus = 'failed'
+                $ContractFinalizationFailure = $_.Exception.Message
+                $RunFailure = $ContractFinalizationFailure
+            }
+            $RunSummary.status = $RunStatus
+            $RunSummary.failure = $RunFailure
+            $RunSummary.steps = @($RunSteps.ToArray())
+            $RunSummary.completed_at_utc = [DateTime]::UtcNow.ToString('o')
+            $RunSummary.outputs = @($ExpectedOutputs | ForEach-Object {
+                [ordered]@{ path = $_; exists = [bool](Test-Path -LiteralPath $_ -PathType Leaf) }
+            })
+            $RunSummary | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $SummaryPath -Encoding UTF8
+            if ($RunStatus -eq 'completed') {
+                Write-Host "`nPipeline completed for $PatientId." -ForegroundColor Green
+                Write-Host "Nodule report: $(Join-Path $Stage07Root ([string]$Schema.paths.stage_07.report_json))"
+                Write-Host "Nodule CSV:    $(Join-Path $Stage07Root ([string]$Schema.paths.stage_07.report_csv))"
+                Write-Host "Excluded CSV:  $(Join-Path $Stage07Root ([string]$Schema.paths.stage_07.excluded_csv))"
+            }
+        }
     }
     Pop-Location
+    if ($ContractFinalizationFailure) {
+        throw "Completed pipeline contract finalization failed: $ContractFinalizationFailure"
+    }
 }

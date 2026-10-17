@@ -84,6 +84,7 @@ def validate_schema_contracts(schema: dict[str, Any]) -> list[str]:
         "heart_mask_review_montage_pattern",
         "heart_mask_review_metrics.json",
         "heart_mask_review_attestation.json",
+        "mask_quality_report.json",
     ):
         _assert(isinstance(stage1_files.get(key), str) and bool(stage1_files[key]),
                 f"Stage 01 review output filename {key!r} is missing.")
@@ -92,6 +93,8 @@ def validate_schema_contracts(schema: dict[str, Any]) -> list[str]:
             "Stage 01 review_qc.slices_per_montage must be positive.")
     _assert(int(get_required(review_qc, "columns")) > 0,
             "Stage 01 review_qc.columns must be positive.")
+    _assert("mask_quality" in get_required(schema, "stage_01_hu_and_crop", expected_type=dict),
+            "Stage 01 metadata must report aggregate mask quality.")
     passed.append("Stage 01 review montage, per-slice metrics, and hash-bound attestation paths are defined.")
     stage2_input = get_required(schema, "stage_02_detect_and_patch.input_volume.filename_key", expected_type=str)
     _assert(stage2_input in stage1_files, f"Stage 02 input volume filename_key {stage2_input!r} is not defined by Stage 01.")
@@ -132,16 +135,17 @@ def validate_schema_contracts(schema: dict[str, Any]) -> list[str]:
             "Stage 03 diagnostic predictions output filename is missing.")
     _assert(bool(get_required(schema, "stage_03_nodule_classification.outputs.log_diagnostic_predictions_csv", expected_type=str)),
             "Stage 03 diagnostic CSV output filename is missing.")
-    _assert(bool(get_required(schema, "stage_02_detect_and_patch.diagnostic_log_detector.stage03_attribute_inference_enabled_by_default", expected_type=bool))
-            == bool(get_required(schema, "stage_03_nodule_classification.inputs.process_log_diagnostic_default", expected_type=bool)),
-            "Stage 02 LoG-to-Stage 03 default settings disagree.")
-    passed.append("Optional LoG audit artifacts remain isolated while validated LoG proposals enter the fused production manifest.")
+    _assert(get_required(schema, "stage_03_nodule_classification.inputs.process_log_diagnostic_default", expected_type=bool) is False,
+            "The legacy separate LoG manifest must not create a second Stage 03 inference stream.")
+    _assert(get_required(schema, "stage_02_detect_and_patch.diagnostic_log_detector.stage03_attribute_inference_enabled_by_default", expected_type=bool) is True,
+            "LoG candidates represented in the fused primary manifest must remain eligible for Stage 03 inference.")
+    passed.append("LoG candidates use the fused primary Stage 03–06 path; the legacy separate LoG inference stream stays disabled.")
 
     stage2_filter = get_required(schema, "stage_02_detect_and_patch.candidate_acceptance_filter", expected_type=dict)
     _assert(stage2_filter.get("require_nonempty_heart_mask") is True,
             "Production candidate filtering must fail closed on an empty heart mask.")
-    _assert(stage2_filter.get("require_human_review_attestation") is True,
-            "Production candidate filtering must require a human review attestation.")
+    _assert(stage2_filter.get("require_human_review_attestation") is False,
+            "Human review attestations must be optional for prototype processing.")
     for key in (
         "candidate_filter_report",
         "rejected_candidates_audit",
@@ -150,7 +154,7 @@ def validate_schema_contracts(schema: dict[str, Any]) -> list[str]:
     ):
         _assert(bool(get_required(schema, f"stage_02_detect_and_patch.filenames.{key}", expected_type=str)),
                 f"Stage 02 is missing the configured output filename {key!r}.")
-    passed.append("Stage 02 requires reviewed heart-mask gating before authoritative or diagnostic patch extraction.")
+    passed.append("Stage 02 requires automated nonempty heart-mask and geometry validation; visual review is optional.")
 
     stage3_inputs = get_required(schema, "stage_03_nodule_classification.inputs", expected_type=dict)
     stage3_shape = tuple(get_required(stage3_inputs, "patch_shape_zyx", expected_type=list))
@@ -176,7 +180,21 @@ def validate_schema_contracts(schema: dict[str, Any]) -> list[str]:
             "Stage 04 Brock model version is missing.")
     paths4 = get_required(schema, "paths.stage_04", expected_type=dict)
     _assert(paths4["directory"] and paths4["output_json"].endswith(".json"), "Stage 04 output path config is invalid.")
+    stage3_source = pipeline_script_path("03_nodule_classification.py").read_text(encoding="utf-8-sig")
+    stage4_source = pipeline_script_path("04_malignancy_prediction.py").read_text(encoding="utf-8-sig")
+    stage5_source = pipeline_script_path("05_gradcam.py").read_text(encoding="utf-8-sig")
+    stage6_source = pipeline_script_path("06_full_ct_gradcam.py").read_text(encoding="utf-8-sig")
+    _assert("load_validated_stage02" in stage3_source and 'record["stage04_eligible"] = True' in stage3_source,
+            "Stage 03 must revalidate the selected Stage 02 mask gate before classifying patches.")
+    _assert("record.get(\"stage04_eligible\") is not True" in stage4_source,
+            "Stage 04 must exclude records without explicit downstream eligibility.")
+    _assert("load_validated_stage02" in stage4_source and "load_validated_stage02" in stage5_source
+            and "load_validated_stage02" in stage6_source,
+            "Stages 04–06 must recheck the selected Stage 02 candidates and lung mask.")
     passed.append("Stage 04 is configured for Brock-only research risk inference; no reader-rating model or fallback is configured.")
+    stage5_filenames = get_required(schema, "stage_05_gradcam.filenames", expected_type=dict)
+    _assert(bool(get_required(stage5_filenames, "acceptance_audit", expected_type=str)),
+            "Stage 05 must define its acceptance audit output filename.")
 
     stage06_fields = get_required(schema, "stage_06_full_ct_gradcam.record_required_fields", expected_type=list)
     _assert(
@@ -317,20 +335,21 @@ def main() -> int:
     messages.append("Stage 05 Grad-CAM patch shape is schema-driven and the six requested attributes are validated as a subset of the frozen model targets.")
 
     stage2_source = pipeline_script_path("02_detect_and_patch.py").read_text(encoding="utf-8-sig")
-    review_check = stage2_source.index("review_attestation = validate_review_attestation(")
     detector_call = stage2_source.index("raw_detections = run_vitdet3d_raw(")
+    log_detector_call = stage2_source.index("log_candidates = run_log_detector(")
+    merge_call = stage2_source.index("fused_candidates, fusion_report = merge_detections(")
     candidate_gate = stage2_source.index(
         "accepted_candidates, rejected_candidates, candidate_filter_report = filter_detections_by_lung_mask("
     )
+    top50_selection = stage2_source.index("selected_candidates = select_fused_candidates(accepted_candidates, limit=50)")
     accepted_patch_call = stage2_source.index("records = extract_all(")
-    log_gate = stage2_source.index(
-        "accepted_log_candidates, rejected_log_candidates, log_filter_report = filter_detections_by_lung_mask("
-    )
-    log_patch_call = stage2_source.index("log_records = extract_all(")
-    _assert(review_check < detector_call, "Stage 02 must validate the current Stage 01 review before detector inference.")
-    _assert(candidate_gate < accepted_patch_call, "Stage 02 must gate authoritative candidates before patch extraction.")
-    _assert(log_gate < log_patch_call, "Stage 02 must gate LoG proposals before diagnostic patch extraction.")
-    messages.append("Stage 02 review, authoritative-candidate, and LoG gates precede detector/patch downstream boundaries.")
+    _assert(detector_call < log_detector_call < merge_call < candidate_gate < top50_selection < accepted_patch_call,
+            "Stage 02 must run both detectors, fuse their union, gate fused candidates, then apply top-50 before extraction.")
+    _assert(stage2_source.count("= filter_detections_by_lung_mask(") == 1,
+            "Stage 02 must apply one shared lung/heart gate after detector fusion.")
+    _assert('"validated_automated"' in stage2_source and 'mask_quality.get("problems") != []' in stage2_source,
+            "Stage 02 must block when Stage 01 aggregate mask validation is incomplete.")
+    messages.append("Stage 02 validates Stage 01 masks, fuses both detector unions, applies one shared geometry/mask gate, and limits eligible patches.")
 
     # Optional LoG-specific paths remain for audit compatibility; production inference uses the fused Stage 02 manifest.
     stage4_log_output = get_required(schema, "paths.stage_04.log_diagnostic_output_json", expected_type=str)
@@ -374,18 +393,23 @@ def main() -> int:
     fusion_source = (IMAGING / "lunginsight_candidate_fusion.py").read_text(encoding="utf-8-sig")
     _assert("def select_fused_candidates(" in fusion_source and "def merge_detections(" in fusion_source,
             "Candidate fusion must deduplicate the detector union and select from the fused set.")
-    merge_at = stage2_source.index("fused_candidates, fusion_report = merge_detections(")
-    select_at = stage2_source.index("candidate_dicts = select_fused_candidates(fused_candidates, limit=50)")
-    _assert(merge_at < select_at, "Stage 02 must select Top-50 only after detector fusion and deduplication.")
+    fusion_policy = get_required(schema, "stage_02_detect_and_patch.candidate_fusion", expected_type=dict)
+    _assert("equal-weight" in str(fusion_policy.get("geometry_conflict_rule", "")).lower(),
+            "Fusion geometry policy must preserve equal standing for the two detector sources.")
+    _assert(int(fusion_policy.get("eligible_limit", 0)) == 50,
+            "The fused-candidate eligible limit must preserve the established top-50 behavior.")
+    _assert("fusion_rank_percentile" in fusion_source,
+            "Top-50 selection must use within-detector normalized percentiles rather than detector-specific priority.")
     _assert("DETECTION_FUSION_AUDIT.md" in stage2_source and "stable_nodule_id" in fusion_source,
             "Stage 02 fusion audit and stable nodule identity must be present.")
-    _assert("filter_accepted_patches(" in stage5_source and "stage05_acceptance_audit.json" in stage5_source,
+    _assert("filter_accepted_patches(" in stage5_source
+            and 'STAGE05_SCHEMA["filenames"]["acceptance_audit"]' in stage5_source,
             "Stage 05 must block Grad-CAM inference for candidates not accepted by Stage 04.")
-    _assert("create_contract_file(patient_root, args.patient_id, record_path)" in stage6_source,
+    _assert("create_contract_file(" in stage6_source,
             "Stage 06 must generate the validated imaging contract from its actual records.")
     _assert("generate_patient_report(" in stage7_source,
             "Stage 07 must generate static patient HTML reports.")
-    contract_schema_path = IMAGING / "schemas" / "imaging_clinical_contract_v1.schema.json"
+    contract_schema_path = IMAGING / "schemas" / "imaging_clinical_contract_v2.schema.json"
     openapi_path = IMAGING / "api" / "openapi.json"
     _assert(contract_schema_path.is_file() and openapi_path.is_file(),
             "The versioned imaging contract schema and OpenAPI document must exist.")

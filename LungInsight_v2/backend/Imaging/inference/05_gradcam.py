@@ -1,5 +1,6 @@
 from pathlib import Path
 import argparse
+import hashlib
 import json
 import sys
 
@@ -25,6 +26,7 @@ if str(V2_ROOT) not in sys.path:
     sys.path.insert(0, str(V2_ROOT))
 from pipeline_schema import get_required, load_schema, check_meta_schema_version, validate_stage_version
 from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+from stage02_eligibility import load_validated_stage02
 
 SCHEMA = load_schema(__file__)
 STAGE05_SCHEMA = get_required(SCHEMA, "stage_05_gradcam", expected_type=dict)
@@ -497,7 +499,8 @@ def filter_accepted_patches(
         identity = (candidate_id, patch_id)
         if identity in scored:
             raise ValueError(f"Stage 04 contains duplicate accepted candidate identity {identity}.")
-        scored[identity] = stable_id
+        if prediction.get("stage04_eligible") is True:
+            scored[identity] = stable_id
 
     invalid_by_candidate = {
         str(item.get("candidate_id")): item.get("reason")
@@ -633,6 +636,7 @@ def main():
         raise ValueError(f"{manifest_path}: accepted patch records must carry stable_nodule_id.")
     if len({item["stable_nodule_id"] for item in manifest_patches}) != len(manifest_patches):
         raise ValueError(f"{manifest_path}: stable_nodule_id values must be unique.")
+    _, manifest_patches, _ = load_validated_stage02(patient_root, manifest_path)
 
     if args.patch:
         requested_patch = Path(args.patch).expanduser().resolve()
@@ -652,13 +656,21 @@ def main():
         raise ValueError(f"Malformed Stage 04 predictions {stage04_path}: {exc}") from exc
     if not isinstance(stage04_payload, dict) or not isinstance(stage04_payload.get("predictions"), list):
         raise ValueError(f"{stage04_path}: expected a predictions list.")
+    if stage04_payload.get("stage02_manifest_sha256") != hashlib.sha256(manifest_path.read_bytes()).hexdigest():
+        raise RuntimeError("Stage 04 predictions are not bound to the current Stage 02 manifest.")
+    source_predictions = Path(str(stage04_payload.get("source_predictions_json", ""))).resolve()
+    if (
+        not source_predictions.is_file()
+        or stage04_payload.get("source_predictions_sha256") != hashlib.sha256(source_predictions.read_bytes()).hexdigest()
+    ):
+        raise RuntimeError("Stage 04 predictions are not bound to the current Stage 03 predictions file.")
     accepted_patches, rejected_patches = filter_accepted_patches(
         manifest_patches,
         stage04_payload["predictions"],
         stage04_payload.get("invalid_candidates", []),
     )
     output_dir.mkdir(parents=True, exist_ok=True)
-    audit_path = output_dir / "stage05_acceptance_audit.json"
+    audit_path = output_dir / str(STAGE05_SCHEMA["filenames"]["acceptance_audit"])
     if args.batch_limit:
         selected_patches = accepted_patches[:args.batch_limit]
     else:
@@ -666,6 +678,7 @@ def main():
     audit_path.write_text(json.dumps({
         "schema_version": SCHEMA["schema_version"],
         "stage": "05_gradcam",
+        "status": "completed" if selected_patches else "no_eligible_candidates",
         "patient_id": args.patient_id,
         "stage02_manifest": str(manifest_path),
         "stage04_predictions": str(stage04_path.resolve()),
@@ -675,6 +688,11 @@ def main():
         "rejected_candidates": rejected_patches,
         "accepted_nodule_ids": [record["stable_nodule_id"] for record in selected_patches],
     }, indent=2, allow_nan=False), encoding="utf-8")
+    if rejected_patches:
+        raise RuntimeError(
+            f"Stage 05 found {len(rejected_patches)} selected Stage 02 patch(es) without explicit Stage 04 eligibility. "
+            f"See acceptance audit: {audit_path}"
+        )
     if not selected_patches:
         print(f"No Stage 04-accepted nodules require Grad-CAM. Audit: {audit_path}")
         stage_complete(5, "05")

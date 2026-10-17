@@ -27,6 +27,13 @@
                   <input name="patient_id" autocomplete="off" required maxlength="128">
                 </label>
               </div>
+              <div class="upload-actions">
+                <button id="load-studies" class="secondary" type="button">Find saved studies</button>
+                <button id="load-clinical-record" class="secondary" type="button">Load saved clinical information</button>
+                <button id="save-clinical-record" class="secondary" type="button">Save clinical information</button>
+              </div>
+              <div id="saved-studies" class="saved-studies" aria-live="polite"></div>
+              <div id="clinical-record-status" class="status" role="status" aria-live="polite"></div>
               <p class="hint">The prediction timestamp is generated automatically in UTC when the run starts. This interface does not collect pathology-confirmed diagnosis as an inference input.</p>
             </fieldset>
           </li>
@@ -56,15 +63,125 @@
                 <label>Age at baseline (years)
                   <input name="age" type="number" min="18" max="120" step="1">
                 </label>
+                <label>Age information
+                  <select name="age_status">
+                    <option value="reported">Reported</option>
+                    <option value="unknown">Unknown</option>
+                    <option value="not_reported">Not reported</option>
+                  </select>
+                </label>
                 <label>Sex as recorded
                   <select name="sex">
-                    <option value="">Not supplied</option>
+                    <option value="not_reported">Not reported</option>
+                    <option value="unknown">Unknown</option>
                     <option value="female">Female</option>
                     <option value="male">Male</option>
                     <option value="other_or_unspecified">Other / unspecified</option>
                   </select>
                 </label>
+                <label>Race (distinct from ethnicity)
+                  <select name="race">
+                    <option value="not_reported">Not reported</option>
+                    <option value="unknown">Unknown</option>
+                    <option value="american_indian_or_alaska_native">American Indian or Alaska Native</option>
+                    <option value="asian">Asian</option>
+                    <option value="black_or_african_american">Black or African American</option>
+                    <option value="native_hawaiian_or_pacific_islander">Native Hawaiian or Pacific Islander</option>
+                    <option value="white">White</option>
+                    <option value="multiple">Multiple races</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+                <label>Ethnicity
+                  <select name="ethnicity">
+                    <option value="not_reported">Not reported</option>
+                    <option value="unknown">Unknown</option>
+                    <option value="hispanic_or_latino">Hispanic or Latino</option>
+                    <option value="not_hispanic_or_latino">Not Hispanic or Latino</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
               </div>
+              <div class="field-grid">
+                <label>Smoking status
+                  <select name="smoking_status">
+                    <option value="not_reported">Not reported</option>
+                    <option value="unknown">Unknown</option>
+                    <option value="never">Never smoked</option>
+                    <option value="former">Former smoker</option>
+                    <option value="current">Current smoker</option>
+                  </select>
+                </label>
+                <label>Years smoked
+                  <input name="years_smoked" type="number" min="0" max="100" step="0.1">
+                </label>
+                <label>Years smoked information
+                  <select name="years_smoked_status">
+                    <option value="not_reported">Not reported</option>
+                    <option value="unknown">Unknown</option>
+                    <option value="reported">Reported</option>
+                  </select>
+                </label>
+                <label>Average packs per day
+                  <input name="packs_per_day" type="number" min="0" max="20" step="0.1">
+                </label>
+                <label>Packs per day information
+                  <select name="packs_per_day_status">
+                    <option value="not_reported">Not reported</option>
+                    <option value="unknown">Unknown</option>
+                    <option value="reported">Reported</option>
+                  </select>
+                </label>
+                <label>Years since quitting (former smokers)
+                  <input name="years_since_cessation" type="number" min="0" max="100" step="0.1">
+                </label>
+              </div>
+              <p class="hint">Calculated pack-years: <output id="pack-years">Unavailable</output>. Pack-years are calculated as years smoked × average packs per day; no smoking history is inferred from dataset-derived smoking predictions.</p>
+              <label>Family history of lung cancer
+                <select name="family_history_lung_cancer">
+                  <option value="not_reported">Not reported</option>
+                  <option value="unknown">Unknown</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </label>
+              <fieldset class="nested-fields">
+                <legend>Relevant medical history</legend>
+                <label>History information
+                  <select name="medical_history_status">
+                    <option value="not_reported">Not reported</option>
+                    <option value="unknown">Unknown</option>
+                    <option value="reported">Reviewed / reported</option>
+                  </select>
+                </label>
+                <div class="checkbox-group">
+                  <label><input type="checkbox" name="medical_history" value="emphysema"> Emphysema</label>
+                  <label><input type="checkbox" name="medical_history" value="copd"> COPD</label>
+                  <label><input type="checkbox" name="medical_history" value="asthma"> Asthma</label>
+                  <label><input type="checkbox" name="medical_history" value="pulmonary_fibrosis"> Pulmonary fibrosis</label>
+                  <label><input type="checkbox" name="medical_history" value="prior_cancer"> Prior cancer</label>
+                  <label><input type="checkbox" name="medical_history" value="other"> Other relevant history</label>
+                </div>
+              </fieldset>
+              <fieldset class="nested-fields">
+                <legend>Symptoms</legend>
+                <label>Symptom information
+                  <select name="symptoms_status">
+                    <option value="not_reported">Not reported</option>
+                    <option value="unknown">Unknown</option>
+                    <option value="reported">Reviewed / reported</option>
+                  </select>
+                </label>
+                <div class="checkbox-group">
+                  <label><input type="checkbox" name="symptoms" value="cough"> Cough</label>
+                  <label><input type="checkbox" name="symptoms" value="dyspnea"> Dyspnea</label>
+                  <label><input type="checkbox" name="symptoms" value="hemoptysis"> Hemoptysis</label>
+                  <label><input type="checkbox" name="symptoms" value="chest_pain"> Chest pain</label>
+                  <label><input type="checkbox" name="symptoms" value="weight_loss"> Unintended weight loss</label>
+                  <label><input type="checkbox" name="symptoms" value="fatigue"> Fatigue</label>
+                  <label><input type="checkbox" name="symptoms" value="other"> Other symptom</label>
+                </div>
+              </fieldset>
               <label>Karnofsky Performance Status (KPS)
                 <input name="kps" type="number" min="0" max="100" step="10" inputmode="numeric">
               </label>
@@ -85,6 +202,7 @@
 
       <section id="results" aria-labelledby="results-heading" hidden>
         <h2 id="results-heading">5. Results</h2>
+        <button id="print-report" type="button">Print report</button>
         <div id="result-summary" class="summary"></div>
         <div id="result-sections" class="result-sections"></div>
         <details>

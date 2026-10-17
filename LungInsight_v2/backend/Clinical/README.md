@@ -188,18 +188,19 @@ the direct KPS is retained and the discrepancy is flagged. Mapping version:
 ## Imaging and inference integration
 
 The active Imaging contract is
-[`imaging_clinical_contract_v1.schema.json`](../Imaging/schemas/imaging_clinical_contract_v1.schema.json).
-It provides patient/study identifiers, nodule records, reported diameter,
-malignancy metadata and per-nodule provenance, but has no top-level
-prediction-baseline timestamp or pipeline gate status. Clinical therefore
-requires a trusted integration envelope containing the unchanged v1 contract,
-pipeline/model versions, a passed upstream gate and source/baseline timestamps.
-The timestamps must match exactly until an approved image-freshness policy is
-defined. An unwrapped v1 contract is not sufficient.
+[`imaging_clinical_contract_v2.schema.json`](../Imaging/schemas/imaging_clinical_contract_v2.schema.json).
+It includes a validated study-status summary, persisted detector/fusion/exclusion
+counts, preprocessing and reviewed-mask status, warnings/errors, provenance,
+artifact references, and eligible-only stable nodule records with coordinate
+transforms, measurements, classification, Brock status/input completeness,
+quality, and explanation references. Missing source artifacts remain unknown;
+they are not converted to zero counts or successful states. Clinical rejects
+contracts from incomplete/failed processing or without the reviewed Stage 01
+mask gate.
 
-The interface reports the contract nodule-record count and largest non-null
-reported diameter. It does not infer malignant status from Stage 04 scores and
-always reports the malignant-nodule count as unavailable. Other Imaging
+The interface reports the eligible nodule-record count and largest non-null
+detector-derived diameter estimate. It does not infer confirmed diagnosis from
+Stage 04 risk scores and reports diagnosis/pathology as unavailable. Other Imaging
 feature mappings require paired, validated training examples before use as
 predictors.
 
@@ -226,15 +227,61 @@ authorization, audit trail, or production privacy controls; do not expose it to
 untrusted networks or use it with identifiable data outside an approved
 environment.
 
-The static clinician intake is under [`frontend/`](../../frontend/). It posts
-raw DICOM folder/file selections to `/api/v1/imaging/dicom/upload` through the
-local API, shows explicit preprocessing and model-unavailable/abstention
+The static clinician intake is under [`frontend/`](../../frontend/). It captures
+age, sex, race, ethnicity, smoking history, calculated pack-years, cessation,
+relevant history and symptoms. Unknown and not-reported values remain distinct;
+the local MSK-CHORD inventory includes age, gender, race and ethnicity fields,
+but its smoking class is derived and is not used as observed smoking history.
+The form posts DICOM folder/file selections to `/api/v1/imaging/dicom/upload`
+through the local API, shows explicit preprocessing and model-unavailable/abstention
 statuses, and does not fabricate results. The upload endpoint validates one
 CT series, applies DICOM rescale slope/intercept to reconstruct an HU volume,
 and stores only the minimum hashed study/series provenance. It deliberately
 reports analysis as blocked until the existing staged Imaging runner completes
 its review and model gates; preprocessing success is not an analysis result.
 Open `http://127.0.0.1:8010/` after starting the local API to use the intake.
+
+The browser starts an analysis through the backend-controlled run resource:
+
+- `POST /api/v1/analysis/runs` with `patient_id`, `upload_job_id`, supported
+  `clinician_inputs`, and optional `data_provenance`.
+- `GET /api/v1/analysis/runs/{run_id}` for polling.
+- `POST /api/v1/analysis/runs/{run_id}/resume` for an interrupted/blocked run
+  after correcting the underlying issue and passing automated Stage 01 checks.
+- `GET /api/v1/analysis/runs/{run_id}/study` and
+  `/api/v1/analysis/runs/{run_id}/nodules/{nodule_id}` for persisted,
+  schema-validated study/nodule records.
+- `GET /api/v1/analysis/runs/{run_id}/viewer` for validated run-associated CT
+  metadata, mask availability, and nodule review geometry.
+- `GET /api/v1/analysis/runs/{run_id}/viewer/slices/{index}` for bounded PNG
+  slice delivery. The optional `lung_overlay`, `heart_overlay`,
+  `gradcam_nodule_id`, and `gradcam_attribute` query values select overlays
+  from artifacts belonging to that run; arbitrary filesystem paths are not
+  accepted.
+
+The server resolves the upload job to its validated input tree and invokes the
+existing runner; the browser never supplies or executes a shell command. Upload
+jobs and run states are persisted as JSON under the configured local output
+root so polling and audit records survive process restarts. A restart during
+active inference is reported as `interrupted`, never as completed. Runner logs,
+partial outputs, and failure details are retained. Stage 01 automated checks
+remain hard gates for mask presence, alignment, geometry, overlap, and
+tracker status. Visual review and operator attestation are optional research
+QA; results record when visual review was not performed.
+
+Run status transitions are `analysis_queued` → `stage01_running` → the ordered
+`stage02_running` through `stage07_running` states → `imaging_complete` →
+`clinical_running` → `completed`. Runner exceptions become `failed`. The API
+records only observed stage-complete markers; a blocked run is never presented
+as a completed analysis.
+
+When Imaging completes, the frontend renders the validated contract's nodule
+records, Brock statuses, and available Clinical model statuses. The CT viewer
+uses slice-based PNG transport rather than sending a full volume through JSON.
+It supports axial slice navigation, windowed display, lung/heart-mask overlays,
+validated full-CT Grad-CAM overlays when present, bounding boxes, and nodule
+selection. It is a research viewer and does not provide diagnostic
+interpretation.
 
 The upload route does not invoke the staged runner. Its response supplies an
 exact `runner_command` using the preserved, validated DICOM input tree. For an
@@ -248,11 +295,11 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -NoGui
 ```
 
-Stage 02 is intentionally blocked until the Stage 01 review montage has been
-inspected and a hash-bound attestation has been created with
-`backend\Imaging\attest_heart_mask_review.py`. The validated DICOM instances
-are preserved under
-`dicom_uploads\<job_id>\stage01_input\<patient-id>` for this explicit handoff.
+The Stage 01 review montage and hash-bound attestation tool remain available
+for optional research QA, but neither is required to proceed. Automated
+mask-quality and geometry failures still block downstream processing. The
+validated DICOM instances are preserved under
+`dicom_uploads\<job_id>\stage01_input\<patient-id>`.
 The derived `dicom_uploads\<job_id>\volume_hu.npy` artifact remains
 preprocessing evidence and is not treated as a completed Stage 01 result.
 

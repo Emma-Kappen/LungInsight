@@ -187,15 +187,19 @@ def _box_iou(a: tuple[np.ndarray, np.ndarray] | None, b: tuple[np.ndarray, np.nd
 
 
 def _normalise_detection(
-    record: dict[str, Any], *, spacing: np.ndarray, expected_space: str | None
+    record: dict[str, Any], *, spacing: np.ndarray, expected_space: str | None,
+    origin_lps_mm: np.ndarray | None, direction_lps: np.ndarray | None,
 ) -> dict[str, Any]:
     row = copy.deepcopy(record)
     source = _source(row)
     center = _finite_vec(row.get("center_zyx"), "center_zyx")
-    if row.get("coordinate_order") is not None:
-        order = str(row["coordinate_order"]).replace("[", "").replace("]", "").replace(",", "").replace(" ", "").upper()
+    order_value = row.get("coordinate_order")
+    if order_value is None and expected_space is not None:
+        raise ValueError(f"Candidate {_candidate_identity(row, center)} is missing coordinate_order=ZYX.")
+    if order_value is not None:
+        order = str(order_value).replace("[", "").replace("]", "").replace(",", "").replace(" ", "").upper()
         if order not in ("ZYX", "ZYXVOXEL", "VOXELZYX"):
-            raise ValueError(f"Candidate {_candidate_identity(row, center)} uses coordinate_order={row['coordinate_order']!r}; expected ZYX.")
+            raise ValueError(f"Candidate {_candidate_identity(row, center)} uses coordinate_order={order_value!r}; expected ZYX.")
     space = row.get("space", row.get("source_space"))
     if space is not None and expected_space is not None and str(space) != expected_space:
         raise ValueError(
@@ -203,7 +207,17 @@ def _normalise_detection(
             "convert geometry before comparing detectors."
         )
     if expected_space and space is None:
-        row["space"] = expected_space
+        raise ValueError(
+            f"Candidate {_candidate_identity(row, center)} has no coordinate-space declaration; "
+            "convert geometry before comparing detectors."
+        )
+    if origin_lps_mm is not None and direction_lps is not None:
+        expected_lps = origin_lps_mm + direction_lps @ (center * spacing)
+        supplied_lps = _finite_vec(row.get("center_lps_mm"), "center_lps_mm")
+        if not np.allclose(supplied_lps, expected_lps, rtol=0.0, atol=1e-2):
+            raise ValueError(
+                f"Candidate {_candidate_identity(row, center)} center_lps_mm conflicts with its declared ZYX coordinates."
+            )
     row["center_zyx"] = center.tolist()
     row["_fusion_source"] = source
     row["_fusion_center"] = center
@@ -223,16 +237,15 @@ def _normalise_detection(
         score_value = None
     row["_fusion_score_name"] = score_name
     row["_fusion_score_value"] = score_value
+    row["_fusion_rank_percentile"] = 0.0
     return row
 
 
 def _rank_key(row: dict[str, Any]) -> tuple[Any, ...]:
-    # Do not compare unlike score scales. ViTDet3D is preferred for geometry
-    # because the supplied schema declares it authoritative. Within one source,
-    # a finite detector score ranks candidates; stable identity breaks ties.
-    source_priority = 0 if row["_fusion_source"] == "ViTDet3D" else 1
-    score = row["_fusion_score_value"]
-    return (source_priority, 0 if score is not None else 1, -(score or 0.0), row["_fusion_identity"])
+    center = tuple(float(value) for value in row["_fusion_center"])
+    bbox = row["_fusion_bbox"]
+    box_key = () if bbox is None else tuple(float(value) for part in bbox for value in part)
+    return center, box_key, row["_fusion_identity"]
 
 
 def _public_record(row: dict[str, Any]) -> dict[str, Any]:
@@ -281,28 +294,20 @@ def rank_filtered_log_candidates(
 def select_fused_candidates(
     fused_candidates: Sequence[dict[str, Any]], *, limit: int = 50
 ) -> list[dict[str, Any]]:
-    """Select a deterministic, source-aware top-N from the fused set.
-
-    Detector scores retain their native semantics. ViTDet3D candidates are
-    ordered by detector score, followed by LoG-only candidates ordered by
-    LoG response; scores are never compared across detector types.
-    """
+    """Select top-N by the equal-weight mean of within-detector percentiles."""
     if limit < 0:
         raise ValueError("limit must be non-negative.")
     rows = [copy.deepcopy(row) for row in fused_candidates]
     for row in rows:
-        source = str(row.get("source", row.get("detection_source", "")))
-        if source not in {"ViTDet3D", "LoG", "Merged"}:
-            raise ValueError(f"Fused candidate has unsupported source {source!r}.")
-        row["_fusion_source"] = "ViTDet3D" if source in {"ViTDet3D", "Merged"} else "LoG"
-        score = row.get("vitdet_score") if source in {"ViTDet3D", "Merged"} else row.get("log_score")
         try:
-            value = float(score)
-        except (TypeError, ValueError):
-            value = None
-        row["_fusion_score_value"] = value if value is not None and math.isfinite(value) else None
+            percentile = float(row["fusion_rank_percentile"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("Fused candidate is missing its detector-neutral fusion_rank_percentile.") from exc
+        if not math.isfinite(percentile) or not 0.0 <= percentile <= 1.0:
+            raise ValueError("fusion_rank_percentile must be finite and within [0, 1].")
+        row["_fusion_rank_percentile"] = percentile
         row["_fusion_identity"] = str(row.get("stable_nodule_id", row.get("nodule_id", row.get("candidate_id", ""))))
-    rows.sort(key=_rank_key)
+    rows.sort(key=lambda row: (-row["_fusion_rank_percentile"], row["_fusion_identity"]))
     return [{key: value for key, value in row.items() if not key.startswith("_fusion_")} for row in rows[:limit]]
 
 
@@ -328,12 +333,11 @@ def merge_detections(
     3-D box IoU >= min_overlap_iou. Distances multiply ZYX index differences
     by spacing_zyx_mm. This handles anisotropic voxels.
 
-    Conflict policy: preserve the ViTDet3D candidate's center and box whenever
-    a group contains one; otherwise preserve the LoG candidate with the
-    strongest finite LoG response. Never average locations or compare LoG
-    response to ViTDet3D detector_score. Other source records/scores are kept
-    under detector_provenance and detector_scores. Grouping and tie-breaking
-    are deterministic for a fixed candidate set and configuration.
+    Detector scores are ranked only within their own source. Matched candidate
+    centers and available boxes are averaged within each detector, then the
+    detector-level geometries receive equal weights; no detector is
+    authoritative. All detector records, scores, and within-source rank
+    percentiles remain in the provenance.
     """
     spacing = _finite_vec(spacing_zyx_mm, "spacing_zyx_mm")
     if np.any(spacing <= 0):
@@ -345,15 +349,47 @@ def merge_detections(
         raise ValueError("max_center_distance_mm must be >= center_distance_mm.")
     if not 0.0 <= float(min_overlap_iou) <= 1.0:
         raise ValueError("min_overlap_iou must be between 0 and 1.")
+    origin = None if origin_lps_mm is None else _finite_vec(origin_lps_mm, "origin_lps_mm")
+    direction = None if direction_lps is None else np.asarray(direction_lps, dtype=np.float64)
+    if (origin is None) != (direction is None):
+        raise ValueError("origin_lps_mm and direction_lps must be supplied together.")
+    if direction is not None and (
+        direction.shape != (3, 3)
+        or not np.isfinite(direction).all()
+        or not np.allclose(direction.T @ direction, np.eye(3), atol=1e-4)
+        or not np.isclose(abs(np.linalg.det(direction)), 1.0, atol=1e-4)
+    ):
+        raise ValueError("direction_lps must be a finite orthonormal 3x3 matrix.")
 
     raw_log = list(log_detections or [])
     raw_vit = list(vitdet_detections or [])
     if not all(isinstance(x, dict) for x in raw_log + raw_vit):
         raise ValueError("Every detector record must be a dictionary.")
     normalised = [
-        _normalise_detection(row, spacing=spacing, expected_space=expected_space)
+        _normalise_detection(
+            row,
+            spacing=spacing,
+            expected_space=expected_space,
+            origin_lps_mm=origin,
+            direction_lps=direction,
+        )
         for row in raw_log + raw_vit
     ]
+    for source in ("LoG", "ViTDet3D"):
+        scored = sorted(
+            (row for row in normalised if row["_fusion_source"] == source and row["_fusion_score_value"] is not None),
+            key=lambda row: (-row["_fusion_score_value"], row["_fusion_identity"]),
+        )
+        if scored:
+            score_positions: dict[float, list[int]] = {}
+            for rank, row in enumerate(scored):
+                score_positions.setdefault(row["_fusion_score_value"], []).append(rank)
+            for row in scored:
+                positions = score_positions[row["_fusion_score_value"]]
+                mean_rank = float(np.mean(positions))
+                row["_fusion_rank_percentile"] = (
+                    1.0 if len(scored) == 1 else 1.0 - mean_rank / (len(scored) - 1)
+                )
     normalised.sort(key=_rank_key)
 
     # Each cluster representative is the best-ranked record; cluster membership
@@ -382,8 +418,33 @@ def merge_detections(
         winner = cluster[0]
         output = _public_record(winner)
         sources = sorted({item["_fusion_source"] for item in cluster})
-        center = winner["_fusion_center"]
-        bbox = winner["_fusion_bbox"]
+        source_centers = [
+            np.mean(
+                [item["_fusion_center"] for item in cluster if item["_fusion_source"] == source],
+                axis=0,
+            )
+            for source in sources
+        ]
+        center = np.mean(source_centers, axis=0)
+        source_boxes = []
+        for source in sources:
+            boxes_for_source = [
+                item["_fusion_bbox"]
+                for item in cluster
+                if item["_fusion_source"] == source and item["_fusion_bbox"] is not None
+            ]
+            if boxes_for_source:
+                source_boxes.append((
+                    np.mean([box[0] for box in boxes_for_source], axis=0),
+                    np.mean([box[1] for box in boxes_for_source], axis=0),
+                ))
+        bbox = None
+        if source_boxes:
+            bbox = (
+                np.mean([box[0] for box in source_boxes], axis=0),
+                np.mean([box[1] for box in source_boxes], axis=0),
+            )
+        output["center_zyx"] = center.tolist()
         if all(value is not None for value in (patient_id, study_uid, series_uid, origin_lps_mm, direction_lps)):
             origin = _finite_vec(origin_lps_mm, "origin_lps_mm")
             direction = np.asarray(direction_lps, dtype=np.float64)
@@ -392,7 +453,7 @@ def merge_detections(
             center_lps = origin + direction @ (center * spacing)
             stable_id = stable_nodule_id(
                 str(patient_id), str(study_uid), str(series_uid), center_lps,
-                "Merged" if len(sources) > 1 else sources[0],
+                "Merged",
             )
         elif any(value is not None for value in (patient_id, study_uid, series_uid, origin_lps_mm, direction_lps)):
             raise ValueError(
@@ -413,6 +474,7 @@ def merge_detections(
                 json.dumps(legacy_identity, sort_keys=True).encode("utf-8")
             ).hexdigest()[:12]
         detector_scores: dict[str, Any] = {}
+        detector_rank_percentiles: dict[str, list[float]] = {}
         provenance = []
         source_members = []
         vitdet_score = None
@@ -423,6 +485,7 @@ def merge_detections(
             score_value = item["_fusion_score_value"]
             src_key = "ViTDet3D" if src == "ViTDet3D" else "LoG"
             detector_scores.setdefault(src_key, []).append({"field": score_name, "value": score_value})
+            detector_rank_percentiles.setdefault(src_key, []).append(item["_fusion_rank_percentile"])
             member_id = str(item.get("candidate_id", item.get("diagnostic_id", item["_fusion_identity"])))
             source_members.append({
                 "candidate_id": member_id,
@@ -443,6 +506,8 @@ def merge_detections(
                 "bbox_end_zyx": None if item["_fusion_bbox"] is None else item["_fusion_bbox"][1].tolist(),
                 "score_field": score_name,
                 "score": score_value,
+                "record": _public_record(item),
+                "rank_percentile": item["_fusion_rank_percentile"],
             })
         output["nodule_id"] = stable_id
         output["stable_nodule_id"] = stable_id
@@ -453,8 +518,17 @@ def merge_detections(
         output["log_score"] = log_score
         output["detector_provenance"] = sources
         output["detector_scores"] = detector_scores
+        output["detector_rank_percentiles"] = detector_rank_percentiles
+        source_percentiles = [
+            max(values) for values in detector_rank_percentiles.values() if values
+        ]
+        output["fusion_rank_percentile"] = (
+            float(np.mean(source_percentiles)) if source_percentiles else 0.0
+        )
         output["provenance_records"] = provenance
-        output["primary_geometry_source"] = winner["_fusion_source"]
+        output["primary_geometry_source"] = (
+            "equal_weight_fusion" if len(cluster) > 1 else winner["_fusion_source"]
+        )
         output["merged_member_count"] = len(cluster)
         output["detection_source"] = output["source"]
         output["center_lps_mm"] = (
@@ -463,8 +537,11 @@ def merge_detections(
             else output.get("center_lps_mm")
         )
         if bbox is not None:
-            output.setdefault("bbox_start_zyx", np.floor(bbox[0]).astype(int).tolist())
-            output.setdefault("bbox_end_zyx", np.ceil(bbox[1]).astype(int).tolist())
+            bbox_start = np.floor(bbox[0]).astype(int)
+            bbox_end = np.maximum(np.ceil(bbox[1]).astype(int), bbox_start + 1)
+            output["bbox_start_zyx"] = bbox_start.tolist()
+            output["bbox_end_zyx"] = bbox_end.tolist()
+            output["bbox_size_zyx_voxels"] = (bbox_end - bbox_start).tolist()
         output["detection_source"] = output["source"]
         results.append(output)
 
@@ -485,7 +562,8 @@ def merge_detections(
             "center_distance_mm": float(center_distance_mm),
             "max_center_distance_mm": float(max_center_distance_mm),
             "min_overlap_iou": float(min_overlap_iou),
-            "conflict_resolution": "Prefer ViTDet3D geometry; otherwise highest finite LoG response. Never average coordinates or compare unlike score scales.",
+            "conflict_resolution": "Average geometry within each detector, then average detector-level centers/boxes with equal detector weights; no source is authoritative.",
+            "ranking": "Detector scores are ranked within their own source and converted to [0,1] percentiles; a fused candidate's selection score is the mean of the available source percentiles.",
         },
     }
     return results, report
@@ -509,10 +587,10 @@ def filter_detections_by_lung_mask(
     *,
     min_bbox_lung_occupancy: float = 0.0,
     spacing_zyx_mm: Sequence[float] | None = None,
+    origin_lps_mm: Sequence[float] | None = None,
+    direction_lps: Sequence[Sequence[float]] | None = None,
     expected_space: str | None = None,
     require_nonempty_heart_mask: bool = False,
-    require_heart_mask_reviewed: bool = False,
-    heart_mask_reviewed: bool = False,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     """Apply the center-in-lung rule with explicit heart exclusion.
 
@@ -542,6 +620,17 @@ def filter_detections_by_lung_mask(
     occupancy_spacing = np.ones(3, dtype=np.float64) if spacing_zyx_mm is None else _finite_vec(spacing_zyx_mm, "spacing_zyx_mm")
     if np.any(occupancy_spacing <= 0):
         raise ValueError("spacing_zyx_mm values must be positive.")
+    origin = None if origin_lps_mm is None else _finite_vec(origin_lps_mm, "origin_lps_mm")
+    direction = None if direction_lps is None else np.asarray(direction_lps, dtype=np.float64)
+    if (origin is None) != (direction is None):
+        raise ValueError("origin_lps_mm and direction_lps must be supplied together.")
+    if direction is not None and (
+        direction.shape != (3, 3)
+        or not np.isfinite(direction).all()
+        or not np.allclose(direction.T @ direction, np.eye(3), atol=1e-4)
+        or not np.isclose(abs(np.linalg.det(direction)), 1.0, atol=1e-4)
+    ):
+        raise ValueError("direction_lps must be a finite orthonormal 3x3 matrix.")
     valid_lung = lung & ~heart
     accepted: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
@@ -553,10 +642,6 @@ def filter_detections_by_lung_mask(
     if require_nonempty_heart_mask and not heart_mask_found:
         block_reason = "heart_mask_empty_unverified"
         block_status = "blocked_empty_heart_mask"
-    elif require_heart_mask_reviewed and not heart_mask_reviewed:
-        block_reason = "heart_mask_review_required"
-        block_status = "blocked_heart_mask_review_required"
-
     if block_reason is not None:
         # Fail closed before center-only lung membership can falsely imply that
         # cardiac anatomy was excluded. Preserve every candidate for audit.
@@ -580,8 +665,6 @@ def filter_detections_by_lung_mask(
             "heart_mask_voxels": int(heart.sum()),
             "heart_mask_found": heart_mask_found,
             "heart_mask_required": bool(require_nonempty_heart_mask),
-            "heart_mask_review_required": bool(require_heart_mask_reviewed),
-            "heart_mask_reviewed": bool(heart_mask_reviewed),
             "gate_status": block_status,
             "lung_mask_voxels": int(lung.sum()),
             "effective_lung_mask_voxels": int(valid_lung.sum()),
@@ -595,9 +678,23 @@ def filter_detections_by_lung_mask(
             raise ValueError("Every detection to filter must be a dictionary.")
         row = copy.deepcopy(original)
         space = row.get("space", row.get("source_space"))
+        if expected_space is not None and space is None:
+            raise ValueError(f"Candidate {row.get('candidate_id', row.get('nodule_id'))}: coordinate space is missing.")
         if space is not None and expected_space is not None and str(space) != expected_space:
             raise ValueError(f"Candidate {row.get('candidate_id', row.get('nodule_id'))}: space {space!r} != {expected_space!r}.")
+        coordinate_order = row.get("coordinate_order")
+        if coordinate_order is None or str(coordinate_order).replace("[", "").replace("]", "").replace(",", "").replace(" ", "").upper() != "ZYX":
+            raise ValueError(f"Candidate {row.get('candidate_id', row.get('nodule_id'))}: coordinate_order must be declared as ZYX.")
         index, outside_reason = _sample_index(row.get("center_zyx"), lung.shape)
+        if origin is not None and index is not None:
+            center = _finite_vec(row.get("center_zyx"), "center_zyx")
+            expected_lps = origin + direction @ (center * occupancy_spacing)
+            candidate_lps = _finite_vec(row.get("center_lps_mm"), "center_lps_mm")
+            if not np.allclose(candidate_lps, expected_lps, rtol=0.0, atol=1e-2):
+                raise ValueError(
+                    f"Candidate {row.get('candidate_id', row.get('nodule_id'))}: center_lps_mm does not match "
+                    "the Stage 01 ZYX-to-LPS transform."
+                )
         reason = outside_reason
         if reason is None and index is not None and bool(heart[index]):
             reason = "center_inside_heart_mask"
@@ -642,9 +739,7 @@ def filter_detections_by_lung_mask(
         "heart_mask_voxels": int(heart.sum()),
         "heart_mask_found": heart_mask_found,
         "heart_mask_required": bool(require_nonempty_heart_mask),
-        "heart_mask_review_required": bool(require_heart_mask_reviewed),
-        "heart_mask_reviewed": bool(heart_mask_reviewed),
-        "gate_status": "passed" if ((heart_mask_found or not require_nonempty_heart_mask) and (heart_mask_reviewed or not require_heart_mask_reviewed)) else "blocked_heart_mask_review_required",
+        "gate_status": "passed",
         "lung_mask_voxels": int(lung.sum()),
         "effective_lung_mask_voxels": int(valid_lung.sum()),
         "shape_zyx": list(lung.shape),
@@ -703,8 +798,6 @@ def _cli() -> int:
         spacing_zyx_mm=spacing,
         expected_space=contract["ct_space"],
         require_nonempty_heart_mask=True,
-        require_heart_mask_reviewed=True,
-        heart_mask_reviewed=(meta.get("heart_mask_exclusion_verified") is True),
     )
     output_dir = (args.output_dir or (patient_dir / "02_candidate_fusion_audit")).resolve()
     write_json(output_dir / "merged_candidates.json", {"meta_schema_version": contract["schema_version"], "candidates": merged})
@@ -714,7 +807,6 @@ def _cli() -> int:
     heart_gate_blocked = gate_status != "passed"
     gate_messages = {
         "blocked_empty_heart_mask": "heart_mask.npy contains zero True voxels; heart exclusion is unverified and all candidates were rejected fail-closed.",
-        "blocked_heart_mask_review_required": "The central-rod mask has not been explicitly approved after visual QC; all candidates were rejected fail-closed.",
     }
     report = {
         "status": gate_status if heart_gate_blocked else "completed_candidate_merge_and_lung_gate_only",
