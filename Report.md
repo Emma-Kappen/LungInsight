@@ -367,4 +367,22 @@ LungInsight v2 is a traceable, research-only CT workflow whose only malignancy e
 
 
 
+### 11. To Run LungInsight...
+From the project root in PowerShell:
 
+````powershell
+cd LungInsight # Or project root path
+python -m uvicorn LungInsight_v2.backend.api.main:app --host 127.0.0.1 --port 8011
+````
+
+Then open:
+
+```text
+http://127.0.0.1:8011
+```
+
+If the entry module differs, locate it first:
+
+````powershell
+Get-ChildItem -Recurse -Filter main.py | Select-Object FullName
+````
