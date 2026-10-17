@@ -27,6 +27,8 @@ from ..Imaging.api.dicom_upload import (
 )
 from ..Imaging.api.analysis import (
     PATIENT_ID_PATTERN,
+    BrockConflictError,
+    compute_manual_brock,
     get_analysis,
     render_viewer_slice,
     start_analysis,
@@ -70,6 +72,12 @@ class ClinicalRecordRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     clinician_inputs: dict[str, Any]
+
+
+class ManualBrockRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    values: dict[str, Any] = Field(min_length=1)
 
 
 def create_app(artifact_path: str | None = None) -> FastAPI:
@@ -447,6 +455,19 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
         if nodule is None:
             raise HTTPException(status_code=404, detail="Nodule not found in this study.")
         return {"run_id": run_id, "study_id": contract["study_id"], "nodule": nodule}
+
+    @app.post("/api/v1/analysis/runs/{run_id}/nodules/{nodule_id}/brock")
+    def analysis_manual_brock(run_id: str, nodule_id: str, request: ManualBrockRequest) -> dict[str, Any]:
+        try:
+            return compute_manual_brock(run_id, nodule_id, request.values, output_root=IMAGING_OUTPUT_ROOT)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="Analysis run or nodule not found.") from exc
+        except FileNotFoundError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        except BrockConflictError as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
 
     @app.post("/api/v1/analysis/runs/{run_id}/resume", status_code=202)
     def resume_analysis_run(run_id: str) -> dict[str, Any]:

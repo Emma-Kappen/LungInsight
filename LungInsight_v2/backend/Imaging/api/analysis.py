@@ -647,6 +647,7 @@ def viewer_metadata(run_id: str, *, output_root: Path) -> dict[str, Any]:
     volume, lung, heart = _viewer_arrays(root)
     nodules: list[dict[str, Any]] = []
     gradcam_options: list[dict[str, str]] = []
+    manual_brock = _read_manual_brock(root, run_id)
     contract_path = root / CONTRACT_FILENAME
     if contract_path.is_file():
         try:
@@ -674,6 +675,7 @@ def viewer_metadata(run_id: str, *, output_root: Path) -> dict[str, Any]:
                 "detection_sources": nodule.get("detection_sources"),
                 "artifact_refs": nodule.get("artifact_refs"),
                 "gradcam_refs": nodule.get("gradcam_refs"),
+                "manual_brock": manual_brock.get(str(nodule.get("stable_nodule_id"))),
             })
             for attribute, reference in (nodule.get("gradcam_refs") or {}).items():
                 if isinstance(reference, dict):
@@ -696,34 +698,211 @@ def viewer_metadata(run_id: str, *, output_root: Path) -> dict[str, Any]:
         },
         "nodules": nodules,
         "gradcam_options": gradcam_options,
+        "gradcam_window_sigma_mm": CAM_WINDOW_SIGMA_MM,
         "slice_url_template": f"/api/v1/analysis/runs/{run_id}/viewer/slices/{{index}}",
     }
 
 
-@lru_cache(maxsize=32)
-def _cam_finite_max(path: str, mtime_ns: int) -> float:
-    # CT-space CAMs are NaN outside the patch coverage, so the scale must ignore NaN.
+@lru_cache(maxsize=64)
+def _cam_finite_range(path: str, mtime_ns: int) -> tuple[float, float]:
+    # CT-space CAMs are NaN outside the patch coverage, so the range must ignore NaN.
     cam = np.load(path, mmap_mode="r")
-    best = 0.0
+    low, high = np.inf, -np.inf
     for slab in cam:
         finite = np.asarray(slab, dtype=np.float32)
         finite = finite[np.isfinite(finite)]
         if finite.size:
-            best = max(best, float(finite.max()))
-    return best
+            low = min(low, float(finite.min()))
+            high = max(high, float(finite.max()))
+    return (float(low), float(high)) if np.isfinite(low) else (0.0, 0.0)
 
 
+# Stage 05/06 rainbow palette (blue, green, yellow, orange, red) at positions 0, .25, .5, .75, 1.
 _CAM_COLOR_STOPS = np.array(
-    [[0, 0, 255], [0, 255, 255], [0, 255, 0], [255, 255, 0], [255, 0, 0]], dtype=np.float32
+    [[0x15, 0x38, 0xD6], [0x00, 0xA6, 0x51], [0xFF, 0xFF, 0x00], [0xFF, 0x99, 0x00], [0xD7, 0x19, 0x1C]],
+    dtype=np.float32,
 )
 
 
 def _cam_colormap(values: np.ndarray) -> np.ndarray:
-    """Map activations in [0, 1] to a blue-cyan-green-yellow-red colour ramp."""
+    """Map activations in [0, 1] onto the Stage 05/06 rainbow palette."""
     position = np.clip(values, 0, 1) * (len(_CAM_COLOR_STOPS) - 1)
     lower = np.minimum(position.astype(np.int64), len(_CAM_COLOR_STOPS) - 2)
     fraction = (position - lower)[..., None]
     return _CAM_COLOR_STOPS[lower] * (1 - fraction) + _CAM_COLOR_STOPS[lower + 1] * fraction
+
+
+# Grad-CAM is a coarse (8x8x8 upsampled to the 64^3 patch) model-sensitivity map and is not localised on the
+# nodule. The viewer therefore shows it only around each nodule: full opacity on the box, Gaussian falloff.
+CAM_WINDOW_SIGMA_MM = 8.0
+
+
+def _volume_spacing(root: Path) -> tuple[float, float, float]:
+    try:
+        spacing = json.loads((root / "meta.json").read_text(encoding="utf-8-sig")).get("spacing_zyx_mm")
+    except (OSError, ValueError):
+        spacing = None
+    if (
+        isinstance(spacing, list) and len(spacing) == 3
+        and all(isinstance(v, (int, float)) and not isinstance(v, bool) and np.isfinite(v) and v > 0 for v in spacing)
+    ):
+        return (float(spacing[0]), float(spacing[1]), float(spacing[2]))
+    return (1.0, 1.0, 1.0)
+
+
+def _valid_box(start: Any, end: Any) -> bool:
+    return (
+        isinstance(start, (list, tuple)) and isinstance(end, (list, tuple)) and len(start) == 3 and len(end) == 3
+        and all(isinstance(v, (int, float)) and not isinstance(v, bool) and np.isfinite(v) for v in (*start, *end))
+        and all(e > s for s, e in zip(start, end))
+    )
+
+
+def _axis_gap_mm(coords: np.ndarray, start: float, end: float, step: float) -> np.ndarray:
+    """Distance in mm from each voxel coordinate to the interval [start, end) along one axis."""
+    return np.maximum(np.maximum(start - coords, coords - (end - 1)), 0.0).astype(np.float32) * step
+
+
+def _window_weight(
+    index: int,
+    shape: tuple[int, ...],
+    start: tuple[float, ...],
+    end: tuple[float, ...],
+    spacing: tuple[float, float, float],
+) -> np.ndarray:
+    dz = _axis_gap_mm(np.asarray([index], dtype=np.float32), start[0], end[0], spacing[0])[0]
+    dy = _axis_gap_mm(np.arange(shape[1], dtype=np.float32), start[1], end[1], spacing[1])[:, None]
+    dx = _axis_gap_mm(np.arange(shape[2], dtype=np.float32), start[2], end[2], spacing[2])[None, :]
+    squared = dz * dz + dy * dy + dx * dx
+    sigma = CAM_WINDOW_SIGMA_MM
+    weight = np.exp(-squared / (2 * sigma * sigma)).astype(np.float32)
+    weight[squared > (3 * sigma) ** 2] = 0.0
+    return weight
+
+
+@lru_cache(maxsize=128)
+def _cam_window_range(
+    path: str,
+    mtime_ns: int,
+    start: tuple[float, ...],
+    end: tuple[float, ...],
+    spacing: tuple[float, float, float],
+) -> tuple[float, float]:
+    """Finite CAM min/max over the nodule neighbourhood (where the display window is above 10%)."""
+    cam = np.load(path, mmap_mode="r")
+    bounds = []
+    for axis in range(3):
+        margin = int(np.ceil(3 * CAM_WINDOW_SIGMA_MM / spacing[axis]))
+        bounds.append((max(0, int(np.floor(start[axis])) - margin), min(cam.shape[axis], int(np.ceil(end[axis])) + margin)))
+    region = np.asarray(cam[tuple(slice(lo, hi) for lo, hi in bounds)], dtype=np.float32)
+    gaps = [
+        _axis_gap_mm(np.arange(lo, hi, dtype=np.float32), start[axis], end[axis], spacing[axis])
+        for axis, (lo, hi) in enumerate(bounds)
+    ]
+    squared = gaps[0][:, None, None] ** 2 + gaps[1][None, :, None] ** 2 + gaps[2][None, None, :] ** 2
+    inside = np.isfinite(region) & (squared <= 2 * np.log(10) * CAM_WINDOW_SIGMA_MM ** 2)
+    if not inside.any():
+        return _cam_finite_range(path, mtime_ns)
+    values = region[inside]
+    return float(values.min()), float(values.max())
+
+
+MANUAL_BROCK_FIELDS = frozenset({
+    "age_years", "sex", "family_history_lung_cancer", "emphysema",
+    "nodule_size_mm", "nodule_type", "upper_lobe", "nodule_count", "spiculation",
+})
+_NODULE_ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
+
+
+class BrockConflictError(ValueError):
+    """A supplied value would overwrite a value that already has a known source."""
+
+
+def _manual_brock_path(root: Path, run_id: str) -> Path:
+    return root / f"brock_manual_{run_id}.json"
+
+
+def _read_manual_brock(root: Path, run_id: str) -> dict[str, Any]:
+    path = _manual_brock_path(root, run_id)
+    if not path.is_file():
+        return {}
+    try:
+        stored = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise RuntimeError(f"Stored clinician-supplied Brock inputs for run {run_id} are unreadable.") from exc
+    nodules = stored.get("nodules") if isinstance(stored, dict) else None
+    return nodules if isinstance(nodules, dict) else {}
+
+
+def compute_manual_brock(
+    run_id: str,
+    nodule_id: str,
+    supplied: dict[str, Any],
+    *,
+    output_root: Path,
+) -> dict[str, Any]:
+    """Compute Brock for a nodule whose Stage 04 result was withheld, using clinician-supplied missing inputs.
+
+    Only inputs that have no known source value can be supplied; a known value is never overwritten. The result is
+    stored beside the run and is clearly separate from the validated Imaging contract.
+    """
+    from brock import estimate_brock
+
+    if not _NODULE_ID_PATTERN.fullmatch(nodule_id):
+        raise ValueError("Invalid nodule identifier.")
+    run = _run_or_raise(run_id, output_root)
+    root = _viewer_root(run, output_root)
+    if not supplied:
+        raise ValueError("No Brock inputs were supplied.")
+    unknown = sorted(set(supplied) - MANUAL_BROCK_FIELDS)
+    if unknown:
+        raise ValueError(f"Unsupported Brock inputs: {unknown}.")
+    predictions_path = root / "04_malignancy_prediction" / "malignancy_predictions.json"
+    if not predictions_path.is_file():
+        raise FileNotFoundError("Stage 04 has not produced Brock inputs for this run.")
+    payload = read_json(predictions_path)
+    row = next(
+        (item for item in payload.get("predictions", []) if item.get("stable_nodule_id") == nodule_id),
+        None,
+    )
+    if row is None:
+        raise KeyError(nodule_id)
+    provenance = row.get("input_provenance") or {}
+    sourced = {**(provenance.get("patient_fields") or {}), **(provenance.get("nodule_fields") or {})}
+    values = {name: (sourced.get(name) or {}).get("value") for name in MANUAL_BROCK_FIELDS}
+    already_known = sorted(name for name in supplied if values.get(name) is not None)
+    if already_known:
+        raise BrockConflictError(
+            f"{already_known} already have known source values and are not overwritten; "
+            "only missing inputs can be supplied."
+        )
+    stored = _read_manual_brock(root, run_id)
+    merged = {**(stored.get(nodule_id, {}).get("supplied") or {}), **supplied}
+    values.update(merged)
+    result = estimate_brock(values)
+    if result.get("status") == "incomplete":
+        raise ValueError(f"Brock still needs: {result.get('features_missing')}.")
+    if result.get("status") != "available":
+        raise ValueError(result.get("failure_reason") or "The supplied Brock inputs are invalid.")
+    record = {
+        "supplied": merged,
+        "supplied_at": _now(),
+        "brock": result,
+        "provenance": {
+            "source": "clinician_supplied_after_run",
+            "note": "Inputs without a derivable source value were entered by the user after the run; "
+                    "the validated Imaging contract is unchanged.",
+        },
+    }
+    stored[nodule_id] = record
+    path = _manual_brock_path(root, run_id)
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(
+        json.dumps({"schema_version": "brock-manual-v1", "run_id": run_id, "nodules": stored}, indent=2, allow_nan=False),
+        encoding="utf-8",
+    )
+    temporary.replace(path)
+    return record
 
 
 def render_viewer_slice(
@@ -758,11 +937,13 @@ def render_viewer_slice(
         rgb[mask, 1] = np.minimum(rgb[mask, 1], 80)
     selected_ids = list(gradcam_nodule_ids or ([gradcam_nodule_id] if gradcam_nodule_id else []))
     if selected_ids and gradcam_attribute:
+        spacing = _volume_spacing(root)
         contract_path = root / CONTRACT_FILENAME
         if contract_path.is_file():
             contract = read_json(contract_path)
             validate_contract(contract)
             strength: np.ndarray | None = None
+            covered: np.ndarray | None = None
             for nodule in contract.get("nodules", []):
                 if nodule.get("stable_nodule_id") not in selected_ids:
                     continue
@@ -781,15 +962,40 @@ def render_viewer_slice(
                 if cam.ndim != 3 or cam.shape != volume.shape:
                     continue
                 activation = np.asarray(cam[index], dtype=np.float32)
-                scale = _cam_finite_max(str(resolved), resolved.stat().st_mtime_ns)
-                if scale <= 0:
+                finite = np.isfinite(activation)
+                if not finite.any():
                     continue
-                normalized = np.where(np.isfinite(activation), activation, 0.0) / scale
-                strength = normalized if strength is None else np.maximum(strength, normalized)
-            if strength is not None:
-                strength = np.clip(strength, 0, 1)
-                opacity = (strength * gradcam_alpha)[..., None]
+                bbox = nodule.get("bbox_voxel") or {}
+                box_start, box_end = bbox.get("start_zyx"), bbox.get("end_zyx_exclusive")
+                windowed = _valid_box(box_start, box_end)
+                if windowed:
+                    start_key = tuple(float(v) for v in box_start)
+                    end_key = tuple(float(v) for v in box_end)
+                    low, high = _cam_window_range(
+                        str(resolved), resolved.stat().st_mtime_ns, start_key, end_key, spacing
+                    )
+                    weight = _window_weight(index, volume.shape, start_key, end_key, spacing)
+                else:
+                    low, high = _cam_finite_range(str(resolved), resolved.stat().st_mtime_ns)
+                    weight = np.ones(activation.shape, dtype=np.float32)
+                # Per-nodule min-max, as in the Stage 05/06 Grad-CAM images, but taken over the nodule's
+                # neighbourhood only. Opacity is full on the nodule box and fades with distance from it.
+                normalized = (
+                    np.clip((np.where(finite, activation, low) - low) / (high - low), 0.0, 1.0)
+                    if high - low > 1e-12
+                    else np.full(activation.shape, 0.5, dtype=np.float32)
+                )
+                normalized = np.where(finite, normalized, 0.0)
+                visible = np.where(finite, weight, 0.0)
+                if strength is None:
+                    strength, covered = normalized, visible
+                else:
+                    stronger = visible * normalized > covered * strength
+                    strength = np.where(stronger, normalized, strength)
+                    covered = np.maximum(covered, visible)
+            if strength is not None and covered is not None:
                 heat = _cam_colormap(strength)
+                opacity = (covered * gradcam_alpha)[..., None]
                 rgb = (rgb * (1 - opacity) + heat * opacity).astype(np.uint8)
     image = Image.fromarray(rgb, mode="RGB")
     output = io.BytesIO()

@@ -460,14 +460,18 @@ def test_api_serves_frontend_and_reports_no_models_as_untrained() -> None:
     frontend_script = (Path(__file__).resolve().parents[3] / "frontend" / "app.js").read_text(
         encoding="utf-8"
     )
-    assert "!uploadResult" not in frontend_script.split("analyseButton.disabled =", 1)[1].split(";", 1)[0]
-    assert "selected; not uploaded" in frontend_script
+    # Submission is gated on the ten required items, including a confirmed CT upload for this patient.
+    assert 'const ctOk = Boolean(S.upload && S.uploadPid === f.patientId' in frontend_script
+    assert "Selected; not uploaded yet." in frontend_script
     assert "CT uploaded and validated" in frontend_script
     assert "/viewer/slices/" in frontend_script
     assert "viewer-lung" in frontend_script
     assert "viewer-previous" in frontend_script
     assert 'addEventListener("wheel"' in frontend_script
-    assert "printReportButton" in frontend_script
+    assert "print-report" in frontend_script
+    assert "gradcam_nodule_id" in frontend_script and "gradcam_alpha" in frontend_script
+    for banned in (b"internal_structure", b"Age status", b"Years smoked information"):
+        assert banned not in page.content
 
 
 def test_analysis_run_rejects_unknown_upload_job() -> None:
@@ -601,12 +605,99 @@ def test_analysis_viewer_gradcam_multi_nodule_colormap_and_alpha(monkeypatch: py
         only_first = render(gradcam_nodule_ids=["n1"], gradcam_attribute="margin", gradcam_alpha=1.0)
         transparent = render(gradcam_nodule_ids=["n1", "n2"], gradcam_attribute="margin", gradcam_alpha=0.0)
         assert np.array_equal(transparent, base)
-        assert both[0, 0, 0] == 255 and both[0, 0, 1] == 0 and both[0, 0, 2] == 0
-        assert both[3, 3, 0] == 255 and np.array_equal(only_first[3, 3], base[3, 3])
-        assert both[0, 1, 1] > both[0, 1, 0] + 50 and both[0, 1, 1] > both[0, 1, 2] + 50
-        assert np.array_equal(both[2, 2], base[2, 2])
+        # Per-nodule min-max: the maximum is red (#D7191C) and the minimum is blue (#1538D6), never faded out.
+        assert both[0, 0].tolist() == [0xD7, 0x19, 0x1C]
+        assert both[1, 1].tolist() == [0x15, 0x38, 0xD6]
+        assert both[3, 3].tolist() == [0xD7, 0x19, 0x1C]
+        assert only_first[3, 3].tolist() == [0x15, 0x38, 0xD6]
     finally:
         analysis_api._RUNS.pop("cam2-run", None)
+
+
+def test_analysis_viewer_gradcam_is_windowed_around_the_nodule(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    import io
+    from PIL import Image
+    from LungInsight_v2.backend.Imaging.api import analysis as analysis_api
+
+    patient_root = tmp_path / "win-patient"
+    patient_root.mkdir()
+    np.save(patient_root / "volume_hu_cropped.npy", np.full((3, 48, 48), -600.0, dtype=np.float32))
+    cam = np.full((3, 48, 48), 0.1, dtype=np.float32)
+    cam[1, 11, 11] = 0.5  # on the nodule box
+    cam[1, 45, 45] = 1.0  # strongest value, but ~45 mm from the nodule
+    np.save(patient_root / "cam.npy", cam)
+    (patient_root / "imaging_clinical_contract_v2.json").write_text("{}", encoding="utf-8")
+    fake_contract = {
+        "nodules": [{
+            "stable_nodule_id": "n1",
+            "bbox_voxel": {"start_zyx": [1, 10, 10], "end_zyx_exclusive": [2, 14, 14]},
+            "gradcam_refs": {"margin": {"ct_cam_path": "cam.npy"}},
+        }]
+    }
+    monkeypatch.setattr(analysis_api, "read_json", lambda _path: fake_contract)
+    monkeypatch.setattr(analysis_api, "validate_contract", lambda _contract: None)
+    analysis_api._RUNS["win-run"] = {"run_id": "win-run", "patient_id": "win-patient", "status": "completed"}
+    try:
+        def render(**kwargs: object) -> np.ndarray:
+            png = analysis_api.render_viewer_slice("win-run", 1, output_root=tmp_path, **kwargs)
+            return np.asarray(Image.open(io.BytesIO(png)).convert("RGB"), dtype=np.int16)
+
+        base = render()
+        shown = render(gradcam_nodule_ids=["n1"], gradcam_attribute="margin", gradcam_alpha=1.0)
+        assert shown[11, 11].tolist() == [0xD7, 0x19, 0x1C]  # window maximum inside the box is red
+        assert np.array_equal(shown[45, 45], base[45, 45])  # a stronger but distant value is not drawn
+        assert not np.array_equal(shown[16, 11], base[16, 11])  # fades out gradually just beyond the box
+    finally:
+        analysis_api._RUNS.pop("win-run", None)
+
+
+def test_manual_brock_fills_only_missing_inputs_and_persists(tmp_path: Path) -> None:
+    import json
+    from LungInsight_v2.backend.Imaging.api import analysis as analysis_api
+    from brock import estimate_brock
+
+    patient_root = tmp_path / "man-patient"
+    (patient_root / "04_malignancy_prediction").mkdir(parents=True)
+
+    def known(value: object) -> dict[str, object]:
+        return {"value": value, "source": "test"}
+
+    row = {
+        "stable_nodule_id": "nodule_x",
+        "input_provenance": {
+            "patient_fields": {
+                "age_years": known(68.0), "sex": known("female"),
+                "family_history_lung_cancer": known(False), "emphysema": known(True),
+            },
+            "nodule_fields": {
+                "nodule_size_mm": known(5.3), "upper_lobe": known(None), "spiculation": known(0),
+                "nodule_type": known("solid"), "nodule_count": known(2),
+            },
+        },
+    }
+    (patient_root / "04_malignancy_prediction" / "malignancy_predictions.json").write_text(
+        json.dumps({"predictions": [row]}), encoding="utf-8"
+    )
+    analysis_api._RUNS["a" * 32] = {"run_id": "a" * 32, "patient_id": "man-patient", "status": "completed"}
+    try:
+        record = analysis_api.compute_manual_brock("a" * 32, "nodule_x", {"upper_lobe": True}, output_root=tmp_path)
+        expected = estimate_brock({
+            "age_years": 68.0, "sex": "female", "family_history_lung_cancer": False, "emphysema": True,
+            "nodule_size_mm": 5.3, "upper_lobe": True, "spiculation": 0, "nodule_type": "solid", "nodule_count": 2,
+        })
+        assert record["brock"]["status"] == "available"
+        assert record["brock"]["probability"] == expected["probability"]
+        assert record["supplied"] == {"upper_lobe": True}
+        stored = json.loads((patient_root / f"brock_manual_{'a' * 32}.json").read_text(encoding="utf-8"))
+        assert stored["nodules"]["nodule_x"]["supplied"] == {"upper_lobe": True}
+        with pytest.raises(analysis_api.BrockConflictError):
+            analysis_api.compute_manual_brock("a" * 32, "nodule_x", {"emphysema": False}, output_root=tmp_path)
+        with pytest.raises(KeyError):
+            analysis_api.compute_manual_brock("a" * 32, "other", {"upper_lobe": True}, output_root=tmp_path)
+        with pytest.raises(ValueError):
+            analysis_api.compute_manual_brock("a" * 32, "nodule_x", {"bogus": 1}, output_root=tmp_path)
+    finally:
+        analysis_api._RUNS.pop("a" * 32, None)
 
 
 def test_analysis_run_records_only_observed_completed_stages() -> None:
