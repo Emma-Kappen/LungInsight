@@ -27,3 +27,5 @@ LungInsight_v1/
 # Local credentials and retired experiment recovery directory
 kaggle.json
 _restore_hybrid/
+
+prompt.md
