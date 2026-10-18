@@ -1,0 +1,322 @@
+{
+  "target": "cancer_type",
+  "target_values": [
+    "LUAD",
+    "LUSC"
+  ],
+  "candidate_model_features": [
+    "sex_at_baseline",
+    "age_at_diagnosis",
+    "smoking_history",
+    "smoking_pack_years",
+    "ecog_score",
+    "stage",
+    "prior_treatment_msk_prior_medication",
+    "prior_treatment_tcga_neoadjuvant"
+  ],
+  "imaging_data_used": false,
+  "genomic_data_used": false,
+  "warning": "Combined file is descriptive only. Do not pool cohorts for fitting without a design addressing cohort-target confounding.",
+  "pooled_training_suitable": false,
+  "pooled_training_note": "TCGA-LUAD contains only LUAD and TCGA-LUSC only LUSC, so cohort membership is confounded with the target in the TCGA export.",
+  "imputation_policy": "None applied. Missing values are retained; any imputation must be fitted on training data only.",
+  "excluded_from_predictors": [
+    "patient_id",
+    "cohort",
+    "cancer_type",
+    "label_provenance",
+    "sample_count",
+    "source_record_id",
+    "raw source fields",
+    "histology",
+    "OncoTree code",
+    "diagnosis description",
+    "survival",
+    "vital status",
+    "treatment outcome"
+  ],
+  "feature_audit": {
+    "sex_at_baseline": {
+      "source_columns": {
+        "msk": [
+          "Sex"
+        ],
+        "tcga": [
+          "gender"
+        ]
+      },
+      "normalization_rule": "Female/Male (case-insensitive) -> female/male; every other value -> missing.",
+      "numeric": false,
+      "used_as_predictor": true,
+      "predictor_usable_in_cohorts": [
+        "MSK-CHORD-2024",
+        "TCGA-LUAD",
+        "TCGA-LUSC"
+      ],
+      "populated_missing_by_cohort": {
+        "MSK-CHORD-2024": {
+          "populated": 6778,
+          "missing": 1
+        },
+        "TCGA-LUAD": {
+          "populated": 522,
+          "missing": 0
+        },
+        "TCGA-LUSC": {
+          "populated": 504,
+          "missing": 0
+        }
+      },
+      "leakage_timing_concerns": "Low. Recorded demographic.",
+      "cohort_definition_differences": "MSK 'Sex' and TCGA 'gender' are both recorded sex; no known definition difference."
+    },
+    "age_at_diagnosis": {
+      "source_columns": {
+        "msk": [
+          "Current Age"
+        ],
+        "tcga": [
+          "age_at_initial_pathologic_diagnosis"
+        ]
+      },
+      "normalization_rule": "Plain numeric in [0, 120]; markers, metadata and non-numeric text -> missing.",
+      "numeric": true,
+      "used_as_predictor": true,
+      "predictor_usable_in_cohorts": [
+        "MSK-CHORD-2024",
+        "TCGA-LUAD",
+        "TCGA-LUSC"
+      ],
+      "populated_missing_by_cohort": {
+        "MSK-CHORD-2024": {
+          "populated": 6778,
+          "missing": 1
+        },
+        "TCGA-LUAD": {
+          "populated": 503,
+          "missing": 19
+        },
+        "TCGA-LUSC": {
+          "populated": 495,
+          "missing": 9
+        }
+      },
+      "leakage_timing_concerns": "Low for TCGA. MSK 'Current Age' is age at the data snapshot, not at diagnosis, and is capped at 89 in the source.",
+      "cohort_definition_differences": "NOT equivalent: MSK is current age (>= age at diagnosis); TCGA is age at initial diagnosis."
+    },
+    "smoking_history": {
+      "source_columns": {
+        "msk": [
+          "Smoking History (NLP)"
+        ],
+        "tcga": [
+          "tobacco_smoking_history_indicator"
+        ]
+      },
+      "normalization_rule": "MSK: Never -> never; Former/Current Smoker -> former_or_current; Unknown -> missing. TCGA codes 1-5 -> missing until verified against the data dictionary.",
+      "numeric": false,
+      "used_as_predictor": true,
+      "predictor_usable_in_cohorts": [
+        "MSK-CHORD-2024"
+      ],
+      "populated_missing_by_cohort": {
+        "MSK-CHORD-2024": {
+          "populated": 6468,
+          "missing": 311
+        },
+        "TCGA-LUAD": {
+          "populated": 0,
+          "missing": 522
+        },
+        "TCGA-LUSC": {
+          "populated": 0,
+          "missing": 504
+        }
+      },
+      "leakage_timing_concerns": "Moderate for MSK: NLP-derived from clinical notes of unspecified timing.",
+      "cohort_definition_differences": "TCGA is unpopulated by design; no more specific status is inferred."
+    },
+    "smoking_pack_years": {
+      "source_columns": {
+        "msk": [],
+        "tcga": [
+          "tobacco_smoking_pack_years_smoked"
+        ]
+      },
+      "normalization_rule": "Plain numeric in [0, 300]; markers, metadata and non-numeric text -> missing.",
+      "numeric": true,
+      "used_as_predictor": true,
+      "predictor_usable_in_cohorts": [
+        "TCGA-LUAD",
+        "TCGA-LUSC"
+      ],
+      "populated_missing_by_cohort": {
+        "MSK-CHORD-2024": {
+          "populated": 0,
+          "missing": 6779
+        },
+        "TCGA-LUAD": {
+          "populated": 355,
+          "missing": 167
+        },
+        "TCGA-LUSC": {
+          "populated": 427,
+          "missing": 77
+        }
+      },
+      "leakage_timing_concerns": "Low; self-reported history.",
+      "cohort_definition_differences": "Not available in the MSK patient table."
+    },
+    "ecog_score": {
+      "source_columns": {
+        "msk": [],
+        "tcga": [
+          "ecog_score"
+        ]
+      },
+      "normalization_rule": "Integer in [0, 4]; markers, metadata and non-numeric text -> missing.",
+      "numeric": true,
+      "used_as_predictor": true,
+      "predictor_usable_in_cohorts": [
+        "TCGA-LUAD",
+        "TCGA-LUSC"
+      ],
+      "populated_missing_by_cohort": {
+        "MSK-CHORD-2024": {
+          "populated": 0,
+          "missing": 6779
+        },
+        "TCGA-LUAD": {
+          "populated": 219,
+          "missing": 303
+        },
+        "TCGA-LUSC": {
+          "populated": 194,
+          "missing": 310
+        }
+      },
+      "leakage_timing_concerns": "Timing relative to treatment is not documented in the TCGA table.",
+      "cohort_definition_differences": "Not available in the MSK patient table (performance status is a separate timeline)."
+    },
+    "stage": {
+      "source_columns": {
+        "msk": [
+          "Stage (Highest Recorded)"
+        ],
+        "tcga": [
+          "ajcc_pathologic_tumor_stage"
+        ]
+      },
+      "normalization_rule": "MSK: 'Stage 1-3' -> stage_1_3, 'Stage 4' -> stage_4. TCGA: 'Stage IA'.. -> stage_ia etc. Anything else -> missing. TCGA clinical stage is not used (mostly [Not Applicable]).",
+      "numeric": false,
+      "used_as_predictor": true,
+      "predictor_usable_in_cohorts": [
+        "MSK-CHORD-2024",
+        "TCGA-LUAD",
+        "TCGA-LUSC"
+      ],
+      "populated_missing_by_cohort": {
+        "MSK-CHORD-2024": {
+          "populated": 6778,
+          "missing": 1
+        },
+        "TCGA-LUAD": {
+          "populated": 514,
+          "missing": 8
+        },
+        "TCGA-LUSC": {
+          "populated": 500,
+          "missing": 4
+        }
+      },
+      "leakage_timing_concerns": "Post-diagnostic; pathologic stage requires resection.",
+      "cohort_definition_differences": "NOT equivalent: MSK is highest recorded stage binned to 1-3/4; TCGA is AJCC pathologic stage. Category sets are disjoint, so the column is not comparable across cohorts."
+    },
+    "prior_treatment_msk_prior_medication": {
+      "source_columns": {
+        "msk": [
+          "Prior Treatment to MSK (NLP)"
+        ],
+        "tcga": []
+      },
+      "normalization_rule": "'Prior medications to MSK' -> yes; 'No prior medications' -> no; Unknown -> missing.",
+      "numeric": false,
+      "used_as_predictor": true,
+      "predictor_usable_in_cohorts": [
+        "MSK-CHORD-2024"
+      ],
+      "populated_missing_by_cohort": {
+        "MSK-CHORD-2024": {
+          "populated": 5734,
+          "missing": 1045
+        },
+        "TCGA-LUAD": {
+          "populated": 0,
+          "missing": 522
+        },
+        "TCGA-LUSC": {
+          "populated": 0,
+          "missing": 504
+        }
+      },
+      "leakage_timing_concerns": "NLP-derived from initial consult notes; timing relative to diagnosis is limited.",
+      "cohort_definition_differences": "Anti-cancer medication received before MSK care; not equivalent to TCGA neoadjuvant treatment."
+    },
+    "prior_treatment_tcga_neoadjuvant": {
+      "source_columns": {
+        "msk": [],
+        "tcga": [
+          "history_neoadjuvant_treatment"
+        ]
+      },
+      "normalization_rule": "Yes (including 'Yes, ...' variants) -> yes; No -> no; markers -> missing.",
+      "numeric": false,
+      "used_as_predictor": true,
+      "predictor_usable_in_cohorts": [
+        "TCGA-LUAD",
+        "TCGA-LUSC"
+      ],
+      "populated_missing_by_cohort": {
+        "MSK-CHORD-2024": {
+          "populated": 0,
+          "missing": 6779
+        },
+        "TCGA-LUAD": {
+          "populated": 521,
+          "missing": 1
+        },
+        "TCGA-LUSC": {
+          "populated": 504,
+          "missing": 0
+        }
+      },
+      "leakage_timing_concerns": "Describes treatment before resection.",
+      "cohort_definition_differences": "Neoadjuvant treatment before surgery; not equivalent to MSK prior medications."
+    }
+  },
+  "counts_by_cohort_and_target": [
+    {
+      "cohort": "MSK-CHORD-2024",
+      "cancer_type": "LUAD",
+      "patients": 5957
+    },
+    {
+      "cohort": "MSK-CHORD-2024",
+      "cancer_type": "LUSC",
+      "patients": 822
+    },
+    {
+      "cohort": "TCGA-LUAD",
+      "cancer_type": "LUAD",
+      "patients": 522
+    },
+    {
+      "cohort": "TCGA-LUSC",
+      "cancer_type": "LUSC",
+      "patients": 504
+    }
+  ],
+  "missing_sex_count": 1,
+  "msk_excluded_or_conflicting_patient_groups": 18171,
+  "tcga_label_qc_rows": 1026
+}

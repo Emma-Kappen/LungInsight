@@ -1,0 +1,181 @@
+{
+  "purpose": "Exploratory research baseline; not clinically validated.",
+  "input_dataset": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\Clinical\\artifacts\\cancer_type_dataset\\cancer_type_model_ready_candidate.csv",
+  "cohort": "MSK-CHORD-2024",
+  "target": "cancer_type",
+  "features": [
+    "sex_at_baseline",
+    "smoking_history",
+    "stage"
+  ],
+  "excluded_features": [
+    "patient_id",
+    "cohort",
+    "label_provenance",
+    "sample_count",
+    "source_record_id",
+    "histology",
+    "OncoTree code",
+    "survival",
+    "vital status",
+    "treatment outcome"
+  ],
+  "scikit_learn_version": "1.9.1",
+  "random_seed": 42,
+  "test_fraction": 0.2,
+  "training_rows": 5423,
+  "test_rows": 1356,
+  "training_class_counts": {
+    "LUAD": 4765,
+    "LUSC": 658
+  },
+  "test_class_counts": {
+    "LUAD": 1192,
+    "LUSC": 164
+  },
+  "preprocessing": "Most-frequent categorical imputation and one-hot encoding, fitted inside the pipeline and separately in each CV fold.",
+  "model": "LogisticRegression(class_weight='balanced')",
+  "dummy_holdout_metrics": {
+    "accuracy": 0.8790560471976401,
+    "balanced_accuracy": 0.5,
+    "macro_f1": 0.46781789638932497,
+    "lusc_precision": 0.0,
+    "lusc_recall": 0.0,
+    "lusc_f1": 0.0,
+    "confusion_matrix_labels": [
+      "LUAD",
+      "LUSC"
+    ],
+    "confusion_matrix": [
+      [
+        1192,
+        0
+      ],
+      [
+        164,
+        0
+      ]
+    ],
+    "classification_report": {
+      "LUAD": {
+        "precision": 0.8790560471976401,
+        "recall": 1.0,
+        "f1-score": 0.9356357927786499,
+        "support": 1192.0
+      },
+      "LUSC": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1-score": 0.0,
+        "support": 164.0
+      },
+      "accuracy": 0.8790560471976401,
+      "macro avg": {
+        "precision": 0.43952802359882004,
+        "recall": 0.5,
+        "f1-score": 0.46781789638932497,
+        "support": 1356.0
+      },
+      "weighted avg": {
+        "precision": 0.7727395341147396,
+        "recall": 0.8790560471976401,
+        "f1-score": 0.8224763016166302,
+        "support": 1356.0
+      }
+    },
+    "roc_auc_lusc_positive": 0.5
+  },
+  "model_holdout_metrics": {
+    "accuracy": 0.7087020648967551,
+    "balanced_accuracy": 0.6371132754951712,
+    "macro_f1": 0.5629899963039929,
+    "lusc_precision": 0.2176039119804401,
+    "lusc_recall": 0.5426829268292683,
+    "lusc_f1": 0.3106457242582897,
+    "confusion_matrix_labels": [
+      "LUAD",
+      "LUSC"
+    ],
+    "confusion_matrix": [
+      [
+        872,
+        320
+      ],
+      [
+        75,
+        89
+      ]
+    ],
+    "classification_report": {
+      "LUAD": {
+        "precision": 0.9208025343189018,
+        "recall": 0.7315436241610739,
+        "f1-score": 0.8153342683496961,
+        "support": 1192.0
+      },
+      "LUSC": {
+        "precision": 0.2176039119804401,
+        "recall": 0.5426829268292683,
+        "f1-score": 0.3106457242582897,
+        "support": 164.0
+      },
+      "accuracy": 0.7087020648967551,
+      "macro avg": {
+        "precision": 0.569203223149671,
+        "recall": 0.6371132754951712,
+        "f1-score": 0.5629899963039929,
+        "support": 1356.0
+      },
+      "weighted avg": {
+        "precision": 0.8357549133281145,
+        "recall": 0.7087020648967552,
+        "f1-score": 0.7542952408932133,
+        "support": 1356.0
+      }
+    },
+    "roc_auc_lusc_positive": 0.7089872524144705
+  },
+  "training_only_5fold_cv": {
+    "balanced_accuracy": {
+      "fold_scores": [
+        0.6758203758466088,
+        0.6445316226271106,
+        0.6588643518076887,
+        0.6577701593201061,
+        0.6483262978300746
+      ],
+      "mean": 0.6570625614863177,
+      "std": 0.012134140616420808
+    },
+    "macro_f1": {
+      "fold_scores": [
+        0.5679918388118215,
+        0.5633944244351118,
+        0.5642333785617368,
+        0.5664297913272217,
+        0.5541292214096795
+      ],
+      "mean": 0.5632357309091143,
+      "std": 0.0054030450690788195
+    },
+    "roc_auc": {
+      "fold_scores": [
+        0.7185602085916881,
+        0.7254125727368119,
+        0.7168073706636141,
+        0.7262922230321283,
+        0.7036838268865695
+      ],
+      "mean": 0.7181512403821625,
+      "std": 0.009086828931770182
+    }
+  },
+  "limitations": [
+    "Single-cohort random holdout; not external validation.",
+    "MSK current age was excluded because it is not age at diagnosis.",
+    "MSK labels are imbalanced; interpret per-class metrics.",
+    "Smoking history is NLP-derived and has missing values.",
+    "Stage definitions and timing may vary.",
+    "No clinical utility or prospective validation established."
+  ]
+}

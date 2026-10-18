@@ -1,0 +1,1027 @@
+patient_id,histologic_diagnosis,histologic_diagnosis.1,expected_target,broad_histology_matches_expected
+TCGA-05-4244,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-05-4245,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-05-4249,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-05-4250,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-05-4382,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4384,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4389,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4390,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4395,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4396,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4397,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4398,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4402,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4403,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4405,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4410,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4415,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4417,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4418,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4420,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4422,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4424,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4425,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4426,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4427,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4430,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4432,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4433,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-4434,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-5420,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-05-5423,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-5425,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-5428,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-05-5429,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-05-5715,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-35-3615,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-35-4122,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-35-4123,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-35-5375,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-38-4625,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-38-4626,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-38-4627,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-38-4628,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-38-4629,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-38-4630,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-38-4631,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-38-4632,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-38-6178,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-38-7271,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-38-A44F,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-44-2655,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-2656,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-2657,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-2659,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-2661,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-2662,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-2664,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-2665,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-2666,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-2668,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-3396,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-3398,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-3917,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-3918,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-3919,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-4112,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-5643,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-5644,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-5645,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-6144,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-6145,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-6146,Lung Adenocarcinoma,Lung Mucinous Adenocarcinoma,LUAD,True
+TCGA-44-6147,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-6148,Lung Adenocarcinoma,Lung Mucinous Adenocarcinoma,LUAD,True
+TCGA-44-6774,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-6775,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-6776,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-6777,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-6778,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-6779,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-7659,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-7660,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-7661,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-7662,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-7667,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-7669,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-7670,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-7671,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-44-7672,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-8117,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-8119,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-8120,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-A479,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-A47A,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-A47B,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-A47F,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-A47G,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-A4SS,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-44-A4SU,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4486,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4487,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4488,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4490,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4494,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4501,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4505,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4506,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4507,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4510,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4512,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-4514,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-49-6742,Lung Adenocarcinoma,Mucinous (Colloid) Carcinoma,LUAD,True
+TCGA-49-6743,Lung Adenocarcinoma,Lung Clear Cell Adenocarcinoma,LUAD,True
+TCGA-49-6744,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-49-6745,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-6761,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-6767,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-AAQV,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-49-AAR0,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-AAR2,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-49-AAR3,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-AAR4,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-AAR9,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-AARE,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-AARN,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-AARO,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-49-AARQ,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-49-AARR,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-4B-A93V,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-50-5044,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5045,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5049,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5051,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5055,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-50-5066,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-50-5068,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5072,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5930,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-50-5931,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5932,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5933,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5935,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5936,Lung Adenocarcinoma,Mucinous (Colloid) Carcinoma,LUAD,True
+TCGA-50-5939,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-50-5941,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5942,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-5944,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-50-5946,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-50-6590,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-6591,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-6592,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-6593,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-50-6594,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-6595,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-6597,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-6673,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-7109,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-50-8457,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-50-8459,Lung Adenocarcinoma,Mucinous (Colloid) Carcinoma,LUAD,True
+TCGA-50-8460,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-53-7624,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-53-7626,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-53-7813,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-53-A4EZ,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-55-1592,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-1594,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-1595,Lung Adenocarcinoma,Lung Clear Cell Adenocarcinoma,LUAD,True
+TCGA-55-1596,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-5899,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6543,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Mucinous,LUAD,True
+TCGA-55-6642,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6712,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6968,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6969,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6970,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-55-6971,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6972,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-55-6975,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-55-6978,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6979,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6980,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-55-6981,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6982,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6983,Lung Adenocarcinoma,Mucinous (Colloid) Carcinoma,LUAD,True
+TCGA-55-6984,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6985,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-6986,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-55-6987,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7227,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7281,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7283,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-55-7284,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-55-7570,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7573,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7574,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7576,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7724,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7725,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7726,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7727,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7728,Lung Adenocarcinoma,Mucinous (Colloid) Carcinoma,LUAD,True
+TCGA-55-7815,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7816,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7903,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7907,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7910,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7911,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7913,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7914,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7994,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-7995,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8085,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-55-8087,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8089,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8090,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8091,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8092,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8094,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8096,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8097,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8203,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8204,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8205,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8206,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8207,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-55-8208,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8299,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8301,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8302,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8505,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8506,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8507,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8508,Lung Adenocarcinoma,Mucinous (Colloid) Carcinoma,LUAD,True
+TCGA-55-8510,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8511,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8512,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-55-8513,Lung Adenocarcinoma,Mucinous (Colloid) Carcinoma,LUAD,True
+TCGA-55-8514,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8614,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8615,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8616,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8619,Lung Adenocarcinoma,Mucinous (Colloid) Carcinoma,LUAD,True
+TCGA-55-8620,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-8621,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-A48X,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-A48Y,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-A48Z,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-55-A490,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-A491,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-A492,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-A493,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-A494,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-A4DF,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-A4DG,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-55-A57B,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-62-8394,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-62-8395,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-62-8397,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-62-8398,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-62-8399,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-62-8402,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-62-A46O,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-62-A46P,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-62-A46R,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-62-A46S,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-62-A46U,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-62-A46V,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-62-A46Y,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-62-A470,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-62-A471,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-62-A472,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-64-1676,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-64-1677,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-64-1678,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-64-1679,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-64-1680,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-64-1681,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-64-5774,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-64-5775,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-64-5778,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-64-5779,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-64-5781,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-64-5815,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-67-3770,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-67-3771,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-67-3772,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-67-3773,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-67-3774,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-67-3776,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-67-4679,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-67-6215,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-67-6216,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-67-6217,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-69-7760,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-69-7761,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-69-7763,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-69-7764,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-69-7765,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-69-7973,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-69-7974,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-69-7978,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-69-7979,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-69-7980,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-69-8253,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-69-8254,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-69-8255,Lung Adenocarcinoma,Lung Solid Pattern Predominant Adenocarcinoma,LUAD,True
+TCGA-69-8453,Lung Adenocarcinoma,Mucinous (Colloid) Carcinoma,LUAD,True
+TCGA-69-A59K,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-71-6725,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-71-8520,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-73-4658,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-73-4659,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-73-4662,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-73-4666,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-73-4668,Lung Adenocarcinoma,Lung Micropapillary Adenocarcinoma,LUAD,True
+TCGA-73-4670,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-73-4675,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-73-4676,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-73-4677,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-73-7498,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-73-7499,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-73-A9RS,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-5122,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-5125,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-5126,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-75-5146,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-5147,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-6203,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-6205,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-6206,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-6207,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-6211,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-6212,Lung Adenocarcinoma,Lung Micropapillary Adenocarcinoma,LUAD,True
+TCGA-75-6214,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-7025,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-7027,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-7030,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-75-7031,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-7143,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-78-7145,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-7146,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7147,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-7148,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7149,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7150,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-7152,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7153,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7154,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-7155,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-7156,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7158,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7159,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7160,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7161,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7162,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7163,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-7166,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-7167,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-78-7220,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7535,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-7536,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-7537,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7539,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-7540,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Mucinous,LUAD,True
+TCGA-78-7542,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-7633,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-8640,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-8648,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-8655,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-78-8660,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-78-8662,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-80-5607,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-80-5608,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-80-5611,Lung Adenocarcinoma,Lung Solid Pattern Predominant Adenocarcinoma,LUAD,True
+TCGA-83-5908,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-6562,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-6851,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-86-7701,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-7711,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-7713,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-7714,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-86-7953,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-7954,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-86-7955,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-8054,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-86-8055,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-8056,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-86-8073,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-86-8074,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-8075,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-8076,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-86-8278,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-8279,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-8280,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-86-8281,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-8358,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-8359,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-8585,Lung Adenocarcinoma,Lung Solid Pattern Predominant Adenocarcinoma,LUAD,True
+TCGA-86-8668,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Mucinous,LUAD,True
+TCGA-86-8669,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-8671,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-86-8672,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-8673,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-86-8674,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-86-A456,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-86-A4D0,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-A4JF,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-A4P7,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-86-A4P8,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-6828,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-6829,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-91-6830,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-6831,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-6835,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-6836,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-6840,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-6847,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-6848,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-6849,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-7771,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-8496,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-91-8497,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-8499,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-A4BC,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-91-A4BD,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-93-7347,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-93-7348,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-93-8067,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-93-A4JN,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-93-A4JO,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-93-A4JP,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-93-A4JQ,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-95-7039,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-95-7043,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-95-7562,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-95-7567,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-95-7944,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-95-7947,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-95-7948,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-95-8039,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-95-8494,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-95-A4VK,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-95-A4VN,Lung Adenocarcinoma,Lung Solid Pattern Predominant Adenocarcinoma,LUAD,True
+TCGA-95-A4VP,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-97-7546,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-97-7547,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-97-7552,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Mucinous,LUAD,True
+TCGA-97-7553,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-97-7554,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-97-7937,Lung Adenocarcinoma,Lung Micropapillary Adenocarcinoma,LUAD,True
+TCGA-97-7938,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-97-7941,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-97-8171,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-97-8172,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-97-8174,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-97-8175,Lung Adenocarcinoma,Lung Solid Pattern Predominant Adenocarcinoma,LUAD,True
+TCGA-97-8176,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-97-8177,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-97-8179,Lung Adenocarcinoma,Lung Acinar Adenocarcinoma,LUAD,True
+TCGA-97-8547,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-97-8552,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-97-A4LX,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-97-A4M0,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-97-A4M1,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-97-A4M2,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-97-A4M3,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-97-A4M5,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-97-A4M6,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-97-A4M7,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-99-7458,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Nonmucinous,LUAD,True
+TCGA-99-8025,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-99-8028,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-99-8032,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-99-8033,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-99-AA5R,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-J2-8192,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-J2-8194,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-J2-A4AD,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-J2-A4AE,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-J2-A4AG,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-L4-A4E5,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-L4-A4E6,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-L9-A443,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-L9-A444,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-L9-A50W,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-L9-A5IP,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-L9-A743,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-L9-A7SV,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-L9-A8F4,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MN-A4N1,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MN-A4N4,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MN-A4N5,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4SV,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4SW,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4SY,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4T2,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4T4,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4T6,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4T7,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4T8,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4T9,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4TA,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4TC,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4TD,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4TE,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4TF,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4TH,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4TI,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A4TJ,Lung Adenocarcinoma,Lung Signet Ring Adenocarcinoma,LUAD,True
+TCGA-MP-A4TK,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-MP-A5C7,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-NJ-A4YF,Lung Adenocarcinoma,Lung Adenocarcinoma Mixed Subtype,LUAD,True
+TCGA-NJ-A4YG,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-NJ-A4YI,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-NJ-A4YP,Lung Adenocarcinoma,Lung Papillary Adenocarcinoma,LUAD,True
+TCGA-NJ-A4YQ,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-NJ-A55A,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-NJ-A55O,Lung Adenocarcinoma,Mucinous (Colloid) Carcinoma,LUAD,True
+TCGA-NJ-A55R,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-NJ-A7XG,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-O1-A52J,Lung Adenocarcinoma,Lung Adenocarcinoma- Not Otherwise Specified (NOS),LUAD,True
+TCGA-S2-AA1A,Lung Adenocarcinoma,Lung Bronchioloalveolar Carcinoma Mucinous,LUAD,True
+TCGA-18-3406,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-3407,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-3408,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-3409,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-18-3410,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-3411,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-3412,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-3414,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-3415,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-3416,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-3417,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-3419,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-3421,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-4083,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-4086,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-4721,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-5592,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-18-5595,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1070,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1071,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1072,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1075,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1076,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1077,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1078,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1079,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1080,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1081,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1082,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-1083,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-5782,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-5783,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-5784,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-5786,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-5787,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-21-A5DI,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-0940,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-0944,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-1000,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-1002,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-1005,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-1011,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-1012,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-1016,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-1017,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4591,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4593,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4594,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4595,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4596,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4599,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4601,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4604,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4605,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4607,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4609,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-4613,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5471,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5472,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5473,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5474,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5477,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5478,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5479,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5480,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5481,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5482,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5483,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5485,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5489,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5491,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-5492,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-22-A5C4,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-4532,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-4533,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-4538,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-4547,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-4566,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-4582,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-4583,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-4586,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-4587,Lung Squamous Cell Carcinoma,Lung Small Cell Squamous Cell Carcinoma,LUSC,True
+TCGA-33-4589,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-6737,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-6738,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-A4WN,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-A5GW,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-AAS8,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-AASB,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-AASD,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-AASI,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-AASJ,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-33-AASL,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-2596,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-2600,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-2604,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-2605,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-2608,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-2609,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-5231,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-5232,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-5234,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-5236,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-5239,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-5240,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-34-5241,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-5927,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-5928,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-5929,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-7107,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-8454,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-8455,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-8456,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-34-A5IX,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-3783,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-3789,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-3792,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-4129,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-4130,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-4132,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-4133,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-4135,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-4141,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-5819,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-A5EL,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-A5EM,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-37-A5EN,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5011,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5016,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-39-5019,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5021,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5022,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5024,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5027,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5028,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5029,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5030,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5031,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5034,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5035,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5036,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5037,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5039,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-39-5040,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-2576,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-2578,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-2581,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-3394,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-3920,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-5668,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-5670,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-6143,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-43-6647,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-6770,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-6771,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-6773,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-7656,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-7657,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-7658,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-8115,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-8116,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-8118,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-A474,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-A475,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-A56U,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-43-A56V,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-46-3765,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-46-3766,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-46-3767,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-46-3768,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-46-3769,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-46-6025,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-46-6026,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-51-4079,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-51-4080,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-51-4081,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-51-6867,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-52-7622,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-52-7809,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-52-7810,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-52-7811,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-52-7812,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-1622,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-5897,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-5898,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-6545,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-6546,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-7221,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-7222,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-7223,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-7579,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-7580,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-7582,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-7730,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-7731,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-7822,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-7823,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8082,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8083,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8201,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8304,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8305,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8307,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8308,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8309,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8503,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8504,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8622,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8623,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8624,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8625,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8626,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8628,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-8629,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-A49D,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-A4BW,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-A4BX,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-A4BY,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-A4ZJ,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-A4ZK,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-A5DR,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-A5DS,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-56-A62T,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-58-8386,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-58-8387,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-58-8388,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-58-8390,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-58-8391,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-58-8392,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-58-8393,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-58-A46J,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-58-A46K,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-58-A46L,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-58-A46M,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-58-A46N,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-60-2695,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-60-2696,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2697,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2698,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2703,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2704,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2706,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2707,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2708,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2709,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2710,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2711,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2712,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2713,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2714,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2715,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2716,Lung Squamous Cell Carcinoma,[Discrepancy],LUSC,True
+TCGA-60-2719,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2720,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2721,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2722,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2723,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2724,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2725,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-60-2726,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-5128,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-5131,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-6202,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-7020,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-7021,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-7022,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-7023,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5M9,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MB,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MG,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MH,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MI,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MJ,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5ML,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MM,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MN,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MP,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MR,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MS,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MT,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MU,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MV,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MW,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-63-A5MY,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2727,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2734,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2737,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2742,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2744,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2753,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2754,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2755,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2756,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2757,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2758,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2759,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2763,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2765,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2766,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2767,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2768,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2769,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2770,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2771,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2773,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2777,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2778,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2780,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2781,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2782,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2783,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2785,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2786,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2787,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2788,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2789,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2790,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2791,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2792,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2793,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2794,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2795,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-66-2800,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-68-7755,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-68-7756,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-68-7757,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-68-8250,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-68-8251,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-68-A59I,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-68-A59J,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-6A-AB49,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-70-6722,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-70-6723,Lung Squamous Cell Carcinoma,Lung Papillary Squamous Cell Caricnoma,LUSC,True
+TCGA-77-6842,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-6843,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-6844,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-6845,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-7138,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-7139,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-7140,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-7141,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-7142,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-7335,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-7337,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-7338,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-7463,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-7465,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8007,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8008,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8009,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8128,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8130,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8131,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8133,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8136,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8138,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8139,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8140,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8143,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8144,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8145,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8146,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8148,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8150,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8153,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8154,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-8156,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-A5FZ,Lung Squamous Cell Carcinoma,Lung Papillary Squamous Cell Caricnoma,LUSC,True
+TCGA-77-A5G1,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-A5G3,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-A5G6,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-A5G7,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-A5G8,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-A5GA,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-A5GB,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-A5GF,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-77-A5GH,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-79-5596,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-6175,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-6560,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-6561,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-6798,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-7696,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-7697,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-7698,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-7699,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-7710,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-7843,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-7844,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-7950,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8048,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8049,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8052,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8070,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8071,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8072,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8276,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8277,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8287,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8288,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8350,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8351,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8352,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8353,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8354,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8355,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8479,Lung Squamous Cell Carcinoma,Lung Papillary Squamous Cell Caricnoma,LUSC,True
+TCGA-85-8481,Lung Squamous Cell Carcinoma,Lung Papillary Squamous Cell Caricnoma,LUSC,True
+TCGA-85-8580,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8582,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8584,Lung Squamous Cell Carcinoma,Lung Papillary Squamous Cell Caricnoma,LUSC,True
+TCGA-85-8664,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-8666,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A4CL,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A4CN,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A4JB,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A4JC,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A4PA,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A4QQ,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A4QR,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A50M,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A50Z,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A510,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A511,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A512,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A513,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A53L,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-85-A5B5,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-90-6837,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-90-7766,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-90-7767,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-90-7769,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-90-7964,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-90-A4ED,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-90-A4EE,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-90-A59Q,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-92-7340,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-92-7341,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-92-8063,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-92-8064,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-92-8065,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-94-7033,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-94-7557,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-94-7943,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-94-8035,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-94-8490,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-94-8491,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-94-A4VJ,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-94-A5I4,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-94-A5I6,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-96-7544,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-96-7545,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-96-8169,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-96-8170,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-96-A4JK,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-96-A4JL,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-7454,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-8020,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-8021,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-8022,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-8023,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-A538,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-A539,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-A53A,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-A53B,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-A53C,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-A53D,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-A53H,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-A53I,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-98-A53J,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-J1-A4AH,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-L3-A4E7,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-L3-A524,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-LA-A446,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-LA-A7SW,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-MF-A522,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HD,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HE,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HF,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HG,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-NC-A5HH,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-NC-A5HI,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HJ,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HK,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HL,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HM,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HN,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HO,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HP,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HQ,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NC-A5HR,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-NC-A5HT,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NK-A5CR,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NK-A5CT,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NK-A5CX,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-NK-A5D1,Lung Squamous Cell Carcinoma,Lung Basaloid Squamous Cell Carcinoma,LUSC,True
+TCGA-NK-A7XE,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-O2-A52N,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-O2-A52Q,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-O2-A52S,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-O2-A52V,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-O2-A52W,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-O2-A5IB,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
+TCGA-XC-AA0X,Lung Squamous Cell Carcinoma,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),LUSC,True
