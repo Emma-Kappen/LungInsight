@@ -1,0 +1,54 @@
+{
+  "features": [
+    "sex_at_baseline",
+    "smoking_history"
+  ],
+  "training_rows": 5423,
+  "test_rows": 1356,
+  "holdout_metrics_recomputed_from_saved_predictions": {
+    "accuracy": 0.7087020648967551,
+    "balanced_accuracy": 0.6371132754951712,
+    "macro_f1": 0.5629899963039929,
+    "lusc_precision": 0.2176039119804401,
+    "lusc_recall": 0.5426829268292683,
+    "lusc_f1": 0.3106457242582897,
+    "confusion_matrix_luad_lusc": [
+      [
+        872,
+        320
+      ],
+      [
+        75,
+        89
+      ]
+    ]
+  },
+  "candidate_holdout_auc": 0.676829268292683,
+  "candidate_cv_auc_mean": 0.6982223915662314,
+  "production_reference": {
+    "holdout_roc_auc": 0.7089872524144705,
+    "holdout_balanced_accuracy": 0.6371132754951712,
+    "holdout_macro_f1": 0.5629899963039929,
+    "training_cv_roc_auc_mean": null,
+    "training_cv_balanced_accuracy_mean": null
+  },
+  "holdout_auc_difference_candidate_minus_production": -0.0321579841217875,
+  "checks": {
+    "serialized_features": "PASS",
+    "candidate_only_decision": "PASS",
+    "class_labels": "PASS",
+    "holdout_prediction_schema": "PASS",
+    "holdout_count_and_probabilities": "PASS",
+    "reported_metrics_recomputed": "PASS",
+    "patient_ids_and_true_labels_match_source": "PASS",
+    "production_model_not_modified": "PASS"
+  },
+  "promotion": "NOT PROMOTED; candidate only",
+  "corrected_production_metric_paths": {
+    "holdout_roc_auc": "holdout_results.default_0.50.holdout_metrics.roc_auc",
+    "holdout_balanced_accuracy": "holdout_results.default_0.50.holdout_metrics.balanced_accuracy",
+    "holdout_macro_f1": "holdout_results.default_0.50.holdout_metrics.macro_f1",
+    "training_cv_roc_auc_mean": null,
+    "training_cv_balanced_accuracy_mean": null
+  }
+}

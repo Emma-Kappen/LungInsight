@@ -5,36 +5,24 @@ import joblib
 import numpy as np
 import pandas as pd
 
-from sklearn.base import clone
-from sklearn.metrics import (
-    accuracy_score,
-    balanced_accuracy_score,
-    confusion_matrix,
-    f1_score,
-    precision_score,
-    recall_score,
-    roc_auc_score,
-)
-from sklearn.model_selection import (
-    StratifiedKFold,
-    cross_val_predict,
-    train_test_split,
-)
-from sklearn.pipeline import Pipeline
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    accuracy_score, balanced_accuracy_score, f1_score,
+    precision_score, recall_score, roc_auc_score, confusion_matrix,
+)
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_predict
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-
+ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT / "artifacts" / "cancer_type_dataset" / "cancer_type_model_ready_candidate.csv"
+OUT = ROOT / "artifacts" / "cancer_type_threshold_analysis_20261019"
+FEATURES = ["sex_at_baseline", "smoking_history"]
 SEED = 42
-COHORT = "MSK-CHORD-2024"
-FEATURES = ["sex_at_baseline", "smoking_history", "stage"]
-TARGET = "cancer_type"
-LABELS = ["LUAD", "LUSC"]
 
-
-def build_model():
+def make_model():
     prep = ColumnTransformer([
         ("categorical", Pipeline([
             ("imputer", SimpleImputer(strategy="most_frequent")),
@@ -44,199 +32,113 @@ def build_model():
     return Pipeline([
         ("preprocessing", prep),
         ("classifier", LogisticRegression(
-            class_weight="balanced",
-            max_iter=2000,
-            random_state=SEED,
+            class_weight="balanced", max_iter=2000, random_state=SEED
         )),
     ])
 
-
-def metrics_at_threshold(y_true, probabilities, threshold):
-    predictions = np.where(probabilities >= threshold, "LUSC", "LUAD")
+def metrics(y, prob, threshold):
+    pred = np.where(prob >= threshold, "LUSC", "LUAD")
     return {
         "threshold": float(threshold),
-        "accuracy": float(accuracy_score(y_true, predictions)),
-        "balanced_accuracy": float(
-            balanced_accuracy_score(y_true, predictions)
-        ),
-        "lusc_precision": float(precision_score(
-            y_true, predictions, pos_label="LUSC", zero_division=0
-        )),
-        "lusc_recall": float(recall_score(
-            y_true, predictions, pos_label="LUSC", zero_division=0
-        )),
-        "lusc_f1": float(f1_score(
-            y_true, predictions, pos_label="LUSC", zero_division=0
-        )),
-        "macro_f1": float(f1_score(
-            y_true, predictions, average="macro", zero_division=0
-        )),
-        "roc_auc": float(roc_auc_score(
-            (y_true == "LUSC").astype(int), probabilities
-        )),
-        "confusion_matrix_labels": LABELS,
+        "accuracy": float(accuracy_score(y, pred)),
+        "balanced_accuracy": float(balanced_accuracy_score(y, pred)),
+        "macro_f1": float(f1_score(y, pred, average="macro", zero_division=0)),
+        "lusc_precision": float(precision_score(y, pred, pos_label="LUSC", zero_division=0)),
+        "lusc_recall": float(recall_score(y, pred, pos_label="LUSC", zero_division=0)),
+        "lusc_f1": float(f1_score(y, pred, pos_label="LUSC", zero_division=0)),
+        "confusion_matrix_labels": ["LUAD", "LUSC"],
         "confusion_matrix": confusion_matrix(
-            y_true, predictions, labels=LABELS
+            y, pred, labels=["LUAD", "LUSC"]
         ).tolist(),
     }
 
-
-def choose_threshold(y_true, probabilities, objective):
-    # Threshold selection uses only out-of-fold training predictions.
-    candidates = np.linspace(0.05, 0.95, 181)
-    scored = []
-
-    for threshold in candidates:
-        result = metrics_at_threshold(y_true, probabilities, threshold)
-        score = result[objective]
-        # Prefer the threshold closest to 0.5 if scores tie.
-        scored.append((score, -abs(threshold - 0.5), threshold))
-
-    scored.sort(reverse=True)
-    return float(scored[0][2])
-
-
 def main():
-    clinical_dir = Path(__file__).resolve().parents[1]
-    input_path = (
-        clinical_dir / "artifacts" / "cancer_type_dataset"
-        / "cancer_type_model_ready_candidate.csv"
+    OUT.mkdir(parents=True, exist_ok=True)
+    df = pd.read_csv(DATA, dtype={"patient_id": str})
+    df = df.loc[df["cohort"].eq("MSK-CHORD-2024")].dropna(subset=["cancer_type"]).copy()
+    if df["patient_id"].isna().any() or df["patient_id"].duplicated().any():
+        raise ValueError("Missing or duplicate patient IDs; refusing to proceed.")
+
+    X = df[FEATURES]
+    y = df["cancer_type"].astype(str)
+    train_idx, test_idx = train_test_split(
+        df.index, test_size=0.20, random_state=SEED, stratify=y
     )
-    output_dir = (
-        clinical_dir / "artifacts" / "cancer_type_threshold_analysis"
-    )
-    output_dir.mkdir(parents=True, exist_ok=True)
+    X_train, X_test = X.loc[train_idx], X.loc[test_idx]
+    y_train, y_test = y.loc[train_idx], y.loc[test_idx]
 
-    df = pd.read_csv(input_path, dtype={"patient_id": str})
-    df = df.loc[df["cohort"].eq(COHORT)].dropna(subset=[TARGET]).copy()
-
-    if df["patient_id"].duplicated().any():
-        raise ValueError("Duplicate patient IDs detected.")
-    if set(df[TARGET].unique()) != set(LABELS):
-        raise ValueError(f"Unexpected target labels: {df[TARGET].unique()}")
-
-    X = df[FEATURES].copy()
-    y = df[TARGET].astype(str).copy()
-
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y,
-        test_size=0.20,
-        random_state=SEED,
-        stratify=y,
-    )
-
+    # Out-of-fold training probabilities only: holdout is not used for selection.
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=SEED)
-    base_model = build_model()
-
-    # Each training row gets a probability from a model that did not train
-    # on that row. These probabilities select thresholds without using test.
-    oof_probabilities = cross_val_predict(
-        clone(base_model),
-        X_train,
-        y_train,
-        cv=cv,
-        method="predict_proba",
-        n_jobs=1,
+    oof = cross_val_predict(
+        make_model(), X_train, y_train, cv=cv,
+        method="predict_proba", n_jobs=1
     )
     classes = sorted(y_train.unique())
-    lusc_index = classes.index("LUSC")
-    oof_lusc_probability = oof_probabilities[:, lusc_index]
+    lusc_col = classes.index("LUSC")
+    oof_prob = oof[:, lusc_col]
 
-    balanced_threshold = choose_threshold(
-        y_train, oof_lusc_probability, "balanced_accuracy"
-    )
-    f1_threshold = choose_threshold(
-        y_train, oof_lusc_probability, "lusc_f1"
-    )
+    threshold_rows = []
+    for threshold in np.round(np.arange(0.10, 0.901, 0.01), 2):
+        row = metrics(y_train.to_numpy(), oof_prob, threshold)
+        threshold_rows.append(row)
 
-    # Refit on the full training partition, then evaluate holdout only.
-    final_model = build_model()
-    final_model.fit(X_train, y_train)
-    model_classes = list(final_model.classes_)
-    test_lusc_probability = final_model.predict_proba(X_test)[
-        :, model_classes.index("LUSC")
-    ]
+    # Primary criterion is OOF balanced accuracy; break ties by macro-F1,
+    # then prefer a threshold closer to 0.50.
+    best = sorted(
+        threshold_rows,
+        key=lambda r: (
+            -r["balanced_accuracy"],
+            -r["macro_f1"],
+            abs(r["threshold"] - 0.50),
+        ),
+    )[0]
+    chosen_threshold = best["threshold"]
 
-    threshold_map = {
-        "default_0.50": 0.50,
-        "training_oof_max_balanced_accuracy": balanced_threshold,
-        "training_oof_max_lusc_f1": f1_threshold,
-    }
+    model = make_model()
+    model.fit(X_train, y_train)
+    joblib.dump(model, OUT / "sex_smoking_pipeline.joblib")
+    holdout_prob = model.predict_proba(X_test)[:, list(model.classes_).index("LUSC")]
 
-    results = {}
-    for name, threshold in threshold_map.items():
-        results[name] = {
-            "threshold_selection": (
-                "fixed default" if name == "default_0.50"
-                else "training-only out-of-fold predictions"
-            ),
-            "holdout_metrics": metrics_at_threshold(
-                y_test, test_lusc_probability, threshold
-            ),
-        }
+    holdout_default = metrics(y_test.to_numpy(), holdout_prob, 0.50)
+    holdout_tuned = metrics(y_test.to_numpy(), holdout_prob, chosen_threshold)
 
-    # Save holdout predictions at all three operating thresholds.
-    prediction_df = pd.DataFrame({
+    pd.DataFrame(threshold_rows).to_csv(OUT / "training_oof_thresholds.csv", index=False)
+    pd.DataFrame({
+        "patient_id": df.loc[test_idx, "patient_id"].to_numpy(),
         "true_label": y_test.to_numpy(),
-        "probability_lusc": test_lusc_probability,
-    })
-    for name, threshold in threshold_map.items():
-        prediction_df[f"predicted_{name}"] = np.where(
-            test_lusc_probability >= threshold, "LUSC", "LUAD"
-        )
-    prediction_df.to_csv(output_dir / "holdout_threshold_predictions.csv",
-                         index=False)
+        "probability_lusc": holdout_prob,
+        "prediction_threshold_050": np.where(holdout_prob >= 0.50, "LUSC", "LUAD"),
+        "prediction_training_selected_threshold": np.where(
+            holdout_prob >= chosen_threshold, "LUSC", "LUAD"
+        ),
+    }).to_csv(OUT / "holdout_predictions.csv", index=False)
 
     report = {
-        "purpose": "Exploratory threshold analysis; not clinical validation.",
-        "cohort": COHORT,
+        "purpose": "Exploratory threshold analysis; not clinically validated.",
         "features": FEATURES,
-        "target": TARGET,
-        "random_seed": SEED,
-        "train_rows": int(len(X_train)),
-        "test_rows": int(len(X_test)),
-        "training_only_oof_thresholds": {
-            "max_balanced_accuracy": balanced_threshold,
-            "max_lusc_f1": f1_threshold,
-        },
-        "holdout_results": results,
+        "threshold_selection": "Maximize training out-of-fold balanced accuracy; ties resolved by macro-F1, then closeness to 0.50.",
+        "selected_threshold": chosen_threshold,
+        "training_oof_metrics_at_selected_threshold": best,
+        "holdout_at_default_threshold_0_50": holdout_default,
+        "holdout_at_training_selected_threshold": holdout_tuned,
+        "holdout_used_for_threshold_selection": False,
         "limitations": [
-            "Thresholds are selected on training-only out-of-fold predictions.",
-            "The holdout is used for evaluation, not threshold selection.",
-            "The selected operating threshold may vary in another population.",
-            "Predicted probabilities are not necessarily calibrated risks.",
-            "This is not a clinically validated diagnostic model.",
+            "Single-cohort random holdout; not external validation.",
+            "Smoking-history timing is uncertain.",
+            "Threshold is exploratory and may not generalize.",
+            "Not for clinical decision-making.",
         ],
     }
-    (output_dir / "threshold_analysis_report.json").write_text(
-        json.dumps(report, indent=2), encoding="utf-8"
-    )
-    joblib.dump(final_model, output_dir / "logistic_regression_pipeline.joblib")
+    (OUT / "threshold_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
 
-    print("Output directory:", output_dir)
-    print("\nThresholds selected using training-only OOF predictions:")
-    print(json.dumps(report["training_only_oof_thresholds"], indent=2))
-
-    print("\nHoldout comparison:")
-    rows = []
-    for name, entry in results.items():
-        m = entry["holdout_metrics"]
-        rows.append({
-            "setting": name,
-            "threshold": m["threshold"],
-            "balanced_accuracy": m["balanced_accuracy"],
-            "lusc_precision": m["lusc_precision"],
-            "lusc_recall": m["lusc_recall"],
-            "lusc_f1": m["lusc_f1"],
-            "macro_f1": m["macro_f1"],
-            "roc_auc": m["roc_auc"],
-            "confusion_matrix": m["confusion_matrix"],
-        })
-    print(pd.DataFrame(rows).round(4).to_string(index=False))
-    print("\nSaved: threshold_analysis_report.json")
-    print("Saved: holdout_threshold_predictions.csv")
-    print("Saved: logistic_regression_pipeline.joblib")
-
+    print("Selected threshold from training OOF only:", chosen_threshold)
+    print("\nHOLDOUT — default threshold 0.50")
+    print(json.dumps(holdout_default, indent=2))
+    print("\nHOLDOUT — training-selected threshold")
+    print(json.dumps(holdout_tuned, indent=2))
+    print("\nSaved report:", OUT / "threshold_report.json")
+    print("Saved OOF threshold grid:", OUT / "training_oof_thresholds.csv")
+    print("Saved holdout predictions:", OUT / "holdout_predictions.csv")
 
 if __name__ == "__main__":
     main()

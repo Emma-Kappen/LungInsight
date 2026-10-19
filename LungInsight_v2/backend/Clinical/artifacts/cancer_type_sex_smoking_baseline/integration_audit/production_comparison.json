@@ -1,0 +1,79 @@
+{
+  "candidate_features": [
+    "sex_at_baseline",
+    "smoking_history"
+  ],
+  "production_features": [
+    "sex_at_baseline",
+    "smoking_history",
+    "stage"
+  ],
+  "candidate_train_test_rows": [
+    5423,
+    1356
+  ],
+  "production_train_test_rows": [
+    5423,
+    1356
+  ],
+  "comparisons": {
+    "accuracy": {
+      "candidate": 0.7087020648967551,
+      "production": 0.7087020648967551,
+      "candidate_minus_production": 0.0,
+      "status": "compared"
+    },
+    "balanced_accuracy": {
+      "candidate": 0.6371132754951712,
+      "production": 0.6371132754951712,
+      "candidate_minus_production": 0.0,
+      "status": "compared"
+    },
+    "macro_f1": {
+      "candidate": 0.5629899963039929,
+      "production": 0.5629899963039929,
+      "candidate_minus_production": 0.0,
+      "status": "compared"
+    },
+    "lusc_precision": {
+      "candidate": 0.2176039119804401,
+      "production": 0.2176039119804401,
+      "candidate_minus_production": 0.0,
+      "status": "compared"
+    },
+    "lusc_recall": {
+      "candidate": 0.5426829268292683,
+      "production": 0.5426829268292683,
+      "candidate_minus_production": 0.0,
+      "status": "compared"
+    },
+    "lusc_f1": {
+      "candidate": 0.3106457242582897,
+      "production": 0.3106457242582897,
+      "candidate_minus_production": 0.0,
+      "status": "compared"
+    },
+    "auc": {
+      "candidate": 0.676829268292683,
+      "production": 0.7089872524144705,
+      "candidate_minus_production": -0.0321579841217875,
+      "status": "compared"
+    },
+    "cv_auc_mean": {
+      "candidate": 0.6982223915662314,
+      "production": null,
+      "candidate_minus_production": null,
+      "status": "production_metric_not_reported"
+    }
+  },
+  "interpretation": [
+    "Candidate scores come from model_holdout_metrics, not dummy_holdout_metrics.",
+    "Production scores use the default 0.50 threshold.",
+    "The candidate holdout AUC is lower than production by approximately 0.03216.",
+    "Equal threshold metrics do not establish that both models used identical holdout membership.",
+    "Production CV AUC is not reported in the selected production evaluation report; no value is inferred.",
+    "No promotion was performed and no production model or report was modified."
+  ],
+  "promotion_performed": false,
+  "production_model_or_report_modified": false
+}

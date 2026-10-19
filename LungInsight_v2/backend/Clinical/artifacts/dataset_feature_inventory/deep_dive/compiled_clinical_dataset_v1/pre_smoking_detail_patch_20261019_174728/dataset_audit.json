@@ -1,0 +1,148 @@
+{
+  "build_timestamp_utc": "2026-10-19T11:48:17.725064+00:00",
+  "read_only_source_policy": "Source files read only; outputs written to new build directory.",
+  "total_rows": 5345,
+  "cohort_label_counts": {
+    "MSK|LUAD": 3715,
+    "MSK|LUSC": 604,
+    "TCGA-LUAD|LUAD": 522,
+    "TCGA-LUSC|LUSC": 504
+  },
+  "unique_patients_by_cohort": {
+    "MSK": 4319,
+    "TCGA-LUAD": 522,
+    "TCGA-LUSC": 504
+  },
+  "tcga_parse_audit": {
+    "TCGA-LUAD": {
+      "physical_lines": 525,
+      "parsed_participants": 522,
+      "nonparticipant_or_unparsed_line_numbers": []
+    },
+    "TCGA-LUSC": {
+      "physical_lines": 507,
+      "parsed_participants": 504,
+      "nonparticipant_or_unparsed_line_numbers": []
+    }
+  },
+  "tcga_luad_lusc_overlap": [],
+  "missingness": {
+    "COHORT": {
+      "missing": 0,
+      "missing_pct": 0.0
+    },
+    "PATIENT_ID": {
+      "missing": 0,
+      "missing_pct": 0.0
+    },
+    "SAMPLE_ID": {
+      "missing": 1026,
+      "missing_pct": 19.196
+    },
+    "LABEL": {
+      "missing": 0,
+      "missing_pct": 0.0
+    },
+    "LABEL_SOURCE": {
+      "missing": 0,
+      "missing_pct": 0.0
+    },
+    "age_at_diagnosis_years": {
+      "missing": 29,
+      "missing_pct": 0.543
+    },
+    "age_quality_flag": {
+      "missing": 0,
+      "missing_pct": 0.0
+    },
+    "sex": {
+      "missing": 0,
+      "missing_pct": 0.0
+    },
+    "smoking_status": {
+      "missing": 0,
+      "missing_pct": 0.0
+    },
+    "smoking_status_source_raw": {
+      "missing": 217,
+      "missing_pct": 4.06
+    },
+    "smoking_duration_years": {
+      "missing": 4756,
+      "missing_pct": 88.98
+    },
+    "years_since_smoking_cessation": {
+      "missing": 4796,
+      "missing_pct": 89.729
+    },
+    "pack_years": {
+      "missing": 4562,
+      "missing_pct": 85.351
+    },
+    "packs_per_day": {
+      "missing": 5345,
+      "missing_pct": 100.0
+    },
+    "performance_status_ecog": {
+      "missing": 4932,
+      "missing_pct": 92.273
+    },
+    "performance_status_kps": {
+      "missing": 4869,
+      "missing_pct": 91.094
+    },
+    "performance_status_source": {
+      "missing": 0,
+      "missing_pct": 0.0
+    },
+    "days_to_death": {
+      "missing": 5065,
+      "missing_pct": 94.761
+    },
+    "vital_status": {
+      "missing": 0,
+      "missing_pct": 0.0
+    },
+    "race": {
+      "missing": 175,
+      "missing_pct": 3.274
+    },
+    "ethnicity": {
+      "missing": 222,
+      "missing_pct": 4.153
+    },
+    "CT_timing_assumption": {
+      "missing": 0,
+      "missing_pct": 0.0
+    },
+    "SOURCE_FILE": {
+      "missing": 0,
+      "missing_pct": 0.0
+    }
+  },
+  "age_quality_flags": {
+    "ok": 5316,
+    "missing": 29
+  },
+  "smoking_status_source_raw_counts": {
+    "Former/Current Smoker": 3067,
+    "Never": 1054,
+    "4": 422,
+    "2": 256,
+    "3": 220,
+    "<MISSING>": 217,
+    "1": 93,
+    "5": 9,
+    "[Unknown]": 5,
+    "[Discrepancy]": 2
+  },
+  "important_limitations": [
+    "No KNN imputer was fitted and no model was trained.",
+    "Missing values are preserved for a later train-only fitted preprocessing pipeline.",
+    "TCGA clinical file participant counts may differ from prior inventory; see tcga_parse_audit.",
+    "CT timing is assumed, not verified.",
+    "TCGA smoking status is only mapped when source values explicitly support a category.",
+    "ECOG-to-KPS mapping is approximate.",
+    "No MSK sample-level pack-years, smoking duration, or cessation values are inferred unless explicitly present in the selected patient table."
+  ]
+}

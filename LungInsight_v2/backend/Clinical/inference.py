@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from datetime import datetime, timezone
 from functools import lru_cache
@@ -14,9 +15,30 @@ from jsonschema import Draft202012Validator, FormatChecker
 from .harmonization import ClinicalValidationError, validate_clinician_inputs
 from .imaging import ImagingEvidenceError, validate_imaging_evidence
 
+logger = logging.getLogger(__name__)
 CLINICAL_DIR = Path(__file__).resolve().parent
 INPUT_SCHEMA_PATH = CLINICAL_DIR / "schemas" / "clinical_inference_v1.schema.json"
 OUTPUT_SCHEMA_PATH = CLINICAL_DIR / "schemas" / "clinical_prediction_v1.schema.json"
+CANCER_TYPE_V2_PATH = CLINICAL_DIR / "models" / "cancer-type-luad-lusc-v2.joblib"
+CANCER_TYPE_V2_ADAPTER = "luad_lusc_v2_clinical_inputs"
+CANCER_TYPE_V2_TARGET = (
+    "histology conditional on LUAD/LUSC (patient-level); not cancer-versus-benign, "
+    "not a diagnosis, and not an individual nodule's malignancy"
+)
+CANCER_TYPE_V2_FEATURES = ["sex_at_baseline", "smoking_history"]
+CANCER_TYPE_V2_CLASSES = ["LUAD", "LUSC"]
+CANCER_TYPE_V2_CATEGORIES = {
+    "sex_at_baseline": ["female", "male"],
+    "smoking_history": ["former_or_current", "never"],
+}
+CANCER_TYPE_V2_LIMITATIONS = [
+    "Research-only; not clinically validated.",
+    "Predicts histology only among patients already known to have LUAD or LUSC; it does not detect cancer, "
+    "distinguish cancer from benign disease, or establish a diagnosis.",
+    "Trained on a retrospective research cohort of patients at initial pathologic diagnosis; "
+    "this deployed model uses sex and smoking history only.",
+    "Probabilities are not calibrated risks; the higher probability is not a diagnosis.",
+]
 
 
 class ClinicalInferenceError(ValueError):
@@ -216,6 +238,117 @@ def _run_model_independently(
         }
 
 
+def _cancer_type_v2_result_base(metadata: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "target": CANCER_TYPE_V2_TARGET,
+        "class_order": list(metadata["class_order"]),
+        "calibration_status": metadata.get("calibration_status", "not_calibrated"),
+        "model_version": metadata.get("model_version"),
+        "limitations": list(CANCER_TYPE_V2_LIMITATIONS),
+    }
+
+
+def _cancer_type_v2_abstention(
+    metadata: dict[str, Any],
+    reason: str,
+    *,
+    missing_features: list[str] | None = None,
+    warnings: list[str] | None = None,
+) -> dict[str, Any]:
+    return {
+        "status": "abstained",
+        "prediction": None,
+        "reason": reason,
+        "missing_features": missing_features or [],
+        "warnings": warnings or [],
+        "features_used": [],
+        **_cancer_type_v2_result_base(metadata),
+    }
+
+
+def _cancer_type_v2_features(
+    clinician: dict[str, Any],
+    feature_order: list[str] | None = None,
+) -> tuple[dict[str, str], list[str]]:
+    """Map only the loaded model's required inputs; unmappable values are reported missing."""
+
+    def mapped(value: Any, mapping: dict[str, str]) -> str | None:
+        return mapping.get(value) if isinstance(value, str) else None
+
+    candidates = {
+        "sex_at_baseline": mapped(clinician.get("sex_at_baseline"), {"female": "female", "male": "male"}),
+        "smoking_history": mapped(
+            clinician.get("smoking_status"),
+            {"never": "never", "former": "former_or_current", "current": "former_or_current"},
+        ),
+        "stage": mapped(
+            clinician.get("stage_at_baseline"),
+            {"stage_1_3": "stage_1_3", "stage_4": "stage_4"},
+        ),
+    }
+    input_names = {
+        "sex_at_baseline": "sex_at_baseline",
+        "smoking_history": "smoking_status",
+        "stage": "stage_at_baseline",
+    }
+    required = feature_order if feature_order is not None else CANCER_TYPE_V2_FEATURES
+    unknown = set(required) - set(candidates)
+    if unknown:
+        raise ClinicalInferenceError(f"Model declares unsupported cancer-type features: {sorted(unknown)}.")
+    values = {name: candidates[name] for name in required if candidates[name] is not None}
+    missing = [input_names[name] for name in required if candidates[name] is None]
+    return values, missing
+
+
+def _predict_cancer_type_v2(
+    artifact: dict[str, Any],
+    clinician: dict[str, Any],
+) -> dict[str, Any]:
+    metadata = artifact["metadata"]
+    if metadata.get("prediction_baseline_definition") != clinician.get("prediction_baseline_definition"):
+        return _cancer_type_v2_abstention(
+            metadata,
+            "This model was trained on patients at initial pathologic diagnosis; the baseline for this "
+            "prediction is not confirmed as initial pathologic diagnosis.",
+            warnings=["prediction_baseline_does_not_match_training_baseline"],
+        )
+    order = list(metadata["feature_order"])
+    values, missing = _cancer_type_v2_features(clinician, order)
+    if missing:
+        return _cancer_type_v2_abstention(
+            metadata,
+            "Required inputs are missing, unknown, or outside the categories this model was trained on: "
+            + ", ".join(missing) + ".",
+            missing_features=missing,
+            warnings=["required_model_inputs_missing"],
+        )
+    features = pd.DataFrame([{name: values[name] for name in order}], columns=order)
+    estimator = artifact["estimator"]
+    probabilities = np.asarray(estimator.predict_proba(features)[0], dtype=float)
+    class_order = [str(label) for label in getattr(estimator, "classes_", metadata["class_order"])]
+    if len(probabilities) != len(class_order) or not np.isfinite(probabilities).all():
+        raise ClinicalInferenceError("Cancer-type model returned an invalid probability vector.")
+    if (
+        np.any(probabilities < 0)
+        or np.any(probabilities > 1)
+        or not np.isclose(float(probabilities.sum()), 1.0, atol=1e-6)
+    ):
+        raise ClinicalInferenceError("Cancer-type model probabilities are not normalized.")
+    return {
+        "status": "research_prediction",
+        **_cancer_type_v2_result_base(metadata),
+        "class_order": class_order,
+        "probabilities": {label: float(p) for label, p in zip(class_order, probabilities)},
+        "predicted_class": class_order[int(np.argmax(probabilities))],
+        "features_used": order,
+        "feature_values": values,
+        "applicability": "within_declared_training_categories",
+        "warnings": [
+            "Research-only model output; not clinically validated and not a diagnosis.",
+        ],
+    }
+
+
 def _predict_cancer_type(
     artifact: dict[str, Any] | None,
     clinician: dict[str, Any],
@@ -225,7 +358,16 @@ def _predict_cancer_type(
             "not_trained",
             "No eligible cancer-type model artifact is available; TCGA-only subtype/source labels are not used as a classifier.",
         )
+    if artifact.get("load_error"):
+        return {
+            "status": "failed",
+            "prediction": None,
+            "error_code": "model_artifact_invalid",
+            "reason": artifact["load_error"],
+        }
     metadata = artifact["metadata"]
+    if metadata.get("feature_adapter") == CANCER_TYPE_V2_ADAPTER:
+        return _predict_cancer_type_v2(artifact, clinician)
     if metadata.get("prediction_baseline_definition") != clinician.get("prediction_baseline_definition"):
         return {
             "status": "abstained",
@@ -475,8 +617,131 @@ def _cached_artifacts(path: str, modified_ns: int) -> dict[str, dict[str, Any] |
     return load_artifacts(path)
 
 
+def adapt_cancer_type_pipeline(pipeline: Any) -> dict[str, Any]:
+    """Wrap the standalone LUAD/LUSC sklearn Pipeline in the bundle-style {metadata, estimator} contract.
+
+    The pipeline's own feature names, classes and trained categories are verified against the documented
+    contract; nothing is inferred or widened.
+    """
+    try:
+        preprocessing = pipeline.named_steps["preprocessing"]
+        encoder = preprocessing.named_transformers_["categorical"].named_steps["onehot"]
+        columns = [str(name) for name in preprocessing.transformers_[0][2]]
+        classes = [str(label) for label in pipeline.named_steps["classifier"].classes_]
+        categories = {
+            name: sorted(str(value) for value in values)
+            for name, values in zip(columns, encoder.categories_)
+        }
+        predict_proba = pipeline.predict_proba
+    except (AttributeError, KeyError, IndexError, TypeError) as exc:
+        raise ClinicalInferenceError("Unsupported standalone cancer-type pipeline structure.") from exc
+    supported_contracts = {
+        tuple(CANCER_TYPE_V2_FEATURES): CANCER_TYPE_V2_CATEGORIES,
+        ("sex_at_baseline", "smoking_history", "stage"): {
+            **CANCER_TYPE_V2_CATEGORIES,
+            "stage": ["stage_1_3", "stage_4"],
+        },
+    }
+    expected_categories = supported_contracts.get(tuple(columns))
+    if (
+        expected_categories is None
+        or classes != CANCER_TYPE_V2_CLASSES
+        or categories != expected_categories
+        or not callable(predict_proba)
+    ):
+        raise ClinicalInferenceError("Standalone cancer-type pipeline does not match a supported documented contract.")
+    return {
+        "estimator": pipeline,
+        "metadata": {
+            "model_version": "cancer-type-luad-lusc-v2",
+            "model_type": "logistic_regression_class_weight_balanced",
+            "artifact_source": "standalone_pipeline",
+            "feature_adapter": CANCER_TYPE_V2_ADAPTER,
+            "target": CANCER_TYPE_V2_TARGET,
+            "prediction_baseline_definition": "initial_pathologic_diagnosis",
+            "class_order": classes,
+            "feature_order": columns,
+            "required_features": columns,
+            "training_categories": categories,
+            "calibration_status": "not_calibrated",
+        },
+    }
+
+
+def load_cancer_type_pipeline(path: str | Path | None = None) -> dict[str, Any] | None:
+    """Load the trusted standalone LUAD/LUSC pipeline; None when absent, ClinicalInferenceError when invalid."""
+    import joblib
+
+    model_path = Path(path) if path else CANCER_TYPE_V2_PATH
+    if not model_path.is_file():
+        return None
+    try:
+        pipeline = joblib.load(model_path)
+    except Exception as exc:  # corrupt pickle data raises many unrelated exception types
+        raise ClinicalInferenceError(
+            f"Standalone cancer-type artifact could not be loaded ({type(exc).__name__})."
+        ) from exc
+    return adapt_cancer_type_pipeline(pipeline)
+
+
+@lru_cache(maxsize=1)
+def _cached_standalone_cancer_type(path: str, modified_ns: int) -> dict[str, Any] | None:
+    try:
+        return load_cancer_type_pipeline(path)
+    except ClinicalInferenceError as exc:
+        # An invalid model is reported as a failed model, without disturbing the survival model.
+        logger.error("cancer_type_artifact_invalid path=%s reason=%s", path, exc)
+        return {"load_error": str(exc)}
+
+
+def _standalone_cancer_type() -> dict[str, Any] | None:
+    path = CANCER_TYPE_V2_PATH
+    try:
+        modified_ns = path.stat().st_mtime_ns
+    except OSError:
+        return None
+    return _cached_standalone_cancer_type(str(path), modified_ns)
+
+
+def with_standalone_cancer_type(
+    models: dict[str, dict[str, Any] | None] | None,
+    *,
+    bundle_configured: bool,
+) -> dict[str, dict[str, Any] | None] | None:
+    """Use v2 as the sole cancer-type model; preserve the bundle's survival artifact.
+
+    The legacy bundled cancer-type estimator is never used as a fallback. If v2 is
+    missing, cancer-type inference is unavailable; if invalid, its load error is reported.
+    ``bundle_configured`` remains in the signature for compatibility with existing callers.
+    """
+    merged = dict(models) if models else {"cancer_type": None, "survival": None}
+    merged["cancer_type"] = _standalone_cancer_type()
+    return merged if any(value is not None for value in merged.values()) else None
+
+
 def load_deployed_artifacts() -> dict[str, dict[str, Any] | None] | None:
     path = configured_artifact_path()
-    if path is None:
-        return None
-    return _cached_artifacts(str(path), path.stat().st_mtime_ns)
+    models = _cached_artifacts(str(path), path.stat().st_mtime_ns) if path else None
+    return with_standalone_cancer_type(
+        models,
+        bundle_configured=bool(os.environ.get("LUNGINSIGHT_CLINICAL_ARTIFACT")),
+    )
+
+
+def describe_artifacts(artifacts: dict[str, dict[str, Any] | None] | None) -> dict[str, Any]:
+    available = artifacts or {}
+    cancer_type = available.get("cancer_type")
+    survival = available.get("survival")
+    if cancer_type is None:
+        cancer_type_status = "not_trained"
+    else:
+        cancer_type_status = "invalid" if cancer_type.get("load_error") else "loaded"
+    description: dict[str, Any] = {
+        "cancer_type_model": cancer_type_status,
+        "survival_model": "loaded" if survival else "not_trained",
+    }
+    if cancer_type_status == "loaded":
+        metadata = cancer_type["metadata"]
+        description["cancer_type_model_version"] = metadata.get("model_version")
+        description["cancer_type_model_source"] = metadata.get("artifact_source", "configured_bundle")
+    return description

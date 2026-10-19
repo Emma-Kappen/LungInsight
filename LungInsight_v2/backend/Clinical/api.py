@@ -16,7 +16,14 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from pydantic import BaseModel, ConfigDict, Field
 from fastapi.staticfiles import StaticFiles
 
-from .inference import ClinicalInferenceError, configured_artifact_path, load_artifacts, run_inference
+from .inference import (
+    ClinicalInferenceError,
+    describe_artifacts,
+    load_artifacts,
+    load_deployed_artifacts,
+    run_inference,
+    with_standalone_cancer_type,
+)
 from .harmonization import ClinicalValidationError, validate_clinician_inputs
 from ..Imaging.api.contract import CONTRACT_FILENAME, read_json, validate_contract
 from ..Imaging.api.app import OUTPUT_ROOT as IMAGING_OUTPUT_ROOT
@@ -80,9 +87,20 @@ class ManualBrockRequest(BaseModel):
     values: dict[str, Any] = Field(min_length=1)
 
 
-def create_app(artifact_path: str | None = None) -> FastAPI:
+def create_app(artifact_path: str | None = None, *, deployed: bool = False) -> FastAPI:
+    """`deployed=True` follows the deployed artifact path (re-read when files change), like the Imaging runner."""
     resolved_artifact_path = artifact_path or os.environ.get("LUNGINSIGHT_CLINICAL_ARTIFACT")
-    artifacts = load_artifacts(resolved_artifact_path) if resolved_artifact_path else None
+    artifacts = (
+        with_standalone_cancer_type(load_artifacts(resolved_artifact_path), bundle_configured=True)
+        if resolved_artifact_path and not deployed
+        else None
+    )
+    if deployed:
+        load_deployed_artifacts()
+
+    def current_artifacts() -> dict[str, Any] | None:
+        return load_deployed_artifacts() if deployed else artifacts
+
     app = FastAPI(
         title="LungInsight Clinical Research API",
         version="0.1.0",
@@ -181,11 +199,9 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
 
     @app.get("/api/v1/clinical/status")
     def status() -> dict[str, Any]:
-        available = artifacts or {}
         return {
             "status": "research_only",
-            "cancer_type_model": "loaded" if available.get("cancer_type") else "not_trained",
-            "survival_model": "loaded" if available.get("survival") else "not_trained",
+            **describe_artifacts(current_artifacts()),
             "input_schema_version": "1.0.0",
             "imaging_contract_version": "2.0.0",
         }
@@ -227,7 +243,7 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
         try:
             return run_inference(
                 request.model_dump(),
-                artifacts=artifacts,
+                artifacts=current_artifacts(),
             )
         except ClinicalInferenceError as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -519,5 +535,4 @@ def create_app(artifact_path: str | None = None) -> FastAPI:
     return app
 
 
-_deployed_artifact = configured_artifact_path()
-app = create_app(str(_deployed_artifact) if _deployed_artifact else None)
+app = create_app(deployed=True)

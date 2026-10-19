@@ -1,0 +1,32 @@
+[
+    {
+        "dataset":  "MSK-CHORD-2024",
+        "file":  "msk_chord_2024\\case_lists\\cases_all.txt",
+        "error":  "ParserError: Error tokenizing data. C error: Expected 1 fields in line 6, saw 25040\n"
+    },
+    {
+        "dataset":  "MSK-CHORD-2024",
+        "file":  "msk_chord_2024\\case_lists\\cases_cna.txt",
+        "error":  "ParserError: Error tokenizing data. C error: Expected 1 fields in line 6, saw 25034\n"
+    },
+    {
+        "dataset":  "MSK-CHORD-2024",
+        "file":  "msk_chord_2024\\case_lists\\cases_cnaseq.txt",
+        "error":  "ParserError: Error tokenizing data. C error: Expected 1 fields in line 6, saw 25040\n"
+    },
+    {
+        "dataset":  "MSK-CHORD-2024",
+        "file":  "msk_chord_2024\\case_lists\\cases_sequenced.txt",
+        "error":  "ParserError: Error tokenizing data. C error: Expected 1 fields in line 6, saw 25040\n"
+    },
+    {
+        "dataset":  "MSK-CHORD-2024",
+        "file":  "msk_chord_2024\\case_lists\\cases_sv.txt",
+        "error":  "ParserError: Error tokenizing data. C error: Expected 1 fields in line 6, saw 25040\n"
+    },
+    {
+        "dataset":  "MSK-CHORD-2024",
+        "file":  "msk_chord_2024\\meta_study.txt",
+        "error":  "ParserError: Error tokenizing data. C error: Expected 1 fields in line 3, saw 2\n"
+    }
+]

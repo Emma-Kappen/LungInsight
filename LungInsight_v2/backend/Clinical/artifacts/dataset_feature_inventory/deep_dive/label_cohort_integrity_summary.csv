@@ -1,0 +1,11 @@
+﻿table,rows,columns,duplicate_rows,id_column,id_unique_nonempty,duplicate_id_rows
+MSK patient,24950,26,0,PATIENT_ID,24950,0
+MSK sample,25040,24,0,PATIENT_ID,24950,90
+MSK timeline,25145,12,0,PATIENT_ID,24940,205
+MSK NSCLC patient export,7809,26,0,PATIENT_ID,7809,0
+MSK NSCLC sample export,7809,24,0,PATIENT_ID,7809,0
+MSK NSCLC combined features,7809,53,0,PATIENT_ID,7809,0
+TCGA-LUAD patient,524,123,0,bcr_patient_barcode,524,0
+TCGA-LUAD sample,524,32,0,bcr_patient_barcode,524,0
+TCGA-LUSC patient,506,107,0,bcr_patient_barcode,506,0
+TCGA-LUSC sample,506,32,0,bcr_patient_barcode,506,0

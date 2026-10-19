@@ -177,6 +177,20 @@
     </fieldset>
 
     <fieldset>
+      <legend>Cancer stage (optional)</legend>
+      <div class="frow">
+        <label for="stage_at_baseline">Stage at initial diagnosis</label>
+        <div class="ctl"><select id="stage_at_baseline" name="stage_at_baseline" aria-describedby="stage_at_baseline-hint">
+          <option value="" selected>Not entered</option>
+          <option value="stage_1_3">Stage I–III</option>
+          <option value="stage_4">Stage IV</option>
+          <option value="unknown">Unknown / not reported</option>
+        </select>
+        <p class="hint-inline" id="stage_at_baseline-hint">Clinician-entered only; never inferred from the CT. Used only by the LUAD/LUSC research model, which makes no prediction without it.</p></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
       <legend>Performance status</legend>
       <div class="frow">
         <label for="kps">Karnofsky Performance Status (0-100, steps of 10) <span class="req" aria-hidden="true">*</span></label>
@@ -244,7 +258,7 @@
           <div class="canvas-wrap" id="canvas-wrap"><canvas id="viewer-canvas" width="512" height="512" tabindex="0" role="img" aria-label="CT axial slice. Use arrow keys or the mouse wheel to change slice."></canvas></div>
           <p id="viewer-status" class="status" role="status" aria-live="polite"></p>
         </div></section>
-      <section class="win" id="win-models"><header class="win-h"><h2>Survival analysis</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-models">Collapse</button></header>
+      <section class="win" id="win-models"><header class="win-h"><h2>Patient-level models</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-models">Collapse</button></header>
         <div class="win-b" id="b-models"></div></section>
       <section class="win" id="win-methods"><header class="win-h"><h2>Methods</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-methods">Collapse</button></header>
         <div class="win-b" id="b-methods"><div class="scroll"><table class="dt"><caption class="sr">Per-method outcomes</caption><thead><tr><th>Method</th><th>OK</th><th>Failed</th><th>Unavail.</th><th>Reason</th></tr></thead><tbody id="methods"></tbody></table></div></div></section>

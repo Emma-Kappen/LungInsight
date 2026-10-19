@@ -1,0 +1,130 @@
+[
+  {
+    "field": "age_at_diagnosis_years",
+    "type": "numeric",
+    "role": "predictor",
+    "notes": "MSK CURRENT_AGE_DEID; TCGA age or abs(days_to_birth)/365.25; implausible values flagged."
+  },
+  {
+    "field": "sex",
+    "type": "categorical",
+    "allowed": [
+      "Female",
+      "Male",
+      "Other/Not reported",
+      "Unknown"
+    ],
+    "role": "predictor"
+  },
+  {
+    "field": "smoking_status",
+    "type": "categorical",
+    "allowed": [
+      "Never",
+      "Former",
+      "Current",
+      "Unknown"
+    ],
+    "role": "audit/legacy comparison",
+    "notes": "Legacy coarse mapping retained for comparison; do not use in place of smoking_status_detailed."
+  },
+  {
+    "field": "smoking_status_source_raw",
+    "type": "string",
+    "role": "source provenance",
+    "notes": "Original smoking history value preserved as read from source."
+  },
+  {
+    "field": "smoking_status_source_code",
+    "type": "string",
+    "role": "source provenance",
+    "notes": "TCGA numeric source code 1-5 preserved as text; blank for non-code source values."
+  },
+  {
+    "field": "smoking_status_detailed",
+    "type": "categorical",
+    "role": "predictor",
+    "allowed": [
+      "Never smoker (lifelong)",
+      "Current smoker",
+      "Former smoker (quit >15 years)",
+      "Former smoker (quit <=15 years)",
+      "Former smoker (duration unspecified)",
+      "Former/Current smoker (combined source category)",
+      "Unknown"
+    ],
+    "notes": "Detailed category derived from TCGA CDE 2181650 codes or explicit source text. Combined MSK former/current category remains combined. Unmapped values are labelled and must be reviewed."
+  },
+  {
+    "field": "smoking_duration_years",
+    "type": "numeric",
+    "role": "predictor",
+    "notes": "Only populated when derivable from source fields; not imputed during compilation."
+  },
+  {
+    "field": "years_since_smoking_cessation",
+    "type": "numeric",
+    "role": "predictor",
+    "notes": "Only derived where source cessation and diagnosis years are available."
+  },
+  {
+    "field": "pack_years",
+    "type": "numeric",
+    "role": "predictor"
+  },
+  {
+    "field": "packs_per_day",
+    "type": "numeric",
+    "role": "predictor",
+    "notes": "Only populated from an explicitly available source field; not inferred from pack-years."
+  },
+  {
+    "field": "performance_status_ecog",
+    "type": "numeric 0-5",
+    "role": "outcome/audit",
+    "notes": "Retained in source and outcome tables; KPS is the normalized model feature."
+  },
+  {
+    "field": "performance_status_kps",
+    "type": "numeric 0-100",
+    "role": "predictor",
+    "notes": "Recorded KPS preferred; otherwise approximate ECOG mapping 0:100, 1:80, 2:60, 3:40, 4:20, 5:0."
+  },
+  {
+    "field": "LABEL",
+    "type": "categorical",
+    "allowed": [
+      "LUAD",
+      "LUSC"
+    ],
+    "role": "target only"
+  },
+  {
+    "field": "days_to_death",
+    "type": "numeric",
+    "role": "outcome only",
+    "notes": "Never use as a diagnosis-time predictor."
+  },
+  {
+    "field": "vital_status",
+    "type": "categorical",
+    "allowed": [
+      "Alive",
+      "Dead",
+      "Unknown"
+    ],
+    "role": "outcome only",
+    "notes": "Never use as a diagnosis-time predictor."
+  },
+  {
+    "field": "race / ethnicity",
+    "type": "categorical",
+    "role": "fairness audit only"
+  },
+  {
+    "field": "CT_timing_assumption",
+    "type": "metadata",
+    "role": "cohort assumption",
+    "notes": "Initial pathologic diagnosis assumed; not independently verified."
+  }
+]

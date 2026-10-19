@@ -1,0 +1,14 @@
+dataset,source_file,id_column,rows,unique_ids,duplicate_id_rows
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,PATIENT_ID,24950,24950,0
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATIENT_ID,25040,24950,90
+MSK-CHORD-2024,msk_chord_2024\data_timeline_diagnosis.txt,PATIENT_ID,25145,24940,205
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,PATIENT_ID,7809,7809,0
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATIENT_ID,7809,7809,0
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATIENT_ID,7809,7809,0
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_data_timeline_diagnosis.txt,PATIENT_ID,7927,7802,125
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,bcr_patient_barcode,523,523,0
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,bcr_patient_barcode,523,523,0
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,bcr_patient_barcode,617,464,153
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,bcr_patient_barcode,505,505,0
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,bcr_patient_barcode,505,505,0
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,bcr_patient_barcode,570,446,124

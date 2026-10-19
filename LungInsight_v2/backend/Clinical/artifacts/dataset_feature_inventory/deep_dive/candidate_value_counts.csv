@@ -1,0 +1,1479 @@
+dataset,source_file,column,value,count
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,GENDER,Female,13874
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,GENDER,Male,11073
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,GENDER,Unknown,3
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,RACE,White,19542
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,RACE,Asian-Far East/Indian Subcont,1965
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,RACE,Black Or African American,1770
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,RACE,Pt Refused To Answer,724
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,RACE,Other,673
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,RACE,Unknown,209
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,RACE,Native American-Am Ind/Alaska,27
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,RACE,No Value Entered,27
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,RACE,Native Hawaiian Or Pacific Isl,13
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,ETHNICITY,Non-Spanish; Non-Hispanic,22373
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,ETHNICITY,"Spanish  NOS; Hispanic NOS, Latino NOS",1279
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,ETHNICITY,Unknown whether Spanish or not,1000
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,ETHNICITY,South/Central America (except Brazil),121
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,ETHNICITY,Puerto Rican,66
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,ETHNICITY,Dominican Republic,57
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,ETHNICITY,Cuban,23
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,ETHNICITY,Other Spanish/Hispanic(incl European; excl Dom Rep,12
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,ETHNICITY,Mexican (includes Chicano),11
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,ETHNICITY,Spanish surname only,5
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,ETHNICITY,Unknown,3
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,67,836
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,73,818
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,71,807
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,72,798
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,69,781
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,70,778
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,76,752
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,66,752
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,75,751
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,74,743
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,68,735
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,65,729
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,77,727
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,64,647
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,63,638
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,62,637
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,60,621
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,61,585
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,78,583
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,59,566
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,80,536
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,58,534
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,79,532
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,56,531
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,57,503
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,55,474
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,54,459
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,81,446
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,89,421
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,CURRENT_AGE_DEID,53,411
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,STAGE_HIGHEST_RECORDED,Stage 1-3,15176
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,STAGE_HIGHEST_RECORDED,Stage 4,9771
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,STAGE_HIGHEST_RECORDED,Unknown,3
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,NUM_ICDO_DX,1,19298
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,NUM_ICDO_DX,2,4184
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,NUM_ICDO_DX,3,1043
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,NUM_ICDO_DX,4,286
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,NUM_ICDO_DX,5,86
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,NUM_ICDO_DX,6,29
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,NUM_ICDO_DX,7,13
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,NUM_ICDO_DX,8,6
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,NUM_ICDO_DX,0,3
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,NUM_ICDO_DX,10,1
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,NUM_ICDO_DX,9,1
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,SMOKING_PREDICTIONS_3_CLASSES,Never,12168
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,SMOKING_PREDICTIONS_3_CLASSES,Former/Current Smoker,11684
+MSK-CHORD-2024,msk_chord_2024\data_clinical_patient.txt,SMOKING_PREDICTIONS_3_CLASSES,Unknown,1098
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE,Non-Small Cell Lung Cancer,7809
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE,Colorectal Cancer,5543
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE,Breast Cancer,5368
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE,Prostate Cancer,3211
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE,Pancreatic Cancer,3109
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_TYPE,Primary,15928
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_TYPE,Metastasis,8878
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_TYPE,Unknown,136
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_TYPE,Local Recurrence,98
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Lung,7773
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Breast,5358
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Prostate,3208
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Pancreas,3104
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Colon,2516
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Rectum,1261
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Sigmoid Colon,501
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Ascending Colon,293
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Cecum,265
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Rectosigmoid Colon,258
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Transverse Colon,132
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Descending Colon,132
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Bowel,89
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Sigmoid colon,45
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Unknown,37
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Ascending colon,25
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,lung,12
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Hepatic flexure,5
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Transverse colon,4
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,breast,3
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,colon,3
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Hepatic Flexure,2
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,cecum,2
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,descending colon,1
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Chest Wall,1
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Skin,1
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,"Rectum,Colon",1
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Bile Duct,1
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Left colon,1
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PRIMARY_SITE,Anus,1
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Lung Adenocarcinoma,5957
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Colon Adenocarcinoma,3352
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Breast Invasive Ductal Carcinoma,3350
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Prostate Adenocarcinoma,3177
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Pancreatic Adenocarcinoma,2703
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Rectal Adenocarcinoma,1321
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Invasive Breast Carcinoma,967
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Lung Squamous Cell Carcinoma,822
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Colorectal Adenocarcinoma,716
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Breast Invasive Lobular Carcinoma,538
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Non-Small Cell Lung Cancer,499
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Pancreatic Neuroendocrine Tumor,259
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,"Breast Invasive Carcinoma, NOS",215
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Large Cell Neuroendocrine Carcinoma,134
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,"Breast Invasive Cancer, NOS",130
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Mucinous Adenocarcinoma of the Colon and Rectum,113
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Lung Carcinoid,91
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Breast Mixed Ductal and Lobular Carcinoma,86
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Poorly Differentiated Non-Small Cell Lung Cancer,77
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Lung Adenosquamous Carcinoma,56
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Adenosquamous Carcinoma of the Pancreas,50
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Pleomorphic Carcinoma of the Lung,45
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Atypical Lung Carcinoid,43
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Acinar Cell Carcinoma of the Pancreas,43
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Lung Neuroendocrine Tumor,32
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Metaplastic Breast Cancer,31
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Undifferentiated Carcinoma of the Pancreas,25
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Medullary Carcinoma of the Colon,21
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Prostate Neuroendocrine Carcinoma,19
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,CANCER_TYPE_DETAILED,Sarcomatoid Carcinoma of the Lung,19
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,610,68
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,549,68
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,522,67
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,576,65
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,560,64
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,620,64
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,566,64
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,592,63
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,600,63
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,644,61
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,529,60
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,534,60
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,533,60
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,615,60
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,543,60
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,569,60
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,531,59
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,537,58
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,580,58
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,510,58
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,570,58
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,542,58
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,590,58
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,602,58
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,658,57
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,538,57
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,651,57
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,669,57
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,650,57
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,SAMPLE_COVERAGE,587,57
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,LUAD,5957
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,COAD,3352
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,IDC,3350
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,PRAD,3177
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,PAAD,2703
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,READ,1321
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,BRCA,967
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,LUSC,822
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,COADREAD,716
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,ILC,538
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,NSCLC,499
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,PANET,259
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,BRCNOS,215
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,LUNE,134
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,BRCANOS,130
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,MACR,113
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,LUCA,91
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,MDLC,86
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,NSCLCPD,77
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,LUAS,56
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,PAASC,50
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,LUPC,45
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,ALUCA,43
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,PAAC,43
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,LNET,32
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,MBC,31
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,UCP,25
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,CMC,21
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,PRNE,19
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ONCOTREE_CODE,SARCL,19
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,4,2996
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,0,2368
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,1A,1731
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,2A,1718
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,2B,1415
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,4A,1290
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,3B,950
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,3A,897
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,4B,840
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,1B,667
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,1,611
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,3C,586
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,3,573
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,1A1,332
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,1A2,322
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,1A3,171
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,4C,137
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,2,98
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,2C,62
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,PATHOLOGICAL_GROUP,OC,3
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Adenocarcinoma, Nos",14230
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Infiltrating Duct Carcinoma,4567
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Adenocarcinoma Combined With Other Types Of Carcinoma,1041
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Squamous Cell Carcinoma, Nos",519
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Lobular Carcinoma, Nos",514
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Mucinous Adenocarcinoma,480
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Carcinoid Tumor, Malignant",285
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Sq Cell Ca, Keratinizing Type, Nos",264
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Acinar Cell Carcinoma,248
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Lobular Ca + Ifdc/Dcis,244
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Non-Small Cell Carcinoma (C34._),196
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Adenocarcinoma In Polyp,Nos",189
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Adenoca In Tubulovillous Adenoma,170
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Carcinoma, Nos",161
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Large Cell Neuroendocrine Carcinoma,138
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Tubular Adenocarcinoma,126
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Adenosquamous Carcinoma,119
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Infiltrating Duct Mixed W/Other Types Of Ca (C50._),109
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Sq Cell Ca, Large Cell, Non-Keratinizing",109
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Neuroendocrine Carcinoma,98
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Acinar Cell Cystadenocarcinoma,90
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Signet Ring Cel Carcinoma,73
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Atypical Carcinoid Tumor,67
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Pleomorphic Carcinoma,59
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Small Cell Carcinoma, Nos",58
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,Lobular Carcinoma In Situ,57
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Adenocarcinoma, Ca Insitu",55
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Metaplastic Carcinoma, Nos",50
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Minimally Invasive Adenocarcinoma, Non Mucinous",49
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD_O_HISTOLOGY_DESCRIPTION,"Solid Carcinoma, Nos",47
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Lung and Bronchus,7807
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Breast,5367
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Prostate,3211
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Pancreas,3109
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Rectum,1670
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Sigmoid Colon,1183
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Cecum,630
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Ascending Colon,612
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Rectosigmoid Junction,572
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Descending Colon,289
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Transverse Colon,270
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Hepatic Flexure,128
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Splenic Flexure,85
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,"Large Intestine, NOS",79
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,"Anus, Anal Canal and Anorectum",25
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,NHL - Extranodal,2
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,DIAGNOSIS_DESCRIPTION,Miscellaneous,1
+MSK-CHORD-2024,msk_chord_2024\data_timeline_diagnosis.txt,SUBTYPE,Primary,25145
+MSK-CHORD-2024,msk_chord_2024\data_timeline_diagnosis.txt,STAGE_CDM_DERIVED,Stage 1-3,15571
+MSK-CHORD-2024,msk_chord_2024\data_timeline_diagnosis.txt,STAGE_CDM_DERIVED,Stage 4,9574
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,GENDER,Female,4567
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,GENDER,Male,3241
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,GENDER,Unknown,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,RACE,White,6182
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,RACE,Asian-Far East/Indian Subcont,751
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,RACE,Black Or African American,424
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,RACE,Pt Refused To Answer,206
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,RACE,Other,145
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,RACE,Unknown,76
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,RACE,Native American-Am Ind/Alaska,10
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,RACE,No Value Entered,9
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,RACE,Native Hawaiian Or Pacific Isl,6
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,ETHNICITY,Non-Spanish; Non-Hispanic,7169
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,ETHNICITY,Unknown whether Spanish or not,287
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,ETHNICITY,"Spanish  NOS; Hispanic NOS, Latino NOS",282
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,ETHNICITY,South/Central America (except Brazil),30
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,ETHNICITY,Puerto Rican,16
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,ETHNICITY,Dominican Republic,12
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,ETHNICITY,Cuban,10
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,ETHNICITY,Spanish surname only,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,ETHNICITY,Other Spanish/Hispanic(incl European; excl Dom Rep,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,ETHNICITY,Unknown,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,76.0,339
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,77.0,314
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,69.0,310
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,73.0,305
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,67.0,297
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,75.0,286
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,72.0,279
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,71.0,278
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,74.0,270
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,70.0,269
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,68.0,267
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,78.0,262
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,66.0,252
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,79.0,248
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,80.0,241
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,65.0,233
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,63.0,210
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,64.0,203
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,89.0,193
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,81.0,187
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,82.0,187
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,60.0,178
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,62.0,171
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,61.0,162
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,83.0,159
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,59.0,157
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,84.0,146
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,56.0,115
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,57.0,112
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,CURRENT_AGE_DEID,86.0,108
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,STAGE_HIGHEST_RECORDED,Stage 1-3,4387
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,STAGE_HIGHEST_RECORDED,Stage 4,3421
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,STAGE_HIGHEST_RECORDED,Unknown,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,NUM_ICDO_DX,1,5231
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,NUM_ICDO_DX,2,1725
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,NUM_ICDO_DX,3,580
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,NUM_ICDO_DX,4,174
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,NUM_ICDO_DX,5,61
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,NUM_ICDO_DX,6,19
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,NUM_ICDO_DX,7,11
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,NUM_ICDO_DX,8,5
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,NUM_ICDO_DX,10,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,NUM_ICDO_DX,9,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,NUM_ICDO_DX,0,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,SMOKING_PREDICTIONS_3_CLASSES,Former/Current Smoker,5438
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,SMOKING_PREDICTIONS_3_CLASSES,Never,2027
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_patient.csv,SMOKING_PREDICTIONS_3_CLASSES,Unknown,344
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE,Non-Small Cell Lung Cancer,7809
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_TYPE,Primary,4908
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_TYPE,Metastasis,2763
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_TYPE,Unknown,103
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_TYPE,Local Recurrence,35
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PRIMARY_SITE,Lung,7773
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PRIMARY_SITE,Unknown,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PRIMARY_SITE,lung,12
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PRIMARY_SITE,Lung - right upper,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Lung Adenocarcinoma,5957
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Lung Squamous Cell Carcinoma,822
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Non-Small Cell Lung Cancer,499
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Large Cell Neuroendocrine Carcinoma,134
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Lung Carcinoid,91
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Poorly Differentiated Non-Small Cell Lung Cancer,77
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Lung Adenosquamous Carcinoma,56
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Pleomorphic Carcinoma of the Lung,45
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Atypical Lung Carcinoid,43
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Lung Neuroendocrine Tumor,32
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Sarcomatoid Carcinoma of the Lung,19
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Adenoid Cystic Carcinoma of the Lung,7
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Large Cell Lung Carcinoma,7
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Lung Adenocarcinoma In Situ,6
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Lymphoepithelioma-like Carcinoma of the Lung,5
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Spindle Cell Carcinoma of the Lung,4
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Mucoepidermoid Carcinoma of the Lung,2
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Basaloid Large Cell Carcinoma of the Lung,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,NUT Carcinoma of the Lung,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,Pleuropulmonary Blastoma,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,533,27
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,566,26
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,667,25
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,562,25
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,569,25
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,549,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,532,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,510,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,509,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,602,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,597,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,576,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,575,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,525,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,502,22
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,592,22
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,635,22
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,622,22
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,529,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,699,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,538,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,586,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,554,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,615,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,567,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,515,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,672,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,611,20
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,598,20
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_COVERAGE,580,20
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LUAD,5957
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LUSC,822
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,NSCLC,499
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LUNE,134
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LUCA,91
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,NSCLCPD,77
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LUAS,56
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LUPC,45
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,ALUCA,43
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LNET,32
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,SARCL,19
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LUACC,7
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LCLC,7
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LAIS,6
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LECLC,5
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,SPCC,4
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,LUMEC,2
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,BLCLC,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,NUTCL,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ONCOTREE_CODE,PPB,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,4,878
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,1A,617
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,0,502
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,1B,432
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,3A,418
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,4B,354
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,4A,345
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,1A1,332
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,2B,324
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,1A2,322
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,2A,220
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,1A3,171
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,3B,66
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,OC,3
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,3C,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,1,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Adenocarcinoma, Nos",4264
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Adenocarcinoma Combined With Other Types Of Carcinoma,1015
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Squamous Cell Carcinoma, Nos",516
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Sq Cell Ca, Keratinizing Type, Nos",264
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Acinar Cell Carcinoma,216
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Non-Small Cell Carcinoma (C34._),196
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Mucinous Adenocarcinoma,167
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Large Cell Neuroendocrine Carcinoma,132
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Carcinoid Tumor, Malignant",118
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Sq Cell Ca, Large Cell, Non-Keratinizing",109
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Acinar Cell Cystadenocarcinoma,90
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Adenosquamous Carcinoma,69
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Pleomorphic Carcinoma,57
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Minimally Invasive Adenocarcinoma, Non Mucinous",49
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Solid Carcinoma, Nos",47
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Adenocarcinoma, Ca Insitu",47
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Atypical Carcinoid Tumor,45
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Carcinoma, Nos",40
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Small Cell Carcinoma, Nos",40
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Papillary Adenocarcinoma, Nos",39
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Bronchiolo-Alveolar Carcinoma, Mucinous (C34._)",31
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Bronchiolo-Alveolar Ca Mixed Muc/Non Mucinous (C34._),29
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Bronchiolo-Alveolar Adenocarcinoma,26
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Basaloid Squamous Cell Carcinoma,26
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Small Cell-Large Cell Carcinoma,24
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Neuroendocrine Carcinoma,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Pseudosarcomatous Carcinoma,19
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Signet Ring Cel Carcinoma,14
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Large Cell Carcinoma, Nos",13
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,Bronchiol-Alveol Adenoca (Cis),9
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,DIAGNOSIS_DESCRIPTION,Lung and Bronchus,7807
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,DIAGNOSIS_DESCRIPTION,NHL - Extranodal,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,DIAGNOSIS_DESCRIPTION,Miscellaneous,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,GENDER,Female,4567
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,GENDER,Male,3241
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,GENDER,Unknown,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,RACE,White,6182
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,RACE,Asian-Far East/Indian Subcont,751
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,RACE,Black Or African American,424
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,RACE,Pt Refused To Answer,206
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,RACE,Other,145
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,RACE,Unknown,76
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,RACE,Native American-Am Ind/Alaska,10
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,RACE,No Value Entered,9
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,RACE,Native Hawaiian Or Pacific Isl,6
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ETHNICITY,Non-Spanish; Non-Hispanic,7169
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ETHNICITY,Unknown whether Spanish or not,287
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ETHNICITY,"Spanish  NOS; Hispanic NOS, Latino NOS",282
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ETHNICITY,South/Central America (except Brazil),30
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ETHNICITY,Puerto Rican,16
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ETHNICITY,Dominican Republic,12
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ETHNICITY,Cuban,10
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ETHNICITY,Spanish surname only,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ETHNICITY,Other Spanish/Hispanic(incl European; excl Dom Rep,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ETHNICITY,Unknown,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,76.0,339
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,77.0,314
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,69.0,310
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,73.0,305
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,67.0,297
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,75.0,286
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,72.0,279
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,71.0,278
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,74.0,270
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,70.0,269
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,68.0,267
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,78.0,262
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,66.0,252
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,79.0,248
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,80.0,241
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,65.0,233
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,63.0,210
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,64.0,203
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,89.0,193
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,81.0,187
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,82.0,187
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,60.0,178
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,62.0,171
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,61.0,162
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,83.0,159
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,59.0,157
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,84.0,146
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,56.0,115
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,57.0,112
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CURRENT_AGE_DEID,86.0,108
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,STAGE_HIGHEST_RECORDED,Stage 1-3,4387
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,STAGE_HIGHEST_RECORDED,Stage 4,3421
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,STAGE_HIGHEST_RECORDED,Unknown,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,NUM_ICDO_DX,1,5231
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,NUM_ICDO_DX,2,1725
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,NUM_ICDO_DX,3,580
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,NUM_ICDO_DX,4,174
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,NUM_ICDO_DX,5,61
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,NUM_ICDO_DX,6,19
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,NUM_ICDO_DX,7,11
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,NUM_ICDO_DX,8,5
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,NUM_ICDO_DX,10,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,NUM_ICDO_DX,9,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,NUM_ICDO_DX,0,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SMOKING_PREDICTIONS_3_CLASSES,Former/Current Smoker,5438
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SMOKING_PREDICTIONS_3_CLASSES,Never,2027
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SMOKING_PREDICTIONS_3_CLASSES,Unknown,344
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE,Non-Small Cell Lung Cancer,7809
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_TYPE,Primary,4908
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_TYPE,Metastasis,2763
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_TYPE,Unknown,103
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_TYPE,Local Recurrence,35
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PRIMARY_SITE,Lung,7773
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PRIMARY_SITE,Unknown,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PRIMARY_SITE,lung,12
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PRIMARY_SITE,Lung - right upper,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Lung Adenocarcinoma,5957
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Lung Squamous Cell Carcinoma,822
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Non-Small Cell Lung Cancer,499
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Large Cell Neuroendocrine Carcinoma,134
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Lung Carcinoid,91
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Poorly Differentiated Non-Small Cell Lung Cancer,77
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Lung Adenosquamous Carcinoma,56
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Pleomorphic Carcinoma of the Lung,45
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Atypical Lung Carcinoid,43
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Lung Neuroendocrine Tumor,32
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Sarcomatoid Carcinoma of the Lung,19
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Adenoid Cystic Carcinoma of the Lung,7
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Large Cell Lung Carcinoma,7
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Lung Adenocarcinoma In Situ,6
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Lymphoepithelioma-like Carcinoma of the Lung,5
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Spindle Cell Carcinoma of the Lung,4
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Mucoepidermoid Carcinoma of the Lung,2
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Basaloid Large Cell Carcinoma of the Lung,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,NUT Carcinoma of the Lung,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,Pleuropulmonary Blastoma,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,533,27
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,566,26
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,667,25
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,562,25
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,569,25
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,549,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,532,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,510,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,509,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,602,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,597,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,576,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,575,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,525,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,502,22
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,592,22
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,635,22
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,622,22
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,529,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,699,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,538,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,586,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,554,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,615,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,567,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,515,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,672,21
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,611,20
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,598,20
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_COVERAGE,580,20
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LUAD,5957
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LUSC,822
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,NSCLC,499
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LUNE,134
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LUCA,91
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,NSCLCPD,77
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LUAS,56
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LUPC,45
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,ALUCA,43
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LNET,32
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,SARCL,19
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LUACC,7
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LCLC,7
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LAIS,6
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LECLC,5
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,SPCC,4
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,LUMEC,2
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,BLCLC,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,NUTCL,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ONCOTREE_CODE,PPB,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,4,878
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,1A,617
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,0,502
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,1B,432
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,3A,418
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,4B,354
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,4A,345
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,1A1,332
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,2B,324
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,1A2,322
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,2A,220
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,1A3,171
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,3B,66
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,OC,3
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,3C,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,1,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Adenocarcinoma, Nos",4264
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Adenocarcinoma Combined With Other Types Of Carcinoma,1015
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Squamous Cell Carcinoma, Nos",516
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Sq Cell Ca, Keratinizing Type, Nos",264
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Acinar Cell Carcinoma,216
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Non-Small Cell Carcinoma (C34._),196
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Mucinous Adenocarcinoma,167
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Large Cell Neuroendocrine Carcinoma,132
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Carcinoid Tumor, Malignant",118
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Sq Cell Ca, Large Cell, Non-Keratinizing",109
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Acinar Cell Cystadenocarcinoma,90
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Adenosquamous Carcinoma,69
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Pleomorphic Carcinoma,57
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Minimally Invasive Adenocarcinoma, Non Mucinous",49
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Solid Carcinoma, Nos",47
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Adenocarcinoma, Ca Insitu",47
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Atypical Carcinoid Tumor,45
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Small Cell Carcinoma, Nos",40
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Carcinoma, Nos",40
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Papillary Adenocarcinoma, Nos",39
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Bronchiolo-Alveolar Carcinoma, Mucinous (C34._)",31
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Bronchiolo-Alveolar Ca Mixed Muc/Non Mucinous (C34._),29
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Bronchiolo-Alveolar Adenocarcinoma,26
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Basaloid Squamous Cell Carcinoma,26
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Small Cell-Large Cell Carcinoma,24
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Neuroendocrine Carcinoma,23
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Pseudosarcomatous Carcinoma,19
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Signet Ring Cel Carcinoma,14
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,"Large Cell Carcinoma, Nos",13
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,Bronchiol-Alveol Adenoca (Cis),9
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,DIAGNOSIS_DESCRIPTION,Lung and Bronchus,7807
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,DIAGNOSIS_DESCRIPTION,NHL - Extranodal,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,DIAGNOSIS_DESCRIPTION,Miscellaneous,1
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,num_distinct_tumor_sites,4.0,1160
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,num_distinct_tumor_sites,5.0,1121
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,num_distinct_tumor_sites,3.0,1070
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,num_distinct_tumor_sites,6.0,1005
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,num_distinct_tumor_sites,1.0,961
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,num_distinct_tumor_sites,2.0,951
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,num_distinct_tumor_sites,7.0,737
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,num_distinct_tumor_sites,8.0,335
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,num_distinct_tumor_sites,9.0,78
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,num_distinct_tumor_sites,10.0,7
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_data_timeline_diagnosis.txt,SUBTYPE,Primary,7927
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_data_timeline_diagnosis.txt,STAGE_CDM_DERIVED,Stage 1-3,4603
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_data_timeline_diagnosis.txt,STAGE_CDM_DERIVED,Stage 4,3324
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,diagnosis,Lung Adenocarcinoma,522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,diagnosis,CDE_ID:3081932,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,race,WHITE,393
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,race,[Not Available],56
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,race,BLACK OR AFRICAN AMERICAN,53
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,race,ASIAN,8
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,race,[Not Evaluated],6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,race,[Unknown],5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,race,CDE_ID:2192199,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,race,AMERICAN INDIAN OR ALASKA NATIVE,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,ethnicity,NOT HISPANIC OR LATINO,389
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,ethnicity,[Not Available],108
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,ethnicity,[Not Evaluated],10
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,ethnicity,[Unknown],8
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,ethnicity,HISPANIC OR LATINO,7
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,ethnicity,CDE_ID:2192217,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,height,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,height,CDE_ID:649,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,weight,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,weight,CDE_ID:651,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,gender,FEMALE,280
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,gender,MALE,242
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,gender,CDE_ID:2200604,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_N,N0,335
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_N,N1,98
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_N,N2,75
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_N,NX,11
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_N,N3,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_N,CDE_ID:3203106,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_N,[Not Available],1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,[Not Available],342
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,[Not Evaluated],66
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,90,32
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,100,32
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,80,23
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,[Unknown],14
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,70,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,0,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,40,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,60,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,CDE_ID:2003853,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,karnofsky_performance_score,[Discrepancy],1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_M,M0,353
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_M,MX,140
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_M,M1,18
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_M,M1b,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_M,[Not Available],4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_M,M1a,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_M,CDE_ID:3045439,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,tobacco_smoking_history,4,170
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,tobacco_smoking_history,3,137
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,tobacco_smoking_history,2,122
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,tobacco_smoking_history,1,75
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,tobacco_smoking_history,[Not Available],12
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,tobacco_smoking_history,5,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,tobacco_smoking_history,[Unknown],2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,tobacco_smoking_history,CDE_ID:2181650,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_began_smoking_in_years,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_began_smoking_in_years,CDE_ID:2178045,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,[Not Available],166
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,40,36
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,20,30
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,50,30
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,30,30
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,25,17
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,60,16
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,15,12
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,45,10
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,35,10
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,10,9
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,28,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,100,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,5,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,80,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,12,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,90,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,120,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,34,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,38,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,52,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,19,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,65,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,75,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,36,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,48,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,11,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,47,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,43,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,number_pack_years_smoked,72,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,cd4_counts_at_diagnosis,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,cd4_counts_at_diagnosis,CDE_ID:2922654,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,hiv_rna_load_at_diagnosis,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,hiv_rna_load_at_diagnosis,CDE_ID:2922674,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,on_haart_therapy_prior_to_cancer_diagnosis,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,on_haart_therapy_prior_to_cancer_diagnosis,CDE_ID:3335156,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,on_haart_therapy_at_cancer_diagnosis,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,on_haart_therapy_at_cancer_diagnosis,CDE_ID:2922679,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,[Not Available],243
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1971,17
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1965,14
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1970,14
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1972,13
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1963,12
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1955,12
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1961,11
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1956,11
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1959,11
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1962,8
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1973,8
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1958,7
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1980,7
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1967,7
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1957,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1952,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1950,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1951,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1979,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1974,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1968,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1981,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1954,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1966,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1946,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1969,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1990,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1964,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_tobacco_smoking_onset,1960,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,[Not Available],261
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2011,16
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2012,14
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1985,12
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2007,11
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2006,11
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2004,10
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2010,9
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2009,9
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1999,8
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2008,7
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1993,7
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2005,7
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2002,7
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1986,7
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1983,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1984,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1994,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2001,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1995,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1998,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1981,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1982,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1987,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1996,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1975,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1980,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,2003,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1991,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stopped_smoking_year,1976,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Lung Adenocarcinoma- Not Otherwise Specified (NOS),327
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Lung Adenocarcinoma Mixed Subtype,107
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Lung Papillary Adenocarcinoma,23
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Lung Bronchioloalveolar Carcinoma Nonmucinous,19
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Lung Acinar Adenocarcinoma,18
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Mucinous (Colloid) Carcinoma,10
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Lung Bronchioloalveolar Carcinoma Mucinous,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Lung Solid Pattern Predominant Adenocarcinoma,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Lung Micropapillary Adenocarcinoma,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Lung Mucinous Adenocarcinoma,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Lung Clear Cell Adenocarcinoma,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,CDE_ID:3081934,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histological_type,Lung Signet Ring Adenocarcinoma,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,performance_status_scale_timing,[Not Available],255
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,performance_status_scale_timing,Preoperative,177
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,performance_status_scale_timing,[Not Evaluated],26
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,performance_status_scale_timing,Other,23
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,performance_status_scale_timing,Pre-Adjuvant Therapy,20
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,performance_status_scale_timing,Post-Adjuvant Therapy,11
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,performance_status_scale_timing,[Unknown],10
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,performance_status_scale_timing,CDE_ID:2792763,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2011,113
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2012,100
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2010,53
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2009,46
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2008,37
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2007,31
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2006,29
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2005,17
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2002,15
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2004,14
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2001,12
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2003,10
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,[Not Available],10
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2013,8
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,2000,6
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,1992,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,1999,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,1997,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,1996,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,1993,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,CDE_ID:2896960,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,1998,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,1995,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,1991,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,year_of_initial_pathologic_diagnosis,1994,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,initial_pathologic_diagnosis_method,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,initial_pathologic_diagnosis_method,CDE_ID:2757941,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,init_pathology_dx_method_other,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,init_pathology_dx_method_other,CDE_ID:2757948,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_T,T2,171
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_T,T2a,82
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_T,T1,69
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_T,T1b,55
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_T,T1a,48
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_T,T3,47
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_T,T2b,28
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_T,T4,19
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_T,TX,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_T,CDE_ID:3045435,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,clinical_stage,[Not Applicable],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,clinical_stage,CDE_ID:3440332,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,Stage IB,140
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,Stage IA,134
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,Stage IIIA,74
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,Stage IIB,73
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,Stage IIA,50
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,Stage IV,26
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,Stage IIIB,11
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,[Discrepancy],7
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,Stage I,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,CDE_ID:3203222,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,Stage II,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,pathologic_stage,[Not Available],1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,70,26
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,72,22
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,69,21
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,59,21
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,60,21
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,61,21
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,67,19
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,74,19
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,71,19
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,[Not Available],19
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,65,18
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,76,16
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,75,16
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,68,15
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,58,15
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,73,15
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,63,15
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,62,14
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,77,14
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,66,13
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,64,13
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,56,12
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,57,11
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,52,11
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,81,10
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,54,9
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,79,8
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,51,8
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,55,8
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,78,7
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,cancer_diagnosis_cancer_type_icd9_text_name,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,cancer_diagnosis_cancer_type_icd9_text_name,CDE_ID:2195089,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,days_to_hiv_diagnosis,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,days_to_hiv_diagnosis,CDE_ID:4618491,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,days_to_initial_pathologic_diagnosis,0,503
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,days_to_initial_pathologic_diagnosis,[Not Available],19
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,days_to_initial_pathologic_diagnosis,CDE_ID:3008275,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8140/3,317
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8255/3,107
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8550/3,24
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8260/3,22
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8252/3,19
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8480/3,14
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8253/3,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8230/3,5
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8507/3,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8250/3,3
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8310/3,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,CDE_ID:3226275,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,8490/3,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_site,C34.1,305
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_site,C34.3,177
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_site,C34.2,20
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_site,C34.9,14
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_site,C34.8,4
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_site,C34.0,2
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_site,CDE_ID:3226281,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,metastatic_site_at_diagnosis,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,metastatic_site_at_diagnosis,CDE_ID:3124499,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,metastatic_site_at_diagnosis_other,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,metastatic_site_at_diagnosis_other,CDE_ID:3124503,1
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stage_other,[Not Available],522
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,stage_other,CDE_ID:2007104,1
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Adenocarcinoma- Not Otherwise Specified (NOS),320
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Adenocarcinoma Mixed Subtype,107
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Papillary Adenocarcinoma,22
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Acinar Adenocarcinoma,21
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Bronchioloalveolar Carcinoma Nonmucinous,21
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Mucinous Adenocarcinoma,6
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Mucinous (Colloid) Carcinoma,6
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Solid Pattern Predominant Adenocarcinoma,6
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Bronchioloalveolar Carcinoma Mucinous,5
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Micropapillary Adenocarcinoma,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Clear Cell Adenocarcinoma,2
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,CDE_ID:3081934,1
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Adenocarcinoma- Not Otherwise Specified (NOS)|Lung Adenocarcinoma- Not Otherwise Specified (NOS),1
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,[Discrepancy],1
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histological_type,Lung Signet Ring Adenocarcinoma,1
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,top_slide_submitted,YES,448
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,top_slide_submitted,NO,74
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,top_slide_submitted,CDE_ID:3081944,1
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,digital_image_submitted,NO,443
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,digital_image_submitted,YES,79
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,digital_image_submitted,CDE_ID:3081948,1
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,100,78
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,200,62
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,250,29
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,150,20
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,300,16
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,[Not Available],10
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,230,8
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,220,7
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,110,6
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,180,5
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,600,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,268,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,500,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,350,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,22,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,75,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,140,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,290,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,280,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,210,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,400,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,260,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,217,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,222,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,450,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,12,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,15,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,19,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,170,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tumor_weight,120,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,[Not Available],14
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,[Completed],9
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,14,7
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,8,7
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,1,7
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,59,5
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,65,5
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,66,5
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,15,5
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,81,5
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,56,5
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,58,5
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,22,5
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,637,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,90,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,84,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,60,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,61,4
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,819,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,98,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,49,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,113,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,35,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,6,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,41,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,10,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,42,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,17,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,50,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,days_to_pathology_review,51,3
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,path_confirm_diagnosis_matching,YES,473
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,path_confirm_diagnosis_matching,[Not Available],35
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,path_confirm_diagnosis_matching,NO,14
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,path_confirm_diagnosis_matching,CDE_ID:3288300,1
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,reason_path_confirm_diagnosis_not_matching,[Not Available],508
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,reason_path_confirm_diagnosis_not_matching,Pathology analysis at TSS determined a specific histological subtype different from original pathology report,12
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,reason_path_confirm_diagnosis_not_matching,Pathology review of frozen section for TCGA determined histological subtype different from the pathology report,2
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,reason_path_confirm_diagnosis_not_matching,CDE_ID:3288315,1
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,ffpe_tumor_slide_submitted,NO,522
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,ffpe_tumor_slide_submitted,CDE_ID:3295811,1
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,submitted_for_lce,[Not Available],299
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,submitted_for_lce,NO,183
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,submitted_for_lce,YES,40
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,submitted_for_lce,CDE_ID:3288488,1
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,followup_case_report_form_submission_reason,Scheduled Follow-up Submission,497
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,followup_case_report_form_submission_reason,[Not Available],81
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,followup_case_report_form_submission_reason,Additional New Tumor Event,38
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,followup_case_report_form_submission_reason,CDE_ID:3233305,1
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,[Not Available],347
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,[Not Evaluated],107
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,[Unknown],61
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,100,30
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,80,23
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,90,22
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,0,11
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,70,5
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,60,3
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,40,3
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,50,2
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,20,2
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,karnofsky_performance_score,CDE_ID:2003853,1
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,performance_status_scale_timing,[Not Available],351
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,performance_status_scale_timing,Post-Adjuvant Therapy,64
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,performance_status_scale_timing,[Not Evaluated],64
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,performance_status_scale_timing,Other,47
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,performance_status_scale_timing,Preoperative,38
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,performance_status_scale_timing,[Unknown],23
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,performance_status_scale_timing,Adjuvant therapy,20
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,performance_status_scale_timing,Pre-Adjuvant Therapy,9
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\nationwidechildrens.org_clinical_follow_up_v1.0_luad.txt,performance_status_scale_timing,CDE_ID:2792763,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,gender,MALE,373
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,gender,FEMALE,131
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,gender,CDE_ID:2200604,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,diagnosis,Lung Squamous Cell Carcinoma,504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,diagnosis,CDE_ID:3081932,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,ethnicity,NOT HISPANIC OR LATINO,319
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,ethnicity,[Not Available],113
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,ethnicity,[Not Evaluated],60
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,ethnicity,HISPANIC OR LATINO,8
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,ethnicity,[Unknown],4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,ethnicity,CDE_ID:2192217,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,[Not Available],183
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1962,16
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1970,15
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1961,15
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1953,14
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1959,14
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1967,14
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1960,12
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1950,12
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1946,10
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1956,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1952,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1954,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1955,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1972,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1951,8
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1965,8
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1957,8
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1968,8
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1963,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1942,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1971,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1973,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1947,6
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1958,6
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1969,6
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1949,6
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1964,5
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1941,5
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_tobacco_smoking_onset,1981,5
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,[Not Available],195
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2008,24
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2007,20
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2010,18
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2004,17
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2011,17
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2006,14
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2000,14
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2005,13
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1995,12
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2002,12
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2003,10
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2012,10
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1997,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2001,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1996,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,2009,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1990,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1991,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1999,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1983,6
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1992,5
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1988,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1980,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1987,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1979,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1993,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1985,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1974,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stopped_smoking_year,1994,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,[Not Available],301
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,[Not Evaluated],77
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,0,33
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,90,32
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,[Unknown],23
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,80,16
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,100,10
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,70,8
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,50,2
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,CDE_ID:2003853,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,20,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,karnofsky_performance_score,40,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,race,WHITE,351
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,race,[Not Available],67
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,race,[Not Evaluated],45
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,race,BLACK OR AFRICAN AMERICAN,31
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,race,ASIAN,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,race,CDE_ID:2192199,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,race,[Unknown],1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,histological_type,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),482
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,histological_type,Lung Basaloid Squamous Cell Carcinoma,15
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,histological_type,Lung Papillary Squamous Cell Caricnoma,5
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,histological_type,CDE_ID:3081934,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,histological_type,Lung Small Cell Squamous Cell Carcinoma,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,histological_type,[Discrepancy],1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2011,95
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2012,73
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2007,44
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2010,39
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2008,37
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2009,34
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2006,31
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2003,21
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2004,21
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2005,20
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2002,20
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2001,17
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,[Not Available],17
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2000,12
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,1999,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,1996,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,2013,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,1995,2
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,1997,2
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,1992,2
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,CDE_ID:2896960,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,1998,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,year_of_initial_pathologic_diagnosis,1993,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_T,T2,174
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_T,T2a,87
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_T,T3,71
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_T,T1,50
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_T,T1b,40
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_T,T2b,34
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_T,T4,24
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_T,T1a,24
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_T,CDE_ID:3045435,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,initial_pathologic_diagnosis_method,[Not Available],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,initial_pathologic_diagnosis_method,CDE_ID:2757941,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_N,N0,320
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_N,N1,133
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_N,N2,40
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_N,NX,6
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_N,N3,5
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_N,CDE_ID:3203106,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,init_pathology_dx_method_other,[Not Available],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,init_pathology_dx_method_other,CDE_ID:2757948,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_M,M0,414
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_M,MX,79
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_M,M1,5
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_M,[Not Available],4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_M,CDE_ID:3045439,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_M,M1a,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_M,M1b,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,Stage IB,152
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,Stage IIB,95
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,Stage IA,90
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,Stage IIA,65
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,Stage IIIA,63
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,Stage IIIB,19
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,Stage IV,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,[Discrepancy],4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,Stage II,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,Stage I,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,Stage III,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,pathologic_stage,CDE_ID:3203222,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,clinical_stage,[Not Applicable],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,clinical_stage,CDE_ID:3440332,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,tobacco_smoking_history,4,252
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,tobacco_smoking_history,2,134
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,tobacco_smoking_history,3,83
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,tobacco_smoking_history,1,18
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,tobacco_smoking_history,[Not Available],7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,tobacco_smoking_history,5,5
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,tobacco_smoking_history,[Unknown],3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,tobacco_smoking_history,[Discrepancy],2
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,tobacco_smoking_history,CDE_ID:2181650,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,[Not Available],77
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,40,47
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,50,45
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,30,30
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,60,28
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,25,21
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,80,17
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,45,16
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,20,15
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,35,14
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,100,13
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,15,8
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,90,8
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,75,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,56,6
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,74,5
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,70,5
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,63,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,120,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,65,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,52,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,37,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,57,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,53,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,51,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,86,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,64,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,58,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,10,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,number_pack_years_smoked,110,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,performance_status_scale_timing,[Not Available],276
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,performance_status_scale_timing,Preoperative,142
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,performance_status_scale_timing,Pre-Adjuvant Therapy,24
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,performance_status_scale_timing,[Not Evaluated],18
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,performance_status_scale_timing,[Unknown],17
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,performance_status_scale_timing,Other,15
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,performance_status_scale_timing,Post-Adjuvant Therapy,12
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,performance_status_scale_timing,CDE_ID:2792763,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,73,34
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,70,30
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,74,24
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,68,24
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,71,21
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,66,21
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,67,20
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,65,20
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,64,20
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,76,19
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,75,18
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,69,18
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,60,17
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,72,16
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,63,16
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,62,15
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,57,14
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,59,13
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,77,12
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,61,11
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,78,11
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,58,10
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,81,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,56,9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,[Not Available],9
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,79,8
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,52,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,80,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,55,7
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,83,6
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_began_smoking_in_years,[Not Available],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_began_smoking_in_years,CDE_ID:2178045,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,cd4_counts_at_diagnosis,[Not Available],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,cd4_counts_at_diagnosis,CDE_ID:2922654,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,days_to_hiv_diagnosis,[Not Available],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,days_to_hiv_diagnosis,CDE_ID:4618491,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,days_to_initial_pathologic_diagnosis,0,479
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,days_to_initial_pathologic_diagnosis,[Not Available],25
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,days_to_initial_pathologic_diagnosis,CDE_ID:3008275,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,height,[Not Available],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,height,CDE_ID:649,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,hiv_rna_load_at_diagnosis,[Not Available],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,hiv_rna_load_at_diagnosis,CDE_ID:2922674,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_histology,8070/3,468
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_histology,8083/3,14
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_histology,8071/3,13
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_histology,8052/3,4
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_histology,8072/3,3
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_histology,CDE_ID:3226275,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_histology,8073/3,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_histology,8140/3,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_site,C34.1,261
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_site,C34.3,175
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_site,C34.9,42
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_site,C34.2,17
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_site,C34.8,8
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_site,CDE_ID:3226281,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_site,C34.0,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,on_haart_therapy_at_cancer_diagnosis,[Not Available],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,on_haart_therapy_at_cancer_diagnosis,CDE_ID:2922679,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,on_haart_therapy_prior_to_cancer_diagnosis,[Not Available],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,on_haart_therapy_prior_to_cancer_diagnosis,CDE_ID:3335156,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stage_other,[Not Available],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,stage_other,CDE_ID:2007104,1
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,weight,[Not Available],504
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,weight,CDE_ID:651,1
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histological_type,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),276
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histological_type,"Squamous Cell Carcinoma, Not Otherwise Specified",202
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histological_type,Lung Basaloid Squamous Cell Carcinoma,7
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histological_type,Basaloid Squamous Cell,7
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histological_type,Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS)|Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS),5
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histological_type,Papillary Squamous Cell Carcinoma,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histological_type,CDE_ID:3081934,1
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histological_type,Lung Small Cell Squamous Cell Carcinoma,1
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histological_type,Lung Papillary Squamous Cell Caricnoma,1
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histological_type,Small Cell Squamous Cell,1
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,path_confirm_diagnosis_matching,YES,461
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,path_confirm_diagnosis_matching,[Not Available],39
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,path_confirm_diagnosis_matching,NO,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,path_confirm_diagnosis_matching,CDE_ID:3288300,1
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,top_slide_submitted,YES,443
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,top_slide_submitted,NO,61
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,top_slide_submitted,CDE_ID:3081944,1
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,digital_image_submitted,NO,460
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,digital_image_submitted,YES,44
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,digital_image_submitted,CDE_ID:3081948,1
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,200,84
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,100,55
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,300,26
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,[Not Available],21
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,250,21
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,150,21
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,400,9
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,155,5
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,140,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,160,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,310,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,240,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,190,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,230,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,68,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,97,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,173,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,800,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,1000,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,370,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,280,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,210,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,120,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,350,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,45,2
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,89,2
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,101,2
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,127,2
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,225,2
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tumor_weight,169,2
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,reason_path_confirm_diagnosis_not_matching,[Not Available],500
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,reason_path_confirm_diagnosis_not_matching,Pathology analysis at TSS determined a specific histological subtype different from original pathology report,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,reason_path_confirm_diagnosis_not_matching,CDE_ID:3288315,1
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,[Completed],8
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,590,5
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,6,5
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,20,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,28,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,63,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,13,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,14,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,142,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,43,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,66,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,8,4
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,120,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,67,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,35,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,38,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,145,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,56,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,31,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,41,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,82,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,42,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,122,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,113,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,37,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,99,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,26,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,742,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,1868,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,days_to_pathology_review,926,3
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,ffpe_tumor_slide_submitted,NO,504
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,ffpe_tumor_slide_submitted,CDE_ID:3295811,1
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,submitted_for_lce,[Not Available],290
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,submitted_for_lce,NO,165
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,submitted_for_lce,YES,49
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,submitted_for_lce,CDE_ID:3288488,1
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,followup_case_report_form_submission_reason,Scheduled Follow-up Submission,436
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,followup_case_report_form_submission_reason,[Not Available],121
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,followup_case_report_form_submission_reason,Additional New Tumor Event,12
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,followup_case_report_form_submission_reason,CDE_ID:3233305,1
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,[Not Available],285
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,[Not Evaluated],116
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,0,43
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,100,40
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,[Unknown],29
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,90,22
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,80,17
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,70,7
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,60,4
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,50,3
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,20,2
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,CDE_ID:2003853,1
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,karnofsky_performance_score,10,1
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,performance_status_scale_timing,[Not Available],311
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,performance_status_scale_timing,[Not Evaluated],76
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,performance_status_scale_timing,Post-Adjuvant Therapy,54
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,performance_status_scale_timing,Other,52
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,performance_status_scale_timing,Preoperative,33
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,performance_status_scale_timing,[Unknown],24
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,performance_status_scale_timing,Adjuvant therapy,13
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,performance_status_scale_timing,Pre-Adjuvant Therapy,6
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\nationwidechildrens.org_clinical_follow_up_v1.0_lusc.txt,performance_status_scale_timing,CDE_ID:2792763,1

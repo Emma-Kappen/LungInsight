@@ -1,0 +1,27 @@
+LUNGINSIGHT — LABEL / IDENTIFIER / MUTATION HEADER REVIEW
+========================================================================
+
+[1] LABEL AND PREDICTOR DISTRIBUTIONS
+READ ERROR: C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\candidate_label_predictor_distributions.csv: The 'low_memory' option is not supported with the 'python' engine
+
+[2] IDENTIFIER AUDIT
+READ ERROR: C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\source_table_identifier_audit.csv: The 'low_memory' option is not supported with the 'python' engine
+
+[3] SOURCE COLUMN DICTIONARY — LABELS / PREDICTORS / IDS
+READ ERROR: C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\source_table_column_dictionary.csv: The 'low_memory' option is not supported with the 'python' engine
+
+[4] RAW MUTATION FILE FIRST 55 LINES
+
+--- C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\datasets\msk_chord_2024\data_mutations.txt ---
+FILE NOT FOUND
+
+--- C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\datasets\msk_chord_2024\msk_chord_out\nsclc_mutations.csv ---
+FILE NOT FOUND
+
+[5] DIRECT LABEL / CLINICAL FIELD VALUE COUNTS
+
+--- MSK patient: data_clinical_patient.txt ---
+FILE NOT FOUND
+
+--- MSK sample: data_clinical_sample.txt ---
+FILE NOT FOUND

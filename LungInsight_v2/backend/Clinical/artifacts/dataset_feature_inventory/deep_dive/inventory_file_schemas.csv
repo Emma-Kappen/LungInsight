@@ -1,0 +1,5 @@
+"File","Rows","Columns"
+"features_by_dataset.csv","25977","dataset, feature_name, normalized_name, semantic_group, files_containing_feature, file_examples, observed_examples"
+"feature_name_crosswalk.csv","25652","normalized_name, MSK-CHORD-2024, TCGA-LUAD, TCGA-LUSC"
+"all_features_long.csv","33043","dataset, relative_path, feature_name, normalized_name, inferred_type, sample_non_null, sample_missing_pct, sample_unique_count, sample_examples, semantic_group"
+"source_file_inventory.csv","810","dataset, relative_path, format, size_mb, sample_rows_read, column_count, inspection_status"

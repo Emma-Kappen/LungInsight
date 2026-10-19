@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lunginsight.invalid/schemas/clinical_inference_v1.schema.json",
+  "title": "LungInsight Clinical Inference Input v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "patient_id", "baseline_definition", "clinician_inputs", "imaging_evidence"],
+  "properties": {
+    "schema_version": {"const": "1.0.0"},
+    "patient_id": {"type": "string", "minLength": 1},
+    "baseline_definition": {
+      "enum": ["initial_pathologic_diagnosis", "other_or_unverified"]
+    },
+    "requested_malignancy_method": {
+      "enum": ["brock", null]
+    },
+    "clinician_inputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "age_at_baseline_years": {"type": ["number", "null"], "minimum": 18, "maximum": 120},
+        "date_of_birth": {"type": ["string", "null"], "format": "date"},
+        "age_at_baseline_years_status": {"enum": ["reported", "unknown", "not_reported"]},
+        "sex_at_baseline": {"enum": ["female", "male", "other_or_unspecified", "unknown", "not_reported", null]},
+        "stage_at_baseline": {"enum": ["stage_1_3", "stage_4", "unknown", "not_reported", null]},
+        "race_at_baseline": {"enum": ["american_indian_or_alaska_native", "asian", "black_or_african_american", "native_hawaiian_or_pacific_islander", "white", "multiple", "other", "unknown", "not_reported", null]},
+        "ethnicity_at_baseline": {"enum": ["hispanic_or_latino", "not_hispanic_or_latino", "other", "unknown", "not_reported", null]},
+        "smoking_status": {"enum": ["current", "former", "never", "unknown", "not_reported"]},
+        "years_smoked": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "years_smoked_status": {"enum": ["reported", "unknown", "not_reported"]},
+        "packs_per_day": {"type": ["number", "null"], "minimum": 0, "maximum": 20},
+        "packs_per_day_status": {"enum": ["reported", "unknown", "not_reported"]},
+        "pack_years": {"type": ["number", "null"], "minimum": 0},
+        "years_since_cessation": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "family_history_lung_cancer": {"enum": ["yes", "no", "unknown", "not_reported"]},
+        "medical_history_status": {"enum": ["reported", "unknown", "not_reported"]},
+        "medical_history_conditions": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["emphysema", "copd", "asthma", "pulmonary_fibrosis", "prior_cancer", "other"]}
+        },
+        "symptoms_status": {"enum": ["reported", "unknown", "not_reported"]},
+        "symptoms": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["cough", "dyspnea", "hemoptysis", "chest_pain", "weight_loss", "fatigue", "other"]}
+        },
+        "kps": {"type": ["integer", "null"], "minimum": 0, "maximum": 100},
+        "ecog": {"type": ["integer", "null"], "minimum": 0, "maximum": 5}
+      }
+    },
+    "imaging_evidence": {
+      "type": "object",
+      "required": [
+        "contract",
+        "source_timestamp",
+        "scan_datetime",
+        "gate_status",
+        "imaging_pipeline_version",
+        "imaging_model_versions"
+      ],
+      "properties": {
+        "contract": {"type": "object"},
+        "source_timestamp": {"type": "string", "format": "date-time"},
+        "scan_datetime": {"type": ["string", "null"], "format": "date-time"},
+        "gate_status": {"const": "passed"},
+        "imaging_pipeline_version": {"type": "string", "minLength": 1},
+        "imaging_model_versions": {"type": "object"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,1767 @@
+{
+  "purpose": "Read-only inventory of Clinical/API/UI dependencies before changing the cancer-type model input contract.",
+  "candidate_features": [
+    "sex_at_baseline",
+    "smoking_history"
+  ],
+  "production_features": [
+    "sex_at_baseline",
+    "smoking_history",
+    "stage"
+  ],
+  "primary_files": [
+    {
+      "file": "backend\\Clinical\\inference.py",
+      "exists": true,
+      "matches": [
+        {
+          "line": 22,
+          "text": "CANCER_TYPE_V2_PATH = CLINICAL_DIR / \"models\" / \"cancer-type-luad-lusc-v2.joblib\""
+        },
+        {
+          "line": 23,
+          "text": "CANCER_TYPE_V2_ADAPTER = \"luad_lusc_v2_clinical_inputs\""
+        },
+        {
+          "line": 24,
+          "text": "CANCER_TYPE_V2_TARGET = ("
+        },
+        {
+          "line": 25,
+          "text": "\"histology conditional on LUAD/LUSC (patient-level); not cancer-versus-benign, \""
+        },
+        {
+          "line": 28,
+          "text": "CANCER_TYPE_V2_FEATURES = [\"sex_at_baseline\", \"smoking_history\", \"stage\"]"
+        },
+        {
+          "line": 29,
+          "text": "CANCER_TYPE_V2_CLASSES = [\"LUAD\", \"LUSC\"]"
+        },
+        {
+          "line": 30,
+          "text": "CANCER_TYPE_V2_CATEGORIES = {"
+        },
+        {
+          "line": 31,
+          "text": "\"sex_at_baseline\": [\"female\", \"male\"],"
+        },
+        {
+          "line": 32,
+          "text": "\"smoking_history\": [\"former_or_current\", \"never\"],"
+        },
+        {
+          "line": 33,
+          "text": "\"stage\": [\"stage_1_3\", \"stage_4\"],"
+        },
+        {
+          "line": 35,
+          "text": "CANCER_TYPE_V2_LIMITATIONS = ["
+        },
+        {
+          "line": 37,
+          "text": "\"Predicts histology only among patients already known to have LUAD or LUSC; it does not detect cancer, \""
+        },
+        {
+          "line": 40,
+          "text": "\"uses only sex, smoking history, and stage.\","
+        },
+        {
+          "line": 82,
+          "text": "\"Imaging contract; regenerate Stage 04 with --malignancy-method and resubmit its contract.\""
+        },
+        {
+          "line": 93,
+          "text": "\"sex_at_baseline\": clinician.get(\"sex_at_baseline\"),"
+        },
+        {
+          "line": 165,
+          "text": "\"target\": \"LUAD/LUSC conditional probability\","
+        },
+        {
+          "line": 242,
+          "text": "def _cancer_type_v2_result_base(metadata: dict[str, Any]) -> dict[str, Any]:"
+        },
+        {
+          "line": 244,
+          "text": "\"target\": CANCER_TYPE_V2_TARGET,"
+        },
+        {
+          "line": 248,
+          "text": "\"limitations\": list(CANCER_TYPE_V2_LIMITATIONS),"
+        },
+        {
+          "line": 252,
+          "text": "def _cancer_type_v2_abstention("
+        },
+        {
+          "line": 266,
+          "text": "**_cancer_type_v2_result_base(metadata),"
+        },
+        {
+          "line": 270,
+          "text": "def _cancer_type_v2_features(clinician: dict[str, Any]) -> tuple[dict[str, str], list[str]]:"
+        },
+        {
+          "line": 277,
+          "text": "\"sex_at_baseline\": mapped(clinician.get(\"sex_at_baseline\"), {\"female\": \"female\", \"male\": \"male\"}),"
+        },
+        {
+          "line": 278,
+          "text": "\"smoking_history\": mapped("
+        },
+        {
+          "line": 282,
+          "text": "\"stage\": mapped("
+        },
+        {
+          "line": 283,
+          "text": "clinician.get(\"stage_at_baseline\"),"
+        },
+        {
+          "line": 288,
+          "text": "\"sex_at_baseline\": \"sex_at_baseline\","
+        },
+        {
+          "line": 289,
+          "text": "\"smoking_history\": \"smoking_status\","
+        },
+        {
+          "line": 290,
+          "text": "\"stage\": \"stage_at_baseline\","
+        },
+        {
+          "line": 297,
+          "text": "def _predict_cancer_type_v2("
+        },
+        {
+          "line": 303,
+          "text": "return _cancer_type_v2_abstention("
+        },
+        {
+          "line": 309,
+          "text": "values, missing = _cancer_type_v2_features(clinician)"
+        },
+        {
+          "line": 311,
+          "text": "return _cancer_type_v2_abstention("
+        },
+        {
+          "line": 324,
+          "text": "raise ClinicalInferenceError(\"Cancer-type model returned an invalid probability vector.\")"
+        },
+        {
+          "line": 330,
+          "text": "raise ClinicalInferenceError(\"Cancer-type model probabilities are not normalized.\")"
+        },
+        {
+          "line": 333,
+          "text": "**_cancer_type_v2_result_base(metadata),"
+        },
+        {
+          "line": 346,
+          "text": "def _predict_cancer_type("
+        },
+        {
+          "line": 353,
+          "text": "\"No eligible cancer-type model artifact is available; TCGA-only subtype/source labels are not used as a classifier.\","
+        },
+        {
+          "line": 363,
+          "text": "if metadata.get(\"feature_adapter\") == CANCER_TYPE_V2_ADAPTER:"
+        },
+        {
+          "line": 364,
+          "text": "return _predict_cancer_type_v2(artifact, clinician)"
+        },
+        {
+          "line": 390,
+          "text": "raise ClinicalInferenceError(\"Cancer-type model returned an invalid probability vector.\")"
+        },
+        {
+          "line": 392,
+          "text": "raise ClinicalInferenceError(\"Cancer-type model probabilities are not normalized.\")"
+        },
+        {
+          "line": 537,
+          "text": "\"cancer_type\": _run_model_independently("
+        },
+        {
+          "line": 538,
+          "text": "_predict_cancer_type,"
+        },
+        {
+          "line": 539,
+          "text": "artifacts.get(\"cancer_type\"),"
+        },
+        {
+          "line": 586,
+          "text": "for name in (\"cancer_type\", \"survival\"):"
+        },
+        {
+          "line": 614,
+          "text": "def adapt_cancer_type_pipeline(pipeline: Any) -> dict[str, Any]:"
+        },
+        {
+          "line": 615,
+          "text": "\"\"\"Wrap the standalone LUAD/LUSC sklearn Pipeline in the bundle-style {metadata, estimator} contract."
+        },
+        {
+          "line": 631,
+          "text": "raise ClinicalInferenceError(\"Unsupported standalone cancer-type pipeline structure.\") from exc"
+        },
+        {
+          "line": 633,
+          "text": "columns != CANCER_TYPE_V2_FEATURES"
+        },
+        {
+          "line": 634,
+          "text": "or classes != CANCER_TYPE_V2_CLASSES"
+        },
+        {
+          "line": 635,
+          "text": "or categories != CANCER_TYPE_V2_CATEGORIES"
+        },
+        {
+          "line": 638,
+          "text": "raise ClinicalInferenceError(\"Standalone cancer-type pipeline does not match its documented contract.\")"
+        },
+        {
+          "line": 642,
+          "text": "\"model_version\": \"cancer-type-luad-lusc-v2\","
+        },
+        {
+          "line": 645,
+          "text": "\"feature_adapter\": CANCER_TYPE_V2_ADAPTER,"
+        },
+        {
+          "line": 646,
+          "text": "\"target\": CANCER_TYPE_V2_TARGET,"
+        },
+        {
+          "line": 657,
+          "text": "def load_cancer_type_pipeline(path: str | Path | None = None) -> dict[str, Any] | None:"
+        },
+        {
+          "line": 658,
+          "text": "\"\"\"Load the trusted standalone LUAD/LUSC pipeline; None when absent, ClinicalInferenceError when invalid.\"\"\""
+        },
+        {
+          "line": 661,
+          "text": "model_path = Path(path) if path else CANCER_TYPE_V2_PATH"
+        },
+        {
+          "line": 668,
+          "text": "f\"Standalone cancer-type artifact could not be loaded ({type(exc).__name__}).\""
+        },
+        {
+          "line": 670,
+          "text": "return adapt_cancer_type_pipeline(pipeline)"
+        },
+        {
+          "line": 674,
+          "text": "def _cached_standalone_cancer_type(path: str, modified_ns: int) -> dict[str, Any] | None:"
+        },
+        {
+          "line": 676,
+          "text": "return load_cancer_type_pipeline(path)"
+        },
+        {
+          "line": 679,
+          "text": "logger.error(\"cancer_type_artifact_invalid path=%s reason=%s\", path, exc)"
+        },
+        {
+          "line": 683,
+          "text": "def _standalone_cancer_type() -> dict[str, Any] | None:"
+        },
+        {
+          "line": 684,
+          "text": "path = CANCER_TYPE_V2_PATH"
+        },
+        {
+          "line": 689,
+          "text": "return _cached_standalone_cancer_type(str(path), modified_ns)"
+        },
+        {
+          "line": 692,
+          "text": "def with_standalone_cancer_type("
+        },
+        {
+          "line": 697,
+          "text": "\"\"\"Precedence: a cancer_type in an explicitly configured bundle wins; otherwise the standalone model is used."
+        },
+        {
+          "line": 700,
+          "text": "bundle's cancer_type is superseded by the standalone model when that model file exists."
+        },
+        {
+          "line": 702,
+          "text": "merged = dict(models) if models else {\"cancer_type\": None, \"survival\": None}"
+        },
+        {
+          "line": 703,
+          "text": "if merged.get(\"cancer_type\") is not None and bundle_configured:"
+        },
+        {
+          "line": 705,
+          "text": "standalone = _standalone_cancer_type()"
+        },
+        {
+          "line": 707,
+          "text": "merged[\"cancer_type\"] = standalone"
+        },
+        {
+          "line": 714,
+          "text": "return with_standalone_cancer_type("
+        },
+        {
+          "line": 722,
+          "text": "cancer_type = available.get(\"cancer_type\")"
+        },
+        {
+          "line": 724,
+          "text": "if cancer_type is None:"
+        },
+        {
+          "line": 725,
+          "text": "cancer_type_status = \"not_trained\""
+        },
+        {
+          "line": 727,
+          "text": "cancer_type_status = \"invalid\" if cancer_type.get(\"load_error\") else \"loaded\""
+        },
+        {
+          "line": 729,
+          "text": "\"cancer_type_model\": cancer_type_status,"
+        },
+        {
+          "line": 732,
+          "text": "if cancer_type_status == \"loaded\":"
+        },
+        {
+          "line": 733,
+          "text": "metadata = cancer_type[\"metadata\"]"
+        },
+        {
+          "line": 734,
+          "text": "description[\"cancer_type_model_version\"] = metadata.get(\"model_version\")"
+        },
+        {
+          "line": 735,
+          "text": "description[\"cancer_type_model_source\"] = metadata.get(\"artifact_source\", \"configured_bundle\")"
+        }
+      ]
+    },
+    {
+      "file": "backend\\Clinical\\schemas\\clinical_inference_v1.schema.json",
+      "exists": true,
+      "matches": [
+        {
+          "line": 24,
+          "text": "\"sex_at_baseline\": {\"enum\": [\"female\", \"male\", \"other_or_unspecified\", \"unknown\", \"not_reported\", null]},"
+        },
+        {
+          "line": 25,
+          "text": "\"stage_at_baseline\": {\"enum\": [\"stage_1_3\", \"stage_4\", \"unknown\", \"not_reported\", null]},"
+        }
+      ]
+    },
+    {
+      "file": "backend\\Clinical\\schemas\\clinical_prediction_v1.schema.json",
+      "exists": true,
+      "matches": [
+        {
+          "line": 14,
+          "text": "\"cancer_type\","
+        },
+        {
+          "line": 32,
+          "text": "\"cancer_type\": {\"type\": \"object\"},"
+        }
+      ]
+    },
+    {
+      "file": "backend\\Clinical\\tests\\test_cancer_type_luad_lusc_v2.py",
+      "exists": true,
+      "matches": [
+        {
+          "line": 25,
+          "text": "adapt_cancer_type_pipeline,"
+        },
+        {
+          "line": 27,
+          "text": "load_cancer_type_pipeline,"
+        },
+        {
+          "line": 30,
+          "text": "with_standalone_cancer_type,"
+        },
+        {
+          "line": 46,
+          "text": "columns = [\"sex_at_baseline\", \"smoking_history\", \"stage\"]"
+        },
+        {
+          "line": 48,
+          "text": "(sex, smoking, stage)"
+        },
+        {
+          "line": 51,
+          "text": "for stage in stage_values"
+        },
+        {
+          "line": 54,
+          "text": "labels = [\"LUSC\" if index % 3 == 0 else \"LUAD\" for index in range(len(frame))]"
+        },
+        {
+          "line": 82,
+          "text": "artifact = adapt_cancer_type_pipeline(_v2_pipeline())"
+        },
+        {
+          "line": 90,
+          "text": "\"sex_at_baseline\": \"female\","
+        },
+        {
+          "line": 92,
+          "text": "\"stage_at_baseline\": \"stage_1_3\","
+        },
+        {
+          "line": 105,
+          "text": "clinical_inference._cached_standalone_cancer_type.cache_clear()"
+        },
+        {
+          "line": 108,
+          "text": "clinical_inference._cached_standalone_cancer_type.cache_clear()"
+        },
+        {
+          "line": 111,
+          "text": "def _write_bundle(path: Path, *, cancer_type: dict | None, survival: dict | None) -> Path:"
+        },
+        {
+          "line": 113,
+          "text": "{\"schema_version\": \"1.0.0\", \"cancer_type\": cancer_type, \"survival\": survival, \"provenance\": {}},"
+        },
+        {
+          "line": 119,
+          "text": "def _legacy_cancer_type() -> dict:"
+        },
+        {
+          "line": 120,
+          "text": "return {\"estimator\": \"legacy-estimator\", \"metadata\": {\"model_version\": \"legacy-cancer-type\"}}"
+        },
+        {
+          "line": 134,
+          "text": "metadata = artifacts[\"cancer_type\"][\"metadata\"]"
+        },
+        {
+          "line": 135,
+          "text": "assert metadata[\"model_version\"] == \"cancer-type-luad-lusc-v2\""
+        },
+        {
+          "line": 136,
+          "text": "assert metadata[\"class_order\"] == [\"LUAD\", \"LUSC\"]"
+        },
+        {
+          "line": 137,
+          "text": "assert metadata[\"feature_order\"] == [\"sex_at_baseline\", \"smoking_history\", \"stage\"]"
+        },
+        {
+          "line": 139,
+          "text": "\"sex_at_baseline\": [\"female\", \"male\"],"
+        },
+        {
+          "line": 140,
+          "text": "\"smoking_history\": [\"former_or_current\", \"never\"],"
+        },
+        {
+          "line": 141,
+          "text": "\"stage\": [\"stage_1_3\", \"stage_4\"],"
+        },
+        {
+          "line": 143,
+          "text": "assert describe_artifacts(artifacts)[\"cancer_type_model\"] == \"loaded\""
+        },
+        {
+          "line": 144,
+          "text": "output = run_inference(_v2_request(), artifacts=artifacts)[\"cancer_type\"]"
+        },
+        {
+          "line": 146,
+          "text": "assert set(output[\"probabilities\"]) == {\"LUAD\", \"LUSC\"}"
+        },
+        {
+          "line": 147,
+          "text": "assert output[\"model_version\"] == \"cancer-type-luad-lusc-v2\""
+        },
+        {
+          "line": 150,
+          "text": "def test_default_bundle_survival_is_kept_and_its_cancer_type_is_superseded("
+        },
+        {
+          "line": 153,
+          "text": "bundle = _write_bundle(isolated_artifacts / \"default.joblib\", cancer_type=_legacy_cancer_type(), survival=_survival_stub())"
+        },
+        {
+          "line": 157,
+          "text": "assert artifacts[\"cancer_type\"][\"metadata\"][\"model_version\"] == \"cancer-type-luad-lusc-v2\""
+        },
+        {
+          "line": 160,
+          "text": "def test_explicitly_configured_bundle_cancer_type_wins_over_standalone("
+        },
+        {
+          "line": 163,
+          "text": "bundle = _write_bundle(isolated_artifacts / \"configured.joblib\", cancer_type=_legacy_cancer_type(), survival=_survival_stub())"
+        },
+        {
+          "line": 166,
+          "text": "assert artifacts[\"cancer_type\"] == _legacy_cancer_type()"
+        },
+        {
+          "line": 168,
+          "text": "assert describe_artifacts(artifacts)[\"cancer_type_model_source\"] == \"configured_bundle\""
+        },
+        {
+          "line": 171,
+          "text": "def test_configured_bundle_without_cancer_type_is_filled_without_touching_survival("
+        },
+        {
+          "line": 174,
+          "text": "bundle = _write_bundle(isolated_artifacts / \"configured.joblib\", cancer_type=None, survival=_survival_stub())"
+        },
+        {
+          "line": 177,
+          "text": "assert artifacts[\"cancer_type\"][\"metadata\"][\"model_version\"] == \"cancer-type-luad-lusc-v2\""
+        },
+        {
+          "line": 180,
+          "text": "models = {\"cancer_type\": None, \"survival\": survival}"
+        },
+        {
+          "line": 181,
+          "text": "assert with_standalone_cancer_type(models, bundle_configured=True)[\"survival\"] is survival"
+        },
+        {
+          "line": 182,
+          "text": "assert models[\"cancer_type\"] is None"
+        },
+        {
+          "line": 185,
+          "text": "def test_survival_inference_is_independent_of_the_standalone_cancer_type(isolated_artifacts: Path) -> None:"
+        },
+        {
+          "line": 190,
+          "text": "\"source\": np.where(np.arange(n) % 2, \"TCGA-LUAD\", \"TCGA-LUSC\"),"
+        },
+        {
+          "line": 192,
+          "text": "\"sex_at_baseline\": np.where(np.arange(n) % 2, \"female\", \"male\"),"
+        },
+        {
+          "line": 193,
+          "text": "\"stage_at_baseline\": np.where(np.arange(n) % 3, \"Stage I\", \"Stage III\"),"
+        },
+        {
+          "line": 199,
+          "text": "merged = with_standalone_cancer_type("
+        },
+        {
+          "line": 200,
+          "text": "{\"cancer_type\": None, \"survival\": survival_artifact}, bundle_configured=True"
+        },
+        {
+          "line": 205,
+          "text": "assert output[\"cancer_type\"][\"status\"] == \"research_prediction\""
+        },
+        {
+          "line": 206,
+          "text": "abstaining = run_inference(_v2_request(stage_at_baseline=None, age_at_baseline_years=65, ecog=None), artifacts=merged)"
+        },
+        {
+          "line": 207,
+          "text": "assert abstaining[\"cancer_type\"][\"status\"] == \"abstained\""
+        },
+        {
+          "line": 214,
+          "text": "model_path = isolated_artifacts / \"cancer-type.joblib\""
+        },
+        {
+          "line": 215,
+          "text": "monkeypatch.setattr(clinical_inference, \"CANCER_TYPE_V2_PATH\", model_path)"
+        },
+        {
+          "line": 216,
+          "text": "bundle = _write_bundle(isolated_artifacts / \"default.joblib\", cancer_type=None, survival=_survival_stub())"
+        },
+        {
+          "line": 219,
+          "text": "assert load_deployed_artifacts()[\"cancer_type\"] is None"
+        },
+        {
+          "line": 220,
+          "text": "assert describe_artifacts(load_deployed_artifacts())[\"cancer_type_model\"] == \"not_trained\""
+        },
+        {
+          "line": 223,
+          "text": "assert load_deployed_artifacts()[\"cancer_type\"][\"metadata\"][\"model_version\"] == \"cancer-type-luad-lusc-v2\""
+        },
+        {
+          "line": 229,
+          "text": "assert describe_artifacts(artifacts)[\"cancer_type_model\"] == \"invalid\""
+        },
+        {
+          "line": 232,
+          "text": "assert output[\"cancer_type\"][\"status\"] == \"failed\""
+        },
+        {
+          "line": 233,
+          "text": "assert output[\"cancer_type\"][\"error_code\"] == \"model_artifact_invalid\""
+        },
+        {
+          "line": 237,
+          "text": "assert describe_artifacts(load_deployed_artifacts())[\"cancer_type_model\"] == \"loaded\""
+        },
+        {
+          "line": 244,
+          "text": "load_cancer_type_pipeline(widened)"
+        },
+        {
+          "line": 248,
+          "text": "load_cancer_type_pipeline(wrong)"
+        },
+        {
+          "line": 249,
+          "text": "assert load_cancer_type_pipeline(tmp_path / \"missing.joblib\") is None"
+        },
+        {
+          "line": 257,
+          "text": "bundle = _write_bundle(isolated_artifacts / \"configured.joblib\", cancer_type=None, survival=_survival_stub())"
+        },
+        {
+          "line": 259,
+          "text": "assert status[\"cancer_type_model\"] == \"loaded\""
+        },
+        {
+          "line": 260,
+          "text": "assert status[\"cancer_type_model_source\"] == \"standalone_pipeline\""
+        },
+        {
+          "line": 262,
+          "text": "monkeypatch.setattr(clinical_inference, \"CANCER_TYPE_V2_PATH\", isolated_artifacts / \"missing.joblib\")"
+        },
+        {
+          "line": 263,
+          "text": "clinical_inference._cached_standalone_cancer_type.cache_clear()"
+        },
+        {
+          "line": 265,
+          "text": "assert status[\"cancer_type_model\"] == \"not_trained\""
+        },
+        {
+          "line": 274,
+          "text": "output = run_inference(_v2_request(sex_at_baseline=sex), artifacts={\"cancer_type\": spy_artifact})[\"cancer_type\"]"
+        },
+        {
+          "line": 276,
+          "text": "assert spy_artifact[\"estimator\"].frames[-1].iloc[0][\"sex_at_baseline\"] == sex"
+        },
+        {
+          "line": 284,
+          "text": "output = run_inference(_v2_request(smoking_status=smoking), artifacts={\"cancer_type\": spy_artifact})[\"cancer_type\"]"
+        },
+        {
+          "line": 286,
+          "text": "assert spy_artifact[\"estimator\"].frames[-1].iloc[0][\"smoking_history\"] == expected"
+        },
+        {
+          "line": 287,
+          "text": "assert output[\"feature_values\"][\"smoking_history\"] == expected"
+        },
+        {
+          "line": 290,
+          "text": "@pytest.mark.parametrize(\"stage\", [\"stage_1_3\", \"stage_4\"])"
+        },
+        {
+          "line": 291,
+          "text": "def test_supported_stage_categories_are_mapped(spy_artifact: dict, stage: str) -> None:"
+        },
+        {
+          "line": 292,
+          "text": "output = run_inference(_v2_request(stage_at_baseline=stage), artifacts={\"cancer_type\": spy_artifact})[\"cancer_type\"]"
+        },
+        {
+          "line": 294,
+          "text": "assert spy_artifact[\"estimator\"].frames[-1].iloc[0][\"stage\"] == stage"
+        },
+        {
+          "line": 298,
+          "text": "output = run_inference(request, artifacts={\"cancer_type\": spy_artifact})[\"cancer_type\"]"
+        },
+        {
+          "line": 308,
+          "text": "_assert_abstained(spy_artifact, _v2_request(sex_at_baseline=sex), \"sex_at_baseline\")"
+        },
+        {
+          "line": 309,
+          "text": "_assert_abstained(spy_artifact, _v2_request(drop=(\"sex_at_baseline\",)), \"sex_at_baseline\")"
+        },
+        {
+          "line": 318,
+          "text": "@pytest.mark.parametrize(\"stage\", [None, \"unknown\", \"not_reported\"])"
+        },
+        {
+          "line": 319,
+          "text": "def test_missing_or_unknown_stage_abstains(spy_artifact: dict, stage: str | None) -> None:"
+        },
+        {
+          "line": 320,
+          "text": "_assert_abstained(spy_artifact, _v2_request(stage_at_baseline=stage), \"stage_at_baseline\")"
+        },
+        {
+          "line": 321,
+          "text": "_assert_abstained(spy_artifact, _v2_request(drop=(\"stage_at_baseline\",)), \"stage_at_baseline\")"
+        },
+        {
+          "line": 327,
+          "text": "output = run_inference(request, artifacts={\"cancer_type\": spy_artifact})[\"cancer_type\"]"
+        },
+        {
+          "line": 335,
+          "text": "full = run_inference(_v2_request(), artifacts={\"cancer_type\": spy_artifact})"
+        },
+        {
+          "line": 336,
+          "text": "output = full[\"cancer_type\"]"
+        },
+        {
+          "line": 338,
+          "text": "assert output[\"class_order\"] == [\"LUAD\", \"LUSC\"]"
+        },
+        {
+          "line": 339,
+          "text": "assert list(output[\"probabilities\"]) == [\"LUAD\", \"LUSC\"]"
+        },
+        {
+          "line": 344,
+          "text": "assert output[\"features_used\"] == [\"sex_at_baseline\", \"smoking_history\", \"stage\"]"
+        },
+        {
+          "line": 345,
+          "text": "assert output[\"model_version\"] == \"cancer-type-luad-lusc-v2\""
+        },
+        {
+          "line": 347,
+          "text": "assert \"conditional on LUAD/LUSC\" in output[\"target\"] and \"not cancer-versus-benign\" in output[\"target\"]"
+        },
+        {
+          "line": 352,
+          "text": "abstained = run_inference(_v2_request(stage_at_baseline=None), artifacts={\"cancer_type\": spy_artifact})"
+        },
+        {
+          "line": 358,
+          "text": "output = run_inference(_v2_request(), artifacts={\"cancer_type\": spy_artifact})[\"cancer_type\"]"
+        },
+        {
+          "line": 362,
+          "text": "# ---- stage input, record persistence, Imaging hand-off -----------------------------------------------"
+        },
+        {
+          "line": 366,
+          "text": "assert validate_clinician_inputs({\"stage_at_baseline\": \"stage_1_3\"})[\"stage_at_baseline\"] == \"stage_1_3\""
+        },
+        {
+          "line": 367,
+          "text": "assert validate_clinician_inputs({\"stage_at_baseline\": \"stage_4\"})[\"stage_at_baseline_status\"] == \"reported\""
+        },
+        {
+          "line": 368,
+          "text": "unknown = validate_clinician_inputs({\"stage_at_baseline\": \"unknown\"})"
+        },
+        {
+          "line": 369,
+          "text": "assert unknown[\"stage_at_baseline\"] is None and unknown[\"stage_at_baseline_status\"] == \"unknown\""
+        },
+        {
+          "line": 370,
+          "text": "legacy = validate_clinician_inputs({\"sex_at_baseline\": \"female\"})"
+        },
+        {
+          "line": 371,
+          "text": "assert legacy.get(\"stage_at_baseline\") is None"
+        },
+        {
+          "line": 372,
+          "text": "assert legacy[\"stage_at_baseline_status\"] == \"not_reported\""
+        },
+        {
+          "line": 373,
+          "text": "for rejected in (\"Stage IIA\", \"Stage I\", \"stage_2\", \"III\", \"\", 4, True):"
+        },
+        {
+          "line": 374,
+          "text": "with pytest.raises(ClinicalValidationError, match=\"stage_at_baseline\"):"
+        },
+        {
+          "line": 375,
+          "text": "validate_clinician_inputs({\"stage_at_baseline\": rejected})"
+        },
+        {
+          "line": 376,
+          "text": "with pytest.raises(ClinicalInferenceError, match=\"stage_at_baseline\"):"
+        },
+        {
+          "line": 377,
+          "text": "run_inference(_v2_request(stage_at_baseline=\"Stage IV\"))"
+        },
+        {
+          "line": 384,
+          "text": "@pytest.mark.parametrize(\"stage\", [\"stage_1_3\", \"stage_4\", \"unknown\", None])"
+        },
+        {
+          "line": 385,
+          "text": "def test_saved_stage_round_trips_through_validation(stage: str | None) -> None:"
+        },
+        {
+          "line": 386,
+          "text": "saved = validate_clinician_inputs({\"sex_at_baseline\": \"male\", \"stage_at_baseline\": stage})"
+        },
+        {
+          "line": 388,
+          "text": "assert reread[\"stage_at_baseline\"] == saved[\"stage_at_baseline\"]"
+        },
+        {
+          "line": 389,
+          "text": "if stage != \"unknown\":"
+        },
+        {
+          "line": 391,
+          "text": "assert saved[\"stage_at_baseline_status\"] == {\"stage_1_3\": \"reported\", \"stage_4\": \"reported\", \"unknown\": \"unknown\", None: \"not_reported\"}[stage]"
+        },
+        {
+          "line": 402,
+          "text": "for stage, restored, status in ((\"stage_4\", \"stage_4\", \"reported\"), (\"unknown\", None, \"unknown\"), (None, None, \"not_reported\")):"
+        },
+        {
+          "line": 404,
+          "text": "\"/api/v1/clinical/records/stage-patient\","
+        },
+        {
+          "line": 405,
+          "text": "json={\"clinician_inputs\": {\"sex_at_baseline\": \"female\", \"stage_at_baseline\": stage}},"
+        },
+        {
+          "line": 408,
+          "text": "loaded = client.get(\"/api/v1/clinical/records/stage-patient\").json()[\"clinician_inputs\"]"
+        },
+        {
+          "line": 409,
+          "text": "assert loaded[\"stage_at_baseline\"] == restored"
+        },
+        {
+          "line": 410,
+          "text": "assert loaded[\"stage_at_baseline_status\"] == status"
+        },
+        {
+          "line": 411,
+          "text": "assert validate_clinician_inputs(loaded)[\"stage_at_baseline\"] == restored"
+        },
+        {
+          "line": 413,
+          "text": "\"/api/v1/clinical/records/stage-patient\","
+        },
+        {
+          "line": 414,
+          "text": "json={\"clinician_inputs\": {\"stage_at_baseline\": \"Stage IV\"}},"
+        },
+        {
+          "line": 420,
+          "text": "\"clinician_inputs\": {\"sex_at_baseline\": \"female\", \"smoking_status\": \"never\"},"
+        },
+        {
+          "line": 424,
+          "text": "assert \"stage_at_baseline\" not in loaded"
+        },
+        {
+          "line": 426,
+          "text": "assert revalidated.get(\"stage_at_baseline\") is None"
+        },
+        {
+          "line": 427,
+          "text": "assert revalidated[\"stage_at_baseline_status\"] == \"not_reported\""
+        },
+        {
+          "line": 428,
+          "text": "artifact = adapt_cancer_type_pipeline(_v2_pipeline())"
+        },
+        {
+          "line": 429,
+          "text": "request = _v2_request(drop=(\"stage_at_baseline\",))"
+        },
+        {
+          "line": 431,
+          "text": "assert run_inference(request, artifacts={\"cancer_type\": artifact})[\"cancer_type\"][\"status\"] == \"abstained\""
+        },
+        {
+          "line": 439,
+          "text": "patient_id = \"stage-handoff\""
+        },
+        {
+          "line": 459,
+          "text": "inputs = {\"sex_at_baseline\": \"female\", \"smoking_status\": \"never\", \"stage_at_baseline\": \"stage_4\"}"
+        },
+        {
+          "line": 472,
+          "text": "assert captured[\"clinical_inputs\"][\"stage_at_baseline\"] == \"stage_4\""
+        },
+        {
+          "line": 476,
+          "text": "assert output[\"cancer_type\"][\"status\"] == \"research_prediction\""
+        },
+        {
+          "line": 477,
+          "text": "assert output[\"cancer_type\"][\"feature_values\"][\"stage\"] == \"stage_4\""
+        },
+        {
+          "line": 478,
+          "text": "assert \"stage_at_baseline\" in output[\"input_validation\"][\"clinician_fields_supplied\"]"
+        },
+        {
+          "line": 495,
+          "text": "select = re.search(r'<select id=\"stage_at_baseline\".*?</select>', page, re.S).group(0)"
+        },
+        {
+          "line": 497,
+          "text": "assert '<option value=\"stage_1_3\">Stage I\u2013III</option>' in select"
+        },
+        {
+          "line": 498,
+          "text": "assert '<option value=\"stage_4\">Stage IV</option>' in select"
+        },
+        {
+          "line": 500,
+          "text": "assert 'stage: val(\"stage_at_baseline\")' in script"
+        },
+        {
+          "line": 501,
+          "text": "assert \"stage_at_baseline: f.stage || null\" in script"
+        },
+        {
+          "line": 502,
+          "text": "assert 'set(\"stage_at_baseline\"' in _js_function(script, \"applyClinicalRecord\")"
+        },
+        {
+          "line": 503,
+          "text": "assert \"Stage\" in _js_function(script, \"renderClinicalInputs\")"
+        },
+        {
+          "line": 509,
+          "text": "assert \"cancer_type\" not in assessment and \"LUAD\" not in assessment and \"cancerType\" not in assessment"
+        },
+        {
+          "line": 510,
+          "text": "assert \"Likely cancer type\" not in script"
+        },
+        {
+          "line": 523,
+          "text": "line(\"esc\"), line(\"label\"), line(\"badge\"), line(\"CANCER_STAGE_LABELS\"), line(\"SMOKING_HISTORY_LABELS\"),"
+        },
+        {
+          "line": 533,
+          "text": "const cancer = {status: \"research_prediction\", probabilities: {LUAD: 0.7, LUSC: 0.3}, predicted_class: \"LUAD\","
+        },
+        {
+          "line": 534,
+          "text": "feature_values: {sex_at_baseline: \"female\", smoking_history: \"never\", stage: \"stage_4\"}, limitations: [\"<b>x</b>\"]};"
+        },
+        {
+          "line": 535,
+          "text": "const abstained = {status: \"abstained\", prediction: null, reason: \"Required inputs are missing: stage_at_baseline.\", missing_features: [\"stage_at_baseline\"], warnings: [\"required_model_inputs_missing\"]};"
+        },
+        {
+          "line": 538,
+          "text": "both: render({survival, cancer_type: cancer}),"
+        },
+        {
+          "line": 539,
+          "text": "noSurvival: render({survival: {status: \"not_trained\", prediction: null, reason: \"No survival model.\"}, cancer_type: cancer}),"
+        },
+        {
+          "line": 540,
+          "text": "noCancer: render({survival, cancer_type: {status: \"not_trained\", prediction: null, reason: \"No cancer model.\"}}),"
+        },
+        {
+          "line": 541,
+          "text": "abstained: render({survival, cancer_type: abstained}),"
+        },
+        {
+          "line": 555,
+          "text": "assert \"class=\\\"chart\\\"\" in html[\"both\"] and \"LUAD\" in html[\"both\"] and \"LUSC\" in html[\"both\"]"
+        },
+        {
+          "line": 556,
+          "text": "assert \"research model output\" in html[\"both\"] and \"stage: Stage IV\" in html[\"both\"]"
+        },
+        {
+          "line": 557,
+          "text": "assert \"No survival model.\" in html[\"noSurvival\"] and \"LUAD\" in html[\"noSurvival\"]"
+        },
+        {
+          "line": 559,
+          "text": "assert 'class=\"chart\"' in html[\"abstained\"] and \"stage_at_baseline\" in html[\"abstained\"]"
+        }
+      ]
+    },
+    {
+      "file": "backend\\Clinical\\tests\\test_clinical_pipeline.py",
+      "exists": true,
+      "matches": [
+        {
+          "line": 33,
+          "text": "build_cancer_type_eligibility_report,"
+        },
+        {
+          "line": 34,
+          "text": "fit_cancer_type_model,"
+        },
+        {
+          "line": 168,
+          "text": "\"sex_at_baseline\": \"female\","
+        },
+        {
+          "line": 200,
+          "text": "validate_clinician_inputs({\"stage_at_baseline\": \"Stage IIA\"})"
+        },
+        {
+          "line": 207,
+          "text": "\"sex_at_baseline\": \"unknown\","
+        },
+        {
+          "line": 223,
+          "text": "assert values[\"sex_at_baseline\"] is None"
+        },
+        {
+          "line": 224,
+          "text": "assert values[\"sex_at_baseline_status\"] == \"unknown\""
+        },
+        {
+          "line": 245,
+          "text": "\"sex_at_baseline\": \"female\","
+        },
+        {
+          "line": 262,
+          "text": "tampered = dict(saved, kps_category=\"0-10\", sex_at_baseline_status=\"reported\")"
+        },
+        {
+          "line": 264,
+          "text": "assert validate_clinician_inputs(tampered)[\"sex_at_baseline_status\"] == saved[\"sex_at_baseline_status\"]"
+        },
+        {
+          "line": 267,
+          "text": "def test_prediction_uses_system_utc_timestamp_without_pathological_stage() -> None:"
+        },
+        {
+          "line": 275,
+          "text": "assert \"stage_at_baseline\" not in output[\"input_validation\"][\"clinician_fields_supplied\"]"
+        },
+        {
+          "line": 279,
+          "text": "assert \"stage_at_baseline\" not in SURVIVAL_FEATURE_ORDER"
+        },
+        {
+          "line": 280,
+          "text": "with pytest.raises(ClinicalInferenceError, match=\"stage_at_baseline\"):"
+        },
+        {
+          "line": 285,
+          "text": "\"stage_at_baseline\": \"Stage IIA\","
+        },
+        {
+          "line": 292,
+          "text": "{\"PATIENT_ID\": \"p1\", \"SAMPLE_ID\": \"s1\", \"CANCER_TYPE\": \"Non-Small Cell Lung Cancer\","
+        },
+        {
+          "line": 293,
+          "text": "\"CANCER_TYPE_DETAILED\": \"Lung Adenocarcinoma\", \"ONCOTREE_CODE\": \"LUAD\"},"
+        },
+        {
+          "line": 294,
+          "text": "{\"PATIENT_ID\": \"p2\", \"SAMPLE_ID\": \"s2\", \"CANCER_TYPE\": \"Non-Small Cell Lung Cancer\","
+        },
+        {
+          "line": 295,
+          "text": "\"CANCER_TYPE_DETAILED\": \"Non-Small Cell Lung Cancer\", \"ONCOTREE_CODE\": \"NSCLC\"},"
+        },
+        {
+          "line": 296,
+          "text": "{\"PATIENT_ID\": \"p3\", \"SAMPLE_ID\": \"s3\", \"CANCER_TYPE\": \"Non-Small Cell Lung Cancer\","
+        },
+        {
+          "line": 297,
+          "text": "\"CANCER_TYPE_DETAILED\": \"Lung Adenocarcinoma\", \"ONCOTREE_CODE\": \"LUAD\"},"
+        },
+        {
+          "line": 298,
+          "text": "{\"PATIENT_ID\": \"p3\", \"SAMPLE_ID\": \"s4\", \"CANCER_TYPE\": \"Non-Small Cell Lung Cancer\","
+        },
+        {
+          "line": 299,
+          "text": "\"CANCER_TYPE_DETAILED\": \"Lung Squamous Cell Carcinoma\", \"ONCOTREE_CODE\": \"LUSC\"},"
+        },
+        {
+          "line": 300,
+          "text": "{\"PATIENT_ID\": \"p4\", \"SAMPLE_ID\": \"s5\", \"CANCER_TYPE\": \"Non-Small Cell Lung Cancer\","
+        },
+        {
+          "line": 301,
+          "text": "\"CANCER_TYPE_DETAILED\": \"Lung Adenocarcinoma\", \"ONCOTREE_CODE\": \"LUSC\"},"
+        },
+        {
+          "line": 304,
+          "text": "assert result.loc[\"p1\", \"histology\"] == \"LUAD\""
+        },
+        {
+          "line": 313,
+          "text": "(\"Lung Adenocarcinoma- Not Otherwise Specified (NOS)\", \"LUAD\"),"
+        },
+        {
+          "line": 314,
+          "text": "(\"Lung Bronchioloalveolar Carcinoma Nonmucinous\", \"LUAD\"),"
+        },
+        {
+          "line": 315,
+          "text": "(\"Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS)\", \"LUSC\"),"
+        },
+        {
+          "line": 316,
+          "text": "(\"Lung Papillary Squamous Cell Caricnoma\", \"LUSC\"),"
+        },
+        {
+          "line": 338,
+          "text": "<stage_event><pathologic_stage>Stage IIA</pathologic_stage></stage_event>"
+        },
+        {
+          "line": 343,
+          "text": "parsed = parse_tcga_patient_xml(patient_path, \"TCGA-LUAD\")"
+        },
+        {
+          "line": 348,
+          "text": "assert parsed[\"sex_at_baseline\"] == \"female\""
+        },
+        {
+          "line": 355,
+          "text": "assert parse_tcga_patient_xml(followup_path, \"TCGA-LUAD\") is None"
+        },
+        {
+          "line": 369,
+          "text": "parsed = parse_tcga_patient_xml(patient_path, \"TCGA-LUSC\")"
+        },
+        {
+          "line": 376,
+          "text": "cohort = tmp_path / \"TCGA-LUAD\""
+        },
+        {
+          "line": 389,
+          "text": "load_tcga_survival_cohort(cohort, \"TCGA-LUAD\")"
+        },
+        {
+          "line": 442,
+          "text": "assert output[\"cancer_type\"][\"status\"] == \"not_trained\""
+        },
+        {
+          "line": 459,
+          "text": "assert b'Pathologic stage at baseline' not in page.content"
+        },
+        {
+          "line": 488,
+          "text": "\"sex_at_baseline\": \"female\","
+        },
+        {
+          "line": 759,
+          "text": "response = client.put(\"/api/v1/clinical/records/DOB-1\", json={\"clinician_inputs\": {\"date_of_birth\": \"1958-03-14\", \"sex_at_baseline\": \"female\"}})"
+        },
+        {
+          "line": 781,
+          "text": "analysis_api._record_completed_stage(\"status-run\", \"[01/07] Stage 01 Complete\")"
+        },
+        {
+          "line": 782,
+          "text": "analysis_api._record_completed_stage(\"status-run\", \"[01/07] Stage 01 Complete\")"
+        },
+        {
+          "line": 783,
+          "text": "analysis_api._record_completed_stage(\"status-run\", \"[02/07] Stage 03 Complete\")"
+        },
+        {
+          "line": 816,
+          "text": "\"sex_at_baseline\": \"female\","
+        },
+        {
+          "line": 825,
+          "text": "\"source\": np.where(np.arange(n) % 2, \"TCGA-LUAD\", \"TCGA-LUSC\"),"
+        },
+        {
+          "line": 827,
+          "text": "\"sex_at_baseline\": np.where(np.arange(n) % 2, \"female\", \"male\"),"
+        },
+        {
+          "line": 828,
+          "text": "\"stage_at_baseline\": np.where(np.arange(n) % 3, \"Stage I\", \"Stage III\"),"
+        },
+        {
+          "line": 837,
+          "text": "\"cancer_type\": {"
+        },
+        {
+          "line": 846,
+          "text": "assert output[\"cancer_type\"][\"status\"] == \"failed\""
+        },
+        {
+          "line": 847,
+          "text": "assert output[\"cancer_type\"][\"error_code\"] == \"model_inference_failed\""
+        },
+        {
+          "line": 863,
+          "text": "\"source\": [\"TCGA-LUAD\"] * 50 + [\"TCGA-LUSC\"] * 50,"
+        },
+        {
+          "line": 864,
+          "text": "\"histology\": [\"LUAD\"] * 50 + [\"LUSC\"] * 50,"
+        },
+        {
+          "line": 866,
+          "text": "\"sex_at_baseline\": [\"female\", \"male\"] * 50,"
+        },
+        {
+          "line": 867,
+          "text": "\"stage_at_baseline\": [\"Stage I\"] * 100,"
+        },
+        {
+          "line": 871,
+          "text": "fit_cancer_type_model("
+        },
+        {
+          "line": 881,
+          "text": "labels = np.asarray([\"LUAD\", \"LUSC\"] * (n // 2))"
+        },
+        {
+          "line": 887,
+          "text": "\"sex_at_baseline\": np.where(np.arange(n) % 3, \"female\", \"male\"),"
+        },
+        {
+          "line": 888,
+          "text": "\"stage_at_baseline\": np.where(np.arange(n) % 4, \"Stage I\", \"Stage III\"),"
+        },
+        {
+          "line": 890,
+          "text": "artifact, report = fit_cancer_type_model("
+        },
+        {
+          "line": 897,
+          "text": "assert artifact[\"metadata\"][\"feature_order\"] == [\"sex_at_baseline\"]"
+        },
+        {
+          "line": 905,
+          "text": "\"sex_at_baseline\""
+        },
+        {
+          "line": 915,
+          "text": "\"histology\": [\"LUAD\", \"LUSC\"] * 100,"
+        },
+        {
+          "line": 917,
+          "text": "\"sex_at_baseline\": np.where(np.arange(200) % 3, \"female\", \"male\"),"
+        },
+        {
+          "line": 919,
+          "text": "artifact, _ = fit_cancer_type_model("
+        },
+        {
+          "line": 925,
+          "text": "examples = pd.DataFrame({\"sex_at_baseline\": [\"female\", \"male\"]})"
+        },
+        {
+          "line": 928,
+          "text": "save_artifact_bundle(artifact_path, cancer_type=artifact)"
+        },
+        {
+          "line": 930,
+          "text": "assert reloaded[\"cancer_type\"] is not None"
+        },
+        {
+          "line": 931,
+          "text": "actual = reloaded[\"cancer_type\"][\"estimator\"].predict_proba(examples)"
+        },
+        {
+          "line": 934,
+          "text": "request[\"clinician_inputs\"][\"sex_at_baseline\"] = None"
+        },
+        {
+          "line": 936,
+          "text": "assert output[\"cancer_type\"][\"status\"] == \"abstained\""
+        },
+        {
+          "line": 937,
+          "text": "assert output[\"cancer_type\"][\"missing_features\"] == [\"sex_at_baseline\"]"
+        },
+        {
+          "line": 944,
+          "text": "\"histology\": [\"LUAD\", \"LUSC\", \"LUAD\", \"other\"],"
+        },
+        {
+          "line": 947,
+          "text": "\"sex_at_baseline\": [\"female\", \"male\", \"female\", \"male\"],"
+        },
+        {
+          "line": 948,
+          "text": "\"stage_at_baseline\": [\"Stage I\", \"Stage II\", \"Stage I\", \"Stage II\"],"
+        },
+        {
+          "line": 950,
+          "text": "report = build_cancer_type_eligibility_report("
+        },
+        {
+          "line": 955,
+          "text": "assert report[\"supported_class_patient_counts\"] == {\"LUAD\": 2, \"LUSC\": 1}"
+        },
+        {
+          "line": 966,
+          "text": "target = pd.Series([\"LUAD\", \"LUSC\"] * 50)"
+        },
+        {
+          "line": 987,
+          "text": "\"source\": np.where(np.arange(n) % 2, \"TCGA-LUAD\", \"TCGA-LUSC\"),"
+        },
+        {
+          "line": 989,
+          "text": "\"sex_at_baseline\": np.where(np.arange(n) % 2, \"female\", \"male\"),"
+        },
+        {
+          "line": 990,
+          "text": "\"stage_at_baseline\": np.where(np.arange(n) % 3, \"Stage I\", \"Stage III\"),"
+        },
+        {
+          "line": 1001,
+          "text": "\"age_at_baseline_years\", \"sex_at_baseline\", \"stage_at_baseline\""
+        },
+        {
+          "line": 1021,
+          "text": "\"sex_at_baseline\": [\"female\"],"
+        },
+        {
+          "line": 1022,
+          "text": "\"stage_at_baseline\": [\"Stage I\"],"
+        },
+        {
+          "line": 1027,
+          "text": "with pytest.raises(ModelEligibilityError, match=\"TCGA-LUAD/LUSC only\"):"
+        },
+        {
+          "line": 1034,
+          "text": "source = np.repeat([\"TCGA-LUAD\", \"TCGA-LUSC\"], n_per_source)"
+        },
+        {
+          "line": 1041,
+          "text": "\"sex_at_baseline\": np.where(np.arange(2 * n_per_source) % 2, \"female\", \"male\"),"
+        },
+        {
+          "line": 1042,
+          "text": "\"stage_at_baseline\": np.where(np.arange(2 * n_per_source) % 3, \"Stage I\", \"Stage II\"),"
+        },
+        {
+          "line": 1049,
+          "text": "training_source=\"TCGA-LUAD\","
+        },
+        {
+          "line": 1050,
+          "text": "test_source=\"TCGA-LUSC\","
+        }
+      ]
+    },
+    {
+      "file": "backend\\Clinical\\tests\\test_cancer_type_dataset.py",
+      "exists": true,
+      "matches": [
+        {
+          "line": 10,
+          "text": "_PATH = Path(__file__).resolve().parents[1] / \"tools\" / \"build_cancer_type_dataset.py\""
+        },
+        {
+          "line": 11,
+          "text": "_spec = importlib.util.spec_from_file_location(\"build_cancer_type_dataset\", _PATH)"
+        },
+        {
+          "line": 16,
+          "text": "\"sex_at_baseline\", \"age_at_diagnosis\", \"smoking_history\", \"smoking_pack_years\","
+        },
+        {
+          "line": 17,
+          "text": "\"ecog_score\", \"stage\","
+        },
+        {
+          "line": 20,
+          "text": "METADATA_VALUES = [\"gender\", \"CDE_ID:2200604\", \"ecog_score\", \"tobacco_smoking_history\", \"[Not Available]\"]"
+        },
+        {
+          "line": 25,
+          "text": "forbidden = (\"histolog\", \"oncotree\", \"cancer_type\", \"diagnosis_desc\", \"survival\", \"vital\", \"label\", \"patient_id\", \"cohort\")"
+        },
+        {
+          "line": 55,
+          "text": "@pytest.mark.parametrize(\"code\", [\"1\", \"2\", \"3\", \"4\", \"5\", \"[Not Available]\", \"tobacco_smoking_history\", \"CDE_ID:2181650\"])"
+        },
+        {
+          "line": 62,
+          "text": "assert bcd.normalize_stage(\"Stage 1-3\") == \"stage_1_3\""
+        },
+        {
+          "line": 63,
+          "text": "assert bcd.normalize_stage(\"Stage 4\") == \"stage_4\""
+        },
+        {
+          "line": 64,
+          "text": "assert bcd.normalize_stage(\"Stage IIIA\") == \"stage_iiia\""
+        },
+        {
+          "line": 65,
+          "text": "assert bcd.normalize_stage(\"Stage IV\") == \"stage_iv\""
+        },
+        {
+          "line": 66,
+          "text": "assert bcd.normalize_stage(\"Stage I\") == \"stage_i\""
+        },
+        {
+          "line": 67,
+          "text": "for v in [\"[Discrepancy]\", \"[Not Applicable]\", \"Unknown\", \"pathologic_stage\", \"CDE_ID:3203222\", \"\", \"DESCRIPTION: Highest recorded stage\"]:"
+        },
+        {
+          "line": 68,
+          "text": "assert bcd.normalize_stage(v) is None"
+        },
+        {
+          "line": 69,
+          "text": "assert bcd.normalize_stage(\"Stage 4\") != bcd.normalize_stage(\"Stage IV\")  # not asserted equivalent"
+        },
+        {
+          "line": 86,
+          "text": "\"tobacco_smoking_history_indicator\", \"tobacco_smoking_pack_years_smoked\", \"ecog_score\","
+        },
+        {
+          "line": 87,
+          "text": "\"ajcc_pathologic_tumor_stage\", \"history_neoadjuvant_treatment\"]"
+        },
+        {
+          "line": 95,
+          "text": "\"tobacco_smoking_history\", \"number_pack_years_smoked\", \"ecog_score\", \"pathologic_stage\","
+        },
+        {
+          "line": 99,
+          "text": "good = [\"TCGA-AA-0001\", \"Lung Adenocarcinoma\", \"FEMALE\", \"61\", \"4\", \"40\", \"1\", \"Stage IB\", \"No\"]"
+        },
+        {
+          "line": 104,
+          "text": "out, qc = bcd.read_tcga(path, \"TCGA-LUAD\", \"LUAD\")"
+        },
+        {
+          "line": 111,
+          "text": "assert r.loc[\"TCGA-AA-0001\", \"sex_at_baseline\"] == \"female\""
+        },
+        {
+          "line": 115,
+          "text": "assert r.loc[\"TCGA-AA-0001\", \"stage\"] == \"stage_ib\""
+        },
+        {
+          "line": 117,
+          "text": "assert out[\"smoking_history\"].isna().all()"
+        },
+        {
+          "line": 120,
+          "text": "assert s[[\"age_at_diagnosis\", \"smoking_pack_years\", \"ecog_score\", \"stage\"]].isna().all()"
+        },
+        {
+          "line": 124,
+          "text": "MSK_PATIENT_COLS = [\"#Patient Identifier\", \"Sex\", \"Current Age\", \"Stage (Highest Recorded)\","
+        },
+        {
+          "line": 126,
+          "text": "MSK_SAMPLE_COLS = [\"#Sample Identifier\", \"Patient Identifier\", \"Cancer Type Detailed\", \"Oncotree Code\"]"
+        },
+        {
+          "line": 132,
+          "text": "meta_p = [\"#Identifier\", \"#Sex\", \"#Age\", \"DESCRIPTION: Highest recorded stage\", \"DESCRIPTION: NLP\", \"DESCRIPTION: Binary\"]"
+        },
+        {
+          "line": 142,
+          "text": "[\"P-0000001\", \"Female\", \"67\", \"Stage 1-3\", \"Never\", \"No prior medications\"],"
+        },
+        {
+          "line": 144,
+          "text": "[\"P-0000003\", \"Male\", \"72\", \"Stage 4\", \"Former/Current Smoker\", \"Prior medications to MSK\"],"
+        },
+        {
+          "line": 145,
+          "text": "[\"P-0000004\", \"Male\", \"70\", \"Stage 4\", \"Never\", \"Unknown\"],"
+        },
+        {
+          "line": 148,
+          "text": "[\"P-0000001-T01-IM3\", \"P-0000001\", \"Lung Adenocarcinoma\", \"LUAD\"],"
+        },
+        {
+          "line": 149,
+          "text": "[\"P-0000002-T01-IM3\", \"P-0000002\", \"Lung Squamous Cell Carcinoma\", \"LUSC\"],"
+        },
+        {
+          "line": 150,
+          "text": "[\"P-0000003-T01-IM3\", \"P-0000003\", \"Lung Adenocarcinoma\", \"LUSC\"],  # conflicting histology/code"
+        },
+        {
+          "line": 151,
+          "text": "[\"P-0000004-T01-IM3\", \"P-0000004\", \"Lung Adenocarcinoma\", \"LUAD\"],"
+        },
+        {
+          "line": 152,
+          "text": "[\"P-0000004-T02-IM3\", \"P-0000004\", \"Lung Squamous Cell Carcinoma\", \"LUSC\"],  # conflicting labels"
+        },
+        {
+          "line": 160,
+          "text": "assert r.loc[\"P-0000001\", \"cancer_type\"] == \"LUAD\" and r.loc[\"P-0000002\", \"cancer_type\"] == \"LUSC\""
+        },
+        {
+          "line": 161,
+          "text": "assert r.loc[\"P-0000001\", [\"sex_at_baseline\", \"smoking_history\", \"stage\", \"prior_treatment_msk_prior_medication\"]].tolist() \\"
+        },
+        {
+          "line": 165,
+          "text": "assert m[[\"sex_at_baseline\", \"age_at_diagnosis\", \"smoking_history\", \"stage\", \"prior_treatment_msk_prior_medication\"]].isna().all()"
+        },
+        {
+          "line": 173,
+          "text": "patients = [[\"P-0000001\", \"Female\", \"67\", \"Stage 1-3\", \"Never\", \"No prior medications\"]]"
+        },
+        {
+          "line": 174,
+          "text": "samples = [[\"P-0000001-T01-IM3\", \"P-0000001\", \"Lung Adenocarcinoma\", \"LUAD\"]]"
+        },
+        {
+          "line": 177,
+          "text": "tcga_path = _write_tcga(tmp_path / \"t.txt\", [[\"TCGA-AA-0001\", \"Lung Adenocarcinoma\", \"MALE\", \"61\", \"4\", \"[Not Available]\", \"2\", \"Stage IA\", \"No\"]])"
+        },
+        {
+          "line": 178,
+          "text": "tcga, _ = bcd.read_tcga(tcga_path, \"TCGA-LUAD\", \"LUAD\")"
+        },
+        {
+          "line": 182,
+          "text": "assert list(matrix.columns) == [\"patient_id\", \"cohort\", \"cancer_type\"] + EXPECTED_FEATURES + [\"label_provenance\", \"sample_count\"]"
+        },
+        {
+          "line": 183,
+          "text": "assert not {\"Cancer Type Detailed\", \"Oncotree Code\", \"source_record_id\"} & set(matrix.columns)"
+        },
+        {
+          "line": 192,
+          "text": "assert audit[\"smoking_history\"][\"populated_missing_by_cohort\"][\"TCGA-LUAD\"] == {\"populated\": 0, \"missing\": 1}"
+        },
+        {
+          "line": 193,
+          "text": "assert audit[\"smoking_history\"][\"populated_missing_by_cohort\"][\"MSK-CHORD-2024\"] == {\"populated\": 1, \"missing\": 0}"
+        },
+        {
+          "line": 194,
+          "text": "assert audit[\"smoking_pack_years\"][\"populated_missing_by_cohort\"][\"TCGA-LUAD\"] == {\"populated\": 0, \"missing\": 1}"
+        },
+        {
+          "line": 195,
+          "text": "assert audit[\"ecog_score\"][\"predictor_usable_in_cohorts\"] == [\"TCGA-LUAD\"]"
+        }
+      ]
+    },
+    {
+      "file": "frontend\\app.js",
+      "exists": true,
+      "matches": [
+        {
+          "line": 11,
+          "text": "const KNOWN_STATUS = /^(analysis_queued|stage\\d\\d_running|clinical_running|imaging_complete|completed|failed|blocked|awaiting_imaging_review|interrupted)$/;"
+        },
+        {
+          "line": 15,
+          "text": "// Notes the interface never shows (stage progress text and the unreviewed-mask notice), including in older saved runs."
+        },
+        {
+          "line": 118,
+          "text": "stage: val(\"stage_at_baseline\"),"
+        },
+        {
+          "line": 390,
+          "text": "sex_at_baseline: f.sex,"
+        },
+        {
+          "line": 391,
+          "text": "stage_at_baseline: f.stage || null,"
+        },
+        {
+          "line": 442,
+          "text": "set(\"sex\", inputs.sex_at_baseline ?? (inputs.sex_at_baseline_status ? \"not_reported\" : \"\"));"
+        },
+        {
+          "line": 443,
+          "text": "set(\"stage_at_baseline\", inputs.stage_at_baseline ?? (inputs.stage_at_baseline_status === \"unknown\" ? \"unknown\" : \"\"));"
+        },
+        {
+          "line": 533,
+          "text": "else if (body.current_stage === key) state = failed ? body.status : \"running\";"
+        },
+        {
+          "line": 733,
+          "text": "fallback: (x) => ({female: \"Female\", male: \"Male\"}[x.inputs?.sex_at_baseline] ?? null),"
+        },
+        {
+          "line": 856,
+          "text": "const CANCER_STAGE_LABELS = Object.assign(Object.create(null), {stage_1_3: \"Stage I\u2013III\", stage_4: \"Stage IV\"});"
+        },
+        {
+          "line": 857,
+          "text": "const SMOKING_HISTORY_LABELS = Object.assign(Object.create(null), {never: \"never smoked\", former_or_current: \"former or current smoker\"});"
+        },
+        {
+          "line": 861,
+          "text": "const head = `<h3 class=\"sub-h\">Histology: LUAD vs LUSC (patient-level research model)</h3>`;"
+        },
+        {
+          "line": 864,
+          "text": "\"Compares LUAD with LUSC only; it does not detect cancer, separate cancer from benign disease, or establish a diagnosis.\","
+        },
+        {
+          "line": 874,
+          "text": "values.sex_at_baseline && `sex: ${values.sex_at_baseline}`,"
+        },
+        {
+          "line": 875,
+          "text": "values.smoking_history && `smoking: ${SMOKING_HISTORY_LABELS[values.smoking_history] || label(values.smoking_history)}`,"
+        },
+        {
+          "line": 876,
+          "text": "values.stage && `stage: ${CANCER_STAGE_LABELS[values.stage] || label(values.stage)}`,"
+        },
+        {
+          "line": 880,
+          "text": "<p class=\"hint\" style=\"margin:.3rem 0 0\">Applies to patients already known to have LUAD or LUSC. Inputs used: ${esc(used || \"not reported\")}.</p>${limitsHtml}</div>`;"
+        },
+        {
+          "line": 902,
+          "text": "return `${badge(\"research prediction\", \"ok\")} <b>${esc(model.predicted_class)}</b> (histology, conditional on LUAD or LUSC)<br>${rows}`;"
+        },
+        {
+          "line": 913,
+          "text": "sex_at_baseline_category_not_seen_in_training: \"Sex category was not seen in training.\","
+        },
+        {
+          "line": 1092,
+          "text": "const sex = inputs.sex_at_baseline ?? null;"
+        },
+        {
+          "line": 1099,
+          "text": "<dt>Stage</dt><dd>${esc(CANCER_STAGE_LABELS[inputs.stage_at_baseline] || \"Not reported\")}</dd>"
+        },
+        {
+          "line": 1115,
+          "text": "? cancerTypePanelHtml(prediction.cancer_type)"
+        }
+      ]
+    },
+    {
+      "file": "frontend\\index.html",
+      "exists": true,
+      "matches": [
+        {
+          "line": 43,
+          "text": "<div class=\"ctl\"><label class=\"check\"><input type=\"checkbox\" name=\"baseline_confirmed\" value=\"on\"> The CT was acquired at initial pathologic diagnosis (required for the Cancer-type and Survival models)</label></div>"
+        },
+        {
+          "line": 180,
+          "text": "<legend>Cancer stage (optional)</legend>"
+        },
+        {
+          "line": 182,
+          "text": "<label for=\"stage_at_baseline\">Stage at initial diagnosis</label>"
+        },
+        {
+          "line": 183,
+          "text": "<div class=\"ctl\"><select id=\"stage_at_baseline\" name=\"stage_at_baseline\" aria-describedby=\"stage_at_baseline-hint\">"
+        },
+        {
+          "line": 185,
+          "text": "<option value=\"stage_1_3\">Stage I\u2013III</option>"
+        },
+        {
+          "line": 186,
+          "text": "<option value=\"stage_4\">Stage IV</option>"
+        },
+        {
+          "line": 189,
+          "text": "<p class=\"hint-inline\" id=\"stage_at_baseline-hint\">Clinician-entered only; never inferred from the CT. Used only by the LUAD/LUSC research model, which makes no prediction without it.</p></div>"
+        }
+      ]
+    }
+  ],
+  "additional_stage_references": [
+    {
+      "file": "backend\\Clinical\\schemas\\clinical_data_dictionary_v1.json",
+      "exists": true,
+      "stage_matches": [
+        {
+          "line": 66,
+          "text": "\"meaning\": \"Pathologic stage documented at initial diagnosis; retained only as source ground truth and never used for inference.\","
+        },
+        {
+          "line": 70,
+          "text": "\"measurement_time\": \"Stage event at diagnosis\","
+        },
+        {
+          "line": 72,
+          "text": "\"TCGA-LUAD\": \"patient/stage_event/pathologic_stage\","
+        },
+        {
+          "line": 73,
+          "text": "\"TCGA-LUSC\": \"patient/stage_event/pathologic_stage\","
+        },
+        {
+          "line": 76,
+          "text": "\"missing\": \"Preserve missingness; do not substitute clinical stage or latest/future stage.\""
+        },
+        {
+          "line": 167,
+          "text": "\"pathologic_stage_ground_truth: source stage is retained only as a ground-truth label\","
+        },
+        {
+          "line": 186,
+          "text": "\"stage\": \"Trim surrounding whitespace only; preserve original stage distinctions.\","
+        }
+      ]
+    },
+    {
+      "file": "backend\\Clinical\\schemas\\compare_metadata_candidates.py",
+      "exists": true,
+      "stage_matches": [
+        {
+          "line": 15,
+          "text": "'stage': re.compile(r'tnm|clinical.?stage|pathologic.?stage|tumou?r.?stage', re.I),"
+        }
+      ]
+    },
+    {
+      "file": "frontend\\index_reference.html",
+      "exists": true,
+      "stage_matches": [
+        {
+          "line": 219,
+          "text": "if([\"failed\",\"blocked\",\"unavailable\"].includes(s.status)) throw new Error(`Run ${s.status}. ${s.reason||\"Check the failing stage above.\"}`);"
+        }
+      ]
+    }
+  ],
+  "production_model_modified": false,
+  "schemas_modified": false,
+  "inference_modified": false,
+  "tests_run": false,
+  "warning": "This inventory is not proof that every runtime dependency has been found. Review the listed references before editing."
+}

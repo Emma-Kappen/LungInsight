@@ -1,0 +1,14 @@
+source,metric,value
+MSK_all_samples,rows,25040
+MSK_all_samples,unique_patients,24950
+MSK_NSCLC_sample,rows,7809
+MSK_NSCLC_patient,rows,7809
+MSK_combined_features,rows,7809
+TCGA-LUAD_patient,rows,524
+TCGA-LUSC_patient,rows,506
+TCGA,LUAD_LUSC_barcode_overlap,2
+MSK_NSCLC_sample,eligible_LUAD,5957
+MSK_NSCLC_sample,eligible_LUSC,822
+MSK_NSCLC_sample,rows,7809
+MSK_NSCLC_sample,label_conflicts,0
+MSK_NSCLC_sample,eligible_luad_lusc_agreeing_rows,6779

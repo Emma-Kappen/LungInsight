@@ -1,0 +1,78 @@
+{
+  "started_utc": "2026-10-19T05:37:25.243480+00:00",
+  "root": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2",
+  "scope": "stage-free cancer-type candidate integration; production model and report must remain unchanged",
+  "edits": [],
+  "failures": [],
+  "tests": [
+    {
+      "command": "not run by this integration inspection",
+      "status": "not_run",
+      "reason": "Implementation needs a narrow function-level patch based on the current inference loader and prediction path."
+    }
+  ],
+  "candidate_validation": {
+    "valid": true,
+    "artifact": "backend\\Clinical\\artifacts\\cancer_type_sex_smoking_baseline\\sex-smoking-baseline.joblib",
+    "artifact_type": "Pipeline",
+    "feature_order": [
+      "sex_at_baseline",
+      "smoking_history"
+    ],
+    "classes": [
+      "LUAD",
+      "LUSC"
+    ]
+  },
+  "source_inventory": {
+    "backend\\Clinical\\inference.py": {
+      "exists": true,
+      "bytes": 31036,
+      "has_stage_reference": true,
+      "has_smoking_history_reference": true,
+      "sha256": "3c8a1fea427777bcdb1ecff1fbda4868d4575bba0e01a226e5f0a5b9128b3607"
+    },
+    "backend\\Clinical\\schemas\\clinical_inference_v1.schema.json": {
+      "exists": true,
+      "bytes": 3694,
+      "has_stage_reference": true,
+      "has_smoking_history_reference": false,
+      "sha256": "c221270687a7be8d1210bcb05ba14c84d977649dc9ecaf0026d334b076928178"
+    },
+    "backend\\Clinical\\schemas\\clinical_prediction_v1.schema.json": {
+      "exists": true,
+      "bytes": 1178,
+      "has_stage_reference": false,
+      "has_smoking_history_reference": false,
+      "sha256": "cb84e7a743b2b63bcdc461016cd94d8258e7b0840a078d0edb478cc029c4e029"
+    },
+    "frontend\\app.js": {
+      "exists": true,
+      "bytes": 74856,
+      "has_stage_reference": true,
+      "has_smoking_history_reference": true,
+      "sha256": "1cd313daf9425752b1f8cb91d21287a2451e511183f632b39893e5f5fc27fad9"
+    },
+    "frontend\\index.html": {
+      "exists": true,
+      "bytes": 18233,
+      "has_stage_reference": true,
+      "has_smoking_history_reference": false,
+      "sha256": "2b64879297363815cade7ab4e09bfe05384410147ffdee8b5b30c2094d9ea778"
+    }
+  },
+  "inference_stage_free_integration": {
+    "candidate_model_feature_order": [
+      "sex_at_baseline",
+      "smoking_history"
+    ],
+    "implementation_status": "not_patched",
+    "reason": "The current modified inference.py contains substantial uncommitted changes. A blind patch could overwrite unrelated work or break artifact loading. The next step is to inspect the cancer-type loading and prediction functions and patch only those functions while preserving the current worktree."
+  },
+  "production_artifacts": {
+    "model_exists": true,
+    "evaluation_report_exists": true,
+    "promotion_performed": false
+  },
+  "finished_utc": "2026-10-19T05:37:28.783828+00:00"
+}

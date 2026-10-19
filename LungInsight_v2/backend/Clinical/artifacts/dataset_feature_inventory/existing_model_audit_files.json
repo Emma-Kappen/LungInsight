@@ -1,0 +1,14 @@
+[
+  {
+    "path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\Clinical\\artifacts\\cancer_type_dataset\\dataset_audit.json",
+    "size_bytes": 9949
+  },
+  {
+    "path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\Clinical\\artifacts\\cancer_type_sex_smoking_baseline\\evaluation.json",
+    "size_bytes": 5347
+  },
+  {
+    "path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\Clinical\\artifacts\\cancer_type_sex_smoking_baseline\\integration_audit\\versioned_integration_20261019_012218\\rollback_backup\\manifest.json",
+    "size_bytes": 3011
+  }
+]

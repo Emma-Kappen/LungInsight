@@ -185,6 +185,38 @@ Both models only predict when the run is submitted with the "CT acquired at
 initial pathologic diagnosis" confirmation (`baseline_definition` of
 `initial_pathologic_diagnosis`); otherwise they report why they abstained.
 
+### LUAD/LUSC v2 histology model
+
+`models/cancer-type-luad-lusc-v2.joblib` is a standalone scikit-learn
+`Pipeline` (not a bundle) that is adapted at load time into the bundle-style
+`{metadata, estimator}` contract; its features, classes and trained categories
+are verified against the documented contract and it is never retrained or
+widened. It predicts histology conditional on LUAD/LUSC from three inputs and
+is research-only: it does not detect cancer, separate cancer from benign
+disease, establish a diagnosis, or assess an individual nodule.
+
+| Model feature | Clinical input | Mapping |
+| --- | --- | --- |
+| `sex_at_baseline` | `sex_at_baseline` | `female`, `male` only |
+| `smoking_history` | `smoking_status` | `never` → `never`; `former`/`current` → `former_or_current` |
+| `stage` | `stage_at_baseline` | `stage_1_3` or `stage_4` only (clinician-entered, never inferred from CT, nodule size or Brock) |
+
+`stage_at_baseline` accepts `stage_1_3`, `stage_4`, `unknown`, `not_reported`
+or null; anything else (for example `Stage IIA`) is rejected. Unknown or
+unreported sex, smoking or stage, other sex values, and any baseline other than
+`initial_pathologic_diagnosis` make the model return `status: "abstained"` with
+a `reason` and `missing_features`; the estimator is not called and nothing is
+imputed. Existing records without a stage still load and simply abstain.
+
+Artifact precedence (`load_deployed_artifacts`, and `create_app(path)`): a
+`cancer_type` in a bundle named by `LUNGINSIGHT_CLINICAL_ARTIFACT` always wins;
+otherwise (default bundle or no bundle) the v2 model is used when its file
+exists and supersedes the default bundle's sex-only `cancer_type`. The survival
+artifact is always taken from the bundle untouched. Both load paths are cached by
+file modification time, an unreadable or mismatched v2 file yields a `failed`
+cancer-type result (status `invalid`) without affecting survival, and
+`/api/v1/clinical/status` reports the actual cancer-type and survival state.
+
 ## Clinical explainability
 
 Classifier explanations use the fitted feature contract and report

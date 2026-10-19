@@ -17,6 +17,9 @@ ECOG_TO_KPS_INTERVAL: dict[int, tuple[int, int]] = {
 }
 
 
+SUPPORTED_STAGE_VALUES = frozenset({"stage_1_3", "stage_4", "unknown", "not_reported"})
+
+
 class ClinicalValidationError(ValueError):
     """Raised when a clinical value violates its declared input contract."""
 
@@ -120,6 +123,7 @@ def validate_clinician_inputs(values: dict[str, Any]) -> dict[str, Any]:
         "age_at_baseline_years_status",
         "date_of_birth",
         "sex_at_baseline",
+        "stage_at_baseline",
         "race_at_baseline",
         "ethnicity_at_baseline",
         "smoking_status",
@@ -138,7 +142,7 @@ def validate_clinician_inputs(values: dict[str, Any]) -> dict[str, Any]:
         "ecog",
     }
     # Outputs of a previous validation pass (e.g. a saved record read back); always recomputed below.
-    derived_keys = {"sex_at_baseline_status", "performance_status", "kps_category"}
+    derived_keys = {"sex_at_baseline_status", "stage_at_baseline_status", "performance_status", "kps_category"}
     values = {key: value for key, value in values.items() if key not in derived_keys}
     extra = set(values) - allowed
     if extra:
@@ -185,6 +189,18 @@ def validate_clinician_inputs(values: dict[str, Any]) -> dict[str, Any]:
         result["sex_at_baseline"] = None
     else:
         result["sex_at_baseline_status"] = "reported" if sex is not None else "not_reported"
+
+    # Stage is a clinician-entered fact; it is never derived from imaging, nodule size, or Brock output.
+    stage = result.get("stage_at_baseline")
+    if stage is not None and (not isinstance(stage, str) or stage not in SUPPORTED_STAGE_VALUES):
+        raise ClinicalValidationError(
+            "Unsupported stage_at_baseline category; use stage_1_3, stage_4, unknown, or not_reported."
+        )
+    if stage in {"unknown", "not_reported"}:
+        result["stage_at_baseline_status"] = stage
+        result["stage_at_baseline"] = None
+    else:
+        result["stage_at_baseline_status"] = "reported" if stage is not None else "not_reported"
 
     categories = {
         "race_at_baseline": {

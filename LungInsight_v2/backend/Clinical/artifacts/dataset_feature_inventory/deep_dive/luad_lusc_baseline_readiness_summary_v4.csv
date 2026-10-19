@@ -1,0 +1,11 @@
+metric,value
+sample_export_rows,7809
+strict_LUAD_LUSC_rows,6779
+strict_LUAD_rows,5957
+strict_LUSC_rows,822
+strict_primary_rows,4319
+strict_nonprimary_or_unknown_rows,2373
+strict_unique_patients,6779
+repeated_patient_rows,0
+patient_sample_id_sets_equal,True
+feature_sample_id_sets_equal,True

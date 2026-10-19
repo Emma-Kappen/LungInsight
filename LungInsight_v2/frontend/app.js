@@ -115,6 +115,7 @@ function readForm() {
     patientId: val("patient_id").trim(),
     dob: val("dob"),
     sex: val("sex"), race: val("race"), ethnicity: val("ethnicity"),
+    stage: val("stage_at_baseline"),
     smoking,
     hasDetail: smoking === "former" || smoking === "current",
     years: number("years_smoked"), packs: number("packs_per_day"), cessation: number("years_since_cessation"),
@@ -387,6 +388,7 @@ function clinicalInputs(f) {
   return {
     date_of_birth: f.dob || null,
     sex_at_baseline: f.sex,
+    stage_at_baseline: f.stage || null,
     race_at_baseline: f.race,
     ethnicity_at_baseline: f.ethnicity,
     smoking_status: f.smoking,
@@ -438,6 +440,7 @@ function applyClinicalRecord(inputs) {
   const set = (name, value) => { form.elements.namedItem(name).value = value == null ? "" : String(value); };
   set("dob", inputs.date_of_birth);
   set("sex", inputs.sex_at_baseline ?? (inputs.sex_at_baseline_status ? "not_reported" : ""));
+  set("stage_at_baseline", inputs.stage_at_baseline ?? (inputs.stage_at_baseline_status === "unknown" ? "unknown" : ""));
   set("race", inputs.race_at_baseline);
   set("ethnicity", inputs.ethnicity_at_baseline);
   set("smoking_status", inputs.smoking_status);
@@ -850,14 +853,33 @@ function survivalChartHtml(model) {
     <text transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Survival probability</text></svg>`;
 }
 
-function cancerTypeHtml(model) {
+const CANCER_STAGE_LABELS = Object.assign(Object.create(null), {stage_1_3: "Stage I–III", stage_4: "Stage IV"});
+const SMOKING_HISTORY_LABELS = Object.assign(Object.create(null), {never: "never smoked", former_or_current: "former or current smoker"});
+
+/* Patient-level histology panel: independent of any nodule's Brock risk and of the survival model. */
+function cancerTypePanelHtml(model) {
+  const head = `<h3 class="sub-h">Histology: LUAD vs LUSC (patient-level research model)</h3>`;
+  const limits = (Array.isArray(model?.limitations) && model.limitations.length ? model.limitations : [
+    "Research-only; not clinically validated.",
+    "Compares LUAD with LUSC only; it does not detect cancer, separate cancer from benign disease, or establish a diagnosis.",
+  ]).map((text) => `<li>${esc(text)}</li>`).join("");
+  const limitsHtml = `<ul class="hint" style="margin:.3rem 0 0;padding-left:1.1rem">${limits}</ul>`;
   if (model?.status === "research_prediction" && model.probabilities) {
-    const rows = Object.entries(model.probabilities).sort((a, b) => b[1] - a[1]).map(([name, p]) =>
-      `<div class="ct-row"><span><b>${esc(name)}</b></span><div class="bar" role="img" aria-label="${esc(name)} ${(p * 100).toFixed(1)} percent"><i style="width:${Math.min(100, Math.max(0, p * 100))}%"></i></div><span class="ct-val">${(p * 100).toFixed(1)}%</span></div>`).join("");
-    const names = {LUAD: "adenocarcinoma", LUSC: "squamous cell carcinoma"};
-    return `<div class="ct"><p class="hint" style="margin:.2rem 0">If cancer is present, the most likely type is <b>${esc(model.predicted_class)}</b> (${esc(names[model.predicted_class] || "")}). Patient-level model comparing LUAD and LUSC only.</p>${rows}</div>`;
+    const rows = Object.entries(model.probabilities).sort((a, b) => b[1] - a[1]).map(([name, p]) => {
+      const percent = Number.isFinite(p) ? Math.min(100, Math.max(0, p * 100)) : 0;
+      return `<div class="ct-row"><span><b>${esc(name)}</b></span><div class="bar" role="img" aria-label="${esc(name)} probability ${percent.toFixed(1)} percent"><i style="width:${percent}%"></i></div><span class="ct-val">${percent.toFixed(1)}%</span></div>`;
+    }).join("");
+    const values = model.feature_values || {};
+    const used = [
+      values.sex_at_baseline && `sex: ${values.sex_at_baseline}`,
+      values.smoking_history && `smoking: ${SMOKING_HISTORY_LABELS[values.smoking_history] || label(values.smoking_history)}`,
+      values.stage && `stage: ${CANCER_STAGE_LABELS[values.stage] || label(values.stage)}`,
+    ].filter(Boolean).join("; ");
+    return `<div class="ct">${head}
+      <p style="margin:.2rem 0">${badge("research model output", "ok")} Highest-probability class: <b>${esc(model.predicted_class)}</b>. Not a diagnosis.</p>${rows}
+      <p class="hint" style="margin:.3rem 0 0">Applies to patients already known to have LUAD or LUSC. Inputs used: ${esc(used || "not reported")}.</p>${limitsHtml}</div>`;
   }
-  return `<div class="ct">${modelResultHtml(model)}</div>`;
+  return `<div class="ct">${head}${modelResultHtml(model)}${limitsHtml}</div>`;
 }
 
 function assessmentHtml(nodule) {
@@ -870,9 +892,7 @@ function assessmentHtml(nodule) {
   if (a.state === "unlikely") {
     return `<div class="alert ok"><b>Chances of cancer are unlikely.</b> Brock risk ${esc(pct(a.p))} is below ${Math.round(MALIGNANCY_THRESHOLD * 100)}%.</div>${note}`;
   }
-  const model = S.run?.body?.clinical_prediction?.cancer_type;
-  return `<div class="alert bad"><b>Elevated malignancy risk.</b> Brock risk ${esc(pct(a.p))} is at or above ${Math.round(MALIGNANCY_THRESHOLD * 100)}%.</div>${note}
-    <h3 style="margin:.6rem 0 .1rem">Likely cancer type</h3>${cancerTypeHtml(model)}`;
+  return `<div class="alert bad"><b>Elevated malignancy risk.</b> Brock risk ${esc(pct(a.p))} is at or above ${Math.round(MALIGNANCY_THRESHOLD * 100)}%.</div>${note}`;
 }
 
 function modelResultHtml(model) {
@@ -1076,6 +1096,7 @@ function renderClinicalInputs() {
     <dt>Age</dt><dd>${fin(ageOfInputs(inputs)) ? `${ageOfInputs(inputs)} years` : "Not reported"}</dd>
     <dt>Sex</dt><dd>${esc(text(sex))}</dd>
     <dt>Smoking</dt><dd>${esc(text(inputs.smoking_status))}${esc(packs)}</dd>
+    <dt>Stage</dt><dd>${esc(CANCER_STAGE_LABELS[inputs.stage_at_baseline] || "Not reported")}</dd>
     <dt>Family history</dt><dd>${esc(text(inputs.family_history_lung_cancer))}</dd>
     <dt>Emphysema</dt><dd>${esc(emphysema)}</dd>
     <dt>KPS</dt><dd>${fin(inputs.kps) ? esc(inputs.kps) : "Not reported"}</dd></dl>`;
@@ -1084,14 +1105,17 @@ function renderClinicalInputs() {
 function renderClinicalModels() {
   const prediction = S.run.body.clinical_prediction;
   const survival = prediction?.survival;
-  if (!prediction) {
-    $("b-models").innerHTML = "<p class='hint' style='margin:0'>Survival model not available for this run.</p>";
-    return;
-  }
   const chart = survivalChartHtml(survival);
-  $("b-models").innerHTML = chart
-    ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
-    : `<div>${modelResultHtml(survival)}</div>`;
+  const survivalHtml = !prediction
+    ? "<p class='hint' style='margin:0'>Survival model not available for this run.</p>"
+    : chart
+      ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
+      : `<div>${modelResultHtml(survival)}</div>`;
+  const cancerHtml = prediction
+    ? cancerTypePanelHtml(prediction.cancer_type)
+    : "<p class='hint' style='margin:0'>Histology model not available for this run.</p>";
+  $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
+    <section aria-label="Histology model" style="margin-top:.8rem">${cancerHtml}</section>`;
 }
 
 function renderMethods() {
