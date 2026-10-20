@@ -1,0 +1,2764 @@
+﻿LungInsight source audit
+Root: C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2
+Generated: 2026-10-20T13:45:31.2616130+05:30
+Read-only audit; no inference executed.
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\brock.py:238
+        "feature_contributions": contributions,
+        "target": "pulmonary_nodule_malignancy_probability",
+        "probability": probability,
+        "logit": logit,
+        "features_missing": [],
+        "calculation_timestamp": datetime.now(timezone.utc).isoformat(),
+        "limitations": [
+            "Risk estimate from the published screening model; not a pathology diagnosis.",
+            "Validated input support is restricted to the documented size range and categories.",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\brock.py:274
+            "feature_contributions": [],
+            "target": "pulmonary_nodule_malignancy_probability",
+            "probability": None,
+            "features_missing": missing,
+            "limitations": ["Required clinical or nodule inputs were not supplied."],
+        }
+    try:
+        return calculate_brock(validate_brock_inputs(values))
+    except BrockInputError as exc:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\brock.py:288
+            "feature_contributions": [],
+            "target": "pulmonary_nodule_malignancy_probability",
+            "probability": None,
+            "features_missing": [],
+            "failure_reason": str(exc),
+            "limitations": ["No probability was generated from invalid inputs."],
+        }
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\html_reports.py:135
+    contributions = [item for item in brock.get("feature_contributions", []) if isinstance(item, dict)]
+
+def _brock_decomposition_html(brock: dict[str, Any]) -> str:
+    """Render Brock inputs, coefficients, and logit contributions as a table."""
+    if not contributions:
+        return "<p class=\"unavailable\">Brock formula decomposition unavailable.</p>"
+    rows: list[str] = []
+    for item in contributions:
+        feature = str(item.get("feature"))
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\html_reports.py:293
+                "formula_contributions": brock.get("feature_contributions", []) if isinstance(brock, dict) else [],
+                "crop_start_zyx": crop_start,
+                "patch_shape_zyx": patch_shape,
+                "cams": cams,
+            }
+        )
+    nodules.sort(
+        key=lambda nodule: (
+            -float(nodule["probability"]) if isinstance(nodule["probability"], (int, float)) else float("inf"),
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\html_reports.py:530
+        contributions = brock.get("feature_contributions", [])
+        gradcam_sections.append(
+            f"<section><h2>{html.escape(stable_id)}</h2>{''.join(cam_lines) or '<p class=\"unavailable\">No CAM references.</p>'}</section>"
+        )
+        limitations = record.get("uncertainty_and_limitations", {})
+        rating_content = (
+            f"<p>Selected malignancy method: {html.escape(str(malignancy.get('selected_prediction', {}).get('method', 'not specified')))}; "
+            f"status: {html.escape(str(malignancy.get('selected_prediction', {}).get('status', 'unavailable')))}; "
+            f"value: {html.escape(str(malignancy.get('selected_prediction', {}).get('value', 'unavailable')))}.</p>"
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\api\analysis.py:165
+                "shap": nodule["shap_refs"],
+            "quality_status": nodule["quality_status"],
+            "explanation_refs": {
+                "gradcam": nodule["gradcam_refs"],
+            },
+            "artifact_refs": nodule["artifact_refs"],
+        })
+    study = contract.get("study", {}) if isinstance(contract, dict) else {}
+    errors = list(study.get("errors", [])) if isinstance(study.get("errors"), list) else []
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\api\app.py:198
+        visit(nodule.get("shap_refs", {}), stable_id=stable_id, key="shap")
+    for nodule in contract.get("nodules", []):
+        stable_id = nodule["stable_nodule_id"]
+        visit(nodule.get("gradcam_refs", {}), stable_id=stable_id, key="gradcam")
+        visit(nodule.get("artifact_refs", {}), stable_id=stable_id, key="artifact")
+    return refs
+
+
+@app.post("/api/v1/imaging/study")
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\api\contract.py:397
+            if not isinstance(shap.get("features"), list) or not isinstance(shap.get("feature_contributions"), dict):
+        if shap.get("status") == "not_applicable":
+            pass
+        elif shap.get("status") == "complete":
+                raise ValueError(f"Stage 06 record {stable_id} has an incomplete successful SHAP explanation.")
+        elif shap.get("status") == "failed":
+            if not shap.get("failure_reason") or not shap.get("failure_artifact"):
+                raise ValueError(f"Stage 06 record {stable_id} has no explicit SHAP failure artifact.")
+        else:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\api\contract.py:484
+            "shap_refs": shap,
+            "quality_flags": quality_flags,
+            "model_versions": model_identity,
+            "gradcam_refs": gradcam,
+            "artifact_refs": {
+                "stage06_record": record.get("record_path"),
+                "stage03_prediction": model_identity.get("stage03_prediction_json"),
+                "stage04_prediction": shap.get("source_prediction_json"),
+            },
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\api\openapi.json:607
+          "shap_refs",
+          "quality_flags",
+          "model_versions",
+          "gradcam_refs",
+          "artifact_refs"
+        ],
+        "properties": {
+          "stable_nodule_id": {
+            "type": "string",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\api\openapi.json:808
+          "shap_refs": {
+          "gradcam_refs": {
+            "type": "object"
+          },
+            "type": "object"
+          },
+          "artifact_refs": {
+            "type": "object"
+          }
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\api\openapi.json:826
+          "feature_contributions",
+          "target",
+          "probability",
+          "features_missing",
+          "limitations"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\api\openapi.json:887
+          "feature_contributions": {
+              "type": "string"
+            }
+          },
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\schemas\imaging_clinical_contract_v1.schema.json:75
+        "shap_refs",
+        "quality_flags",
+        "model_versions",
+        "gradcam_refs",
+        "artifact_refs"
+      ],
+      "properties": {
+        "stable_nodule_id": {"type": "string", "minLength": 1},
+        "detector": {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\schemas\imaging_clinical_contract_v1.schema.json:152
+        "shap_refs": {"type": "object"},
+        "quality_flags": {"type": "array", "items": {"type": "string"}},
+        "model_versions": {"type": "object"},
+        "gradcam_refs": {"type": "object"},
+        "artifact_refs": {"type": "object"}
+      }
+    },
+    "brock_explanation": {
+      "type": "object",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\schemas\imaging_clinical_contract_v1.schema.json:158
+      "required": ["status", "method", "model_name", "model_version", "target", "features_missing", "feature_contributions", "limitations"],
+    },
+    "brock_explanation": {
+      "type": "object",
+      "properties": {
+        "status": {"enum": ["available", "incomplete", "invalid_input", "unsupported", "error"]},
+        "method": {"type": "string"},
+        "model_name": {"const": "Brock_PanCan_full"},
+        "model_version": {"type": "string"},
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\schemas\imaging_clinical_contract_v1.schema.json:170
+        "feature_contributions": {"type": "array", "items": {"type": "object"}},
+        "probability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "logit": {"type": "number"},
+        "features_missing": {"type": "array", "items": {"type": "string"}},
+        "calculation_timestamp": {"type": "string", "format": "date-time"},
+        "limitations": {"type": "array", "items": {"type": "string"}},
+        "failure_reason": {"type": "string"}
+      },
+      "additionalProperties": true
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\schemas\imaging_clinical_contract_v2.schema.json:134
+        "shap_refs",
+        "quality_flags",
+        "model_versions",
+        "gradcam_refs",
+        "artifact_refs"
+      ],
+      "properties": {
+        "stable_nodule_id": {"type": "string", "minLength": 1},
+        "eligibility_status": {"const": "eligible"},
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\schemas\imaging_clinical_contract_v2.schema.json:214
+        "shap_refs": {"type": "object"},
+        "quality_flags": {"type": "array", "items": {"type": "string"}},
+        "model_versions": {"type": "object"},
+        "gradcam_refs": {"type": "object"},
+        "artifact_refs": {"type": "object"}
+      }
+    },
+    "brock": {
+      "type": "object",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\schemas\imaging_clinical_contract_v2.schema.json:220
+      "required": ["status", "method", "model_name", "model_version", "target", "probability", "features_missing", "feature_contributions", "limitations"],
+    },
+    "brock": {
+      "type": "object",
+      "properties": {
+        "status": {"enum": ["available", "incomplete", "invalid_input", "unsupported", "error", "not_run"]},
+        "method": {"type": "string"},
+        "model_name": {"const": "Brock_PanCan_full"},
+        "model_version": {"type": ["string", "null"]},
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\schemas\imaging_clinical_contract_v2.schema.json:232
+        "feature_contributions": {"type": "array", "items": {"type": "object"}},
+        "probability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "logit": {"type": ["number", "null"]},
+        "features_missing": {"type": "array", "items": {"type": "string"}},
+        "calculation_timestamp": {"type": ["string", "null"], "format": "date-time"},
+        "limitations": {"type": "array", "items": {"type": "string"}},
+        "failure_reason": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\visualization\07_visualize.py:491
+        contributions = record["malignancy"].get("brock", {}).get("feature_contributions") or []
+            ax.set_yticks([])
+
+        brock_ax = fig.add_subplot(grid[2, 1:])
+        names = [str(item.get("feature")) for item in contributions if isinstance(item, dict)]
+        values = [float(item.get("contribution_logit")) for item in contributions if isinstance(item, dict)]
+        if names:
+            brock_ax.barh(names, values, color=["#d95f02" if value >= 0 else "#1b9e77" for value in values])
+            brock_ax.axvline(0.0, color="black", linewidth=0.8)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\api.py:25
+    with_standalone_cancer_type,
+    load_artifacts,
+    load_deployed_artifacts,
+    run_inference,
+)
+from .harmonization import ClinicalValidationError, validate_clinician_inputs
+from ..Imaging.api.contract import CONTRACT_FILENAME, read_json, validate_contract
+from ..Imaging.api.app import OUTPUT_ROOT as IMAGING_OUTPUT_ROOT
+from ..Imaging.api.dicom_upload import (
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\api.py:94
+        with_standalone_cancer_type(load_artifacts(resolved_artifact_path), bundle_configured=True)
+    """`deployed=True` follows the deployed artifact path (re-read when files change), like the Imaging runner."""
+    resolved_artifact_path = artifact_path or os.environ.get("LUNGINSIGHT_CLINICAL_ARTIFACT")
+    artifacts = (
+        if resolved_artifact_path and not deployed
+        else None
+    )
+    if deployed:
+        load_deployed_artifacts()
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\audit.py:11
+    load_msk_cancer_type_cohort,
+import pandas as pd
+
+from .ingestion import (
+    load_msk_tables,
+    load_tcga_survival_cohort,
+    msk_lung_patient_labels,
+)
+from .training import CANCER_FEATURE_ORDER, build_cancer_type_eligibility_report
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\audit.py:16
+from .training import CANCER_FEATURE_ORDER, build_cancer_type_eligibility_report
+    load_tcga_survival_cohort,
+    msk_lung_patient_labels,
+)
+
+
+def _missingness(frame: pd.DataFrame, columns: list[str]) -> dict[str, float]:
+    return {
+        name: round(
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\audit.py:157
+        "explicit_histology_mapping_patient_counts": _category_counts(frame, "histology"),
+        ),
+        "unique_patients": int(frame["patient_id"].nunique()),
+        "histological_type_patient_counts": {str(key): int(value) for key, value in histologies.items()},
+        "source_cohort_label_patient_count": {
+            str(key): int(value) for key, value in frame["cohort_label"].value_counts().items()
+        },
+        "event_count": int((complete["overall_survival_event"] == True).sum()),  # noqa: E712
+        "right_censored_count": int((complete["overall_survival_event"] == False).sum()),  # noqa: E712
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\audit.py:256
+            samples["CANCER_TYPE"].fillna("").str.casefold().str.contains("lung", regex=False)
+            validate="one_to_one",
+        )
+        lung_rows = samples.loc[
+        ]
+        class_counts = labels.loc[labels["label_status"] == "eligible", "histology"].value_counts()
+        source_file_inventory = []
+        for path in sorted(msk_root.rglob("*")):
+            if not path.is_file():
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\audit.py:258
+        class_counts = labels.loc[labels["label_status"] == "eligible", "histology"].value_counts()
+        lung_rows = samples.loc[
+            samples["CANCER_TYPE"].fillna("").str.casefold().str.contains("lung", regex=False)
+        ]
+        source_file_inventory = []
+        for path in sorted(msk_root.rglob("*")):
+            if not path.is_file():
+                continue
+            relative = path.relative_to(msk_root).as_posix()
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\audit.py:300
+            "lung_histology_patient_counts": {str(key): int(value) for key, value in class_counts.items()},
+            "patients_with_multiple_samples": int((samples.groupby("PATIENT_ID").size() > 1).sum()),
+            "lung_sample_rows": int(len(lung_rows)),
+            "lung_patients": int(labels["patient_id"].nunique()),
+            "lung_label_status_counts": {
+                str(key): int(value) for key, value in labels["label_status"].value_counts().items()
+            },
+            "patient_field_missingness_fraction": _missingness(
+                patients,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\audit.py:359
+        msk_classifier = load_msk_cancer_type_cohort(msk_root)
+                "kps": "ECOG timeline is not baseline-aligned and is not an exact KPS measurement.",
+            },
+        }
+        classifier_candidates.append(
+            msk_classifier[
+                [
+                    "patient_id",
+                    "histology",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\audit.py:364
+                    "histology",
+            msk_classifier[
+                [
+                    "patient_id",
+                    "label_status",
+                    "source",
+                    *CANCER_FEATURE_ORDER,
+                ]
+            ]
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\audit.py:381
+        report["classifier_eligibility"] = build_cancer_type_eligibility_report(
+            report["datasets"][cohort] = {"status": "not_found"}
+    if classifier_candidates:
+        classifier_frame = pd.concat(classifier_candidates, ignore_index=True)
+            classifier_frame,
+            authorization_status="authorized",
+            source_label_provenance="source_recorded",
+        )
+    else:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\audit.py:389
+            "model_task": "LUAD-versus-LUSC histology probability",
+    else:
+        report["classifier_eligibility"] = {
+            "report_schema_version": "1.0.0",
+            "eligible_for_training": False,
+            "blockers": ["no_local_classifier_source_data"],
+            "privacy": {
+                "patient_identifiers_included": False,
+                "patient_level_records_included": False,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\audit.py:398
+        "classifier": "MSK-CHORD explicit sample histology labels support authorized, MSK-scoped research fitting with source-recorded sex only. TCGA recorded histology remains source-siloed: its LUAD/LUSC cohorts are target-associated and are retained for descriptive diagnostics, not pooled classifier fitting or external validation.",
+            },
+        }
+    report["cross_cohort_assessment"] = {
+        "survival": "TCGA-only OS endpoint/time origin are sufficiently explicit for research development after data-use confirmation. MSK OS semantics and prediction baseline are not established; do not pool.",
+        "imaging": "No patient-linked LungInsight Imaging features occur in these training tables; imaging summaries cannot be learned as predictors from the inspected cohorts.",
+    }
+    return report
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:22
+CANCER_TYPE_V2_PATH = CLINICAL_DIR / "models" / "cancer-type-luad-lusc-v2.joblib"
+CLINICAL_DIR = Path(__file__).resolve().parent
+INPUT_SCHEMA_PATH = CLINICAL_DIR / "schemas" / "clinical_inference_v1.schema.json"
+OUTPUT_SCHEMA_PATH = CLINICAL_DIR / "schemas" / "clinical_prediction_v1.schema.json"
+CANCER_TYPE_V2_ADAPTER = "luad_lusc_v2_clinical_inputs"
+CANCER_TYPE_V2_TARGET = (
+    "histology conditional on LUAD/LUSC (patient-level); not cancer-versus-benign, "
+    "not a diagnosis, and not an individual nodule's malignancy"
+)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:23
+CANCER_TYPE_V2_ADAPTER = "luad_lusc_v2_clinical_inputs"
+INPUT_SCHEMA_PATH = CLINICAL_DIR / "schemas" / "clinical_inference_v1.schema.json"
+OUTPUT_SCHEMA_PATH = CLINICAL_DIR / "schemas" / "clinical_prediction_v1.schema.json"
+CANCER_TYPE_V2_PATH = CLINICAL_DIR / "models" / "cancer-type-luad-lusc-v2.joblib"
+CANCER_TYPE_V2_TARGET = (
+    "histology conditional on LUAD/LUSC (patient-level); not cancer-versus-benign, "
+    "not a diagnosis, and not an individual nodule's malignancy"
+)
+CANCER_TYPE_V2_FEATURES = ["sex_at_baseline", "smoking_history"]
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:24
+CANCER_TYPE_V2_TARGET = (
+OUTPUT_SCHEMA_PATH = CLINICAL_DIR / "schemas" / "clinical_prediction_v1.schema.json"
+CANCER_TYPE_V2_PATH = CLINICAL_DIR / "models" / "cancer-type-luad-lusc-v2.joblib"
+CANCER_TYPE_V2_ADAPTER = "luad_lusc_v2_clinical_inputs"
+    "histology conditional on LUAD/LUSC (patient-level); not cancer-versus-benign, "
+    "not a diagnosis, and not an individual nodule's malignancy"
+)
+CANCER_TYPE_V2_FEATURES = ["sex_at_baseline", "smoking_history"]
+CANCER_TYPE_V2_CLASSES = ["LUAD", "LUSC"]
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:25
+    "histology conditional on LUAD/LUSC (patient-level); not cancer-versus-benign, "
+CANCER_TYPE_V2_PATH = CLINICAL_DIR / "models" / "cancer-type-luad-lusc-v2.joblib"
+CANCER_TYPE_V2_ADAPTER = "luad_lusc_v2_clinical_inputs"
+CANCER_TYPE_V2_TARGET = (
+    "not a diagnosis, and not an individual nodule's malignancy"
+)
+CANCER_TYPE_V2_FEATURES = ["sex_at_baseline", "smoking_history"]
+CANCER_TYPE_V2_CLASSES = ["LUAD", "LUSC"]
+CANCER_TYPE_V2_CATEGORIES = {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:28
+CANCER_TYPE_V2_FEATURES = ["sex_at_baseline", "smoking_history"]
+    "histology conditional on LUAD/LUSC (patient-level); not cancer-versus-benign, "
+    "not a diagnosis, and not an individual nodule's malignancy"
+)
+CANCER_TYPE_V2_CLASSES = ["LUAD", "LUSC"]
+CANCER_TYPE_V2_CATEGORIES = {
+    "sex_at_baseline": ["female", "male"],
+    "smoking_history": ["former_or_current", "never"],
+}
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:29
+CANCER_TYPE_V2_CLASSES = ["LUAD", "LUSC"]
+    "not a diagnosis, and not an individual nodule's malignancy"
+)
+CANCER_TYPE_V2_FEATURES = ["sex_at_baseline", "smoking_history"]
+CANCER_TYPE_V2_CATEGORIES = {
+    "sex_at_baseline": ["female", "male"],
+    "smoking_history": ["former_or_current", "never"],
+}
+CANCER_TYPE_V2_LIMITATIONS = [
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:30
+CANCER_TYPE_V2_CATEGORIES = {
+)
+CANCER_TYPE_V2_FEATURES = ["sex_at_baseline", "smoking_history"]
+CANCER_TYPE_V2_CLASSES = ["LUAD", "LUSC"]
+    "sex_at_baseline": ["female", "male"],
+    "smoking_history": ["former_or_current", "never"],
+}
+CANCER_TYPE_V2_LIMITATIONS = [
+    "Research-only; not clinically validated.",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:34
+CANCER_TYPE_V2_LIMITATIONS = [
+    "sex_at_baseline": ["female", "male"],
+    "smoking_history": ["former_or_current", "never"],
+}
+    "Research-only; not clinically validated.",
+    "Predicts histology only among patients already known to have LUAD or LUSC; it does not detect cancer, "
+    "distinguish cancer from benign disease, or establish a diagnosis.",
+    "Trained on a retrospective research cohort of patients at initial pathologic diagnosis; "
+    "this deployed model uses sex and smoking history only.",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:36
+    "Predicts histology only among patients already known to have LUAD or LUSC; it does not detect cancer, "
+}
+CANCER_TYPE_V2_LIMITATIONS = [
+    "Research-only; not clinically validated.",
+    "distinguish cancer from benign disease, or establish a diagnosis.",
+    "Trained on a retrospective research cohort of patients at initial pathologic diagnosis; "
+    "this deployed model uses sex and smoking history only.",
+    "Probabilities are not calibrated risks; the higher probability is not a diagnosis.",
+]
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:156
+            "feature_contributions": [],
+            "status": "unsupported",
+            "method": "missingness_ablation",
+            "failure_reason": type(exc).__name__,
+            "limitations": [
+                "SHAP is not applied to the calibrated composite estimator; this is not a causal attribution."
+            ],
+        }
+    return {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:166
+        "feature_contributions": contributions,
+        "method": "missingness_ablation",
+        "target": "LUAD/LUSC conditional probability",
+        "features_used": list(features.columns),
+        "limitations": [
+            "This is a local model ablation, not a causal explanation.",
+            "SHAP is not applied to the calibrated composite estimator.",
+        ],
+    }
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:207
+            "feature_contributions": [],
+            "status": "unsupported",
+            "method": "missingness_ablation",
+            "failure_reason": type(exc).__name__,
+            "limitations": [
+                "Survival explanation is unavailable for the fitted estimator/input combination."
+            ],
+        }
+    return {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:217
+        "feature_contributions": contributions,
+        "method": "missingness_ablation",
+        "target": "survival probability at each reported horizon",
+        "features_used": list(features.columns),
+        "limitations": [
+            "Ablation differences are not causal effects and do not alter censoring or endpoint definitions.",
+            "This does not claim absolute survival calibration.",
+        ],
+    }
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:241
+def _cancer_type_v2_result_base(metadata: dict[str, Any]) -> dict[str, Any]:
+        }
+
+
+    return {
+        "target": CANCER_TYPE_V2_TARGET,
+        "class_order": list(metadata["class_order"]),
+        "calibration_status": metadata.get("calibration_status", "not_calibrated"),
+        "model_version": metadata.get("model_version"),
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:243
+        "target": CANCER_TYPE_V2_TARGET,
+
+def _cancer_type_v2_result_base(metadata: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "class_order": list(metadata["class_order"]),
+        "calibration_status": metadata.get("calibration_status", "not_calibrated"),
+        "model_version": metadata.get("model_version"),
+        "limitations": list(CANCER_TYPE_V2_LIMITATIONS),
+    }
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:247
+        "limitations": list(CANCER_TYPE_V2_LIMITATIONS),
+        "class_order": list(metadata["class_order"]),
+        "calibration_status": metadata.get("calibration_status", "not_calibrated"),
+        "model_version": metadata.get("model_version"),
+    }
+
+
+def _cancer_type_v2_abstention(
+    metadata: dict[str, Any],
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:251
+def _cancer_type_v2_abstention(
+    }
+
+
+    metadata: dict[str, Any],
+    reason: str,
+    *,
+    missing_features: list[str] | None = None,
+    warnings: list[str] | None = None,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:265
+        **_cancer_type_v2_result_base(metadata),
+        "missing_features": missing_features or [],
+        "warnings": warnings or [],
+        "features_used": [],
+    }
+
+
+def _cancer_type_v2_features(
+    clinician: dict[str, Any],
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:269
+def _cancer_type_v2_features(
+    }
+
+
+    clinician: dict[str, Any],
+    feature_order: list[str] | None = None,
+) -> tuple[dict[str, str], list[str]]:
+    """Map only the loaded model's required inputs; unmappable values are reported missing."""
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:294
+    required = feature_order if feature_order is not None else CANCER_TYPE_V2_FEATURES
+        "smoking_history": "smoking_status",
+        "stage": "stage_at_baseline",
+    }
+    unknown = set(required) - set(candidates)
+    if unknown:
+        raise ClinicalInferenceError(f"Model declares unsupported cancer-type features: {sorted(unknown)}.")
+    values = {name: candidates[name] for name in required if candidates[name] is not None}
+    missing = [input_names[name] for name in required if candidates[name] is None]
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:303
+def _predict_cancer_type_v2(
+    return values, missing
+
+
+    artifact: dict[str, Any],
+    clinician: dict[str, Any],
+) -> dict[str, Any]:
+    metadata = artifact["metadata"]
+    if metadata.get("prediction_baseline_definition") != clinician.get("prediction_baseline_definition"):
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:309
+        return _cancer_type_v2_abstention(
+) -> dict[str, Any]:
+    metadata = artifact["metadata"]
+    if metadata.get("prediction_baseline_definition") != clinician.get("prediction_baseline_definition"):
+            metadata,
+            "This model was trained on patients at initial pathologic diagnosis; the baseline for this "
+            "prediction is not confirmed as initial pathologic diagnosis.",
+            warnings=["prediction_baseline_does_not_match_training_baseline"],
+        )
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:316
+    values, missing = _cancer_type_v2_features(clinician, order)
+            warnings=["prediction_baseline_does_not_match_training_baseline"],
+        )
+    order = list(metadata["feature_order"])
+    if missing:
+        return _cancer_type_v2_abstention(
+            metadata,
+            "Required inputs are missing, unknown, or outside the categories this model was trained on: "
+            + ", ".join(missing) + ".",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:318
+        return _cancer_type_v2_abstention(
+    order = list(metadata["feature_order"])
+    values, missing = _cancer_type_v2_features(clinician, order)
+    if missing:
+            metadata,
+            "Required inputs are missing, unknown, or outside the categories this model was trained on: "
+            + ", ".join(missing) + ".",
+            missing_features=missing,
+            warnings=["required_model_inputs_missing"],
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:339
+        **_cancer_type_v2_result_base(metadata),
+        raise ClinicalInferenceError("Cancer-type model probabilities are not normalized.")
+    return {
+        "status": "research_prediction",
+        "class_order": class_order,
+        "probabilities": {label: float(p) for label, p in zip(class_order, probabilities)},
+        "predicted_class": class_order[int(np.argmax(probabilities))],
+        "features_used": order,
+        "feature_values": values,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:352
+def _predict_cancer_type(
+    }
+
+
+    artifact: dict[str, Any] | None,
+    clinician: dict[str, Any],
+) -> dict[str, Any]:
+    if artifact is None:
+        return _unavailable_model(
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:369
+    if metadata.get("feature_adapter") == CANCER_TYPE_V2_ADAPTER:
+            "reason": artifact["load_error"],
+        }
+    metadata = artifact["metadata"]
+        return _predict_cancer_type_v2(artifact, clinician)
+    if metadata.get("prediction_baseline_definition") != clinician.get("prediction_baseline_definition"):
+        return {
+            "status": "abstained",
+            "prediction": None,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:370
+        return _predict_cancer_type_v2(artifact, clinician)
+        }
+    metadata = artifact["metadata"]
+    if metadata.get("feature_adapter") == CANCER_TYPE_V2_ADAPTER:
+    if metadata.get("prediction_baseline_definition") != clinician.get("prediction_baseline_definition"):
+        return {
+            "status": "abstained",
+            "prediction": None,
+            "missing_features": [],
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:401
+        "target": "histology conditional on the explicitly supported classes; not cancer-versus-benign",
+        raise ClinicalInferenceError("Cancer-type model probabilities are not normalized.")
+    return {
+        "status": "research_prediction",
+        "probabilities": {label: float(probability) for label, probability in zip(class_order, probabilities)},
+        "predicted_class": class_order[int(np.argmax(probabilities))],
+        "class_order": class_order,
+        "features_used": order,
+        "calibration_status": metadata.get("calibration_status", "not_calibrated"),
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:543
+        "cancer_type": _run_model_independently(
+            "performance_status": clinician["performance_status"],
+        },
+        "imaging_context": imaging,
+            _predict_cancer_type,
+            artifacts.get("cancer_type"),
+            clinician,
+        ),
+        "survival": _run_model_independently(
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:544
+            _predict_cancer_type,
+        },
+        "imaging_context": imaging,
+        "cancer_type": _run_model_independently(
+            artifacts.get("cancer_type"),
+            clinician,
+        ),
+        "survival": _run_model_independently(
+            _predict_survival,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:545
+            artifacts.get("cancer_type"),
+        "imaging_context": imaging,
+        "cancer_type": _run_model_independently(
+            _predict_cancer_type,
+            clinician,
+        ),
+        "survival": _run_model_independently(
+            _predict_survival,
+            artifacts.get("survival"),
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:592
+    for name in ("cancer_type", "survival"):
+    if not isinstance(bundle, dict) or bundle.get("schema_version") != "1.0.0":
+        raise ClinicalInferenceError("Unsupported Clinical artifact bundle.")
+    models: dict[str, dict[str, Any] | None] = {}
+        artifact = bundle.get(name)
+        if artifact is not None and (
+            not isinstance(artifact, dict)
+            or "estimator" not in artifact
+            or "metadata" not in artifact
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:620
+def adapt_cancer_type_pipeline(pipeline: Any) -> dict[str, Any]:
+    return load_artifacts(path)
+
+
+    """Wrap the standalone LUAD/LUSC sklearn Pipeline in the bundle-style {metadata, estimator} contract.
+
+    The pipeline's own feature names, classes and trained categories are verified against the documented
+    contract; nothing is inferred or widened.
+    """
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:639
+        tuple(CANCER_TYPE_V2_FEATURES): CANCER_TYPE_V2_CATEGORIES,
+    except (AttributeError, KeyError, IndexError, TypeError) as exc:
+        raise ClinicalInferenceError("Unsupported standalone cancer-type pipeline structure.") from exc
+    supported_contracts = {
+        ("sex_at_baseline", "smoking_history", "stage"): {
+            **CANCER_TYPE_V2_CATEGORIES,
+            "stage": ["stage_1_3", "stage_4"],
+        },
+    }
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:641
+            **CANCER_TYPE_V2_CATEGORIES,
+    supported_contracts = {
+        tuple(CANCER_TYPE_V2_FEATURES): CANCER_TYPE_V2_CATEGORIES,
+        ("sex_at_baseline", "smoking_history", "stage"): {
+            "stage": ["stage_1_3", "stage_4"],
+        },
+    }
+    expected_categories = supported_contracts.get(tuple(columns))
+    if (
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:648
+        or classes != CANCER_TYPE_V2_CLASSES
+    expected_categories = supported_contracts.get(tuple(columns))
+    if (
+        expected_categories is None
+        or categories != expected_categories
+        or not callable(predict_proba)
+    ):
+        raise ClinicalInferenceError("Standalone cancer-type pipeline does not match a supported documented contract.")
+    return {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:659
+            "feature_adapter": CANCER_TYPE_V2_ADAPTER,
+            "model_version": "cancer-type-luad-lusc-v2",
+            "model_type": "logistic_regression_class_weight_balanced",
+            "artifact_source": "standalone_pipeline",
+            "target": CANCER_TYPE_V2_TARGET,
+            "prediction_baseline_definition": "initial_pathologic_diagnosis",
+            "class_order": classes,
+            "feature_order": columns,
+            "required_features": columns,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:660
+            "target": CANCER_TYPE_V2_TARGET,
+            "model_type": "logistic_regression_class_weight_balanced",
+            "artifact_source": "standalone_pipeline",
+            "feature_adapter": CANCER_TYPE_V2_ADAPTER,
+            "prediction_baseline_definition": "initial_pathologic_diagnosis",
+            "class_order": classes,
+            "feature_order": columns,
+            "required_features": columns,
+            "training_categories": categories,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:671
+def load_cancer_type_pipeline(path: str | Path | None = None) -> dict[str, Any] | None:
+    }
+
+
+    """Load the trusted standalone LUAD/LUSC pipeline; None when absent, ClinicalInferenceError when invalid."""
+    import joblib
+
+    model_path = Path(path) if path else CANCER_TYPE_V2_PATH
+    if not model_path.is_file():
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:675
+    model_path = Path(path) if path else CANCER_TYPE_V2_PATH
+    """Load the trusted standalone LUAD/LUSC pipeline; None when absent, ClinicalInferenceError when invalid."""
+    import joblib
+
+    if not model_path.is_file():
+        return None
+    try:
+        pipeline = joblib.load(model_path)
+    except Exception as exc:  # corrupt pickle data raises many unrelated exception types
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:684
+    return adapt_cancer_type_pipeline(pipeline)
+        raise ClinicalInferenceError(
+            f"Standalone cancer-type artifact could not be loaded ({type(exc).__name__})."
+        ) from exc
+
+
+@lru_cache(maxsize=1)
+def _cached_standalone_cancer_type(path: str, modified_ns: int) -> dict[str, Any] | None:
+    try:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:688
+def _cached_standalone_cancer_type(path: str, modified_ns: int) -> dict[str, Any] | None:
+
+
+@lru_cache(maxsize=1)
+    try:
+        return load_cancer_type_pipeline(path)
+    except ClinicalInferenceError as exc:
+        # An invalid model is reported as a failed model, without disturbing the survival model.
+        logger.error("cancer_type_artifact_invalid path=%s reason=%s", path, exc)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:690
+        return load_cancer_type_pipeline(path)
+@lru_cache(maxsize=1)
+def _cached_standalone_cancer_type(path: str, modified_ns: int) -> dict[str, Any] | None:
+    try:
+    except ClinicalInferenceError as exc:
+        # An invalid model is reported as a failed model, without disturbing the survival model.
+        logger.error("cancer_type_artifact_invalid path=%s reason=%s", path, exc)
+        return {"load_error": str(exc)}
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:693
+        logger.error("cancer_type_artifact_invalid path=%s reason=%s", path, exc)
+        return load_cancer_type_pipeline(path)
+    except ClinicalInferenceError as exc:
+        # An invalid model is reported as a failed model, without disturbing the survival model.
+        return {"load_error": str(exc)}
+
+
+def _standalone_cancer_type() -> dict[str, Any] | None:
+    path = CANCER_TYPE_V2_PATH
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:697
+def _standalone_cancer_type() -> dict[str, Any] | None:
+        return {"load_error": str(exc)}
+
+
+    path = CANCER_TYPE_V2_PATH
+    try:
+        modified_ns = path.stat().st_mtime_ns
+    except OSError:
+        return None
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:698
+    path = CANCER_TYPE_V2_PATH
+
+
+def _standalone_cancer_type() -> dict[str, Any] | None:
+    try:
+        modified_ns = path.stat().st_mtime_ns
+    except OSError:
+        return None
+    return _cached_standalone_cancer_type(str(path), modified_ns)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:703
+    return _cached_standalone_cancer_type(str(path), modified_ns)
+        modified_ns = path.stat().st_mtime_ns
+    except OSError:
+        return None
+
+
+def with_standalone_cancer_type(
+    models: dict[str, dict[str, Any] | None] | None,
+    *,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:706
+def with_standalone_cancer_type(
+    return _cached_standalone_cancer_type(str(path), modified_ns)
+
+
+    models: dict[str, dict[str, Any] | None] | None,
+    *,
+    bundle_configured: bool,
+) -> dict[str, dict[str, Any] | None] | None:
+    """Use v2 as the sole cancer-type model; preserve the bundle's survival artifact.
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:717
+    merged = dict(models) if models else {"cancer_type": None, "survival": None}
+    missing, cancer-type inference is unavailable; if invalid, its load error is reported.
+    ``bundle_configured`` remains in the signature for compatibility with existing callers.
+    """
+    merged["cancer_type"] = _standalone_cancer_type()
+    return merged if any(value is not None for value in merged.values()) else None
+
+
+def load_deployed_artifacts() -> dict[str, dict[str, Any] | None] | None:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:718
+    merged["cancer_type"] = _standalone_cancer_type()
+    ``bundle_configured`` remains in the signature for compatibility with existing callers.
+    """
+    merged = dict(models) if models else {"cancer_type": None, "survival": None}
+    return merged if any(value is not None for value in merged.values()) else None
+
+
+def load_deployed_artifacts() -> dict[str, dict[str, Any] | None] | None:
+    path = configured_artifact_path()
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:725
+    return with_standalone_cancer_type(
+def load_deployed_artifacts() -> dict[str, dict[str, Any] | None] | None:
+    path = configured_artifact_path()
+    models = _cached_artifacts(str(path), path.stat().st_mtime_ns) if path else None
+        models,
+        bundle_configured=bool(os.environ.get("LUNGINSIGHT_CLINICAL_ARTIFACT")),
+    )
+
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:733
+    cancer_type = available.get("cancer_type")
+
+def describe_artifacts(artifacts: dict[str, dict[str, Any] | None] | None) -> dict[str, Any]:
+    available = artifacts or {}
+    survival = available.get("survival")
+    if cancer_type is None:
+        cancer_type_status = "not_trained"
+    else:
+        cancer_type_status = "invalid" if cancer_type.get("load_error") else "loaded"
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:735
+    if cancer_type is None:
+    available = artifacts or {}
+    cancer_type = available.get("cancer_type")
+    survival = available.get("survival")
+        cancer_type_status = "not_trained"
+    else:
+        cancer_type_status = "invalid" if cancer_type.get("load_error") else "loaded"
+    description: dict[str, Any] = {
+        "cancer_type_model": cancer_type_status,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:736
+        cancer_type_status = "not_trained"
+    cancer_type = available.get("cancer_type")
+    survival = available.get("survival")
+    if cancer_type is None:
+    else:
+        cancer_type_status = "invalid" if cancer_type.get("load_error") else "loaded"
+    description: dict[str, Any] = {
+        "cancer_type_model": cancer_type_status,
+        "survival_model": "loaded" if survival else "not_trained",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:738
+        cancer_type_status = "invalid" if cancer_type.get("load_error") else "loaded"
+    if cancer_type is None:
+        cancer_type_status = "not_trained"
+    else:
+    description: dict[str, Any] = {
+        "cancer_type_model": cancer_type_status,
+        "survival_model": "loaded" if survival else "not_trained",
+    }
+    if cancer_type_status == "loaded":
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:740
+        "cancer_type_model": cancer_type_status,
+    else:
+        cancer_type_status = "invalid" if cancer_type.get("load_error") else "loaded"
+    description: dict[str, Any] = {
+        "survival_model": "loaded" if survival else "not_trained",
+    }
+    if cancer_type_status == "loaded":
+        metadata = cancer_type["metadata"]
+        description["cancer_type_model_version"] = metadata.get("model_version")
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:743
+    if cancer_type_status == "loaded":
+        "cancer_type_model": cancer_type_status,
+        "survival_model": "loaded" if survival else "not_trained",
+    }
+        metadata = cancer_type["metadata"]
+        description["cancer_type_model_version"] = metadata.get("model_version")
+        description["cancer_type_model_source"] = metadata.get("artifact_source", "configured_bundle")
+    return description
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:744
+        metadata = cancer_type["metadata"]
+        "survival_model": "loaded" if survival else "not_trained",
+    }
+    if cancer_type_status == "loaded":
+        description["cancer_type_model_version"] = metadata.get("model_version")
+        description["cancer_type_model_source"] = metadata.get("artifact_source", "configured_bundle")
+    return description
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:745
+        description["cancer_type_model_version"] = metadata.get("model_version")
+    }
+    if cancer_type_status == "loaded":
+        metadata = cancer_type["metadata"]
+        description["cancer_type_model_source"] = metadata.get("artifact_source", "configured_bundle")
+    return description
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py:746
+        description["cancer_type_model_source"] = metadata.get("artifact_source", "configured_bundle")
+    if cancer_type_status == "loaded":
+        metadata = cancer_type["metadata"]
+        description["cancer_type_model_version"] = metadata.get("model_version")
+    return description
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:153
+    recorded_histology = _direct_text(patient, "histological_type")
+    except ValueError:
+        kps = None
+
+    histology = classify_tcga_histology(recorded_histology)
+    return {
+        "bcr_patient_barcode": _direct_raw(patient, "bcr_patient_barcode"),
+        "vital_status": _direct_raw(patient, "vital_status"),
+        "days_to_death": _direct_raw(patient, "days_to_death"),
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:154
+    histology = classify_tcga_histology(recorded_histology)
+        kps = None
+
+    recorded_histology = _direct_text(patient, "histological_type")
+    return {
+        "bcr_patient_barcode": _direct_raw(patient, "bcr_patient_barcode"),
+        "vital_status": _direct_raw(patient, "vital_status"),
+        "days_to_death": _direct_raw(patient, "days_to_death"),
+        "days_to_last_followup": _direct_raw(patient, "days_to_last_followup"),
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:174
+        "histological_type_raw": recorded_histology,
+        "patient_id": patient_id,
+        "source": cohort,
+        "cohort_label": TCGA_COHORT_LABELS[cohort],
+        "histology": histology,
+        "histology_label_status": "eligible" if histology is not None else "unsupported_or_missing",
+        "age_at_baseline_years": age,
+        "sex_at_baseline": normalize_sex(_direct_text(patient, "gender")),
+        "pathologic_stage_ground_truth": _pathologic_stage(patient),
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:175
+        "histology": histology,
+        "source": cohort,
+        "cohort_label": TCGA_COHORT_LABELS[cohort],
+        "histological_type_raw": recorded_histology,
+        "histology_label_status": "eligible" if histology is not None else "unsupported_or_missing",
+        "age_at_baseline_years": age,
+        "sex_at_baseline": normalize_sex(_direct_text(patient, "gender")),
+        "pathologic_stage_ground_truth": _pathologic_stage(patient),
+        "kps_direct": kps,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:176
+        "histology_label_status": "eligible" if histology is not None else "unsupported_or_missing",
+        "cohort_label": TCGA_COHORT_LABELS[cohort],
+        "histological_type_raw": recorded_histology,
+        "histology": histology,
+        "age_at_baseline_years": age,
+        "sex_at_baseline": normalize_sex(_direct_text(patient, "gender")),
+        "pathologic_stage_ground_truth": _pathologic_stage(patient),
+        "kps_direct": kps,
+        "smoking_history_raw": _direct_text(patient, "tobacco_smoking_history"),
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:241
+def classify_msk_histology(row: pd.Series) -> str | None:
+    return patients, samples
+
+
+    """Assign only exact LUAD/LUSC diagnoses; broad NSCLC is not a histology label."""
+    code = str(row.get("ONCOTREE_CODE", "") or "").strip().upper()
+    detailed = str(row.get("CANCER_TYPE_DETAILED", "") or "").strip().casefold()
+    code_label = code if code in {"LUAD", "LUSC"} else None
+    detail_label = {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:242
+    """Assign only exact LUAD/LUSC diagnoses; broad NSCLC is not a histology label."""
+
+
+def classify_msk_histology(row: pd.Series) -> str | None:
+    code = str(row.get("ONCOTREE_CODE", "") or "").strip().upper()
+    detailed = str(row.get("CANCER_TYPE_DETAILED", "") or "").strip().casefold()
+    code_label = code if code in {"LUAD", "LUSC"} else None
+    detail_label = {
+        "lung adenocarcinoma": "LUAD",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:244
+    detailed = str(row.get("CANCER_TYPE_DETAILED", "") or "").strip().casefold()
+def classify_msk_histology(row: pd.Series) -> str | None:
+    """Assign only exact LUAD/LUSC diagnoses; broad NSCLC is not a histology label."""
+    code = str(row.get("ONCOTREE_CODE", "") or "").strip().upper()
+    code_label = code if code in {"LUAD", "LUSC"} else None
+    detail_label = {
+        "lung adenocarcinoma": "LUAD",
+        "lung squamous cell carcinoma": "LUSC",
+    }.get(detailed)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:255
+def classify_tcga_histology(recorded_histology: str | None) -> str | None:
+    return code_label or detail_label
+
+
+    """Map only explicit TCGA recorded histology text to supported classes."""
+    if recorded_histology is None:
+        return None
+    normalized = recorded_histology.strip().casefold()
+    if "adenocarcinoma" in normalized or "bronchioloalveolar carcinoma" in normalized:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:256
+    """Map only explicit TCGA recorded histology text to supported classes."""
+
+
+def classify_tcga_histology(recorded_histology: str | None) -> str | None:
+    if recorded_histology is None:
+        return None
+    normalized = recorded_histology.strip().casefold()
+    if "adenocarcinoma" in normalized or "bronchioloalveolar carcinoma" in normalized:
+        return "LUAD"
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:257
+    if recorded_histology is None:
+
+def classify_tcga_histology(recorded_histology: str | None) -> str | None:
+    """Map only explicit TCGA recorded histology text to supported classes."""
+        return None
+    normalized = recorded_histology.strip().casefold()
+    if "adenocarcinoma" in normalized or "bronchioloalveolar carcinoma" in normalized:
+        return "LUAD"
+    if "squamous cell" in normalized:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:259
+    normalized = recorded_histology.strip().casefold()
+    """Map only explicit TCGA recorded histology text to supported classes."""
+    if recorded_histology is None:
+        return None
+    if "adenocarcinoma" in normalized or "bronchioloalveolar carcinoma" in normalized:
+        return "LUAD"
+    if "squamous cell" in normalized:
+        return "LUSC"
+    return None
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:269
+    detailed = str(row.get("CANCER_TYPE_DETAILED", "") or "").strip().casefold()
+
+def _msk_field_conflict(row: pd.Series) -> bool:
+    code = str(row.get("ONCOTREE_CODE", "") or "").strip().upper()
+    detailed_label = {
+        "lung adenocarcinoma": "LUAD",
+        "lung squamous cell carcinoma": "LUSC",
+    }.get(detailed)
+    return code in {"LUAD", "LUSC"} and detailed_label is not None and code != detailed_label
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:278
+    required = {"PATIENT_ID", "SAMPLE_ID", "CANCER_TYPE", "CANCER_TYPE_DETAILED", "ONCOTREE_CODE"}
+
+
+def msk_lung_patient_labels(samples: pd.DataFrame) -> pd.DataFrame:
+    missing = required - set(samples.columns)
+    if missing:
+        raise ValueError(f"MSK-CHORD sample table lacks required columns: {sorted(missing)}.")
+    lung = samples.loc[
+        samples["CANCER_TYPE"].fillna("").str.casefold().str.contains("lung", regex=False)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:283
+        samples["CANCER_TYPE"].fillna("").str.casefold().str.contains("lung", regex=False)
+    if missing:
+        raise ValueError(f"MSK-CHORD sample table lacks required columns: {sorted(missing)}.")
+    lung = samples.loc[
+    ].copy()
+    lung["histology"] = lung.apply(classify_msk_histology, axis=1)
+    lung["field_conflict"] = lung.apply(_msk_field_conflict, axis=1)
+    records: list[dict[str, Any]] = []
+    for patient_id, group in lung.groupby("PATIENT_ID", sort=False, dropna=False):
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:285
+    lung["histology"] = lung.apply(classify_msk_histology, axis=1)
+    lung = samples.loc[
+        samples["CANCER_TYPE"].fillna("").str.casefold().str.contains("lung", regex=False)
+    ].copy()
+    lung["field_conflict"] = lung.apply(_msk_field_conflict, axis=1)
+    records: list[dict[str, Any]] = []
+    for patient_id, group in lung.groupby("PATIENT_ID", sort=False, dropna=False):
+        assigned = set(group["histology"].dropna())
+        if group["field_conflict"].any() or len(assigned) > 1:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:289
+        assigned = set(group["histology"].dropna())
+    lung["field_conflict"] = lung.apply(_msk_field_conflict, axis=1)
+    records: list[dict[str, Any]] = []
+    for patient_id, group in lung.groupby("PATIENT_ID", sort=False, dropna=False):
+        if group["field_conflict"].any() or len(assigned) > 1:
+            records.append({"patient_id": patient_id, "histology": None, "label_status": "conflicting"})
+        elif len(assigned) == 1 and group["histology"].notna().all():
+            records.append({"patient_id": patient_id, "histology": assigned.pop(), "label_status": "eligible"})
+        else:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:291
+            records.append({"patient_id": patient_id, "histology": None, "label_status": "conflicting"})
+    for patient_id, group in lung.groupby("PATIENT_ID", sort=False, dropna=False):
+        assigned = set(group["histology"].dropna())
+        if group["field_conflict"].any() or len(assigned) > 1:
+        elif len(assigned) == 1 and group["histology"].notna().all():
+            records.append({"patient_id": patient_id, "histology": assigned.pop(), "label_status": "eligible"})
+        else:
+            records.append({"patient_id": patient_id, "histology": None, "label_status": "ambiguous_or_other"})
+    return pd.DataFrame.from_records(records, columns=["patient_id", "histology", "label_status"])
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:292
+        elif len(assigned) == 1 and group["histology"].notna().all():
+        assigned = set(group["histology"].dropna())
+        if group["field_conflict"].any() or len(assigned) > 1:
+            records.append({"patient_id": patient_id, "histology": None, "label_status": "conflicting"})
+            records.append({"patient_id": patient_id, "histology": assigned.pop(), "label_status": "eligible"})
+        else:
+            records.append({"patient_id": patient_id, "histology": None, "label_status": "ambiguous_or_other"})
+    return pd.DataFrame.from_records(records, columns=["patient_id", "histology", "label_status"])
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:293
+            records.append({"patient_id": patient_id, "histology": assigned.pop(), "label_status": "eligible"})
+        if group["field_conflict"].any() or len(assigned) > 1:
+            records.append({"patient_id": patient_id, "histology": None, "label_status": "conflicting"})
+        elif len(assigned) == 1 and group["histology"].notna().all():
+        else:
+            records.append({"patient_id": patient_id, "histology": None, "label_status": "ambiguous_or_other"})
+    return pd.DataFrame.from_records(records, columns=["patient_id", "histology", "label_status"])
+
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:295
+            records.append({"patient_id": patient_id, "histology": None, "label_status": "ambiguous_or_other"})
+        elif len(assigned) == 1 and group["histology"].notna().all():
+            records.append({"patient_id": patient_id, "histology": assigned.pop(), "label_status": "eligible"})
+        else:
+    return pd.DataFrame.from_records(records, columns=["patient_id", "histology", "label_status"])
+
+
+def load_msk_cancer_type_cohort(root: str | Path) -> pd.DataFrame:
+    """Build one explicit-label, patient-level MSK LUAD/LUSC classifier cohort."""
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:296
+    return pd.DataFrame.from_records(records, columns=["patient_id", "histology", "label_status"])
+            records.append({"patient_id": patient_id, "histology": assigned.pop(), "label_status": "eligible"})
+        else:
+            records.append({"patient_id": patient_id, "histology": None, "label_status": "ambiguous_or_other"})
+
+
+def load_msk_cancer_type_cohort(root: str | Path) -> pd.DataFrame:
+    """Build one explicit-label, patient-level MSK LUAD/LUSC classifier cohort."""
+    patients, samples = load_msk_tables(root)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:299
+def load_msk_cancer_type_cohort(root: str | Path) -> pd.DataFrame:
+    return pd.DataFrame.from_records(records, columns=["patient_id", "histology", "label_status"])
+
+
+    """Build one explicit-label, patient-level MSK LUAD/LUSC classifier cohort."""
+    patients, samples = load_msk_tables(root)
+    labels = msk_lung_patient_labels(samples)
+    cohort = labels.merge(
+        patients[["PATIENT_ID", "GENDER"]],
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:314
+    cohort["label_provenance"] = "sample/ONCOTREE_CODE_and_CANCER_TYPE_DETAILED"
+        lambda value: None if pd.isna(value) else normalize_sex(value)
+    )
+    cohort["source"] = "MSK-CHORD"
+    cohort = cohort[
+        [
+            "patient_id",
+            "source",
+            "histology",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\ingestion.py:319
+            "histology",
+        [
+            "patient_id",
+            "source",
+            "label_status",
+            "label_provenance",
+            "sex_at_baseline",
+        ]
+    ].copy()
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:44
+CLASSIFIER_TARGET_MAPPING_VERSION = "histology-luad-lusc-v1"
+]
+DEFAULT_HORIZONS_DAYS = [365, 1096, 1826]
+MODEL_VERSION = "clinical-research-v1"
+CLASSIFIER_FEATURE_CONTRACT_VERSION = "msk-chord-sex-at-birth-v1"
+
+
+class ModelEligibilityError(ValueError):
+    """Raised when a cohort or target cannot support the requested model."""
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:52
+def build_cancer_type_eligibility_report(
+    """Raised when a cohort or target cannot support the requested model."""
+
+
+    frame: pd.DataFrame,
+    *,
+    feature_order: list[str] | None = None,
+    target_col: str = "histology",
+    group_col: str = "patient_id",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:56
+    target_col: str = "histology",
+    frame: pd.DataFrame,
+    *,
+    feature_order: list[str] | None = None,
+    group_col: str = "patient_id",
+    source_col: str = "source",
+    label_status_col: str | None = "label_status",
+    authorization_status: str = "not_confirmed",
+    source_label_provenance: str = "source_recorded",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:106
+        "unsupported_or_missing_histology": int((~supported).sum()),
+            if count == 2
+        ]
+    excluded_counts: dict[str, int] = {
+    }
+    if label_status_col and label_status_col in frame:
+        excluded_counts["non_eligible_label_status"] = int(
+            (frame[label_status_col].astype("string") != "eligible").sum()
+        )
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:134
+        "model_task": "LUAD-versus-LUSC histology probability",
+        blockers.append("repeated_patient_rows_require_resolution_before_fit")
+    return {
+        "report_schema_version": "1.0.0",
+        "target_mapping_version": CLASSIFIER_TARGET_MAPPING_VERSION,
+        "target_provenance": source_label_provenance,
+        "feature_order": feature_order,
+        "candidate_patient_count": unique_patients,
+        "candidate_record_count": int(len(frame)),
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:421
+def fit_cancer_type_model(
+    }
+
+
+    frame: pd.DataFrame,
+    *,
+    target_col: str = "histology",
+    group_col: str = "patient_id",
+    source_col: str = "source",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:424
+    target_col: str = "histology",
+def fit_cancer_type_model(
+    frame: pd.DataFrame,
+    *,
+    group_col: str = "patient_id",
+    source_col: str = "source",
+    feature_order: list[str] | None = None,
+    prediction_baseline_definition: str | None = None,
+    use_authorized: bool = False,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:453
+            "Histology is perfectly confounded with cohort source; do not train a source-shortcut classifier."
+    shortcut = source_target_shortcut_report(eligible, target_col, source_col)
+    if shortcut and shortcut["perfect_source_target_shortcut"]:
+        raise ModelEligibilityError(
+        )
+    train_idx, calibration_idx, test_idx = _grouped_three_way_split(
+        eligible,
+        eligible[target_col],
+        group_col,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:523
+            "target": "histology conditional on LUAD/LUSC cancer patients",
+            "target_mapping_version": CLASSIFIER_TARGET_MAPPING_VERSION,
+            "software_versions": _software_versions(),
+            "model_type": f"calibrated_{selected_model}",
+            "feature_contract_version": CLASSIFIER_FEATURE_CONTRACT_VERSION,
+            "prediction_baseline_definition": prediction_baseline_definition,
+            "label_definition": {
+                "LUAD": "explicit source-recorded LUAD diagnosis",
+                "LUSC": "explicit source-recorded LUSC diagnosis",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:529
+                "excluded": "ambiguous, conflicting, non-lung, and unsupported histology records",
+            "label_definition": {
+                "LUAD": "explicit source-recorded LUAD diagnosis",
+                "LUSC": "explicit source-recorded LUSC diagnosis",
+            },
+            "training_source_patient_counts": {
+                str(source): int((eligible[source_col] == source).sum())
+                for source in sorted(eligible[source_col].dropna().unique())
+            },
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:911
+    cancer_type: dict[str, Any] | None = None,
+def save_artifact_bundle(
+    output_path: str | Path,
+    *,
+    survival: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
+) -> Path:
+    import joblib
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\training.py:921
+        "cancer_type": cancer_type,
+    path.parent.mkdir(parents=True, exist_ok=True)
+    bundle = {
+        "schema_version": "1.0.0",
+        "survival": survival,
+        "provenance": provenance or {},
+    }
+    temporary_path = path.with_suffix(f"{path.suffix}.tmp")
+    try:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:11
+from .ingestion import load_msk_cancer_type_cohort
+import numpy as np
+import pandas as pd
+
+from .inference import load_artifacts
+from .training import (
+    CANCER_FEATURE_ORDER,
+    ModelEligibilityError,
+    build_cancer_type_eligibility_report,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:16
+    build_cancer_type_eligibility_report,
+from .training import (
+    CANCER_FEATURE_ORDER,
+    ModelEligibilityError,
+    fit_cancer_type_model,
+    save_artifact_bundle,
+    write_report,
+)
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:17
+    fit_cancer_type_model,
+    CANCER_FEATURE_ORDER,
+    ModelEligibilityError,
+    build_cancer_type_eligibility_report,
+    save_artifact_bundle,
+    write_report,
+)
+
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:32
+    cohort = load_msk_cancer_type_cohort(datasets_root / "msk_chord_2024")
+) -> dict[str, Any]:
+    """Train, persist, reload, and verify the authorized MSK-scoped classifier."""
+    datasets_root = Path(datasets_root)
+    eligibility = build_cancer_type_eligibility_report(
+        cohort,
+        authorization_status="authorized",
+        source_label_provenance="source_recorded",
+    )
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:33
+    eligibility = build_cancer_type_eligibility_report(
+    """Train, persist, reload, and verify the authorized MSK-scoped classifier."""
+    datasets_root = Path(datasets_root)
+    cohort = load_msk_cancer_type_cohort(datasets_root / "msk_chord_2024")
+        cohort,
+        authorization_status="authorized",
+        source_label_provenance="source_recorded",
+    )
+    if not eligibility["eligible_for_training"]:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:43
+    cancer_type, evaluation = fit_cancer_type_model(
+            f"Cancer-type training is ineligible: {eligibility['blockers']}"
+        )
+
+        cohort,
+        prediction_baseline_definition="initial_pathologic_diagnosis",
+        use_authorized=True,
+        random_state=random_state,
+    )
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:71
+    expected_probabilities = cancer_type["estimator"].predict_proba(examples)
+        [{"sex_at_baseline": "female"}, {"sex_at_baseline": "male"}],
+        columns=CANCER_FEATURE_ORDER,
+    )
+    provenance = {
+        **existing_provenance,
+        "cancer_type_training": {
+            "source": "MSK-CHORD",
+            "authorization_status": "authorized",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:74
+        "cancer_type_training": {
+    expected_probabilities = cancer_type["estimator"].predict_proba(examples)
+    provenance = {
+        **existing_provenance,
+            "source": "MSK-CHORD",
+            "authorization_status": "authorized",
+            "random_state": random_state,
+            "eligibility": eligibility,
+        },
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:83
+        cancer_type=cancer_type,
+    }
+    save_artifact_bundle(
+        artifact_path,
+        survival=existing_survival,
+        provenance=provenance,
+    )
+    reloaded = load_artifacts(artifact_path)
+    reloaded_cancer_type = reloaded["cancer_type"]
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:88
+    reloaded_cancer_type = reloaded["cancer_type"]
+        provenance=provenance,
+    )
+    reloaded = load_artifacts(artifact_path)
+    if reloaded_cancer_type is None:
+        raise RuntimeError("Saved cancer-type artifact was unavailable after reload.")
+    actual_probabilities = reloaded_cancer_type["estimator"].predict_proba(examples)
+    round_trip_equal = bool(np.allclose(expected_probabilities, actual_probabilities, rtol=0, atol=0))
+    if not round_trip_equal:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:89
+    if reloaded_cancer_type is None:
+    )
+    reloaded = load_artifacts(artifact_path)
+    reloaded_cancer_type = reloaded["cancer_type"]
+        raise RuntimeError("Saved cancer-type artifact was unavailable after reload.")
+    actual_probabilities = reloaded_cancer_type["estimator"].predict_proba(examples)
+    round_trip_equal = bool(np.allclose(expected_probabilities, actual_probabilities, rtol=0, atol=0))
+    if not round_trip_equal:
+        raise RuntimeError("Reloaded cancer-type artifact changed fixed-example probabilities.")
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:91
+    actual_probabilities = reloaded_cancer_type["estimator"].predict_proba(examples)
+    reloaded_cancer_type = reloaded["cancer_type"]
+    if reloaded_cancer_type is None:
+        raise RuntimeError("Saved cancer-type artifact was unavailable after reload.")
+    round_trip_equal = bool(np.allclose(expected_probabilities, actual_probabilities, rtol=0, atol=0))
+    if not round_trip_equal:
+        raise RuntimeError("Reloaded cancer-type artifact changed fixed-example probabilities.")
+
+    report = {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_cancer_type.py:100
+        "model_metadata": cancer_type["metadata"],
+        "report_schema_version": "1.0.0",
+        "model_status": "trained_research_only",
+        "eligibility": eligibility,
+        "evaluation": evaluation,
+        "artifact": {
+            "path": artifact_path.name,
+            "round_trip_fixed_example_probabilities_identical": round_trip_equal,
+            "fixed_examples": ["female", "male"],
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_survival.py:50
+    existing_cancer_type = None
+        )
+
+    artifact_path = Path(artifact_path)
+    existing_provenance: dict[str, Any] = {}
+    if artifact_path.exists():
+        import joblib
+
+        existing_bundle = joblib.load(artifact_path)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_survival.py:58
+        existing_cancer_type = existing_bundle.get("cancer_type")
+        existing_bundle = joblib.load(artifact_path)
+        if not isinstance(existing_bundle, dict) or existing_bundle.get("schema_version") != "1.0.0":
+            raise ModelEligibilityError("The existing Clinical artifact bundle has an unsupported schema.")
+        existing_provenance = dict(existing_bundle.get("provenance") or {})
+
+    examples = pd.DataFrame(
+        [
+            {"age_at_baseline_years": 55.0, "sex_at_baseline": "female"},
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\train_survival.py:71
+        cancer_type=existing_cancer_type,
+    expected_risk = survival["estimator"].predict(examples)
+    save_artifact_bundle(
+        artifact_path,
+        survival=survival,
+        provenance={**existing_provenance, "cohorts": ["TCGA-LUAD", "TCGA-LUSC"]},
+    )
+    reloaded = load_artifacts(artifact_path)["survival"]
+    if reloaded is None:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\cancer-type-evaluation.json:6
+    "model_task": "LUAD-versus-LUSC histology probability",
+  "model_status": "trained_research_only",
+  "eligibility": {
+    "report_schema_version": "1.0.0",
+    "target_mapping_version": "histology-luad-lusc-v1",
+    "target_provenance": "source_recorded",
+    "feature_order": [
+      "sex_at_baseline"
+    ],
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\cancer-type-evaluation.json:7
+    "target_mapping_version": "histology-luad-lusc-v1",
+  "eligibility": {
+    "report_schema_version": "1.0.0",
+    "model_task": "LUAD-versus-LUSC histology probability",
+    "target_provenance": "source_recorded",
+    "feature_order": [
+      "sex_at_baseline"
+    ],
+    "candidate_patient_count": 7809,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\cancer-type-evaluation.json:20
+      "unsupported_or_missing_histology": 1030,
+      "LUSC": 822
+    },
+    "excluded_record_counts": {
+      "non_eligible_label_status": 1030
+    },
+    "required_feature_completeness_by_source": {
+      "MSK-CHORD": {
+        "candidate_patients": 7809,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\cancer-type-evaluation.json:55
+    "target_mapping_version": "histology-luad-lusc-v1",
+  },
+  "model_metadata": {
+    "model_version": "clinical-research-v1",
+    "software_versions": {
+      "numpy": "2.5.3",
+      "pandas": "3.0.6",
+      "scikit-learn": "1.9.1",
+      "scikit-survival": "0.28.0",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\cancer-type-evaluation.json:64
+    "target": "histology conditional on LUAD/LUSC cancer patients",
+      "joblib": "1.6.0"
+    },
+    "model_type": "calibrated_regularized_logistic_regression",
+    "feature_contract_version": "msk-chord-sex-at-birth-v1",
+    "prediction_baseline_definition": "initial_pathologic_diagnosis",
+    "label_definition": {
+      "LUAD": "explicit source-recorded LUAD diagnosis",
+      "LUSC": "explicit source-recorded LUSC diagnosis",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\cancer-type-evaluation.json:70
+      "excluded": "ambiguous, conflicting, non-lung, and unsupported histology records"
+    "label_definition": {
+      "LUAD": "explicit source-recorded LUAD diagnosis",
+      "LUSC": "explicit source-recorded LUSC diagnosis",
+    },
+    "training_source_patient_counts": {
+      "MSK-CHORD": 6779
+    },
+    "random_state": 42,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\cancer-type-luad-lusc-v2-evaluation.json:9
+  "target": "cancer_type",
+    "smoking_history",
+    "stage"
+  ],
+  "random_seed": 42,
+  "train_rows": 5423,
+  "test_rows": 1356,
+  "training_only_oof_thresholds": {
+    "max_balanced_accuracy": 0.49999999999999994,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\classifier-baseline-report.json:77
+            "CANCER_TYPE",
+            "PATIENT_ID",
+            "GLEASON_SAMPLE_LEVEL",
+            "PDL1_POSITIVE",
+            "SAMPLE_TYPE",
+            "SAMPLE_CLASS",
+            "METASTATIC_SITE",
+            "PRIMARY_SITE",
+            "CANCER_TYPE_DETAILED",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\classifier-baseline-report.json:82
+            "CANCER_TYPE_DETAILED",
+            "SAMPLE_CLASS",
+            "METASTATIC_SITE",
+            "PRIMARY_SITE",
+            "GENE_PANEL",
+            "SAMPLE_COVERAGE",
+            "TUMOR_PURITY",
+            "ONCOTREE_CODE",
+            "MSI_COMMENT",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\classifier-baseline-report.json:94
+            "ICD_O_HISTOLOGY_DESCRIPTION",
+            "CLINICAL_GROUP",
+            "PATHOLOGICAL_GROUP",
+            "CLINICAL_SUMMARY",
+            "DIAGNOSIS_DESCRIPTION",
+            "TMB_NONSYNONYMOUS"
+          ]
+        },
+        {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\classifier-baseline-report.json:546
+      "lung_histology_patient_counts": {
+      "patients_with_multiple_samples": 90,
+      "lung_sample_rows": 7809,
+      "lung_patients": 7809,
+        "LUAD": 5957,
+        "LUSC": 822
+      },
+      "lung_label_status_counts": {
+        "eligible": 6779,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\classifier-baseline-report.json:935
+    "model_task": "LUAD-versus-LUSC histology probability",
+  },
+  "classifier_eligibility": {
+    "report_schema_version": "1.0.0",
+    "target_mapping_version": "histology-luad-lusc-v1",
+    "target_provenance": "source_derived",
+    "feature_order": [
+      "age_at_baseline_years",
+      "sex_at_baseline",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\classifier-baseline-report.json:936
+    "target_mapping_version": "histology-luad-lusc-v1",
+  "classifier_eligibility": {
+    "report_schema_version": "1.0.0",
+    "model_task": "LUAD-versus-LUSC histology probability",
+    "target_provenance": "source_derived",
+    "feature_order": [
+      "age_at_baseline_years",
+      "sex_at_baseline",
+      "stage_at_baseline"
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\classifier-baseline-report.json:951
+      "unsupported_or_missing_histology": 1030,
+      "LUSC": 1326
+    },
+    "excluded_record_counts": {
+      "non_eligible_label_status": 1030
+    },
+    "required_feature_completeness_by_source": {
+      "MSK-CHORD": {
+        "candidate_patients": 7809,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\classifier-baseline-report.json:1007
+    "classifier": "TCGA cohort membership equals the cohort histology label and is therefore a source shortcut; TCGA alone is unsuitable for classifier fitting. MSK labels are richer, but training is blocked by license review and uncertain baseline feature semantics.",
+    }
+  },
+  "cross_cohort_assessment": {
+    "survival": "TCGA-only OS endpoint/time origin are sufficiently explicit for research development after data-use confirmation. MSK OS semantics and prediction baseline are not established; do not pool.",
+    "imaging": "No patient-linked LungInsight Imaging features occur in these training tables; imaging summaries cannot be learned as predictors from the inspected cohorts."
+  }
+}
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\schemas\clinical_data_dictionary_v1.json:19
+    "histology": {
+      },
+      "missing": "Reject records without a source patient identifier."
+    },
+      "meaning": "Pathologically recorded lung cancer histology.",
+      "type": "categorical",
+      "role": "classifier_target",
+      "inference_available": false,
+      "mappings": {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\schemas\clinical_data_dictionary_v1.json:20
+      "meaning": "Pathologically recorded lung cancer histology.",
+      "missing": "Reject records without a source patient identifier."
+    },
+    "histology": {
+      "type": "categorical",
+      "role": "classifier_target",
+      "inference_available": false,
+      "mappings": {
+        "MSK-CHORD": {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\schemas\clinical_data_dictionary_v1.json:27
+          "LUAD": "LUAD or CANCER_TYPE_DETAILED exactly Lung Adenocarcinoma",
+      "mappings": {
+        "MSK-CHORD": {
+          "preferred": "sample/ONCOTREE_CODE",
+          "LUSC": "LUSC or CANCER_TYPE_DETAILED exactly Lung Squamous Cell Carcinoma",
+          "excluded": "Broad NSCLC, ambiguous/multiple sample diagnoses, non-lung cancer"
+        },
+        "TCGA-LUAD": "patient/histological_type mapped only when the recorded text explicitly identifies an adenocarcinoma family diagnosis",
+        "TCGA-LUSC": "patient/histological_type mapped only when the recorded text explicitly identifies a squamous cell carcinoma family diagnosis"
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\schemas\clinical_data_dictionary_v1.json:28
+          "LUSC": "LUSC or CANCER_TYPE_DETAILED exactly Lung Squamous Cell Carcinoma",
+        "MSK-CHORD": {
+          "preferred": "sample/ONCOTREE_CODE",
+          "LUAD": "LUAD or CANCER_TYPE_DETAILED exactly Lung Adenocarcinoma",
+          "excluded": "Broad NSCLC, ambiguous/multiple sample diagnoses, non-lung cancer"
+        },
+        "TCGA-LUAD": "patient/histological_type mapped only when the recorded text explicitly identifies an adenocarcinoma family diagnosis",
+        "TCGA-LUSC": "patient/histological_type mapped only when the recorded text explicitly identifies a squamous cell carcinoma family diagnosis"
+      },
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\schemas\clinical_data_dictionary_v1.json:161
+    "msk_chord_histology_v1": {
+    }
+  },
+  "model_feature_sets": {
+      "feature_contract_version": "msk-chord-sex-at-birth-v1",
+      "features": ["sex_at_baseline"],
+      "population": "MSK-CHORD patients with one explicit LUAD or LUSC patient-level label resolved from sample ONCOTREE_CODE and CANCER_TYPE_DETAILED",
+      "excluded": [
+        "age_at_baseline_years: CURRENT_AGE_DEID is current age and not baseline-aligned",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\schemas\clinical_data_dictionary_v1.json:164
+      "population": "MSK-CHORD patients with one explicit LUAD or LUSC patient-level label resolved from sample ONCOTREE_CODE and CANCER_TYPE_DETAILED",
+    "msk_chord_histology_v1": {
+      "feature_contract_version": "msk-chord-sex-at-birth-v1",
+      "features": ["sex_at_baseline"],
+      "excluded": [
+        "age_at_baseline_years: CURRENT_AGE_DEID is current age and not baseline-aligned",
+        "pathologic_stage_ground_truth: source stage is retained only as a ground-truth label",
+        "kps_category: ECOG timeline is longitudinal and not baseline-aligned",
+        "smoking_history: MSK source field is NLP-derived rather than observed smoking history",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\schemas\clinical_prediction_v1.schema.json:14
+    "cancer_type",
+    "baseline_definition",
+    "input_validation",
+    "imaging_context",
+    "survival",
+    "provenance",
+    "limitations"
+  ],
+  "properties": {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\schemas\clinical_prediction_v1.schema.json:32
+    "cancer_type": {"type": "object"},
+    },
+    "input_validation": {"type": "object"},
+    "imaging_context": {"type": "object"},
+    "survival": {"type": "object"},
+    "provenance": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\schemas\compare_metadata_candidates.py:9
+    'histology_label': re.compile(r'histolog|cancer.?type|tumou?r.?type|diagnos|subtype|classification|disease.?type|primary.?diagnosis|morpholog', re.I),
+import pandas as pd
+
+ALIASES = {
+    'cohort_or_project': re.compile(r'cohort|project|study|source|dataset|program|collection|repository', re.I),
+    'patient_or_case_id': re.compile(r'patient.?id|case.?id|submitter.?id|participant|subject|barcode|case_uuid', re.I),
+    'sample_or_specimen_type': re.compile(r'sample.?type|specimen.?type|sample.?class|tissue.?type|analyte', re.I),
+    'age': re.compile(r'(^|_)age(_|$)|age_at|age_at_diagnosis', re.I),
+    'sex_or_gender': re.compile(r'(^|_)(sex|gender)(_|$)', re.I),
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\analyze_cancer_type_thresholds.py:20
+DATA = ROOT / "artifacts" / "cancer_type_dataset" / "cancer_type_model_ready_candidate.csv"
+from sklearn.preprocessing import OneHotEncoder
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "artifacts" / "cancer_type_threshold_analysis_20261019"
+FEATURES = ["sex_at_baseline", "smoking_history"]
+SEED = 42
+
+def make_model():
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\analyze_cancer_type_thresholds.py:21
+OUT = ROOT / "artifacts" / "cancer_type_threshold_analysis_20261019"
+
+ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT / "artifacts" / "cancer_type_dataset" / "cancer_type_model_ready_candidate.csv"
+FEATURES = ["sex_at_baseline", "smoking_history"]
+SEED = 42
+
+def make_model():
+    prep = ColumnTransformer([
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\analyze_cancer_type_thresholds.py:58
+    df = df.loc[df["cohort"].eq("MSK-CHORD-2024")].dropna(subset=["cancer_type"]).copy()
+def main():
+    OUT.mkdir(parents=True, exist_ok=True)
+    df = pd.read_csv(DATA, dtype={"patient_id": str})
+    if df["patient_id"].isna().any() or df["patient_id"].duplicated().any():
+        raise ValueError("Missing or duplicate patient IDs; refusing to proceed.")
+
+    X = df[FEATURES]
+    y = df["cancer_type"].astype(str)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\analyze_cancer_type_thresholds.py:63
+    y = df["cancer_type"].astype(str)
+        raise ValueError("Missing or duplicate patient IDs; refusing to proceed.")
+
+    X = df[FEATURES]
+    train_idx, test_idx = train_test_split(
+        df.index, test_size=0.20, random_state=SEED, stratify=y
+    )
+    X_train, X_test = X.loc[train_idx], X.loc[test_idx]
+    y_train, y_test = y.loc[train_idx], y.loc[test_idx]
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\audit_msk_histology_categories.py:5
+out = Path(r"C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\artifacts\cancer_type_dataset")
+import pandas as pd
+
+root = Path(r"C:\Users\emkap\Documents\Projects\LungInsight\datasets")
+
+# Find likely raw MSK clinical/sample TSVs; exclude generated dataset outputs.
+files = [
+    p for p in root.rglob("*.tsv")
+    if "msk" in str(p).lower() or "chord" in str(p).lower()
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\audit_msk_histology_categories.py:20
+    "ICD-O Histology", "Sample ID", "Patient ID"
+
+wanted = {
+    "Cancer Type", "Cancer Type Detailed", "Oncotree Code",
+}
+matches = []
+
+for path in files:
+    try:
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\audit_msk_histology_categories.py:53
+    for col in ("Cancer Type", "Cancer Type Detailed", "Oncotree Code", "ICD-O Histology"):
+    print(f"\n===== FILE: {path.name} =====")
+    print(f"Rows: {len(df):,}")
+
+        if col not in df.columns:
+            continue
+        print(f"\n--- {col}: top 60 distinct values ---")
+        counts = (
+            df[col].fillna("").astype(str).str.strip()
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:4
+Target: cancer_type in {LUAD, LUSC}. Uses MSK-CHORD-2024 and TCGA-LUAD/LUSC.
+#!/usr/bin/env python
+"""Build patient-level clinical-only LUAD/LUSC label datasets.
+
+No CT images, imaging-derived features, or genomic data are read.
+Keeps cohorts separate in dedicated outputs; the combined export is descriptive
+Keeps cohorts separate in dedicated outputs; the combined export is descriptive
+only because cohort membership may be confounded with target (TCGA-LUAD is all
+LUAD, TCGA-LUSC is all LUSC). Features are normalized, missing values are kept,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:19
+DEFAULT_OUT = Path(r"C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\artifacts\cancer_type_dataset")
+import pandas as pd
+
+DEFAULT_ROOT = Path(r"C:\Users\emkap\Documents\Projects\LungInsight\datasets")
+TARGET = "cancer_type"
+# Exact predictor list. Missing values are kept as-is (no imputation here); any
+# imputation must be fitted on training data only. Prior treatment is kept as two
+# source-specific columns because the MSK and TCGA definitions are not equivalent.
+FEATURES = [
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:20
+TARGET = "cancer_type"
+
+DEFAULT_ROOT = Path(r"C:\Users\emkap\Documents\Projects\LungInsight\datasets")
+DEFAULT_OUT = Path(r"C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\artifacts\cancer_type_dataset")
+# Exact predictor list. Missing values are kept as-is (no imputation here); any
+# imputation must be fitted on training data only. Prior treatment is kept as two
+# source-specific columns because the MSK and TCGA definitions are not equivalent.
+FEATURES = [
+    "sex_at_baseline", "age_at_diagnosis", "smoking_history", "smoking_pack_years",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:202
+        "CANCER_TYPE": "Cancer Type",
+    s = s.rename(columns={
+        "SAMPLE_ID": "#Sample Identifier",
+        "PATIENT_ID": "Patient Identifier",
+        "CANCER_TYPE_DETAILED": "Cancer Type Detailed",
+        "ONCOTREE_CODE": "Oncotree Code",
+        "ICDO_HISTOLOGY": "ICD-O Histology",
+    })
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:203
+        "CANCER_TYPE_DETAILED": "Cancer Type Detailed",
+        "SAMPLE_ID": "#Sample Identifier",
+        "PATIENT_ID": "Patient Identifier",
+        "CANCER_TYPE": "Cancer Type",
+        "ONCOTREE_CODE": "Oncotree Code",
+        "ICDO_HISTOLOGY": "ICD-O Histology",
+    })
+
+    patient_col = choose_col(p, "#Patient Identifier")
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:205
+        "ICDO_HISTOLOGY": "ICD-O Histology",
+        "CANCER_TYPE": "Cancer Type",
+        "CANCER_TYPE_DETAILED": "Cancer Type Detailed",
+        "ONCOTREE_CODE": "Oncotree Code",
+    })
+
+    patient_col = choose_col(p, "#Patient Identifier")
+    sample_col = choose_col(s, "#Sample Identifier")
+    sample_patient_col = choose_col(s, "Patient Identifier")
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:255
+        return "", "conflicting_histology_and_code"
+    label_from_code = code_map.get(code, "")
+
+    if label_from_detail and label_from_code and label_from_detail != label_from_code:
+    if label_from_detail:
+        return label_from_detail, "recorded_sample_histology"
+    if label_from_code:
+        return label_from_code, "oncotree_code"
+    return "", "unresolved_or_non_target"
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:257
+        return label_from_detail, "recorded_sample_histology"
+    if label_from_detail and label_from_code and label_from_detail != label_from_code:
+        return "", "conflicting_histology_and_code"
+    if label_from_detail:
+    if label_from_code:
+        return label_from_code, "oncotree_code"
+    return "", "unresolved_or_non_target"
+
+def load_msk(root):
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:320
+        "label_provenance":"TCGA_recorded_broad_histology",
+    out = pd.DataFrame({
+        "patient_id":kept[pid].astype(str).values,
+        TARGET:target, "cohort":cohort,
+        "sample_count":1,
+        "sex_at_baseline":mapped(kept, sexc, normalize_sex).values,
+        "age_at_diagnosis":mapped(kept, "age_at_initial_pathologic_diagnosis", parse_age).values,
+        "smoking_history":mapped(kept, "tobacco_smoking_history_indicator", normalize_tcga_smoking).values,
+        "smoking_pack_years":mapped(kept, "tobacco_smoking_pack_years_smoked", parse_pack_years).values,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:334
+    qc["broad_histology_matches_expected"] = broad.isin(accepted).values
+    out["source_record_id"] = out["patient_id"]
+    qc = df[[pid] + hist].copy().rename(columns={pid:"patient_id"})
+    qc["expected_target"] = target
+    return out, qc
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--datasets-root", type=Path, default=DEFAULT_ROOT)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:364
+        "excluded_from_predictors":["patient_id","cohort","cancer_type","label_provenance","sample_count","source_record_id","raw source fields","histology","OncoTree code","diagnosis description","survival","vital status","treatment outcome"],
+        "pooled_training_suitable":False,
+        "pooled_training_note":"TCGA-LUAD contains only LUAD and TCGA-LUSC only LUSC, so cohort membership is confounded with the target in the TCGA export.",
+        "imputation_policy":"None applied. Missing values are retained; any imputation must be fitted on training data only.",
+        "feature_audit":feature_audit(combined),
+        "counts_by_cohort_and_target":counts.to_dict("records"),
+        "missing_sex_count":int(model_ready["sex_at_baseline"].isna().sum()),
+        "msk_excluded_or_conflicting_patient_groups":len(excluded),
+        "tcga_label_qc_rows":sum(len(x) for x in qc_frames)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:371
+    combined.to_csv(outdir/"cancer_type_combined_descriptive.csv", index=False)
+        "msk_excluded_or_conflicting_patient_groups":len(excluded),
+        "tcga_label_qc_rows":sum(len(x) for x in qc_frames)
+    }
+    model_ready.to_csv(outdir/"cancer_type_model_ready_candidate.csv", index=False)
+    msk.to_csv(outdir/"msk_cancer_type_labeled.csv", index=False)
+    tcga.to_csv(outdir/"tcga_cancer_type_labeled_separate.csv", index=False)
+    excluded.to_csv(outdir/"msk_excluded_or_conflicting_labels.csv", index=False)
+    pd.concat(qc_frames, ignore_index=True, sort=False).to_csv(outdir/"tcga_histology_label_qc.csv", index=False)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:372
+    model_ready.to_csv(outdir/"cancer_type_model_ready_candidate.csv", index=False)
+        "tcga_label_qc_rows":sum(len(x) for x in qc_frames)
+    }
+    combined.to_csv(outdir/"cancer_type_combined_descriptive.csv", index=False)
+    msk.to_csv(outdir/"msk_cancer_type_labeled.csv", index=False)
+    tcga.to_csv(outdir/"tcga_cancer_type_labeled_separate.csv", index=False)
+    excluded.to_csv(outdir/"msk_excluded_or_conflicting_labels.csv", index=False)
+    pd.concat(qc_frames, ignore_index=True, sort=False).to_csv(outdir/"tcga_histology_label_qc.csv", index=False)
+    counts.to_csv(outdir/"counts_by_cohort_and_target.csv", index=False)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:373
+    msk.to_csv(outdir/"msk_cancer_type_labeled.csv", index=False)
+    }
+    combined.to_csv(outdir/"cancer_type_combined_descriptive.csv", index=False)
+    model_ready.to_csv(outdir/"cancer_type_model_ready_candidate.csv", index=False)
+    tcga.to_csv(outdir/"tcga_cancer_type_labeled_separate.csv", index=False)
+    excluded.to_csv(outdir/"msk_excluded_or_conflicting_labels.csv", index=False)
+    pd.concat(qc_frames, ignore_index=True, sort=False).to_csv(outdir/"tcga_histology_label_qc.csv", index=False)
+    counts.to_csv(outdir/"counts_by_cohort_and_target.csv", index=False)
+    (outdir/"dataset_audit.json").write_text(json.dumps(audit,indent=2),encoding="utf-8")
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:374
+    tcga.to_csv(outdir/"tcga_cancer_type_labeled_separate.csv", index=False)
+    combined.to_csv(outdir/"cancer_type_combined_descriptive.csv", index=False)
+    model_ready.to_csv(outdir/"cancer_type_model_ready_candidate.csv", index=False)
+    msk.to_csv(outdir/"msk_cancer_type_labeled.csv", index=False)
+    excluded.to_csv(outdir/"msk_excluded_or_conflicting_labels.csv", index=False)
+    pd.concat(qc_frames, ignore_index=True, sort=False).to_csv(outdir/"tcga_histology_label_qc.csv", index=False)
+    counts.to_csv(outdir/"counts_by_cohort_and_target.csv", index=False)
+    (outdir/"dataset_audit.json").write_text(json.dumps(audit,indent=2),encoding="utf-8")
+    print("Output directory:", outdir)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\build_cancer_type_dataset.py:376
+    pd.concat(qc_frames, ignore_index=True, sort=False).to_csv(outdir/"tcga_histology_label_qc.csv", index=False)
+    msk.to_csv(outdir/"msk_cancer_type_labeled.csv", index=False)
+    tcga.to_csv(outdir/"tcga_cancer_type_labeled_separate.csv", index=False)
+    excluded.to_csv(outdir/"msk_excluded_or_conflicting_labels.csv", index=False)
+    counts.to_csv(outdir/"counts_by_cohort_and_target.csv", index=False)
+    (outdir/"dataset_audit.json").write_text(json.dumps(audit,indent=2),encoding="utf-8")
+    print("Output directory:", outdir)
+    print(counts.to_string(index=False))
+    print("MSK excluded/conflicting groups:",len(excluded))
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\run_cancer_type_feature_ablation.py:33
+TARGET = "cancer_type"
+
+SEED = 42
+COHORT = "MSK-CHORD-2024"
+ALL_FEATURES = [
+    "sex_at_baseline",
+    "smoking_history",
+    "stage",
+]
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\run_cancer_type_feature_ablation.py:90
+        clinical_dir / "artifacts" / "cancer_type_dataset"
+def main():
+    clinical_dir = Path(__file__).resolve().parents[1]
+    input_path = (
+        / "cancer_type_model_ready_candidate.csv"
+    )
+    output_dir = (
+        clinical_dir / "artifacts" / "cancer_type_feature_ablation"
+    )
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\run_cancer_type_feature_ablation.py:91
+        / "cancer_type_model_ready_candidate.csv"
+    clinical_dir = Path(__file__).resolve().parents[1]
+    input_path = (
+        clinical_dir / "artifacts" / "cancer_type_dataset"
+    )
+    output_dir = (
+        clinical_dir / "artifacts" / "cancer_type_feature_ablation"
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\run_cancer_type_feature_ablation.py:94
+        clinical_dir / "artifacts" / "cancer_type_feature_ablation"
+        / "cancer_type_model_ready_candidate.csv"
+    )
+    output_dir = (
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    df = pd.read_csv(input_path, dtype={"patient_id": str})
+    df = df.loc[df["cohort"].eq(COHORT)].dropna(subset=[TARGET]).copy()
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\run_cancer_type_feature_comparison.py:23
+DATA = ROOT / "artifacts" / "cancer_type_dataset" / "cancer_type_model_ready_candidate.csv"
+from sklearn.preprocessing import OneHotEncoder
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = ROOT / "artifacts" / "cancer_type_model_comparison_20261019"
+SEED = 42
+TARGET = "cancer_type"
+COHORT = "MSK-CHORD-2024"
+CLASSES = ["LUAD", "LUSC"]
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\run_cancer_type_feature_comparison.py:24
+OUT = ROOT / "artifacts" / "cancer_type_model_comparison_20261019"
+
+ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT / "artifacts" / "cancer_type_dataset" / "cancer_type_model_ready_candidate.csv"
+SEED = 42
+TARGET = "cancer_type"
+COHORT = "MSK-CHORD-2024"
+CLASSES = ["LUAD", "LUSC"]
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\run_cancer_type_feature_comparison.py:26
+TARGET = "cancer_type"
+DATA = ROOT / "artifacts" / "cancer_type_dataset" / "cancer_type_model_ready_candidate.csv"
+OUT = ROOT / "artifacts" / "cancer_type_model_comparison_20261019"
+SEED = 42
+COHORT = "MSK-CHORD-2024"
+CLASSES = ["LUAD", "LUSC"]
+
+FEATURE_SETS = {
+    "A_sex_only": ["sex_at_baseline"],
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\train_cancer_type_baseline.py:35
+TARGET = "cancer_type"
+
+SEED = 42
+FEATURES = ["sex_at_baseline", "smoking_history", "stage"]
+COHORT = "MSK-CHORD-2024"
+CLASSES = ["LUAD", "LUSC"]
+
+
+def evaluate(model, X_test, y_test):
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\train_cancer_type_baseline.py:83
+        clinical_dir / "artifacts" / "cancer_type_dataset"
+def main():
+    clinical_dir = Path(__file__).resolve().parents[1]
+    input_path = (
+        / "cancer_type_model_ready_candidate.csv"
+    )
+    output_dir = clinical_dir / "artifacts" / "cancer_type_model"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\train_cancer_type_baseline.py:84
+        / "cancer_type_model_ready_candidate.csv"
+    clinical_dir = Path(__file__).resolve().parents[1]
+    input_path = (
+        clinical_dir / "artifacts" / "cancer_type_dataset"
+    )
+    output_dir = clinical_dir / "artifacts" / "cancer_type_model"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    if not input_path.exists():
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\train_cancer_type_baseline.py:86
+    output_dir = clinical_dir / "artifacts" / "cancer_type_model"
+        clinical_dir / "artifacts" / "cancer_type_dataset"
+        / "cancer_type_model_ready_candidate.csv"
+    )
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    if not input_path.exists():
+        raise FileNotFoundError(f"Dataset not found: {input_path}")
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\train_cancer_type_baseline.py:192
+            "source_record_id", "histology", "OncoTree code",
+        "features": FEATURES,
+        "excluded_features": [
+            "patient_id", "cohort", "label_provenance", "sample_count",
+            "survival", "vital status", "treatment outcome",
+        ],
+        "scikit_learn_version": sklearn.__version__,
+        "random_seed": SEED,
+        "test_fraction": 0.20,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\tcga_prep\01_prepare_tcga_labels.py:106
+                "histology_detail": row.get(detail_key, "").strip() if detail_key else "",
+                "target": target,
+                "target_source_field": broad_key or "",
+                "target_source_value": raw,
+                "icd_o_3_histology": row.get(icd_key, "").strip() if icd_key else "",
+            })
+        qc["input_files"][cohort] = str(path)
+        qc["cohorts"][cohort] = {
+            "source_rows_after_metadata_skip": len(rows),
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\tcga_prep\01_prepare_tcga_labels.py:107
+                "icd_o_3_histology": row.get(icd_key, "").strip() if icd_key else "",
+                "target_source_field": broad_key or "",
+                "target_source_value": raw,
+                "histology_detail": row.get(detail_key, "").strip() if detail_key else "",
+            })
+        qc["input_files"][cohort] = str(path)
+        qc["cohorts"][cohort] = {
+            "source_rows_after_metadata_skip": len(rows),
+            "metadata_rows_skipped": skipped_metadata,
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\tcga_prep\01_prepare_tcga_labels.py:123
+               "histology_detail", "icd_o_3_histology"]
+
+    csv_path = out / "tcga_patient_labels.csv"
+    columns = ["patient_id", "cohort", "target", "target_source_field", "target_source_value",
+    with csv_path.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=columns); w.writeheader(); w.writerows(labels)
+    qc_path = out / "tcga_label_qc.json"
+    qc_path.write_text(json.dumps(qc, indent=2), encoding="utf-8")
+    print(f"Labels: {csv_path}\nQC: {qc_path}")
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\tcga_prep\01_prepare_tcga_labels.py:132
+    print("Never use patient_id, cohort, target_source_value, histology_detail, or ICD-O-3 as predictors.")
+    for cohort, stats in qc["cohorts"].items():
+        print(f"{cohort}: {stats}")
+    print("Only rows with target LUAD/LUSC are eligible for later processing.")
+
+if __name__ == "__main__":
+    main()
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\tcga_prep\02_build_tabular_dataset.py:5
+identity, target-defining fields, ICD-O codes, detailed histology, and free-text fields.
+"""Build a tabular-only clinical dataset from TCGA clinical TSVs and an optional normalized MSK CSV.
+
+No imaging files are read. This script deliberately excludes identifiers, cohort/source
+The MSK CSV must be normalized to one row per patient with columns:
+patient_id, target (LUAD or LUSC), and shared tabular feature columns.
+"""
+from __future__ import annotations
+import argparse, csv, json, re
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\tcga_prep\02_build_tabular_dataset.py:20
+    "target", "label", "histologic_diagnosis", "histology_detail",
+}
+LEAK_EXACT = {
+    "patient_id", "bcr_patient_barcode", "cohort", "source", "dataset", "study",
+    "icd_o_3_histology", "target_source_field", "target_source_value",
+}
+LEAK_PATTERNS = [
+    r"(^|_)barcode($|_)", r"(^|_)case_id($|_)", r"(^|_)patient_id($|_)",
+    r"histolog", r"icd.?o", r"morpholog", r"diagnos", r"tumor.?type",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\tcga_prep\02_build_tabular_dataset.py:21
+    "icd_o_3_histology", "target_source_field", "target_source_value",
+LEAK_EXACT = {
+    "patient_id", "bcr_patient_barcode", "cohort", "source", "dataset", "study",
+    "target", "label", "histologic_diagnosis", "histology_detail",
+}
+LEAK_PATTERNS = [
+    r"(^|_)barcode($|_)", r"(^|_)case_id($|_)", r"(^|_)patient_id($|_)",
+    r"histolog", r"icd.?o", r"morpholog", r"diagnos", r"tumor.?type",
+    r"cancer.?type", r"cohort", r"dataset", r"source", r"study.?id",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\tools\tcga_prep\03_audit_tabular_dataset.py:10
+    "target_source_field", "histology_detail", "icd_o_3_histology", "histologic_diagnosis",
+
+FORBIDDEN = {
+    "patient_id", "cohort", "source", "dataset", "study", "target_source_value",
+}
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--csv", required=True, type=Path)
+    ap.add_argument("--output", type=Path)
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js:721
+const contributions = (b) => Object.fromEntries((b.feature_contributions || []).map((item) => [item.feature, item]));
+  }
+  return {start: nodule.geometry?.bbox_start_zyx, end: nodule.geometry?.bbox_end_zyx_exclusive, slices: {}, method: "detector_box"};
+}
+const pct = (p) => `${(p * 100).toFixed(p < 0.1 ? 1 : 0)}%`;
+const formatMm = (v) => (fin(v) ? `${v.toFixed(1)} mm` : "Unavailable");
+const flagText = (item, yes, no) => (item && fin(item.encoded_value) ? (item.encoded_value === 1 ? yes : no) : null);
+
+const BROCK_PARAMS = [
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js:859
+/* Patient-level histology panel: independent of any nodule's Brock risk and of the survival model. */
+const CANCER_STAGE_LABELS = Object.assign(Object.create(null), {stage_1_3: "Stage I–III", stage_4: "Stage IV"});
+const SMOKING_HISTORY_LABELS = Object.assign(Object.create(null), {never: "never smoked", former_or_current: "former or current smoker"});
+
+function cancerTypePanelHtml(model) {
+  const head = `<h3 class="sub-h">Histology: LUAD vs LUSC (patient-level research model)</h3>`;
+  const limits = (Array.isArray(model?.limitations) && model.limitations.length ? model.limitations : [
+    "Research-only; not clinically validated.",
+    "Compares LUAD with LUSC only; it does not detect cancer, separate cancer from benign disease, or establish a diagnosis.",
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js:860
+function cancerTypePanelHtml(model) {
+const SMOKING_HISTORY_LABELS = Object.assign(Object.create(null), {never: "never smoked", former_or_current: "former or current smoker"});
+
+/* Patient-level histology panel: independent of any nodule's Brock risk and of the survival model. */
+  const head = `<h3 class="sub-h">Histology: LUAD vs LUSC (patient-level research model)</h3>`;
+  const limits = (Array.isArray(model?.limitations) && model.limitations.length ? model.limitations : [
+    "Research-only; not clinically validated.",
+    "Compares LUAD with LUSC only; it does not detect cancer, separate cancer from benign disease, or establish a diagnosis.",
+  ]).map((text) => `<li>${esc(text)}</li>`).join("");
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js:861
+  const head = `<h3 class="sub-h">Histology: LUAD vs LUSC (patient-level research model)</h3>`;
+
+/* Patient-level histology panel: independent of any nodule's Brock risk and of the survival model. */
+function cancerTypePanelHtml(model) {
+  const limits = (Array.isArray(model?.limitations) && model.limitations.length ? model.limitations : [
+    "Research-only; not clinically validated.",
+    "Compares LUAD with LUSC only; it does not detect cancer, separate cancer from benign disease, or establish a diagnosis.",
+  ]).map((text) => `<li>${esc(text)}</li>`).join("");
+  const limitsHtml = `<ul class="hint" style="margin:.3rem 0 0;padding-left:1.1rem">${limits}</ul>`;
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js:902
+    return `${badge("research prediction", "ok")} <b>${esc(model.predicted_class)}</b> (histology, conditional on LUAD or LUSC)<br>${rows}`;
+  if (!model) return "Unavailable";
+  if (model.status === "research_prediction" && model.probabilities) {
+    const rows = Object.entries(model.probabilities).map(([name, p]) => `<small>${esc(name)} ${(p * 100).toFixed(1)}%</small>`).join(" · ");
+  }
+  if (model.status === "research_prediction" && model.prediction) {
+    const horizons = Object.entries(model.prediction.probability_at_horizons_days || {})
+      .map(([days, p]) => `${Math.round(days / 365.25 * 10) / 10} y: ${(p * 100).toFixed(0)}%`).join(" · ");
+    return `${badge("research prediction", "ok")} Overall survival from diagnosis<br><small>${esc(horizons)}</small>`;
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js:954
+      <button type="button" id="print-report" class="ghost">Print</button><button type="button" id="back-to-entry" class="ghost">Back to case entry</button></span>
+    <span>Gate <b>${esc(gate.text)}</b></span>
+    <span>Nodules <b>${nodules.length}</b> (${withBrock} with a Brock result)</span>
+    <span class="links"><a href="${base}/report/html" target="_blank" rel="noopener">HTML report</a><a href="${base}/report" target="_blank" rel="noopener">JSON report</a>
+    ${notes.map(([kind, text]) => `<div class="alert ${kind}" style="flex-basis:100%;margin:.1rem 0">${esc(text)}</div>`).join("")}`;
+}
+
+function renderNoduleTable() {
+  const body = $("nodule-table").querySelector("tbody");
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js:1115
+    ? cancerTypePanelHtml(prediction.cancer_type)
+      ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
+      : `<div>${modelResultHtml(survival)}</div>`;
+  const cancerHtml = prediction
+    : "<p class='hint' style='margin:0'>Histology model not available for this run.</p>";
+  $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
+    <section aria-label="Histology model" style="margin-top:.8rem">${cancerHtml}</section>`;
+}
+
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js:1116
+    : "<p class='hint' style='margin:0'>Histology model not available for this run.</p>";
+      : `<div>${modelResultHtml(survival)}</div>`;
+  const cancerHtml = prediction
+    ? cancerTypePanelHtml(prediction.cancer_type)
+  $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
+    <section aria-label="Histology model" style="margin-top:.8rem">${cancerHtml}</section>`;
+}
+
+function renderMethods() {
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js:1118
+    <section aria-label="Histology model" style="margin-top:.8rem">${cancerHtml}</section>`;
+    ? cancerTypePanelHtml(prediction.cancer_type)
+    : "<p class='hint' style='margin:0'>Histology model not available for this run.</p>";
+  $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
+}
+
+function renderMethods() {
+  const body = S.run.body;
+  const study = body.study || body.study_summary || {};
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js:1142
+    const explained = nodules.filter((n) => brockUsable(brockOf(n)) && (brockOf(n).feature_contributions || []).length).length;
+    rows.push(["Brock", (counts.completed ?? 0) + manualOk, counts.failed ?? 0, unavailable, unavailable ? "Missing inputs or not run" : manualOk ? `${manualOk} calculated from clinician-supplied inputs` : "–"]);
+  }
+  if (nodules.length) {
+    rows.push(["Brock formula contributions", explained, 0, nodules.length - explained, nodules.length - explained ? "Analytical Brock formula terms; not SHAP" : "Analytical Brock formula terms; not SHAP"]);
+  }
+  $("methods").innerHTML = rows.length
+    ? rows.map((row) => `<tr>${row.map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`).join("")
+    : '<tr><td colspan="5">No method outcomes are available for this run.</td></tr>';
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js:1177
+  if (event.target.closest("#print-report")) window.print();
+}
+
+$("summary").addEventListener("click", (event) => {
+  if (event.target.closest("#back-to-entry")) setView("entry");
+});
+$("nodule-table").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-nodule-index]");
+  if (button) selectNodule(Number(button.dataset.noduleIndex), true);
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\styles.css:154
+@media print{
+  .grid3{grid-template-columns:minmax(0,1fr)}
+  .viewer-b .canvas-wrap{flex:none;aspect-ratio:1;min-height:0;max-height:75vh;margin:0 auto;width:100%;max-width:75vh}
+}
+  .notice,.topbar,#view-entry,.win-t,.vctl{display:none!important}
+  body{background:#fff}
+}
+
+/* LungInsight report layout v3: two balanced stacks, no grid-row gaps. */
+
+============================================================
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\styles.css:200
+@media print {
+  body[data-view="report"] #report-grid.grid3 { grid-template-columns: minmax(0, 1fr); }
+}
+
+  @page { size: auto; margin: 12mm; }
+
+  html, body {
+    width: auto !important;
+    min-height: 0 !important;
+
+============================================================
+KEY SOURCE FILES
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\04_malignancy_classifier.py
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\04_malignancy_prediction.py
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\07_visualize.py
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\html_reports.py
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\stages\04_malignancy_prediction.py
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Imaging\visualization\07_visualize.py
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\inference.py
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\classifier-baseline-report.json
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\reports\metadata_exploration\metadata_report.json
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\backend\Clinical\schemas\clinical_inference_v1.schema.json
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\app.js
+C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\frontend\styles.css

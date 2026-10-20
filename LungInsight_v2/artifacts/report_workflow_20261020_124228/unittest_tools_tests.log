@@ -1,0 +1,19 @@
+﻿python.exe : test_patches_inline_set_condition (test_fix_pipeline_schema_2_10_compat.LoaderPatchTests.test_patches_inline_set_condition) ... ok
+At C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\LungInsight_Report_Workflow.ps1:53 char:19
++         $output = & $File @Arguments 2>&1
++                   ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (test_patches_in...ndition) ... ok:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+test_patches_local_list_and_error_allowlist (test_fix_pipeline_schema_2_10_compat.LoaderPatchTests.test_patches_local_list_and_error_allowlist) ... ok
+test_patches_local_tuple_inside_load_schema (test_fix_pipeline_schema_2_10_compat.LoaderPatchTests.test_patches_local_tuple_inside_load_schema) ... ok
+test_patches_module_level_set (test_fix_pipeline_schema_2_10_compat.LoaderPatchTests.test_patches_module_level_set) ... ok
+test_refuses_unknown_loader_versions (test_fix_pipeline_schema_2_10_compat.LoaderPatchTests.test_refuses_unknown_loader_versions) ... ok
+test_refuses_wrong_root_schema_version (test_fix_pipeline_schema_2_10_compat.SchemaPatchTests.test_refuses_wrong_root_schema_version) ... ok
+test_updates_supported_versions (test_fix_pipeline_schema_2_10_compat.SchemaPatchTests.test_updates_supported_versions) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.003s
+
+OK
+

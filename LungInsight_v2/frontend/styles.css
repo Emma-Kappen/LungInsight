@@ -155,3 +155,176 @@ svg.chart .lbl{fill:var(--ink);font-weight:700}
   .notice,.topbar,#view-entry,.win-t,.vctl{display:none!important}
   body{background:#fff}
 }
+
+/* LungInsight report layout v3: two balanced stacks, no grid-row gaps. */
+@media (min-width: 760px) {
+  body[data-view="report"] #report-grid.grid3 {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+  }
+}
+body[data-view="report"] #report-grid > .col {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  align-self: start;
+  min-width: 0;
+  min-height: 0;
+  gap: 6px;
+}
+body[data-view="report"] #report-grid .win {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+  min-height: 80px;
+  max-width: 100%;
+  height: auto;
+  resize: vertical;
+  overflow: auto;
+  scrollbar-gutter: stable;
+}
+body[data-view="report"] #report-grid .win.collapsed {
+  min-height: 0;
+  resize: none;
+}
+body[data-view="report"] #win-viewer { min-height: 300px; }
+body[data-view="report"] #win-viewer .win-b { min-height: 0; }
+body[data-view="report"] #canvas-wrap { min-width: 0; min-height: 180px; }
+@media (max-width: 759px) {
+  body[data-view="report"] #report-grid.grid3 { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media print {
+  @page { size: auto; margin: 12mm; }
+
+  html, body {
+    width: auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+    overflow: visible !important;
+    display: block !important;
+    font-size: 10pt;
+  }
+
+  .notice, .topbar, #view-entry, #report-empty, .summary .links,
+  .win-t, .vctl, button, input, select, textarea {
+    display: none !important;
+  }
+
+  main, body[data-view="report"] main,
+  body[data-view="report"] #view-report {
+    display: block !important;
+    width: auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  #summary {
+    display: flex !important;
+    margin: 0 0 8mm !important;
+    padding: 0 0 3mm !important;
+    border: 0 !important;
+    border-bottom: 1px solid #777 !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  #report-grid, body[data-view="report"] #report-grid.grid3 {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 5mm !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  #report-grid > .col {
+    display: flex !important;
+    flex-direction: column !important;
+    align-self: start !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+    gap: 4mm !important;
+  }
+
+  #report-grid .win, #report-grid .win.collapsed,
+  body[data-view="report"] #win-viewer {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    resize: none !important;
+    overflow: visible !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 1px solid #888 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+    margin: 0 0 4mm !important;
+  }
+
+  #report-grid .win-h {
+    background: #eee !important;
+    color: #000 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  #report-grid .win-b, #report-grid .win.collapsed .win-b {
+    display: block !important;
+    flex: 0 0 auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 2mm !important;
+    color: #000 !important;
+  }
+
+  #report-grid .scroll { overflow: visible !important; max-height: none !important; }
+  #report-grid table.dt { width: 100% !important; font-size: 8pt !important; border-collapse: collapse !important; }
+  #report-grid .dt th, #report-grid .dt td {
+    padding: 1.5mm !important;
+    overflow-wrap: anywhere !important;
+    color: #000 !important;
+    border-bottom: 1px solid #ccc !important;
+  }
+
+  #report-grid .canvas-wrap {
+    position: relative !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    aspect-ratio: 1 / 1;
+    margin: 0 !important;
+    overflow: hidden !important;
+    background: #fff !important;
+  }
+
+  #report-grid #viewer-canvas {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    background: #fff !important;
+  }
+  #report-grid svg.chart { max-width: 100% !important; }
+  a { color: #000 !important; text-decoration: none !important; }
+}
+

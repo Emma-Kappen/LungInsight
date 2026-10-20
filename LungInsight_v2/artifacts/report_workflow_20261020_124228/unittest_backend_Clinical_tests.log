@@ -1,0 +1,12 @@
+﻿python.exe : 
+At C:\Users\emkap\Documents\Projects\LungInsight\LungInsight_v2\LungInsight_Report_Workflow.ps1:53 char:19
++         $output = & $File @Arguments 2>&1
++                   ~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+----------------------------------------------------------------------
+Ran 0 tests in 0.000s
+
+NO TESTS RAN
+

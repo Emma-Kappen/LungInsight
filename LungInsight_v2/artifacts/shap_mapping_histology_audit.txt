@@ -1,0 +1,720 @@
+﻿
+================================================================================
+.\backend\Imaging\api\contract.py:59-91
+   59:         for x in (start_zyx[2], end_zyx_exclusive[2])
+   60:     ])
+   61:     return {
+   62:         "min_lps_mm": corners.min(axis=0).tolist(),
+   63:         "max_lps_mm": corners.max(axis=0).tolist(),
+   64:     }
+   65: 
+   66: 
+   67: def _record_refs(record: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+   68:     explanations = record.get("explanations")
+   69:     explanations = explanations if isinstance(explanations, dict) else {}
+   70:     gradcam = explanations.get("gradcam")
+   71:     gradcam = gradcam if isinstance(gradcam, dict) else {}
+   72:     shap = explanations.get("shap")
+   73:     shap = shap if isinstance(shap, dict) else {}
+   74:     return gradcam, shap
+   75: 
+   76: 
+   77: def _read_artifact(path: Path) -> Any | None:
+   78:     try:
+   79:         with path.open("r", encoding="utf-8-sig") as handle:
+   80:             return json.load(handle)
+   81:     except FileNotFoundError:
+   82:         return None
+   83:     except (OSError, json.JSONDecodeError) as exc:
+   84:         return {"_artifact_read_error": f"{path.name}: {exc}"}
+   85: 
+   86: 
+   87: def _relative_refs(patient_root: Path, paths: dict[str, Path]) -> dict[str, str | None]:
+   88:     result: dict[str, str | None] = {}
+   89:     for name, path in paths.items():
+   90:         try:
+   91:             result[name] = (
+
+================================================================================
+.\backend\Imaging\visualization\06_full_ct_gradcam.py:183-215
+  183:         raise ValueError("Stage 06 nodule_id must preserve the Stage 02 candidate_id.")
+  184:     if type(record["patch_id"]) is not int or record["patch_id"] < 0:
+  185:         raise ValueError("Stage 06 patch_id must be a non-negative integer.")
+  186:     for name in ("patient_id", "detection_source", "purpose"):
+  187:         if not isinstance(record[name], str) or not record[name]:
+  188:             raise ValueError(f"Stage 06 {name} must be a non-empty string.")
+  189:     for name in (
+  190:         "geometry", "detector", "attributes", "malignancy",
+  191:         "model_identity", "uncertainty_and_limitations", "explanations",
+  192:     ):
+  193:         if not isinstance(record[name], dict):
+  194:             raise ValueError(f"Stage 06 {name} must be an object.")
+  195:     geometry = record["geometry"]
+  196:     for name in ("center_zyx", "center_lps_mm", "bbox_start_zyx", "bbox_end_zyx_exclusive", "crop_start_zyx"):
+  197:         value = np.asarray(geometry.get(name), dtype=np.float64)
+  198:         if value.shape != (3,) or not np.isfinite(value).all():
+  199:             raise ValueError(f"Stage 06 geometry.{name} must contain three finite coordinates.")
+  200:     for name in ("patch_size_vox_zyx", "spacing_zyx_mm"):
+  201:         value = np.asarray(geometry.get(name), dtype=np.float64)
+  202:         if value.shape != (3,) or not np.isfinite(value).all() or np.any(value <= 0):
+  203:             raise ValueError(f"Stage 06 geometry.{name} must contain three positive finite values.")
+  204:     malignancy = record["malignancy"]
+  205:     selected = malignancy.get("selected_prediction")
+  206:     if not isinstance(selected, dict) or selected.get("method") != "brock":
+  207:         raise ValueError("Stage 06 record must contain a Brock selected_prediction.")
+  208:     if selected.get("status") == "available":
+  209:         probability = selected.get("probability")
+  210:         if not isinstance(probability, (int, float)) or not math.isfinite(float(probability)):
+  211:             raise ValueError("Available Brock output must contain a finite probability.")
+  212:     elif selected.get("probability") is not None:
+  213:         raise ValueError("Unavailable Brock output must not contain a probability.")
+  214:     if not isinstance(record["explanations"].get("gradcam"), dict):
+  215:         raise ValueError("Stage 06 record must contain its attribute-specific Grad-CAM references.")
+
+================================================================================
+.\backend\Imaging\visualization\06_full_ct_gradcam.py:206-238
+  206:     if not isinstance(selected, dict) or selected.get("method") != "brock":
+  207:         raise ValueError("Stage 06 record must contain a Brock selected_prediction.")
+  208:     if selected.get("status") == "available":
+  209:         probability = selected.get("probability")
+  210:         if not isinstance(probability, (int, float)) or not math.isfinite(float(probability)):
+  211:             raise ValueError("Available Brock output must contain a finite probability.")
+  212:     elif selected.get("probability") is not None:
+  213:         raise ValueError("Unavailable Brock output must not contain a probability.")
+  214:     if not isinstance(record["explanations"].get("gradcam"), dict):
+  215:         raise ValueError("Stage 06 record must contain its attribute-specific Grad-CAM references.")
+  216: 
+  217: 
+  218: def gradcam_refs_for_identity(
+  219:     patient_root: Path,
+  220:     cam_artifacts: dict[tuple[str, int], dict[str, dict[str, Any]]],
+  221:     candidate_id: str,
+  222:     patch_id: int,
+  223: ) -> dict[str, dict[str, Any]]:
+  224:     """Return the attribute CAM refs registered for one nodule/patch identity.
+  225: 
+  226:     An attribute is registered only when both its patch-space and CT-space
+  227:     artifacts exist on disk. Anything else is omitted, so the contract reports
+  228:     the attribute as missing instead of accepting a partial reference.
+  229:     """
+  230:     refs: dict[str, dict[str, Any]] = {}
+  231:     for attribute, entry in cam_artifacts.get((candidate_id, patch_id), {}).items():
+  232:         patch_rel = entry.get("patch_cam_path")
+  233:         ct_rel = entry.get("ct_cam_path")
+  234:         if not patch_rel or not ct_rel:
+  235:             continue
+  236:         if not (patient_root / str(patch_rel)).is_file() or not (patient_root / str(ct_rel)).is_file():
+  237:             continue
+  238:         refs[attribute] = dict(entry)
+
+================================================================================
+.\backend\Imaging\visualization\06_full_ct_gradcam.py:395-427
+  395:             "uncertainty_and_limitations": {
+  396:                 "stage04_validation_warning": stage04.get("validation_warning"),
+  397:                 "stage04_target_semantics": stage04.get("target_semantics"),
+  398:                 "stage04_diagnosis": stage04.get("diagnosis", {"status": "not_predicted", "value": None}),
+  399:                 "stage04_pathology": stage04.get("pathology", {"status": "not_provided", "value": None}),
+  400:                 "stage04_risk_uncertainty": stage04.get("risk_uncertainty"),
+  401:                 "cam_semantics": "Relative per-patch Grad-CAM display; raw signed map is separately preserved and color is not voxelwise attribute probability.",
+  402:             },
+  403:             "explanations": {
+  404:                 "gradcam": gradcam_refs,
+  405:                 "shap": {
+  406:                     "status": "not_applicable",
+  407:                     "reason": "Brock uses analytical formula decomposition, not SHAP.",
+  408:                 },
+  409:             },
+  410:         }
+  411:         missing = [field for field in declared_fields if field not in record]
+  412:         if missing:
+  413:             raise RuntimeError(f"Stage 06 record {identity} is missing schema-required fields {missing}.")
+  414:         validate_stage06_record(record)
+  415:         output_records.append(record)
+  416: 
+  417:     return {
+  418:         "schema_version": STAGE06_SCHEMA["record_schema_version"],
+  419:         "meta_schema_version": SCHEMA["schema_version"],
+  420:         "stage": "06_full_ct_gradcam",
+  421:         "patient_id": patient_root.name,
+  422:         "detection_source": "fused_candidate_set",
+  423:         "purpose": "accepted_fused_candidates",
+  424:         "source_manifest": _relative_artifact(Path(str(manifest_data.get("_manifest_path", ""))), patient_root)
+  425:         if manifest_data.get("_manifest_path") else None,
+  426:         "source_filter_report": _relative_artifact(filter_path, patient_root),
+  427:         "source_stage03_predictions": _relative_artifact(stage03_path, patient_root),
+
+================================================================================
+.\backend\Clinical\inference.py:131-163
+  131:     contributions = []
+  132:     try:
+  133:         for feature in features.columns:
+  134:             ablated = features.copy()
+  135:             ablated.loc[:, feature] = None
+  136:             ablated_probabilities = estimator.predict_proba(ablated)[0]
+  137:             contributions.append({
+  138:                 "feature": feature,
+  139:                 "method": "missingness_ablation",
+  140:                 "contribution_to_probability": {
+  141:                     label: float(actual - ablated)
+  142:                     for label, actual, ablated in zip(
+  143:                         class_order, probabilities, ablated_probabilities
+  144:                     )
+  145:                 },
+  146:                 "direction": (
+  147:                     "positive values indicate the observed value raises the class probability "
+  148:                     "relative to the fitted missing-value representation"
+  149:                 ),
+  150:             })
+  151:     except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
+  152:         return {
+  153:             "status": "unsupported",
+  154:             "method": "missingness_ablation",
+  155:             "failure_reason": type(exc).__name__,
+  156:             "feature_contributions": [],
+  157:             "limitations": [
+  158:                 "SHAP is not applied to the calibrated composite estimator; this is not a causal attribution."
+  159:             ],
+  160:         }
+  161:     return {
+  162:         "status": "available",
+  163:         "method": "missingness_ablation",
+
+================================================================================
+.\backend\Clinical\inference.py:146-178
+  146:                 "direction": (
+  147:                     "positive values indicate the observed value raises the class probability "
+  148:                     "relative to the fitted missing-value representation"
+  149:                 ),
+  150:             })
+  151:     except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
+  152:         return {
+  153:             "status": "unsupported",
+  154:             "method": "missingness_ablation",
+  155:             "failure_reason": type(exc).__name__,
+  156:             "feature_contributions": [],
+  157:             "limitations": [
+  158:                 "SHAP is not applied to the calibrated composite estimator; this is not a causal attribution."
+  159:             ],
+  160:         }
+  161:     return {
+  162:         "status": "available",
+  163:         "method": "missingness_ablation",
+  164:         "target": "LUAD/LUSC conditional probability",
+  165:         "features_used": list(features.columns),
+  166:         "feature_contributions": contributions,
+  167:         "limitations": [
+  168:             "This is a local model ablation, not a causal explanation.",
+  169:             "SHAP is not applied to the calibrated composite estimator.",
+  170:         ],
+  171:     }
+  172: 
+  173: 
+  174: def _survival_explanation(
+  175:     estimator: Any,
+  176:     features: pd.DataFrame,
+  177:     horizons: list[int],
+  178:     base_probabilities: dict[str, float],
+
+================================================================================
+.\backend\Clinical\inference.py:148-180
+  148:                     "relative to the fitted missing-value representation"
+  149:                 ),
+  150:             })
+  151:     except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
+  152:         return {
+  153:             "status": "unsupported",
+  154:             "method": "missingness_ablation",
+  155:             "failure_reason": type(exc).__name__,
+  156:             "feature_contributions": [],
+  157:             "limitations": [
+  158:                 "SHAP is not applied to the calibrated composite estimator; this is not a causal attribution."
+  159:             ],
+  160:         }
+  161:     return {
+  162:         "status": "available",
+  163:         "method": "missingness_ablation",
+  164:         "target": "LUAD/LUSC conditional probability",
+  165:         "features_used": list(features.columns),
+  166:         "feature_contributions": contributions,
+  167:         "limitations": [
+  168:             "This is a local model ablation, not a causal explanation.",
+  169:             "SHAP is not applied to the calibrated composite estimator.",
+  170:         ],
+  171:     }
+  172: 
+  173: 
+  174: def _survival_explanation(
+  175:     estimator: Any,
+  176:     features: pd.DataFrame,
+  177:     horizons: list[int],
+  178:     base_probabilities: dict[str, float],
+  179: ) -> dict[str, Any]:
+  180:     contributions = []
+
+================================================================================
+.\backend\Clinical\inference.py:155-187
+  155:             "failure_reason": type(exc).__name__,
+  156:             "feature_contributions": [],
+  157:             "limitations": [
+  158:                 "SHAP is not applied to the calibrated composite estimator; this is not a causal attribution."
+  159:             ],
+  160:         }
+  161:     return {
+  162:         "status": "available",
+  163:         "method": "missingness_ablation",
+  164:         "target": "LUAD/LUSC conditional probability",
+  165:         "features_used": list(features.columns),
+  166:         "feature_contributions": contributions,
+  167:         "limitations": [
+  168:             "This is a local model ablation, not a causal explanation.",
+  169:             "SHAP is not applied to the calibrated composite estimator.",
+  170:         ],
+  171:     }
+  172: 
+  173: 
+  174: def _survival_explanation(
+  175:     estimator: Any,
+  176:     features: pd.DataFrame,
+  177:     horizons: list[int],
+  178:     base_probabilities: dict[str, float],
+  179: ) -> dict[str, Any]:
+  180:     contributions = []
+  181:     try:
+  182:         for feature in features.columns:
+  183:             ablated = features.copy()
+  184:             ablated.loc[:, feature] = None
+  185:             function = estimator.predict_survival_function(ablated)[0]
+  186:             horizon_contributions = {}
+  187:             for horizon in horizons:
+
+================================================================================
+.\backend\Clinical\inference.py:158-190
+  158:                 "SHAP is not applied to the calibrated composite estimator; this is not a causal attribution."
+  159:             ],
+  160:         }
+  161:     return {
+  162:         "status": "available",
+  163:         "method": "missingness_ablation",
+  164:         "target": "LUAD/LUSC conditional probability",
+  165:         "features_used": list(features.columns),
+  166:         "feature_contributions": contributions,
+  167:         "limitations": [
+  168:             "This is a local model ablation, not a causal explanation.",
+  169:             "SHAP is not applied to the calibrated composite estimator.",
+  170:         ],
+  171:     }
+  172: 
+  173: 
+  174: def _survival_explanation(
+  175:     estimator: Any,
+  176:     features: pd.DataFrame,
+  177:     horizons: list[int],
+  178:     base_probabilities: dict[str, float],
+  179: ) -> dict[str, Any]:
+  180:     contributions = []
+  181:     try:
+  182:         for feature in features.columns:
+  183:             ablated = features.copy()
+  184:             ablated.loc[:, feature] = None
+  185:             function = estimator.predict_survival_function(ablated)[0]
+  186:             horizon_contributions = {}
+  187:             for horizon in horizons:
+  188:                 if function.x[0] <= horizon <= function.x[-1]:
+  189:                     ablated_value = float(function(horizon))
+  190:                     horizon_contributions[str(horizon)] = {
+
+================================================================================
+.\backend\Clinical\inference.py:191-223
+  191:                         "observed_minus_ablated": float(
+  192:                             base_probabilities[str(horizon)] - ablated_value
+  193:                         ),
+  194:                         "observed_survival_probability": base_probabilities[str(horizon)],
+  195:                         "ablated_survival_probability": ablated_value,
+  196:                     }
+  197:             contributions.append({
+  198:                 "feature": feature,
+  199:                 "method": "missingness_ablation",
+  200:                 "horizons_days": horizon_contributions,
+  201:             })
+  202:     except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
+  203:         return {
+  204:             "status": "unsupported",
+  205:             "method": "missingness_ablation",
+  206:             "failure_reason": type(exc).__name__,
+  207:             "feature_contributions": [],
+  208:             "limitations": [
+  209:                 "Survival explanation is unavailable for the fitted estimator/input combination."
+  210:             ],
+  211:         }
+  212:     return {
+  213:         "status": "available",
+  214:         "method": "missingness_ablation",
+  215:         "target": "survival probability at each reported horizon",
+  216:         "features_used": list(features.columns),
+  217:         "feature_contributions": contributions,
+  218:         "limitations": [
+  219:             "Ablation differences are not causal effects and do not alter censoring or endpoint definitions.",
+  220:             "This does not claim absolute survival calibration.",
+  221:         ],
+  222:     }
+  223: 
+
+================================================================================
+.\backend\Clinical\inference.py:197-229
+  197:             contributions.append({
+  198:                 "feature": feature,
+  199:                 "method": "missingness_ablation",
+  200:                 "horizons_days": horizon_contributions,
+  201:             })
+  202:     except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
+  203:         return {
+  204:             "status": "unsupported",
+  205:             "method": "missingness_ablation",
+  206:             "failure_reason": type(exc).__name__,
+  207:             "feature_contributions": [],
+  208:             "limitations": [
+  209:                 "Survival explanation is unavailable for the fitted estimator/input combination."
+  210:             ],
+  211:         }
+  212:     return {
+  213:         "status": "available",
+  214:         "method": "missingness_ablation",
+  215:         "target": "survival probability at each reported horizon",
+  216:         "features_used": list(features.columns),
+  217:         "feature_contributions": contributions,
+  218:         "limitations": [
+  219:             "Ablation differences are not causal effects and do not alter censoring or endpoint definitions.",
+  220:             "This does not claim absolute survival calibration.",
+  221:         ],
+  222:     }
+  223: 
+  224: 
+  225: def _run_model_independently(
+  226:     predictor: Any,
+  227:     artifact: dict[str, Any] | None,
+  228:     clinician: dict[str, Any],
+  229: ) -> dict[str, Any]:
+
+================================================================================
+.\backend\Clinical\inference.py:199-231
+  199:                 "method": "missingness_ablation",
+  200:                 "horizons_days": horizon_contributions,
+  201:             })
+  202:     except (ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
+  203:         return {
+  204:             "status": "unsupported",
+  205:             "method": "missingness_ablation",
+  206:             "failure_reason": type(exc).__name__,
+  207:             "feature_contributions": [],
+  208:             "limitations": [
+  209:                 "Survival explanation is unavailable for the fitted estimator/input combination."
+  210:             ],
+  211:         }
+  212:     return {
+  213:         "status": "available",
+  214:         "method": "missingness_ablation",
+  215:         "target": "survival probability at each reported horizon",
+  216:         "features_used": list(features.columns),
+  217:         "feature_contributions": contributions,
+  218:         "limitations": [
+  219:             "Ablation differences are not causal effects and do not alter censoring or endpoint definitions.",
+  220:             "This does not claim absolute survival calibration.",
+  221:         ],
+  222:     }
+  223: 
+  224: 
+  225: def _run_model_independently(
+  226:     predictor: Any,
+  227:     artifact: dict[str, Any] | None,
+  228:     clinician: dict[str, Any],
+  229: ) -> dict[str, Any]:
+  230:     try:
+  231:         return predictor(artifact, clinician)
+
+================================================================================
+.\backend\Clinical\inference.py:206-238
+  206:             "failure_reason": type(exc).__name__,
+  207:             "feature_contributions": [],
+  208:             "limitations": [
+  209:                 "Survival explanation is unavailable for the fitted estimator/input combination."
+  210:             ],
+  211:         }
+  212:     return {
+  213:         "status": "available",
+  214:         "method": "missingness_ablation",
+  215:         "target": "survival probability at each reported horizon",
+  216:         "features_used": list(features.columns),
+  217:         "feature_contributions": contributions,
+  218:         "limitations": [
+  219:             "Ablation differences are not causal effects and do not alter censoring or endpoint definitions.",
+  220:             "This does not claim absolute survival calibration.",
+  221:         ],
+  222:     }
+  223: 
+  224: 
+  225: def _run_model_independently(
+  226:     predictor: Any,
+  227:     artifact: dict[str, Any] | None,
+  228:     clinician: dict[str, Any],
+  229: ) -> dict[str, Any]:
+  230:     try:
+  231:         return predictor(artifact, clinician)
+  232:     except (ClinicalInferenceError, ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
+  233:         return {
+  234:             "status": "failed",
+  235:             "prediction": None,
+  236:             "error_code": "model_inference_failed",
+  237:             "reason": type(exc).__name__,
+  238:         }
+
+================================================================================
+.\backend\Clinical\inference.py:209-241
+  209:                 "Survival explanation is unavailable for the fitted estimator/input combination."
+  210:             ],
+  211:         }
+  212:     return {
+  213:         "status": "available",
+  214:         "method": "missingness_ablation",
+  215:         "target": "survival probability at each reported horizon",
+  216:         "features_used": list(features.columns),
+  217:         "feature_contributions": contributions,
+  218:         "limitations": [
+  219:             "Ablation differences are not causal effects and do not alter censoring or endpoint definitions.",
+  220:             "This does not claim absolute survival calibration.",
+  221:         ],
+  222:     }
+  223: 
+  224: 
+  225: def _run_model_independently(
+  226:     predictor: Any,
+  227:     artifact: dict[str, Any] | None,
+  228:     clinician: dict[str, Any],
+  229: ) -> dict[str, Any]:
+  230:     try:
+  231:         return predictor(artifact, clinician)
+  232:     except (ClinicalInferenceError, ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
+  233:         return {
+  234:             "status": "failed",
+  235:             "prediction": None,
+  236:             "error_code": "model_inference_failed",
+  237:             "reason": type(exc).__name__,
+  238:         }
+  239: 
+  240: 
+  241: def _cancer_type_v2_result_base(metadata: dict[str, Any]) -> dict[str, Any]:
+
+================================================================================
+.\backend\Clinical\inference.py:233-265
+  233:         return {
+  234:             "status": "failed",
+  235:             "prediction": None,
+  236:             "error_code": "model_inference_failed",
+  237:             "reason": type(exc).__name__,
+  238:         }
+  239: 
+  240: 
+  241: def _cancer_type_v2_result_base(metadata: dict[str, Any]) -> dict[str, Any]:
+  242:     return {
+  243:         "target": CANCER_TYPE_V2_TARGET,
+  244:         "class_order": list(metadata["class_order"]),
+  245:         "calibration_status": metadata.get("calibration_status", "not_calibrated"),
+  246:         "model_version": metadata.get("model_version"),
+  247:         "limitations": list(CANCER_TYPE_V2_LIMITATIONS),
+  248:     }
+  249: 
+  250: 
+  251: def _cancer_type_v2_abstention(
+  252:     metadata: dict[str, Any],
+  253:     reason: str,
+  254:     *,
+  255:     missing_features: list[str] | None = None,
+  256:     warnings: list[str] | None = None,
+  257: ) -> dict[str, Any]:
+  258:     return {
+  259:         "status": "abstained",
+  260:         "prediction": None,
+  261:         "reason": reason,
+  262:         "missing_features": missing_features or [],
+  263:         "warnings": warnings or [],
+  264:         "features_used": [],
+  265:         **_cancer_type_v2_result_base(metadata),
+
+================================================================================
+.\backend\Clinical\inference.py:295-327
+  295:     unknown = set(required) - set(candidates)
+  296:     if unknown:
+  297:         raise ClinicalInferenceError(f"Model declares unsupported cancer-type features: {sorted(unknown)}.")
+  298:     values = {name: candidates[name] for name in required if candidates[name] is not None}
+  299:     missing = [input_names[name] for name in required if candidates[name] is None]
+  300:     return values, missing
+  301: 
+  302: 
+  303: def _predict_cancer_type_v2(
+  304:     artifact: dict[str, Any],
+  305:     clinician: dict[str, Any],
+  306: ) -> dict[str, Any]:
+  307:     metadata = artifact["metadata"]
+  308:     if metadata.get("prediction_baseline_definition") != clinician.get("prediction_baseline_definition"):
+  309:         return _cancer_type_v2_abstention(
+  310:             metadata,
+  311:             "This model was trained on patients at initial pathologic diagnosis; the baseline for this "
+  312:             "prediction is not confirmed as initial pathologic diagnosis.",
+  313:             warnings=["prediction_baseline_does_not_match_training_baseline"],
+  314:         )
+  315:     order = list(metadata["feature_order"])
+  316:     values, missing = _cancer_type_v2_features(clinician, order)
+  317:     if missing:
+  318:         return _cancer_type_v2_abstention(
+  319:             metadata,
+  320:             "Required inputs are missing, unknown, or outside the categories this model was trained on: "
+  321:             + ", ".join(missing) + ".",
+  322:             missing_features=missing,
+  323:             warnings=["required_model_inputs_missing"],
+  324:         )
+  325:     features = pd.DataFrame([{name: values[name] for name in order}], columns=order)
+  326:     estimator = artifact["estimator"]
+  327:     probabilities = np.asarray(estimator.predict_proba(features)[0], dtype=float)
+
+================================================================================
+.\frontend\app.js:852-884
+  852:     <text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle">Years since diagnosis</text>
+  853:     <text transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Survival probability</text></svg>`;
+  854: }
+  855: 
+  856: const CANCER_STAGE_LABELS = Object.assign(Object.create(null), {stage_1_3: "Stage Iâ€“III", stage_4: "Stage IV"});
+  857: const SMOKING_HISTORY_LABELS = Object.assign(Object.create(null), {never: "never smoked", former_or_current: "former or current smoker"});
+  858: 
+  859: /* Patient-level histology panel: independent of any nodule's Brock risk and of the survival model. */
+  860: function cancerTypePanelHtml(model) {
+  861:   const head = `<h3 class="sub-h">Histology: LUAD vs LUSC (patient-level research model)</h3>`;
+  862:   const limits = (Array.isArray(model?.limitations) && model.limitations.length ? model.limitations : [
+  863:     "Research-only; not clinically validated.",
+  864:     "Compares LUAD with LUSC only; it does not detect cancer, separate cancer from benign disease, or establish a diagnosis.",
+  865:   ]).map((text) => `<li>${esc(text)}</li>`).join("");
+  866:   const limitsHtml = `<ul class="hint" style="margin:.3rem 0 0;padding-left:1.1rem">${limits}</ul>`;
+  867:   if (model?.status === "research_prediction" && model.probabilities) {
+  868:     const rows = Object.entries(model.probabilities).sort((a, b) => b[1] - a[1]).map(([name, p]) => {
+  869:       const percent = Number.isFinite(p) ? Math.min(100, Math.max(0, p * 100)) : 0;
+  870:       return `<div class="ct-row"><span><b>${esc(name)}</b></span><div class="bar" role="img" aria-label="${esc(name)} probability ${percent.toFixed(1)} percent"><i style="width:${percent}%"></i></div><span class="ct-val">${percent.toFixed(1)}%</span></div>`;
+  871:     }).join("");
+  872:     const values = model.feature_values || {};
+  873:     const used = [
+  874:       values.sex_at_baseline && `sex: ${values.sex_at_baseline}`,
+  875:       values.smoking_history && `smoking: ${SMOKING_HISTORY_LABELS[values.smoking_history] || label(values.smoking_history)}`,
+  876:       values.stage && `stage: ${CANCER_STAGE_LABELS[values.stage] || label(values.stage)}`,
+  877:     ].filter(Boolean).join("; ");
+  878:     return `<div class="ct">${head}
+  879:       <p style="margin:.2rem 0">${badge("research model output", "ok")} Highest-probability class: <b>${esc(model.predicted_class)}</b>. Not a diagnosis.</p>${rows}
+  880:       <p class="hint" style="margin:.3rem 0 0">Applies to patients already known to have LUAD or LUSC. Inputs used: ${esc(used || "not reported")}.</p>${limitsHtml}</div>`;
+  881:   }
+  882:   return `<div class="ct">${head}${modelResultHtml(model)}${limitsHtml}</div>`;
+  883: }
+  884: 
+
+================================================================================
+.\frontend\app.js:1045-1077
+ 1045:   emph: (c) => `0.2953 Ã— ${c.emphysema.encoded_value}`,
+ 1046:   size: (c) => `âˆ’5.3854 Ã— ((${c.nodule_size_mm.input_value.toFixed(1)}/10)^âˆ’0.5 âˆ’ 1.5811)`,
+ 1047:   type: (c) => (c.part_solid.encoded_value ? "part-solid: +0.3770" : c.pure_ground_glass.encoded_value ? "non-solid: âˆ’0.1276" : "solid: 0 (reference)"),
+ 1048:   lobe: (c) => `0.6581 Ã— ${c.upper_lobe.encoded_value}`,
+ 1049:   count: (c) => `âˆ’0.0824 Ã— (${c.nodule_count.input_value} âˆ’ 4)`,
+ 1050:   spic: (c) => `0.7729 Ã— ${c.spiculation.encoded_value}`,
+ 1051: };
+ 1052: 
+ 1053: function renderShap() {
+ 1054:   const target = $("b-shap");
+ 1055:   const n = V.nodules[V.selected];
+ 1056:   if (!n) { target.textContent = "Select a nodule."; return; }
+ 1057:   const b = brockOf(n);
+ 1058:   if (!brockUsable(b)) {
+ 1059:     target.innerHTML = '<div class="alert warn">Blocked: Brock result unavailable, so there is nothing to explain.</div>';
+ 1060:     return;
+ 1061:   }
+ 1062:   const c = contributions(b);
+ 1063:   const items = BROCK_PARAMS.map((p) => {
+ 1064:     let term = "";
+ 1065:     try { term = BROCK_TERMS[p.key](c); } catch { term = ""; }
+ 1066:     return {p, value: p.value(c), contribution: p.contrib(c), term};
+ 1067:   });
+ 1068:   const intercept = c.intercept?.contribution_logit;
+ 1069:   const peak = Math.max(...items.map((item) => Math.abs(item.contribution ?? 0)), 1e-9);
+ 1070:   const rows = items.map(({p, value, contribution, term}) => {
+ 1071:     const known = fin(contribution);
+ 1072:     const width = known ? Math.abs(contribution) / peak * 48 : 0;
+ 1073:     const bar = known && contribution !== 0 ? `<i class="shap-bar ${contribution > 0 ? "pos" : "neg"}" style="width:${width}%"></i>` : "";
+ 1074:     return `<div class="shap-row"><span class="shap-name" title="${esc(`${p.name}: ${p.enters}`)}">${esc(p.name)}: <b>${esc(value ?? "Missing")}</b><small>${esc(term)}</small></span><div class="shap-track">${bar}</div><span class="shap-val">${known ? sgn(contribution) : "n/a"}</span></div>`;
+ 1075:   }).join("");
+ 1076:   const net = items.reduce((sum, item) => sum + (fin(item.contribution) ? item.contribution : 0), 0);
+ 1077:   const lp = fin(b.logit) ? b.logit : (fin(intercept) ? intercept + net : null);
+
+================================================================================
+.\frontend\app.js:1097-1129
+ 1097:     <dt>Sex</dt><dd>${esc(text(sex))}</dd>
+ 1098:     <dt>Smoking</dt><dd>${esc(text(inputs.smoking_status))}${esc(packs)}</dd>
+ 1099:     <dt>Stage</dt><dd>${esc(CANCER_STAGE_LABELS[inputs.stage_at_baseline] || "Not reported")}</dd>
+ 1100:     <dt>Family history</dt><dd>${esc(text(inputs.family_history_lung_cancer))}</dd>
+ 1101:     <dt>Emphysema</dt><dd>${esc(emphysema)}</dd>
+ 1102:     <dt>KPS</dt><dd>${fin(inputs.kps) ? esc(inputs.kps) : "Not reported"}</dd></dl>`;
+ 1103: }
+ 1104: 
+ 1105: function renderClinicalModels() {
+ 1106:   const prediction = S.run.body.clinical_prediction;
+ 1107:   const survival = prediction?.survival;
+ 1108:   const chart = survivalChartHtml(survival);
+ 1109:   const survivalHtml = !prediction
+ 1110:     ? "<p class='hint' style='margin:0'>Survival model not available for this run.</p>"
+ 1111:     : chart
+ 1112:       ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
+ 1113:       : `<div>${modelResultHtml(survival)}</div>`;
+ 1114:   const cancerHtml = prediction
+ 1115:     ? cancerTypePanelHtml(prediction.cancer_type)
+ 1116:     : "<p class='hint' style='margin:0'>Histology model not available for this run.</p>";
+ 1117:   $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
+ 1118:     <section aria-label="Histology model" style="margin-top:.8rem">${cancerHtml}</section>`;
+ 1119: }
+ 1120: 
+ 1121: function renderMethods() {
+ 1122:   const body = S.run.body;
+ 1123:   const study = body.study || body.study_summary || {};
+ 1124:   const counts = study.brock_prediction_counts || {};
+ 1125:   const eligible = study.eligible_nodule_count;
+ 1126:   const nodules = V.nodules;
+ 1127:   const rows = [];
+ 1128:   if (eligible != null) {
+ 1129:     const preprocessing = study.preprocessing_status && study.preprocessing_status !== "completed" ? `Preprocessing ${label(study.preprocessing_status)}. ` : "";
+
+================================================================================
+.\frontend\app.js:1107-1139
+ 1107:   const survival = prediction?.survival;
+ 1108:   const chart = survivalChartHtml(survival);
+ 1109:   const survivalHtml = !prediction
+ 1110:     ? "<p class='hint' style='margin:0'>Survival model not available for this run.</p>"
+ 1111:     : chart
+ 1112:       ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
+ 1113:       : `<div>${modelResultHtml(survival)}</div>`;
+ 1114:   const cancerHtml = prediction
+ 1115:     ? cancerTypePanelHtml(prediction.cancer_type)
+ 1116:     : "<p class='hint' style='margin:0'>Histology model not available for this run.</p>";
+ 1117:   $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
+ 1118:     <section aria-label="Histology model" style="margin-top:.8rem">${cancerHtml}</section>`;
+ 1119: }
+ 1120: 
+ 1121: function renderMethods() {
+ 1122:   const body = S.run.body;
+ 1123:   const study = body.study || body.study_summary || {};
+ 1124:   const counts = study.brock_prediction_counts || {};
+ 1125:   const eligible = study.eligible_nodule_count;
+ 1126:   const nodules = V.nodules;
+ 1127:   const rows = [];
+ 1128:   if (eligible != null) {
+ 1129:     const preprocessing = study.preprocessing_status && study.preprocessing_status !== "completed" ? `Preprocessing ${label(study.preprocessing_status)}. ` : "";
+ 1130:     rows.push(["Detection and segmentation", eligible, study.errors?.length ? 1 : 0, 0, `${preprocessing}${study.excluded_candidate_count ?? "unknown"} candidate(s) excluded by the lung-mask gate`]);
+ 1131:   }
+ 1132:   if (nodules.length) {
+ 1133:     const ranked = nodules.filter((n) => Object.keys(n.classification?.attributes || {}).some((k) => !HIDDEN_ATTRIBUTES.has(k))).length;
+ 1134:     rows.push(["Attribute ranking", ranked, 0, nodules.length - ranked, nodules.length - ranked ? "No attribute output for some nodules" : "â€“"]);
+ 1135:   }
+ 1136:   if (eligible != null) {
+ 1137:     const manualOk = nodules.filter((n) => brockIsManual(n)).length;
+ 1138:     const unavailable = Math.max(0, (counts.incomplete ?? 0) + (counts.not_run ?? 0) - manualOk);
+ 1139:     rows.push(["Brock", (counts.completed ?? 0) + manualOk, counts.failed ?? 0, unavailable, unavailable ? "Missing inputs or not run" : manualOk ? `${manualOk} calculated from clinician-supplied inputs` : "â€“"]);

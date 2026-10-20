@@ -1,0 +1,429 @@
+{
+  "status": "completed",
+  "created_at_utc": "2026-10-12T16:34:17.527977+00:00",
+  "python_version": "3.12.10",
+  "scikit_learn_version": "1.9.1",
+  "features_in_order": [
+    "subtlety",
+    "sphericity",
+    "margin",
+    "lobulation",
+    "spiculation",
+    "texture"
+  ],
+  "match_fields_used_only_for_identity": [
+    "subtlety",
+    "internalStructure",
+    "calcification",
+    "sphericity",
+    "margin",
+    "lobulation",
+    "spiculation",
+    "texture"
+  ],
+  "matching_policy": "Exact patient+study+series+full eight non-malignancy attribute signature; accepted only when all matching H5 reader slots point to one physical sample. Reader ID and malignancy target are not used in identity matching.",
+  "inputs": {
+    "lidc_root": "datasets\\LIDC",
+    "h5_path": "datasets\\LIDC\\lidc_patches.h5",
+    "h5_full_file_sha256_computed": false,
+    "split_json": "LungInsight_v2\\backend\\models\\nodule_ranker_3d_distributional_v1\\split.json",
+    "train_archive_sha256": "642dcb4fb28900274ca2285a8a79d0f5cf626adfa7de4537fc05c7edcfc28456",
+    "val_archive_sha256": "de2c8c641b9b621cdedfb42afde0322a9a920ae457a228f713b6087d2ebb7b87"
+  },
+  "h5_annotation_index": {
+    "sample_count": 2651,
+    "trainval_samples_read": 2296,
+    "reader_label_order": [
+      "calcification",
+      "internalStructure",
+      "lobulation",
+      "malignancy",
+      "margin",
+      "sphericity",
+      "spiculation",
+      "subtlety",
+      "texture"
+    ],
+    "patch_dataset_accessed": false
+  },
+  "h5_match_index_stats": {
+    "h5_complete_reader_signatures": 5963
+  },
+  "xml_parse_stats": {
+    "train_xml_annotation_records": 4919,
+    "val_xml_annotation_records": 1229,
+    "xml_files_scanned_for_headers": 1318,
+    "xml_files_matched_trainval_series": 769,
+    "duplicate_xml_study_series_keys": 6
+  },
+  "matching_stats": {
+    "matched_reader_annotation_rows": 4966,
+    "unique_full_attribute_signature": 4966,
+    "no_h5_signature_match": 1,
+    "ambiguous_signature_multiple_h5_samples": 1007,
+    "duplicate_xml_annotation_suppressed": 160,
+    "xml_missing_or_invalid_full_attribute_signature": 14
+  },
+  "matched_physical_nodules": {
+    "train": 1733,
+    "validation": 406
+  },
+  "feature_calibration_validation": {
+    "subtlety": {
+      "train_nodules": 1733,
+      "train_unique_ranker_values": 1715,
+      "train_ranker_sd": 0.00578938190179684,
+      "train_xml_rating_sd": 1.1600425992955257,
+      "val_nodules_with_xml_match": 406,
+      "val_raw_ranker_sd": 0.005657291779543493,
+      "val_xml_rating_sd": 1.1404446253790752,
+      "val_spearman_raw_to_xml": -0.018966872733622242,
+      "val_raw_mae_to_xml_median": 0.9405212508046569,
+      "val_calibrated_mae_to_xml_median": 0.9590948738386706,
+      "val_calibrated_spearman_to_xml": -0.03529785424178622,
+      "val_calibrated_sd": 0.12095653316153898
+    },
+    "sphericity": {
+      "train_nodules": 1733,
+      "train_unique_ranker_values": 1680,
+      "train_ranker_sd": 0.004446764487882216,
+      "train_xml_rating_sd": 0.8349313752020052,
+      "val_nodules_with_xml_match": 406,
+      "val_raw_ranker_sd": 0.004621463459959342,
+      "val_xml_rating_sd": 0.8500570601486147,
+      "val_spearman_raw_to_xml": 0.03217351199998713,
+      "val_raw_mae_to_xml_median": 0.7376842569247842,
+      "val_calibrated_mae_to_xml_median": 0.71703941510474,
+      "val_calibrated_spearman_to_xml": 0.03523516273487668,
+      "val_calibrated_sd": 0.094147665788112
+    },
+    "margin": {
+      "train_nodules": 1733,
+      "train_unique_ranker_values": 1732,
+      "train_ranker_sd": 0.10682399210181395,
+      "train_xml_rating_sd": 1.128061637155346,
+      "val_nodules_with_xml_match": 406,
+      "val_raw_ranker_sd": 0.10706434182853534,
+      "val_xml_rating_sd": 1.1166202574465278,
+      "val_spearman_raw_to_xml": -0.026202567996506068,
+      "val_raw_mae_to_xml_median": 0.8761462930388051,
+      "val_calibrated_mae_to_xml_median": 0.9052620052078996,
+      "val_calibrated_spearman_to_xml": -0.009908499305772662,
+      "val_calibrated_sd": 0.16872710651388217
+    },
+    "lobulation": {
+      "train_nodules": 1733,
+      "train_unique_ranker_values": 1733,
+      "train_ranker_sd": 0.5697393865019387,
+      "train_xml_rating_sd": 0.9012041530463812,
+      "val_nodules_with_xml_match": 406,
+      "val_raw_ranker_sd": 0.493224126218183,
+      "val_xml_rating_sd": 0.9577995625084215,
+      "val_spearman_raw_to_xml": 0.09739596756380782,
+      "val_raw_mae_to_xml_median": 0.7768372438224078,
+      "val_calibrated_mae_to_xml_median": 0.7897484230607626,
+      "val_calibrated_spearman_to_xml": 0.09431242163976195,
+      "val_calibrated_sd": 0.4887998259693708
+    },
+    "spiculation": {
+      "train_nodules": 1733,
+      "train_unique_ranker_values": 1733,
+      "train_ranker_sd": 0.5649570527912421,
+      "train_xml_rating_sd": 0.9135539691354626,
+      "val_nodules_with_xml_match": 406,
+      "val_raw_ranker_sd": 0.48954373843167603,
+      "val_xml_rating_sd": 0.9205959515529472,
+      "val_spearman_raw_to_xml": 0.09331482264742395,
+      "val_raw_mae_to_xml_median": 0.702848142884635,
+      "val_calibrated_mae_to_xml_median": 0.729507926189276,
+      "val_calibrated_spearman_to_xml": 0.0889706433650209,
+      "val_calibrated_sd": 0.49038382855863366
+    },
+    "texture": {
+      "train_nodules": 1733,
+      "train_unique_ranker_values": 1730,
+      "train_ranker_sd": 0.13190042069522417,
+      "train_xml_rating_sd": 1.2321986132051084,
+      "val_nodules_with_xml_match": 406,
+      "val_raw_ranker_sd": 0.13248801187884926,
+      "val_xml_rating_sd": 1.1560307502559708,
+      "val_spearman_raw_to_xml": -0.01359347228878102,
+      "val_raw_mae_to_xml_median": 0.8928389901598098,
+      "val_calibrated_mae_to_xml_median": 0.9179690476720109,
+      "val_calibrated_spearman_to_xml": -0.0005782648526161332,
+      "val_calibrated_sd": 0.2504538060990526
+    }
+  },
+  "stage04_ranker_validation": {
+    "all_validation_archive_rows": {
+      "against_median_malignancy_target": {
+        "raw_ranker_scores": {
+          "n_nodules": 437,
+          "target_mean": 2.751716247139588,
+          "target_std": 0.973694294182325,
+          "prediction_mean": 2.8576995311980737,
+          "prediction_std": 0.1340168744194527,
+          "prediction_min": 2.6481982154199666,
+          "prediction_max": 3.2512821283037536,
+          "mae": 0.7499051567039008,
+          "rmse": 0.9781429966453999,
+          "baseline_value": 3.0,
+          "baseline_mae": 0.7288329519450801,
+          "mae_gain_over_baseline": -0.021072204758820656,
+          "accuracy_half_up": 0.4645308924485126,
+          "qwk_half_up": 0.0,
+          "target_integer_counts": {
+            "1": 45,
+            "2": 93,
+            "3": 203,
+            "4": 67,
+            "5": 29
+          },
+          "prediction_integer_counts": {
+            "1": 0,
+            "2": 0,
+            "3": 437,
+            "4": 0,
+            "5": 0
+          }
+        },
+        "calibrated_ranker_scores": {
+          "n_nodules": 437,
+          "target_mean": 2.751716247139588,
+          "target_std": 0.973694294182325,
+          "prediction_mean": 2.8408944694537888,
+          "prediction_std": 0.15449554979757021,
+          "prediction_min": 2.598699841791916,
+          "prediction_max": 3.26708215366691,
+          "mae": 0.7567206480253036,
+          "rmse": 0.9821451797433745,
+          "baseline_value": 3.0,
+          "baseline_mae": 0.7288329519450801,
+          "mae_gain_over_baseline": -0.027887696080223456,
+          "accuracy_half_up": 0.4645308924485126,
+          "qwk_half_up": 0.0,
+          "target_integer_counts": {
+            "1": 45,
+            "2": 93,
+            "3": 203,
+            "4": 67,
+            "5": 29
+          },
+          "prediction_integer_counts": {
+            "1": 0,
+            "2": 0,
+            "3": 437,
+            "4": 0,
+            "5": 0
+          }
+        }
+      },
+      "against_mean_malignancy_target": {
+        "raw_ranker_scores": {
+          "n_nodules": 437,
+          "target_mean": 2.735120409719952,
+          "target_std": 0.8989919839622509,
+          "prediction_mean": 2.8576995311980737,
+          "prediction_std": 0.1340168744194527,
+          "prediction_min": 2.6481982154199666,
+          "prediction_max": 3.2512821283037536,
+          "mae": 0.7012987035924532,
+          "rmse": 0.9062828384343615,
+          "baseline_value": 2.779861511829198,
+          "baseline_mae": 0.6993922750628296,
+          "mae_gain_over_baseline": -0.0019064285296235273,
+          "accuracy_half_up": 0.482837528604119,
+          "qwk_half_up": 0.0,
+          "target_integer_counts": {
+            "1": 38,
+            "2": 100,
+            "3": 211,
+            "4": 65,
+            "5": 23
+          },
+          "prediction_integer_counts": {
+            "1": 0,
+            "2": 0,
+            "3": 437,
+            "4": 0,
+            "5": 0
+          }
+        },
+        "calibrated_ranker_scores": {
+          "n_nodules": 437,
+          "target_mean": 2.735120409719952,
+          "target_std": 0.8989919839622509,
+          "prediction_mean": 2.8408944694537888,
+          "prediction_std": 0.15449554979757021,
+          "prediction_min": 2.598699841791916,
+          "prediction_max": 3.26708215366691,
+          "mae": 0.706637546485176,
+          "rmse": 0.9109770298121802,
+          "baseline_value": 2.779861511829198,
+          "baseline_mae": 0.6993922750628296,
+          "mae_gain_over_baseline": -0.007245271422346322,
+          "accuracy_half_up": 0.482837528604119,
+          "qwk_half_up": 0.0,
+          "target_integer_counts": {
+            "1": 38,
+            "2": 100,
+            "3": 211,
+            "4": 65,
+            "5": 23
+          },
+          "prediction_integer_counts": {
+            "1": 0,
+            "2": 0,
+            "3": 437,
+            "4": 0,
+            "5": 0
+          }
+        }
+      }
+    },
+    "xml_matched_validation_nodules": {
+      "against_median_malignancy_target": {
+        "raw_ranker_scores": {
+          "n_nodules": 406,
+          "target_mean": 2.770935960591133,
+          "target_std": 0.9946866778196837,
+          "prediction_mean": 2.855891702782381,
+          "prediction_std": 0.131571693439309,
+          "prediction_min": 2.6481982154199666,
+          "prediction_max": 3.2512821283037536,
+          "mae": 0.7687954989088019,
+          "rmse": 0.9966338266981696,
+          "baseline_value": 3.0,
+          "baseline_mae": 0.7463054187192119,
+          "mae_gain_over_baseline": -0.02249008018959009,
+          "accuracy_half_up": 0.45073891625615764,
+          "qwk_half_up": 0.0,
+          "target_integer_counts": {
+            "1": 43,
+            "2": 84,
+            "3": 183,
+            "4": 67,
+            "5": 29
+          },
+          "prediction_integer_counts": {
+            "1": 0,
+            "2": 0,
+            "3": 406,
+            "4": 0,
+            "5": 0
+          }
+        },
+        "calibrated_ranker_scores": {
+          "n_nodules": 406,
+          "target_mean": 2.770935960591133,
+          "target_std": 0.9946866778196837,
+          "prediction_mean": 2.8395517662328777,
+          "prediction_std": 0.15232738047469763,
+          "prediction_min": 2.598699841791916,
+          "prediction_max": 3.26708215366691,
+          "mae": 0.7753570121368856,
+          "rmse": 1.000334591506672,
+          "baseline_value": 3.0,
+          "baseline_mae": 0.7463054187192119,
+          "mae_gain_over_baseline": -0.029051593417673716,
+          "accuracy_half_up": 0.45073891625615764,
+          "qwk_half_up": 0.0,
+          "target_integer_counts": {
+            "1": 43,
+            "2": 84,
+            "3": 183,
+            "4": 67,
+            "5": 29
+          },
+          "prediction_integer_counts": {
+            "1": 0,
+            "2": 0,
+            "3": 406,
+            "4": 0,
+            "5": 0
+          }
+        }
+      },
+      "against_mean_malignancy_target": {
+        "raw_ranker_scores": {
+          "n_nodules": 406,
+          "target_mean": 2.7547149894440532,
+          "target_std": 0.916379248852556,
+          "prediction_mean": 2.855891702782381,
+          "prediction_std": 0.131571693439309,
+          "prediction_min": 2.6481982154199666,
+          "prediction_max": 3.2512821283037536,
+          "mae": 0.7151351287830371,
+          "rmse": 0.9203267562118093,
+          "baseline_value": 2.779861511829198,
+          "baseline_mae": 0.7156858373808962,
+          "mae_gain_over_baseline": 0.0005507085978591064,
+          "accuracy_half_up": 0.47044334975369456,
+          "qwk_half_up": 0.0,
+          "target_integer_counts": {
+            "1": 36,
+            "2": 91,
+            "3": 191,
+            "4": 65,
+            "5": 23
+          },
+          "prediction_integer_counts": {
+            "1": 0,
+            "2": 0,
+            "3": 406,
+            "4": 0,
+            "5": 0
+          }
+        },
+        "calibrated_ranker_scores": {
+          "n_nodules": 406,
+          "target_mean": 2.7547149894440532,
+          "target_std": 0.916379248852556,
+          "prediction_mean": 2.8395517662328777,
+          "prediction_std": 0.15232738047469763,
+          "prediction_min": 2.598699841791916,
+          "prediction_max": 3.26708215366691,
+          "mae": 0.7202333412653961,
+          "rmse": 0.9247350426306673,
+          "baseline_value": 2.779861511829198,
+          "baseline_mae": 0.7156858373808962,
+          "mae_gain_over_baseline": -0.0045475038844998705,
+          "accuracy_half_up": 0.47044334975369456,
+          "qwk_half_up": 0.0,
+          "target_integer_counts": {
+            "1": 36,
+            "2": 91,
+            "3": 191,
+            "4": 65,
+            "5": 23
+          },
+          "prediction_integer_counts": {
+            "1": 0,
+            "2": 0,
+            "3": 406,
+            "4": 0,
+            "5": 0
+          }
+        }
+      }
+    }
+  },
+  "train_target_baselines": {
+    "median_of_train_nodule_medians": 3.0,
+    "mean_of_train_nodule_medians": 2.779861511829198
+  },
+  "outputs": {
+    "model": "LungInsight_v2\\backend\\models\\malignancy\\xml_paired_calibration_v1\\stage04_xml_calibrated_malignancy.joblib",
+    "matched_xml_table": "LungInsight_v2\\backend\\models\\malignancy\\xml_paired_calibration_v1\\matched_xml_nodule_table.csv",
+    "ranker_predictions": "LungInsight_v2\\backend\\models\\malignancy\\xml_paired_calibration_v1\\stage04_ranker_validation_predictions.csv"
+  },
+  "test_archive_opened": false,
+  "test_h5_reader_labels_read": false,
+  "h5_patches_or_pixeldata_read": false,
+  "stage03_rankers_modified": false,
+  "fixed_split_modified": false,
+  "warnings": [
+    "Stage03 train archive predictions are in-sample outputs from frozen train-fitted rankers; calibration generalization is judged on the disjoint validation split.",
+    "Rows without unique train/validation XML/H5 signature match are excluded from calibration and XML malignancy model fitting."
+  ]
+}

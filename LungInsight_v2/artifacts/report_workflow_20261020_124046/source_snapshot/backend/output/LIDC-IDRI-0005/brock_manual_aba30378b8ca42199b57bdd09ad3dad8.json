@@ -1,0 +1,206 @@
+{
+  "schema_version": "brock-manual-v1",
+  "run_id": "aba30378b8ca42199b57bdd09ad3dad8",
+  "nodules": {
+    "nodule_008915654a75add4f7a0d773": {
+      "supplied": {
+        "upper_lobe": false
+      },
+      "supplied_at": "2026-10-18T12:42:03.457330Z",
+      "brock": {
+        "status": "available",
+        "method": "brock_formula_decomposition",
+        "model_name": "Brock_PanCan_full",
+        "model_version": "published-coefficients-verified-v1",
+        "formula_version": "mcwilliams-nejmoa1214726-full-v1",
+        "reference": "McWilliams et al., NEJM 2013, DOI: 10.1056/NEJMoa1214726",
+        "target": "pulmonary_nodule_malignancy_probability",
+        "probability": 0.011780658875115884,
+        "logit": -4.429445569962495,
+        "feature_contributions": [
+          {
+            "feature": "intercept",
+            "encoded_value": 1.0,
+            "contribution_logit": -6.7892
+          },
+          {
+            "feature": "age_years",
+            "input_value": 68.0,
+            "unit": "years",
+            "encoded_value": 6.0,
+            "coefficient": 0.0287,
+            "contribution_logit": 0.1722
+          },
+          {
+            "feature": "female",
+            "encoded_value": 1,
+            "coefficient": 0.6011,
+            "contribution_logit": 0.6011
+          },
+          {
+            "feature": "family_history_lung_cancer",
+            "encoded_value": 0,
+            "coefficient": 0.2961,
+            "contribution_logit": 0.0
+          },
+          {
+            "feature": "emphysema",
+            "encoded_value": 1,
+            "coefficient": 0.2953,
+            "contribution_logit": 0.2953
+          },
+          {
+            "feature": "nodule_size_mm",
+            "input_value": 5.312496,
+            "unit": "mm",
+            "encoded_value": -0.20914963234625183,
+            "coefficient": -5.3854,
+            "contribution_logit": 1.1263544300375046
+          },
+          {
+            "feature": "pure_ground_glass",
+            "encoded_value": 0,
+            "coefficient": -0.1276,
+            "contribution_logit": -0.0
+          },
+          {
+            "feature": "part_solid",
+            "encoded_value": 0,
+            "coefficient": 0.377,
+            "contribution_logit": 0.0
+          },
+          {
+            "feature": "upper_lobe",
+            "encoded_value": 0,
+            "coefficient": 0.6581,
+            "contribution_logit": 0.0
+          },
+          {
+            "feature": "nodule_count",
+            "input_value": 2,
+            "encoded_value": -2,
+            "coefficient": -0.0824,
+            "contribution_logit": 0.1648
+          },
+          {
+            "feature": "spiculation",
+            "encoded_value": 0,
+            "coefficient": 0.7729,
+            "contribution_logit": 0.0
+          }
+        ],
+        "features_missing": [],
+        "calculation_timestamp": "2026-10-18T12:42:03.457330+00:00",
+        "limitations": [
+          "Risk estimate from the published screening model; not a pathology diagnosis.",
+          "Validated input support is restricted to the documented size range and categories.",
+          "Population transportability and calibration to the LungInsight population are not established."
+        ]
+      },
+      "provenance": {
+        "source": "clinician_supplied_after_run",
+        "note": "Inputs without a derivable source value were entered by the user after the run; the validated Imaging contract is unchanged."
+      }
+    },
+    "nodule_0c55cf26a157df8485df0111": {
+      "supplied": {
+        "upper_lobe": true
+      },
+      "supplied_at": "2026-10-18T12:42:27.708546Z",
+      "brock": {
+        "status": "available",
+        "method": "brock_formula_decomposition",
+        "model_name": "Brock_PanCan_full",
+        "model_version": "published-coefficients-verified-v1",
+        "formula_version": "mcwilliams-nejmoa1214726-full-v1",
+        "reference": "McWilliams et al., NEJM 2013, DOI: 10.1056/NEJMoa1214726",
+        "target": "pulmonary_nodule_malignancy_probability",
+        "probability": 0.013633488355776187,
+        "logit": -4.281498856041669,
+        "feature_contributions": [
+          {
+            "feature": "intercept",
+            "encoded_value": 1.0,
+            "contribution_logit": -6.7892
+          },
+          {
+            "feature": "age_years",
+            "input_value": 68.0,
+            "unit": "years",
+            "encoded_value": 6.0,
+            "coefficient": 0.0287,
+            "contribution_logit": 0.1722
+          },
+          {
+            "feature": "female",
+            "encoded_value": 1,
+            "coefficient": 0.6011,
+            "contribution_logit": 0.6011
+          },
+          {
+            "feature": "family_history_lung_cancer",
+            "encoded_value": 0,
+            "coefficient": 0.2961,
+            "contribution_logit": 0.0
+          },
+          {
+            "feature": "emphysema",
+            "encoded_value": 1,
+            "coefficient": 0.2953,
+            "contribution_logit": 0.2953
+          },
+          {
+            "feature": "nodule_size_mm",
+            "input_value": 4.648434,
+            "unit": "mm",
+            "encoded_value": -0.11442068257851434,
+            "coefficient": -5.3854,
+            "contribution_logit": 0.6162011439583311
+          },
+          {
+            "feature": "pure_ground_glass",
+            "encoded_value": 0,
+            "coefficient": -0.1276,
+            "contribution_logit": -0.0
+          },
+          {
+            "feature": "part_solid",
+            "encoded_value": 0,
+            "coefficient": 0.377,
+            "contribution_logit": 0.0
+          },
+          {
+            "feature": "upper_lobe",
+            "encoded_value": 1,
+            "coefficient": 0.6581,
+            "contribution_logit": 0.6581
+          },
+          {
+            "feature": "nodule_count",
+            "input_value": 2,
+            "encoded_value": -2,
+            "coefficient": -0.0824,
+            "contribution_logit": 0.1648
+          },
+          {
+            "feature": "spiculation",
+            "encoded_value": 0,
+            "coefficient": 0.7729,
+            "contribution_logit": 0.0
+          }
+        ],
+        "features_missing": [],
+        "calculation_timestamp": "2026-10-18T12:42:27.708546+00:00",
+        "limitations": [
+          "Risk estimate from the published screening model; not a pathology diagnosis.",
+          "Validated input support is restricted to the documented size range and categories.",
+          "Population transportability and calibration to the LungInsight population are not established."
+        ]
+      },
+      "provenance": {
+        "source": "clinician_supplied_after_run",
+        "note": "Inputs without a derivable source value were entered by the user after the run; the validated Imaging contract is unchanged."
+      }
+    }
+  }
+}

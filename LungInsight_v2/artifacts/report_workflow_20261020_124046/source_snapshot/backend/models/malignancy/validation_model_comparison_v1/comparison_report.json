@@ -1,0 +1,220 @@
+{
+  "created_at_utc": "2026-10-12T14:07:11.832051+00:00",
+  "script": "compare_malignancy_models_validation.py",
+  "scikit_learn_version": "1.9.1",
+  "features": [
+    "subtlety",
+    "sphericity",
+    "margin",
+    "lobulation",
+    "spiculation",
+    "texture"
+  ],
+  "primary_selection_metric": "continuous validation MAE (lower is better)",
+  "split_integrity": {
+    "train_nodules": 1859,
+    "validation_nodules": 437,
+    "patient_overlap_count": 0
+  },
+  "input_archives": {
+    "train": {
+      "path": "backend\\models\\malignancy\\frozen_features\\train.npz",
+      "sha256": "642dcb4fb28900274ca2285a8a79d0f5cf626adfa7de4537fc05c7edcfc28456",
+      "rows": 1859,
+      "used_rows": 1859,
+      "reader_observations": 4839
+    },
+    "validation": {
+      "path": "backend\\models\\malignancy\\frozen_features\\val.npz",
+      "sha256": "de2c8c641b9b621cdedfb42afde0322a9a920ae457a228f713b6087d2ebb7b87",
+      "rows": 437,
+      "used_rows": 437,
+      "reader_observations": 1124
+    }
+  },
+  "feature_std_train": {
+    "subtlety": 0.005806874232950705,
+    "sphericity": 0.004462273691322766,
+    "margin": 0.1065092655232782,
+    "lobulation": 0.5618187953762106,
+    "spiculation": 0.555958944820784,
+    "texture": 0.13230593155344786
+  },
+  "feature_std_validation": {
+    "subtlety": 0.005698825797699335,
+    "sphericity": 0.004651086018859868,
+    "margin": 0.10800909676353125,
+    "lobulation": 0.49409562019683545,
+    "spiculation": 0.49088027383376087,
+    "texture": 0.13355983233854643
+  },
+  "results_ranked_by_validation_mae": [
+    {
+      "model": "gradient_boosting_mae",
+      "n_nodules": 437,
+      "mae_continuous": 0.6990003596589127,
+      "rmse_continuous": 0.9012043683426706,
+      "prediction_mean": 2.772076314939312,
+      "prediction_std": 0.18696843899693044,
+      "mae_rounded_half_up": 0.6567505720823799,
+      "accuracy_rounded_half_up": 0.482837528604119,
+      "qwk_rounded_half_up": 0.0,
+      "rounded_prediction_counts": {
+        "1": 0,
+        "2": 0,
+        "3": 437,
+        "4": 0,
+        "5": 0
+      },
+      "constant_train_mean_baseline_mae": 0.7032066595611747,
+      "constant_train_mean_baseline_rounded_mae": 0.6567505720823799,
+      "constant_train_mean_baseline_rounded_qwk": 0.0,
+      "beats_mean_baseline_mae": true
+    },
+    {
+      "model": "baseline_mean",
+      "n_nodules": 437,
+      "mae_continuous": 0.7032066595611747,
+      "rmse_continuous": 0.8996624736884054,
+      "prediction_mean": 2.700393196547043,
+      "prediction_std": 8.881784197001252e-16,
+      "mae_rounded_half_up": 0.6567505720823799,
+      "accuracy_rounded_half_up": 0.482837528604119,
+      "qwk_rounded_half_up": 0.0,
+      "rounded_prediction_counts": {
+        "1": 0,
+        "2": 0,
+        "3": 437,
+        "4": 0,
+        "5": 0
+      },
+      "constant_train_mean_baseline_mae": 0.7032066595611747,
+      "constant_train_mean_baseline_rounded_mae": 0.6567505720823799,
+      "constant_train_mean_baseline_rounded_qwk": 0.0,
+      "beats_mean_baseline_mae": false
+    },
+    {
+      "model": "ridge_scaled_alpha_10",
+      "n_nodules": 437,
+      "mae_continuous": 0.7281402412816333,
+      "rmse_continuous": 0.9255834862887888,
+      "prediction_mean": 2.7093648742444323,
+      "prediction_std": 0.29705142538575796,
+      "mae_rounded_half_up": 0.7276887871853547,
+      "accuracy_rounded_half_up": 0.43935926773455375,
+      "qwk_rounded_half_up": 0.03981757586388357,
+      "rounded_prediction_counts": {
+        "1": 0,
+        "2": 105,
+        "3": 322,
+        "4": 10,
+        "5": 0
+      },
+      "constant_train_mean_baseline_mae": 0.7032066595611747,
+      "constant_train_mean_baseline_rounded_mae": 0.6567505720823799,
+      "constant_train_mean_baseline_rounded_qwk": 0.0,
+      "beats_mean_baseline_mae": false
+    },
+    {
+      "model": "extra_trees_leaf8",
+      "n_nodules": 437,
+      "mae_continuous": 0.7381946594850003,
+      "rmse_continuous": 0.9382189947618885,
+      "prediction_mean": 2.7365648415355976,
+      "prediction_std": 0.33707516423458134,
+      "mae_rounded_half_up": 0.6910755148741419,
+      "accuracy_rounded_half_up": 0.4622425629290618,
+      "qwk_rounded_half_up": 0.1131159941698493,
+      "rounded_prediction_counts": {
+        "1": 0,
+        "2": 100,
+        "3": 324,
+        "4": 13,
+        "5": 0
+      },
+      "constant_train_mean_baseline_mae": 0.7032066595611747,
+      "constant_train_mean_baseline_rounded_mae": 0.6567505720823799,
+      "constant_train_mean_baseline_rounded_qwk": 0.0,
+      "beats_mean_baseline_mae": false
+    },
+    {
+      "model": "hist_gradient_boosting",
+      "n_nodules": 437,
+      "mae_continuous": 0.7401623315007739,
+      "rmse_continuous": 0.9427227547096437,
+      "prediction_mean": 2.7247051431273577,
+      "prediction_std": 0.33900702558363793,
+      "mae_rounded_half_up": 0.7254004576659039,
+      "accuracy_rounded_half_up": 0.45080091533180777,
+      "qwk_rounded_half_up": 0.030197824340699064,
+      "rounded_prediction_counts": {
+        "1": 0,
+        "2": 106,
+        "3": 315,
+        "4": 16,
+        "5": 0
+      },
+      "constant_train_mean_baseline_mae": 0.7032066595611747,
+      "constant_train_mean_baseline_rounded_mae": 0.6567505720823799,
+      "constant_train_mean_baseline_rounded_qwk": 0.0,
+      "beats_mean_baseline_mae": false
+    },
+    {
+      "model": "extra_trees_leaf4",
+      "n_nodules": 437,
+      "mae_continuous": 0.7438917589147592,
+      "rmse_continuous": 0.9461372792915019,
+      "prediction_mean": 2.7417543175018113,
+      "prediction_std": 0.35394465229221167,
+      "mae_rounded_half_up": 0.7254004576659039,
+      "accuracy_rounded_half_up": 0.43935926773455375,
+      "qwk_rounded_half_up": 0.08161868921362592,
+      "rounded_prediction_counts": {
+        "1": 0,
+        "2": 114,
+        "3": 303,
+        "4": 20,
+        "5": 0
+      },
+      "constant_train_mean_baseline_mae": 0.7032066595611747,
+      "constant_train_mean_baseline_rounded_mae": 0.6567505720823799,
+      "constant_train_mean_baseline_rounded_qwk": 0.0,
+      "beats_mean_baseline_mae": false
+    },
+    {
+      "model": "random_forest_leaf8",
+      "n_nodules": 437,
+      "mae_continuous": 0.7479389782966653,
+      "rmse_continuous": 0.9545589685746688,
+      "prediction_mean": 2.738168583596819,
+      "prediction_std": 0.3704364235681868,
+      "mae_rounded_half_up": 0.7482837528604119,
+      "accuracy_rounded_half_up": 0.425629290617849,
+      "qwk_rounded_half_up": 0.036254308390521794,
+      "rounded_prediction_counts": {
+        "1": 0,
+        "2": 119,
+        "3": 297,
+        "4": 21,
+        "5": 0
+      },
+      "constant_train_mean_baseline_mae": 0.7032066595611747,
+      "constant_train_mean_baseline_rounded_mae": 0.6567505720823799,
+      "constant_train_mean_baseline_rounded_qwk": 0.0,
+      "beats_mean_baseline_mae": false
+    }
+  ],
+  "best_by_validation_mae": "gradient_boosting_mae",
+  "best_mae": 0.6990003596589127,
+  "constant_mean_baseline_mae": 0.7032066595611747,
+  "best_beats_baseline": true,
+  "test_archive_opened": false,
+  "h5_or_ct_read": false,
+  "attribute_models_retrained": false,
+  "important_limitations": [
+    "Train features are cached in-sample outputs from fixed attribute rankers; not out-of-fold predictions.",
+    "This is a small, fixed model comparison, not a hyperparameter sweep.",
+    "Best-by-validation is for diagnosis/model selection only; do not evaluate on the test set yet.",
+    "Target is LIDC reader-assigned malignancy/suspicion mean, not pathology-confirmed malignancy probability."
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "input_count": 3,
+  "accepted_count": 2,
+  "rejected_count": 1,
+  "rejection_counts": {
+    "center_outside_lung_mask": 1
+  },
+  "center_inclusion_rule": "rounded center_zyx must be inside lung_mask and outside heart_mask",
+  "min_bbox_lung_occupancy": 0.0,
+  "heart_mask_voxels": 724283,
+  "heart_mask_found": true,
+  "heart_mask_required": true,
+  "heart_mask_review_required": true,
+  "heart_mask_reviewed": true,
+  "gate_status": "passed",
+  "lung_mask_voxels": 3289141,
+  "effective_lung_mask_voxels": 3289141,
+  "shape_zyx": [
+    102,
+    512,
+    512
+  ],
+  "coordinate_space": "stage01_final_cropped_ct",
+  "meta_schema_version": "2.13",
+  "stage": "02",
+  "patient_id": "LIDC-IDRI-0047",
+  "detector": "ViTDet3D",
+  "review_attestation": {
+    "verified": true,
+    "attestation_path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\output\\LIDC-IDRI-0047\\heart_mask_review_attestation.json",
+    "reviewer": "Your Actual Name",
+    "reviewed_at_utc": "2026-10-15T12:18:59.523632+00:00",
+    "heart_mask_voxels": 724283,
+    "lung_mask_voxels": 3289141,
+    "artifact_hashes": {
+      "heart_mask.npy": "def6d2d7e7bb54e8f9831ba1b7c2c973f9dbde465986695cfe3a2d042e99172c",
+      "heart_mask_review_metrics.json": "e60bda0842078eaf5d45f62506985a0bafb21a940a359ed7e5b1b6cb68411ffa",
+      "heart_tracking_diagnostics.json": "c22d982ab56394d5ea14d34a6efccb282a7ebd159166c4763cfdf6bf21f516ed",
+      "lung_mask.npy": "f341482e92168de371f54a328f8781cb0d228fc10963424aae2062bf67b85e81",
+      "montage:heart_mask_review_montage_000.png": "84beb4a54ac69a286fb013478bc99dbbf102ac6a134eb0dc39b5b6dafce35a87",
+      "montage:heart_mask_review_montage_001.png": "39cc986918352b023057f2e792b7baa3bea4950c6f5394c6971aeac181da6cb1",
+      "montage:heart_mask_review_montage_002.png": "c81113fccc0a5a6687d25d74fa9bb249915cf489921676aa88f928ffdb2f1d2f",
+      "montage:heart_mask_review_montage_003.png": "b924d94fe74d9adc7ecd26aa8a669d7021221797546750fec07796068d878076",
+      "montage:heart_mask_review_montage_004.png": "4c9586ed7ea85985607f873d79bfc35660aa4b820dfbe2872f728505df46e76b",
+      "montage:heart_mask_review_montage_005.png": "afeedfb8dfcbedfaea8c134029206985ee916ac0d0b5fe71060b9b2ad3941e3d",
+      "montage:heart_mask_review_montage_006.png": "737b1cc62bac1f754561b517f909db7afc1a8fb5e1ab31b6bc18a873dff67089",
+      "volume_hu_cropped.npy": "2bc4667fcafa8b7b533a8ccc8228a2584d7833ad0ff39d0eaeec54be89a1f735"
+    }
+  },
+  "fusion": {
+    "log_count": 5459,
+    "vitdet3d_count": 2,
+    "union_count_before_deduplication": 5461,
+    "deduplicated_count": 5455,
+    "duplicates_removed": 6,
+    "merge_policy": {
+      "coordinate_order": "ZYX voxel indices in one CT frame",
+      "coordinate_space": "stage01_final_cropped_ct",
+      "spacing_zyx_mm": [
+        2.5,
+        0.78125,
+        0.78125
+      ],
+      "center_distance_mm": 3.0,
+      "max_center_distance_mm": 8.0,
+      "min_overlap_iou": 0.25,
+      "conflict_resolution": "Prefer ViTDet3D geometry; otherwise highest finite LoG response. Never average coordinates or compare unlike score scales."
+    },
+    "raw_log_count": 5459,
+    "filtered_log_count": 5459,
+    "selected_count": 50,
+    "vitdet_accepted_count": 2,
+    "accepted_candidate_count": 5455,
+    "eligible_fused_count": 5455,
+    "log_rejection_counts": {},
+    "vitdet_rejection_counts": {
+      "center_outside_lung_mask": 1
+    }
+  },
+  "stable_identity": {
+    "study_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.262595324886254011362748468025",
+    "series_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.338114620394879648539943280992",
+    "id_field": "stable_nodule_id"
+  }
+}

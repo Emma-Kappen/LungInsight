@@ -856,6 +856,61 @@ function survivalChartHtml(model) {
 const CANCER_STAGE_LABELS = Object.assign(Object.create(null), {stage_1_3: "Stage I–III", stage_4: "Stage IV"});
 const SMOKING_HISTORY_LABELS = Object.assign(Object.create(null), {never: "never smoked", former_or_current: "former or current smoker"});
 
+/* Exact histology SHAP values: contribution to the predicted class probability. */
+function histologyShapHtml(explanation, predictedClass) {
+  if (!explanation || explanation.status !== "available" || !Array.isArray(explanation.feature_contributions)) {
+    const reason = explanation?.status === "unavailable"
+      ? "SHAP is unavailable for this run; the histology prediction is unchanged."
+      : "No histology SHAP explanation was returned.";
+    return `<div class="hint" style="margin-top:.6rem"><b>Histology SHAP:</b> ${esc(reason)}</div>`;
+  }
+
+  const base = explanation.base_values?.[predictedClass];
+  const finalValue = explanation.prediction_values?.[predictedClass];
+  if (!fin(base) || !fin(finalValue)) {
+    return '<div class="hint" style="margin-top:.6rem">Histology SHAP values are incomplete for the predicted class.</div>';
+  }
+
+  const entries = explanation.feature_contributions.map((item) => ({
+    feature: item.feature,
+    value: item.feature_value,
+    contribution: item.values?.[predictedClass],
+  })).filter((item) => fin(item.contribution));
+
+  if (!entries.length) return '<div class="hint" style="margin-top:.6rem">No usable histology SHAP values.</div>';
+
+  const peak = Math.max(...entries.map((item) => Math.abs(item.contribution)), 1e-9);
+  const rows = entries.map((item) => {
+    const pctPoints = item.contribution * 100;
+    const width = Math.abs(item.contribution) / peak * 50;
+    const positive = item.contribution >= 0;
+    const direction = positive ? "supports" : "opposes";
+    const featureName = label(item.feature);
+    const barClass = positive ? "pos" : "neg";
+
+    return `<div class="shap-row">
+      <span class="shap-name"><b>${esc(featureName)}</b><small>${esc(item.value ?? "missing")}</small></span>
+      <span class="shap-track" role="img" aria-label="${esc(item.feature)} ${direction} ${esc(predictedClass)} by ${Math.abs(pctPoints).toFixed(2)} percentage points">
+        <i aria-hidden="true" class="shap-bar ${barClass}" style="width:${width}%"></i>
+      </span>
+      <b class="shap-val" style="color:${positive ? "var(--raise)" : "var(--lower)"}">${positive ? "+" : "−"}${Math.abs(pctPoints).toFixed(2)} pp</b>
+    </div>`;
+  }).join("");
+
+  const sum = entries.reduce((total, item) => total + item.contribution, 0);
+  const localError = Math.abs((base + sum) - finalValue);
+  const ref = explanation.reference_population || {};
+
+  return `<section aria-label="Histology SHAP explanation" style="margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--border,#ddd)">
+    <h4 style="margin:.1rem 0 .35rem">Exact SHAP explanation for ${esc(predictedClass)}</h4>
+    <p class="hint" style="margin:.2rem 0">Reference probability: ${(base * 100).toFixed(2)}% → model probability: ${(finalValue * 100).toFixed(2)}%.</p>
+    <div class="shap-legend"><span class="lo">← Lowers ${esc(predictedClass)} probability</span><span class="hi">Raises ${esc(predictedClass)} probability →</span></div>
+    ${rows}
+    <p class="hint" style="margin:.35rem 0">Base value + feature SHAP values reconstruct the model probability (absolute check error: ${localError.toExponential(1)}). Contributions are probability percentage points, not causal effects.</p>
+    <p class="hint" style="margin:.2rem 0">Reference: ${esc(ref.cohort || "documented training cohort")}, ${esc(ref.rows ?? "unknown")} training rows. ${esc((explanation.limitations || []).find((x) => /biological causation/i.test(x)) || "Research-only model explanation; not a diagnosis.")}</p>
+  </section>`;
+}
+
 /* Patient-level histology panel: independent of any nodule's Brock risk and of the survival model. */
 function cancerTypePanelHtml(model) {
   const head = `<h3 class="sub-h">Histology: LUAD vs LUSC (patient-level research model)</h3>`;
@@ -877,7 +932,8 @@ function cancerTypePanelHtml(model) {
     ].filter(Boolean).join("; ");
     return `<div class="ct">${head}
       <p style="margin:.2rem 0">${badge("research model output", "ok")} Highest-probability class: <b>${esc(model.predicted_class)}</b>. Not a diagnosis.</p>${rows}
-      <p class="hint" style="margin:.3rem 0 0">Applies to patients already known to have LUAD or LUSC. Inputs used: ${esc(used || "not reported")}.</p>${limitsHtml}</div>`;
+      <p class="hint" style="margin:.3rem 0 0">Applies to patients already known to have LUAD or LUSC. Inputs used: ${esc(used || "not reported")}.</p>
+      ${histologyShapHtml(model.explanation, model.predicted_class)}${limitsHtml}</div>`;
   }
   return `<div class="ct">${head}${modelResultHtml(model)}${limitsHtml}</div>`;
 }
@@ -1111,9 +1167,17 @@ function renderClinicalModels() {
     : chart
       ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
       : `<div>${modelResultHtml(survival)}</div>`;
-  const cancerHtml = prediction
-    ? cancerTypePanelHtml(prediction.cancer_type)
-    : "<p class='hint' style='margin:0'>Histology model not available for this run.</p>";
+
+  // Histology UI gate: require at least one nodule with an available Brock risk >= the existing threshold.
+  // This is a display/eligibility gate; backend inference must also be gated to prevent model execution.
+  const eligibleNodules = (Array.isArray(V.nodules) ? V.nodules : [])
+    .map((nodule) => ({nodule, result: assessment(nodule)}))
+    .filter(({result}) => result.state === "elevated");
+  const cancerHtml = !prediction
+    ? "<p class='hint' style='margin:0'>Histology model not available for this run.</p>"
+    : eligibleNodules.length === 0
+      ? `<div class="ct"><h3 class="sub-h">Histology: LUAD vs LUSC</h3><p class="hint">Locked: histology is shown only when at least one nodule has an available Brock malignancy risk at or above ${Math.round(MALIGNANCY_THRESHOLD * 100)}%. Missing Brock results do not qualify.</p></div>`
+      : `<p class="hint" style="margin:.2rem 0">Histology display enabled by ${eligibleNodules.length} nodule(s) at or above the ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock threshold. The histology model remains patient-level and does not diagnose the eligible nodule.</p>${cancerTypePanelHtml(prediction.cancer_type)}`;
   $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
     <section aria-label="Histology model" style="margin-top:.8rem">${cancerHtml}</section>`;
 }
@@ -1140,7 +1204,7 @@ function renderMethods() {
   }
   if (nodules.length) {
     const explained = nodules.filter((n) => brockUsable(brockOf(n)) && (brockOf(n).feature_contributions || []).length).length;
-    rows.push(["SHAP", explained, 0, nodules.length - explained, nodules.length - explained ? "Blocked where Brock is unavailable" : "–"]);
+    rows.push(["Brock formula contributions", explained, 0, nodules.length - explained, nodules.length - explained ? "Analytical Brock formula terms; not SHAP" : "Analytical Brock formula terms; not SHAP"]);
   }
   $("methods").innerHTML = rows.length
     ? rows.map((row) => `<tr>${row.map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`).join("")

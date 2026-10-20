@@ -1,0 +1,207 @@
+{
+  "schema_version": "1.0.0",
+  "patient_id": "SHAP-DIAGNOSTIC-TEST",
+  "baseline_definition": "initial_pathologic_diagnosis",
+  "clinician_inputs": {
+    "age_at_baseline_years": 64,
+    "sex_at_baseline": "female",
+    "kps": null,
+    "ecog": 1,
+    "smoking_status": "never"
+  },
+  "imaging_evidence": {
+    "contract": {
+      "contract_version": "2.0.0",
+      "patient_id": "SHAP-DIAGNOSTIC-TEST",
+      "study_id": "synthetic-study",
+      "study_uid": "synthetic-study-uid",
+      "series_uid": "synthetic-series-uid",
+      "coordinate_metadata": {
+        "array_axes": [
+          "z",
+          "y",
+          "x"
+        ],
+        "coordinate_system": "DICOM_LPS",
+        "origin_mm": [
+          0,
+          0,
+          0
+        ],
+        "spacing_zyx_mm": [
+          1,
+          1,
+          1
+        ],
+        "direction_lps": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "study": {
+        "processing_status": "completed",
+        "preprocessing_status": "completed",
+        "mask_validation_status": "validated_automated",
+        "raw_detection_counts": {
+          "ViTDet3D": null
+        },
+        "fused_candidate_count": null,
+        "excluded_candidate_count": null,
+        "eligible_nodule_count": 1,
+        "brock_prediction_counts": {
+          "completed": 0,
+          "incomplete": 1,
+          "failed": 0,
+          "not_run": 0
+        },
+        "warnings": [],
+        "errors": [],
+        "provenance": {
+          "run_id": "synthetic-run",
+          "meta_schema_version": "2.14",
+          "imaging_model_versions": {
+            "stage06": "synthetic-v1"
+          },
+          "review_attestation_verified": false,
+          "mask_visual_review_status": "not_performed"
+        },
+        "artifact_refs": {}
+      },
+      "nodules": [
+        {
+          "stable_nodule_id": "synthetic-nodule",
+          "eligibility_status": "eligible",
+          "quality_status": "passed",
+          "detector": {
+            "candidate_id": "candidate-1",
+            "source": "ViTDet3D",
+            "source_members": [],
+            "vitdet_score": 0.99
+          },
+          "detection_sources": [
+            "ViTDet3D"
+          ],
+          "bbox_voxel": {
+            "start_zyx": [
+              0,
+              0,
+              0
+            ],
+            "end_zyx_exclusive": [
+              1,
+              1,
+              1
+            ]
+          },
+          "bbox_lps_mm": {
+            "min_lps_mm": [
+              0,
+              0,
+              0
+            ],
+            "max_lps_mm": [
+              1,
+              1,
+              1
+            ]
+          },
+          "centroid_voxel": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "centroid_lps_mm": [
+            0.5,
+            0.5,
+            0.5
+          ],
+          "measurements": {
+            "diameter_mm": 12.5,
+            "volume_mm3": 100.0,
+            "source": "stage02_detector_bbox_estimate",
+            "status": "detector_estimate"
+          },
+          "anatomical_location": {},
+          "classification": {
+            "status": "available",
+            "source": "synthetic-v1",
+            "attributes": {
+              "subtlety": {},
+              "internal_structure": {},
+              "calcification": {},
+              "sphericity": {},
+              "margin": {},
+              "lobulation": {},
+              "spiculation": {},
+              "texture": {}
+            }
+          },
+          "malignancy": {
+            "brock": {
+              "status": "incomplete",
+              "method": "brock_formula_decomposition",
+              "model_name": "Brock_PanCan_full",
+              "model_version": "published-coefficients-verified-v1",
+              "target": "pulmonary_nodule_malignancy_probability",
+              "probability": null,
+              "features_missing": [
+                "age_years"
+              ],
+              "feature_contributions": [],
+              "limitations": [
+                "Required input was not supplied."
+              ]
+            },
+            "selected_prediction": {
+              "method": "brock",
+              "model_version": "published-coefficients-verified-v1",
+              "status": "incomplete",
+              "probability": null,
+              "value": null,
+              "missing_inputs": [
+                "age_years"
+              ],
+              "limitations": [
+                "Required input was not supplied."
+              ]
+            }
+          },
+          "uncertainty": {},
+          "input_completeness": {
+            "status": "incomplete",
+            "fields_missing": [
+              "age_years"
+            ]
+          },
+          "quality_flags": [],
+          "model_versions": {
+            "stage04": "synthetic-v1"
+          },
+          "gradcam_refs": {},
+          "shap_refs": {},
+          "artifact_refs": {}
+        }
+      ]
+    },
+    "source_timestamp": "2026-01-01T12:00:00+00:00",
+    "scan_datetime": null,
+    "gate_status": "passed",
+    "imaging_pipeline_version": "meta_schema-2.14",
+    "imaging_model_versions": {
+      "stage06": "synthetic-v1"
+    }
+  }
+}

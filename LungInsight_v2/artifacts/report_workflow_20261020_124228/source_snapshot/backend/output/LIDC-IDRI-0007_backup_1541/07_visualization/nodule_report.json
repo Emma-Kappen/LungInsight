@@ -1,0 +1,612 @@
+{
+  "schema_version": "stage07-nodule-report-v2",
+  "meta_schema_version": "2.15",
+  "stage": "07_visualize",
+  "status": "completed",
+  "patient_id": "LIDC-IDRI-0007",
+  "created_from": {
+    "primary_predictions_json": "03_nodule_classification/predictions.json",
+    "primary_malignancy_json": "04_malignancy_prediction/malignancy_predictions.json",
+    "primary_stage06_records": "06_full_ct_gradcam_rainbow/stage06_nodule_records.json"
+  },
+  "ct_volume": "volume_hu_cropped.npy",
+  "lung_mask": "lung_mask.npy",
+  "ct_shape_zyx": [
+    138,
+    512,
+    512
+  ],
+  "spacing_zyx_mm": [
+    2.5,
+    0.78125,
+    0.78125
+  ],
+  "candidate_center_filter": "Round center_zyx to nearest voxel and sample the Stage 01 lung_mask.npy at that voxel; out-of-volume or false mask samples are excluded from the visible candidate list and accepted CSV.",
+  "input_candidate_count": 3,
+  "nodule_count_center_inside_lung_mask": 3,
+  "nodule_count_excluded_from_display": 0,
+  "nodule_count_center_outside_lung_mask": 0,
+  "nodule_count_center_inside_heart_mask": 0,
+  "nodule_count_localization_blocked": 0,
+  "localization_gate": "GATE_06_TO_07",
+  "localization_gate_status": "passed",
+  "brock_available_count_inside_lung_mask": 0,
+  "counts_by_source": {
+    "ViTDet3D": {
+      "input_candidates": 3,
+      "accepted_center_inside_lung_mask": 3,
+      "excluded_from_accepted_list": 0,
+      "center_outside_lung_mask": 0,
+      "center_inside_heart_mask": 0,
+      "invalid_localization": 0,
+      "brock_available_count": 0
+    },
+    "LoG": {
+      "input_candidates": 0,
+      "accepted_center_inside_lung_mask": 0,
+      "excluded_from_accepted_list": 0,
+      "center_outside_lung_mask": 0,
+      "center_inside_heart_mask": 0,
+      "invalid_localization": 0,
+      "brock_available_count": 0
+    },
+    "Merged": {
+      "input_candidates": 0,
+      "accepted_center_inside_lung_mask": 0,
+      "excluded_from_accepted_list": 0,
+      "center_outside_lung_mask": 0,
+      "center_inside_heart_mask": 0,
+      "invalid_localization": 0,
+      "brock_available_count": 0
+    }
+  },
+  "accepted_csv": "07_visualization/nodule_report.csv",
+  "excluded_outside_lung_csv": "07_visualization/excluded_outside_lung.csv",
+  "visualization_directory": "07_visualization/nodule_visualizations",
+  "visualization_count": 3,
+  "eligible_nodules": [
+    {
+      "stable_nodule_id": "nodule_0fe3ab890d2fbfe252c32e39",
+      "eligibility_status": "eligible_in_lung",
+      "anatomical_location": {
+        "location_primary": "lung_parenchyma",
+        "location_region": "right_lung_parenchyma",
+        "location_compartment": "parenchyma",
+        "laterality": "right",
+        "vertical_region": "superior",
+        "wall_relationship": "not_wall_adjacent",
+        "airway_type": null,
+        "airway_proximity_mm": 4.637756899892447
+      },
+      "centroid_voxel_zyx": [
+        106.06216669082642,
+        291.41300201416016,
+        188.08171463012695
+      ],
+      "centroid_lps_mm": [
+        -53.06116044521332,
+        46.36640482356262,
+        -84.34458327293396
+      ],
+      "bbox_voxel_zyx": {
+        "start": [
+          100.0,
+          282.0,
+          180.0
+        ],
+        "end_exclusive": [
+          112.0,
+          301.0,
+          197.0
+        ],
+        "coordinate_frame": "stage01_final_cropped_ct"
+      },
+      "measurements": {
+        "diameter_mm": 16.98427267547499,
+        "volume_mm3": null,
+        "source": "detector_estimate"
+      },
+      "detection": {
+        "source": "ViTDet3D",
+        "source_members": [
+          {
+            "candidate_id": "0",
+            "source": "ViTDet3D",
+            "score_field": "detector_score",
+            "score": 0.9548963952415792,
+            "original_purpose": null
+          }
+        ],
+        "vitdet_score": 0.9548963952415792,
+        "log_score": null
+      },
+      "classification": {
+        "status": "available",
+        "source": "Stage 03 model predictions",
+        "attributes": {
+          "subtlety": {
+            "value": 3.7284340858459473,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "sphericity": {
+            "value": 3.538961172103882,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "margin": {
+            "value": 3.763899803161621,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "lobulation": {
+            "value": 3.254319667816162,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "spiculation": {
+            "value": 3.136209487915039,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "texture": {
+            "value": 4.26367712020874,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          }
+        }
+      },
+      "brock_risk": {
+        "status": "incomplete",
+        "probability": null,
+        "missing_inputs": [
+          "emphysema",
+          "family_history_lung_cancer",
+          "nodule_count",
+          "nodule_type"
+        ],
+        "model_name": "Brock_PanCan_full",
+        "model_version": "published-coefficients-verified-v1",
+        "input_completeness": {
+          "status": "incomplete",
+          "required_fields": [
+            "age_years",
+            "sex",
+            "family_history_lung_cancer",
+            "emphysema",
+            "nodule_size_mm",
+            "upper_lobe",
+            "spiculation",
+            "nodule_type",
+            "nodule_count"
+          ],
+          "fields_missing": [
+            "emphysema",
+            "family_history_lung_cancer",
+            "nodule_count",
+            "nodule_type"
+          ],
+          "source": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\output\\.clinical_records\\LIDC-IDRI-0007.json",
+          "envelope": null
+        }
+      },
+      "quality_status": "VERIFIED",
+      "explanation_refs": {
+        "gradcam": {
+          "subtlety": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Subtlety/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Subtlety/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Subtlety/attribute_ct_cam.npy"
+          },
+          "sphericity": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Sphericity/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Sphericity/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Sphericity/attribute_ct_cam.npy"
+          },
+          "margin": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Margin/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Margin/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Margin/attribute_ct_cam.npy"
+          },
+          "lobulation": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Lobulation/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Lobulation/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Lobulation/attribute_ct_cam.npy"
+          },
+          "spiculation": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Spiculation/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Spiculation/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Spiculation/attribute_ct_cam.npy"
+          },
+          "texture": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Texture/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Texture/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_0fe3ab890d2fbfe252c32e39/GradCAM_Texture/attribute_ct_cam.npy"
+          }
+        }
+      },
+      "artifact_refs": {
+        "stage06_record": "06_full_ct_gradcam_rainbow/stage06_nodule_records.json",
+        "visualization": "07_visualization/nodule_visualizations/nodule_002_explanation.png"
+      }
+    },
+    {
+      "stable_nodule_id": "nodule_89244c87e70d39c865c3d4c2",
+      "eligibility_status": "eligible_in_lung",
+      "anatomical_location": {
+        "location_primary": "bronchus",
+        "location_region": "right_bronchus",
+        "location_compartment": "airway",
+        "laterality": "right",
+        "vertical_region": "inferior",
+        "wall_relationship": "airway_not_lung_wall",
+        "airway_type": "bronchus",
+        "airway_proximity_mm": 0.78125
+      },
+      "centroid_voxel_zyx": [
+        28.628863096237183,
+        321.78893280029297,
+        222.23158645629883
+      ],
+      "centroid_lps_mm": [
+        -26.38157308101654,
+        70.09760075022888,
+        -277.92784225940704
+      ],
+      "bbox_voxel_zyx": {
+        "start": [
+          25.0,
+          316.0,
+          217.0
+        ],
+        "end_exclusive": [
+          32.0,
+          328.0,
+          228.0
+        ],
+        "coordinate_frame": "stage01_final_cropped_ct"
+      },
+      "measurements": {
+        "diameter_mm": 9.440711024847452,
+        "volume_mm3": null,
+        "source": "detector_estimate"
+      },
+      "detection": {
+        "source": "ViTDet3D",
+        "source_members": [
+          {
+            "candidate_id": "3",
+            "source": "ViTDet3D",
+            "score_field": "detector_score",
+            "score": 0.049328869275694465,
+            "original_purpose": null
+          }
+        ],
+        "vitdet_score": 0.049328869275694465,
+        "log_score": null
+      },
+      "classification": {
+        "status": "available",
+        "source": "Stage 03 model predictions",
+        "attributes": {
+          "subtlety": {
+            "value": 3.7384581565856934,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "sphericity": {
+            "value": 3.5460028648376465,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "margin": {
+            "value": 3.826425552368164,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "lobulation": {
+            "value": 1.7331856489181519,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "spiculation": {
+            "value": 1.666184902191162,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "texture": {
+            "value": 4.08763313293457,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          }
+        }
+      },
+      "brock_risk": {
+        "status": "incomplete",
+        "probability": null,
+        "missing_inputs": [
+          "emphysema",
+          "family_history_lung_cancer",
+          "nodule_count",
+          "nodule_type"
+        ],
+        "model_name": "Brock_PanCan_full",
+        "model_version": "published-coefficients-verified-v1",
+        "input_completeness": {
+          "status": "incomplete",
+          "required_fields": [
+            "age_years",
+            "sex",
+            "family_history_lung_cancer",
+            "emphysema",
+            "nodule_size_mm",
+            "upper_lobe",
+            "spiculation",
+            "nodule_type",
+            "nodule_count"
+          ],
+          "fields_missing": [
+            "emphysema",
+            "family_history_lung_cancer",
+            "nodule_count",
+            "nodule_type"
+          ],
+          "source": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\output\\.clinical_records\\LIDC-IDRI-0007.json",
+          "envelope": null
+        }
+      },
+      "quality_status": "VERIFIED",
+      "explanation_refs": {
+        "gradcam": {
+          "subtlety": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Subtlety/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Subtlety/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_89244c87e70d39c865c3d4c2/GradCAM_Subtlety/attribute_ct_cam.npy"
+          },
+          "sphericity": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Sphericity/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Sphericity/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_89244c87e70d39c865c3d4c2/GradCAM_Sphericity/attribute_ct_cam.npy"
+          },
+          "margin": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Margin/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Margin/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_89244c87e70d39c865c3d4c2/GradCAM_Margin/attribute_ct_cam.npy"
+          },
+          "lobulation": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Lobulation/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Lobulation/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_89244c87e70d39c865c3d4c2/GradCAM_Lobulation/attribute_ct_cam.npy"
+          },
+          "spiculation": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Spiculation/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Spiculation/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_89244c87e70d39c865c3d4c2/GradCAM_Spiculation/attribute_ct_cam.npy"
+          },
+          "texture": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Texture/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_89244c87e70d39c865c3d4c2/GradCAM_Texture/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_89244c87e70d39c865c3d4c2/GradCAM_Texture/attribute_ct_cam.npy"
+          }
+        }
+      },
+      "artifact_refs": {
+        "stage06_record": "06_full_ct_gradcam_rainbow/stage06_nodule_records.json",
+        "visualization": "07_visualization/nodule_visualizations/nodule_000_explanation.png"
+      }
+    },
+    {
+      "stable_nodule_id": "nodule_d1a459c4e2c2d1d410a64e02",
+      "eligibility_status": "eligible_in_lung",
+      "anatomical_location": {
+        "location_primary": "bronchus",
+        "location_region": "left_bronchus",
+        "location_compartment": "airway",
+        "laterality": "left",
+        "vertical_region": "inferior",
+        "wall_relationship": "airway_not_lung_wall",
+        "airway_type": "bronchus",
+        "airway_proximity_mm": 1.1048543456039805
+      },
+      "centroid_voxel_zyx": [
+        40.84836274385452,
+        344.8841743469238,
+        351.8800964355469
+      ],
+      "centroid_lps_mm": [
+        74.906325340271,
+        88.14075820853424,
+        -247.3790931403637
+      ],
+      "bbox_voxel_zyx": {
+        "start": [
+          38.0,
+          337.0,
+          345.0
+        ],
+        "end_exclusive": [
+          44.0,
+          353.0,
+          359.0
+        ],
+        "coordinate_frame": "stage01_final_cropped_ct"
+      },
+      "measurements": {
+        "diameter_mm": 10.994527581196461,
+        "volume_mm3": null,
+        "source": "detector_estimate"
+      },
+      "detection": {
+        "source": "ViTDet3D",
+        "source_members": [
+          {
+            "candidate_id": "1",
+            "source": "ViTDet3D",
+            "score_field": "detector_score",
+            "score": 0.5790932098169183,
+            "original_purpose": null
+          }
+        ],
+        "vitdet_score": 0.5790932098169183,
+        "log_score": null
+      },
+      "classification": {
+        "status": "available",
+        "source": "Stage 03 model predictions",
+        "attributes": {
+          "subtlety": {
+            "value": 3.73372483253479,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "sphericity": {
+            "value": 3.542811393737793,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "margin": {
+            "value": 3.9154276847839355,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "lobulation": {
+            "value": 2.1584081649780273,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "spiculation": {
+            "value": 2.0454304218292236,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          },
+          "texture": {
+            "value": 4.560416221618652,
+            "status": "predicted",
+            "semantics": "expected_ordinal_reader_rating",
+            "model_version": null
+          }
+        }
+      },
+      "brock_risk": {
+        "status": "incomplete",
+        "probability": null,
+        "missing_inputs": [
+          "emphysema",
+          "family_history_lung_cancer",
+          "nodule_count",
+          "nodule_type"
+        ],
+        "model_name": "Brock_PanCan_full",
+        "model_version": "published-coefficients-verified-v1",
+        "input_completeness": {
+          "status": "incomplete",
+          "required_fields": [
+            "age_years",
+            "sex",
+            "family_history_lung_cancer",
+            "emphysema",
+            "nodule_size_mm",
+            "upper_lobe",
+            "spiculation",
+            "nodule_type",
+            "nodule_count"
+          ],
+          "fields_missing": [
+            "emphysema",
+            "family_history_lung_cancer",
+            "nodule_count",
+            "nodule_type"
+          ],
+          "source": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\output\\.clinical_records\\LIDC-IDRI-0007.json",
+          "envelope": null
+        }
+      },
+      "quality_status": "VERIFIED",
+      "explanation_refs": {
+        "gradcam": {
+          "subtlety": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Subtlety/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Subtlety/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Subtlety/attribute_ct_cam.npy"
+          },
+          "sphericity": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Sphericity/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Sphericity/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Sphericity/attribute_ct_cam.npy"
+          },
+          "margin": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Margin/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Margin/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Margin/attribute_ct_cam.npy"
+          },
+          "lobulation": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Lobulation/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Lobulation/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Lobulation/attribute_ct_cam.npy"
+          },
+          "spiculation": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Spiculation/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Spiculation/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Spiculation/attribute_ct_cam.npy"
+          },
+          "texture": {
+            "patch_cam_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Texture/attribute_patch_cam.npy",
+            "raw_signed_path": "05_explainability/gradcam_rainbow_final/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Texture/attribute_patch_cam.npy",
+            "ct_cam_path": "06_full_ct_gradcam_rainbow/nodule_d1a459c4e2c2d1d410a64e02/GradCAM_Texture/attribute_ct_cam.npy"
+          }
+        }
+      },
+      "artifact_refs": {
+        "stage06_record": "06_full_ct_gradcam_rainbow/stage06_nodule_records.json",
+        "visualization": "07_visualization/nodule_visualizations/nodule_001_explanation.png"
+      }
+    }
+  ],
+  "artifact_refs": {
+    "report_json": "07_visualization/nodule_report.json",
+    "accepted_csv": "07_visualization/nodule_report.csv",
+    "excluded_csv": "07_visualization/excluded_outside_lung.csv",
+    "visualization_directory": "07_visualization/nodule_visualizations",
+    "html_report": "../../reports/LIDC-IDRI-0007/index.html"
+  },
+  "warnings": [
+    "nodule_0fe3ab890d2fbfe252c32e39: Brock status is incomplete.",
+    "nodule_89244c87e70d39c865c3d4c2: Brock status is incomplete.",
+    "nodule_d1a459c4e2c2d1d410a64e02: Brock status is incomplete."
+  ],
+  "errors": [],
+  "provenance": {
+    "coordinate_frame": "stage01_final_cropped_ct",
+    "coordinate_order": "ZYX",
+    "coordinate_system": "DICOM_LPS",
+    "meta_schema_version": "2.15",
+    "spacing_zyx_mm": [
+      2.5,
+      0.78125,
+      0.78125
+    ],
+    "geometry_preserved_from": "Stage 01 volume_hu_cropped.npy"
+  },
+  "limitations": [
+    "Candidate counts are spatially deduplicated detector proposals whose rounded centers lie in lung_mask.npy, not adjudicated unique nodules.",
+    "Stage 04 Brock outputs are research/POC malignancy-risk estimates, not cancer probabilities, histological classifications, or diagnoses.",
+    "Bronchus/trachea/wall/parenchyma labels are heuristic, not a dedicated anatomical segmentation or clinical ground truth."
+  ]
+}

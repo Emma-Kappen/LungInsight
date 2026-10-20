@@ -1,0 +1,17 @@
+{
+  "meta_schema_version": "2.15",
+  "stage": "02",
+  "patient_id": "LIDC-IDRI-0007",
+  "detector": "LoG",
+  "policy": "fuse_before_lung_heart_gate; no detector-specific prefilter or downstream manifest",
+  "input_count": 0,
+  "gate_status": "passed",
+  "review_attestation": {
+    "required": false,
+    "verified": false,
+    "status": "not_performed",
+    "warning": "Visual mask review is not required; automated Stage 01 mask and geometry checks remain mandatory."
+  },
+  "accepted_fused_count": 0,
+  "rejected_fused_count": 0
+}

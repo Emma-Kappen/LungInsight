@@ -41,6 +41,130 @@ CANCER_TYPE_V2_LIMITATIONS = [
 ]
 
 
+@lru_cache(maxsize=1)
+def _cancer_type_shap_background() -> pd.DataFrame:
+    """Rebuild the exact training partition used by the active two-feature model."""
+    from sklearn.model_selection import train_test_split
+
+    dataset_path = (
+        CLINICAL_DIR / "artifacts" / "cancer_type_dataset"
+        / "cancer_type_model_ready_candidate.csv"
+    )
+    if not dataset_path.is_file():
+        raise FileNotFoundError("Histology SHAP reference dataset is unavailable.")
+
+    df = pd.read_csv(dataset_path, dtype={"patient_id": str}, low_memory=False)
+    required = {"patient_id", "cohort", "cancer_type", *CANCER_TYPE_V2_FEATURES}
+    missing = sorted(required - set(df.columns))
+    if missing:
+        raise ValueError(f"Histology SHAP reference dataset is missing columns: {missing}")
+
+    df = df.loc[df["cohort"].eq("MSK-CHORD-2024")].copy()
+    df = df.dropna(subset=["cancer_type"])
+    if df["patient_id"].isna().any() or df["patient_id"].duplicated().any():
+        raise ValueError("Histology SHAP reference cohort has missing or duplicate patient IDs.")
+    if set(df["cancer_type"].astype(str).unique()) != set(CANCER_TYPE_V2_CLASSES):
+        raise ValueError("Histology SHAP reference cohort does not match the supported classes.")
+
+    X = df[CANCER_TYPE_V2_FEATURES].copy()
+    y = df["cancer_type"].astype(str)
+    _, _, _, _, train_indices, _ = train_test_split(
+        X, y, df.index, test_size=0.20, random_state=42, stratify=y
+    )
+    background = df.loc[train_indices, CANCER_TYPE_V2_FEATURES].reset_index(drop=True)
+    if len(background) != 5423:
+        raise ValueError(
+            "Histology SHAP reference split differs from the documented 5,423-row training partition."
+        )
+    return background
+
+
+def _cancer_type_shap_explanation(
+    estimator: Any,
+    features: pd.DataFrame,
+    class_order: list[str],
+    probabilities: np.ndarray,
+) -> dict[str, Any]:
+    """Exact two-feature interventional Shapley values in predict_proba space.
+
+    For two inputs, enumerate all feature coalitions analytically rather than
+    using a sampled approximation. This is the SHAP/Shapley definition; it does
+    not rely on the SHAP package or change the underlying prediction.
+    """
+    try:
+        if list(features.columns) != CANCER_TYPE_V2_FEATURES:
+            raise ValueError("Exact histology SHAP currently supports the active two-feature model only.")
+
+        background = _cancer_type_shap_background()
+        n = len(background)
+        if n == 0:
+            raise ValueError("Histology SHAP reference population is empty.")
+
+        base = np.asarray(estimator.predict_proba(background), dtype=float).mean(axis=0)
+        feature_a, feature_b = CANCER_TYPE_V2_FEATURES
+        value_a = features.iloc[0][feature_a]
+        value_b = features.iloc[0][feature_b]
+
+        masked_a = background.copy()
+        masked_a.loc[:, feature_a] = value_a
+        coalition_a = np.asarray(estimator.predict_proba(masked_a), dtype=float).mean(axis=0)
+
+        masked_b = background.copy()
+        masked_b.loc[:, feature_b] = value_b
+        coalition_b = np.asarray(estimator.predict_proba(masked_b), dtype=float).mean(axis=0)
+
+        final = np.asarray(probabilities, dtype=float)
+        phi_a = 0.5 * ((coalition_a - base) + (final - coalition_b))
+        phi_b = 0.5 * ((coalition_b - base) + (final - coalition_a))
+
+        # Fail closed if numerical/model behavior does not satisfy local accuracy.
+        if not np.allclose(base + phi_a + phi_b, final, rtol=0, atol=1e-6):
+            raise ValueError("Histology SHAP values failed the local-accuracy check.")
+
+        return {
+            "status": "available",
+            "method": "exact_interventional_shapley",
+            "output_space": "predict_proba",
+            "class_order": list(class_order),
+            "base_values": {label: float(v) for label, v in zip(class_order, base)},
+            "prediction_values": {label: float(v) for label, v in zip(class_order, final)},
+            "feature_contributions": [
+                {
+                    "feature": feature_a,
+                    "feature_value": None if pd.isna(value_a) else str(value_a),
+                    "values": {label: float(v) for label, v in zip(class_order, phi_a)},
+                },
+                {
+                    "feature": feature_b,
+                    "feature_value": None if pd.isna(value_b) else str(value_b),
+                    "values": {label: float(v) for label, v in zip(class_order, phi_b)},
+                },
+            ],
+            "reference_population": {
+                "cohort": "MSK-CHORD-2024",
+                "partition": "stratified training partition; test_size=0.20; random_state=42",
+                "rows": int(n),
+                "features": list(CANCER_TYPE_V2_FEATURES),
+            },
+            "limitations": [
+                "Exact Shapley attribution for the model's predicted probabilities using an interventional training-reference background.",
+                "Values explain model output, not biological causation, clinical risk, or diagnostic truth.",
+                "The reference population is the reconstructed training partition; explanations are unavailable if that reference data cannot be verified.",
+            ],
+        }
+    except Exception as exc:
+        logger.warning("histology_shap_unavailable reason=%s", type(exc).__name__)
+        return {
+            "status": "unavailable",
+            "method": "exact_interventional_shapley",
+            "failure_reason": type(exc).__name__,
+            "feature_contributions": [],
+            "limitations": [
+                "SHAP explanation could not be computed; the histology prediction and probabilities remain valid outputs of the existing model call.",
+            ],
+        }
+
+
 class ClinicalInferenceError(ValueError):
     """Raised when the validated Clinical inference contract cannot be satisfied."""
 
@@ -342,6 +466,9 @@ def _predict_cancer_type_v2(
         "predicted_class": class_order[int(np.argmax(probabilities))],
         "features_used": order,
         "feature_values": values,
+        "explanation": _cancer_type_shap_explanation(
+            estimator, features, class_order, probabilities
+        ),
         "applicability": "within_declared_training_categories",
         "warnings": [
             "Research-only model output; not clinically validated and not a diagnosis.",

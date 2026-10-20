@@ -1,0 +1,68 @@
+{
+  "input_count": 4,
+  "accepted_count": 3,
+  "rejected_count": 1,
+  "rejection_counts": {
+    "center_outside_lung_mask": 1
+  },
+  "center_inclusion_rule": "rounded center_zyx must be inside lung_mask and outside heart_mask",
+  "min_bbox_lung_occupancy": 0.0,
+  "heart_mask_voxels": 653288,
+  "heart_mask_found": true,
+  "heart_mask_required": true,
+  "gate_status": "passed",
+  "lung_mask_voxels": 5403014,
+  "effective_lung_mask_voxels": 5403014,
+  "shape_zyx": [
+    138,
+    512,
+    512
+  ],
+  "coordinate_space": "stage01_final_cropped_ct",
+  "meta_schema_version": "2.15",
+  "stage": "02",
+  "patient_id": "LIDC-IDRI-0007",
+  "detectors": [
+    "ViTDet3D"
+  ],
+  "log_detector_status": "skipped",
+  "review_attestation": {
+    "required": false,
+    "verified": false,
+    "status": "not_performed",
+    "warning": "Visual mask review is not required; automated Stage 01 mask and geometry checks remain mandatory."
+  },
+  "fusion": {
+    "log_count": 0,
+    "vitdet3d_count": 4,
+    "union_count_before_deduplication": 4,
+    "deduplicated_count": 4,
+    "duplicates_removed": 0,
+    "merge_policy": {
+      "coordinate_order": "ZYX voxel indices in one CT frame",
+      "coordinate_space": "stage01_final_cropped_ct",
+      "spacing_zyx_mm": [
+        2.5,
+        0.78125,
+        0.78125
+      ],
+      "center_distance_mm": 3.0,
+      "max_center_distance_mm": 8.0,
+      "min_overlap_iou": 0.25,
+      "conflict_resolution": "Average geometry within each detector, then average detector-level centers/boxes with equal detector weights; no source is authoritative.",
+      "ranking": "Detector scores are ranked within their own source and converted to [0,1] percentiles; a fused candidate's selection score is the mean of the available source percentiles."
+    },
+    "raw_log_count": 0,
+    "raw_vitdet3d_count": 4,
+    "lung_gate_accepted_count": 3,
+    "lung_gate_rejected_count": 1,
+    "selected_count": 3,
+    "eligible_fused_count": 3,
+    "quality_rejected_fused_count": 1
+  },
+  "stable_identity": {
+    "study_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.280315210397549164238230581781",
+    "series_uid": "1.3.6.1.4.1.14519.5.2.1.6279.6001.272348349298439120568330857680",
+    "id_field": "stable_nodule_id"
+  }
+}

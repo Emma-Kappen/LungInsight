@@ -17,22 +17,155 @@
     "limitations"
   ],
   "properties": {
-    "schema_version": {"const": "1.0.0"},
-    "patient_id": {"type": "string"},
-    "study_id": {"type": "string"},
-    "prediction_baseline_datetime": {"type": "string", "format": "date-time"},
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "patient_id": {
+      "type": "string"
+    },
+    "study_id": {
+      "type": "string"
+    },
+    "prediction_baseline_datetime": {
+      "type": "string",
+      "format": "date-time"
+    },
     "baseline_definition": {
-      "enum": ["initial_pathologic_diagnosis", "other_or_unverified"]
+      "enum": [
+        "initial_pathologic_diagnosis",
+        "other_or_unverified"
+      ]
     },
     "requested_malignancy_method": {
-      "enum": ["brock", null]
+      "enum": [
+        "brock",
+        null
+      ]
     },
-    "input_validation": {"type": "object"},
-    "imaging_context": {"type": "object"},
-    "cancer_type": {"type": "object"},
-    "survival": {"type": "object"},
-    "provenance": {"type": "object"},
-    "limitations": {"type": "array", "items": {"type": "string"}}
+    "input_validation": {
+      "type": "object"
+    },
+    "imaging_context": {
+      "type": "object"
+    },
+    "cancer_type": {
+      "type": "object",
+      "properties": {
+        "explanation": {
+          "type": "object",
+          "description": "Optional exact interventional SHAP explanation for histology model probabilities.",
+          "required": [
+            "status",
+            "method",
+            "output_space",
+            "class_order",
+            "base_values",
+            "prediction_values",
+            "feature_contributions",
+            "reference_population",
+            "limitations"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "available",
+                "unavailable"
+              ]
+            },
+            "method": {
+              "type": "string"
+            },
+            "output_space": {
+              "type": "string"
+            },
+            "class_order": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "base_values": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "prediction_values": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number"
+              }
+            },
+            "feature_contributions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "feature",
+                  "feature_value",
+                  "values"
+                ],
+                "properties": {
+                  "feature": {
+                    "type": "string"
+                  },
+                  "feature_value": {},
+                  "values": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "reference_population": {
+              "type": "object",
+              "properties": {
+                "cohort": {
+                  "type": "string"
+                },
+                "partition": {
+                  "type": "string"
+                },
+                "rows": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "features": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": true
+            },
+            "limitations": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "survival": {
+      "type": "object"
+    },
+    "provenance": {
+      "type": "object"
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
   },
   "additionalProperties": false
 }

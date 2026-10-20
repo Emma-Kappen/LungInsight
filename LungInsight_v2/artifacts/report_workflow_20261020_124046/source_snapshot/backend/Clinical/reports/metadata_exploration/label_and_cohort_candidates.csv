@@ -1,0 +1,838 @@
+dataset,relative_path,column,dtype_in_sample,missing_pct_in_sample,unique_non_null_in_sample,sample_values,top_values_if_low_cardinality
+TCGA-LUAD,TCGA-LUAD\00e01b05-d939-49e6-b808-e1bab0d6773b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\015dbbda-030b-488e-942d-b56ccd6c965e\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\0277f676-24c7-4a4b-90d3-3897e3b27a27\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\0277f676-24c7-4a4b-90d3-3897e3b27a27\nationwidechildrens.org_biospecimen_sample_luad.txt,pathology_report_file_name,str,0.08,524,"['TCGA-05-4384.b70e95c5-2e6c-4409-8bbd-80e03e302b4c.pdf', '[Not Available]', 'TCGA-05-4390.2e3faad1-3a5e-4efb-96ea-8c44839fec6e.pdf', 'TCGA-05-4425.adafa26d-044f-4b01-804a-5066ee20ceb6.pdf', 'TCGA-38-4631.fe8cedaf-e5d1-4836-b6d7-6f21e5e8cd53.pdf', 'TCGA-38-4632.8a178633-5c59-47fe-b1ce-c15e03c66198.pdf', 'TCGA-38-6178.c2b33805-c417-4d5b-97ff-ec0d93afee8c.pdf', 'TCGA-44-6144.1dfaf7f2-8902-403c-b903-dc59c8156d17.pdf']",{}
+TCGA-LUAD,TCGA-LUAD\0277f676-24c7-4a4b-90d3-3897e3b27a27\nationwidechildrens.org_biospecimen_sample_luad.txt,pathology_report_uuid,str,0.08,524,"['b70e95c5-2e6c-4409-8bbd-80e03e302b4c', '[Not Available]', '2e3faad1-3a5e-4efb-96ea-8c44839fec6e', 'adafa26d-044f-4b01-804a-5066ee20ceb6', 'fe8cedaf-e5d1-4836-b6d7-6f21e5e8cd53', '8a178633-5c59-47fe-b1ce-c15e03c66198', 'c2b33805-c417-4d5b-97ff-ec0d93afee8c', '1dfaf7f2-8902-403c-b903-dc59c8156d17']",{}
+TCGA-LUAD,TCGA-LUAD\0277f676-24c7-4a4b-90d3-3897e3b27a27\nationwidechildrens.org_biospecimen_sample_luad.txt,sample_type,str,0.08,5,"['Primary Tumor', 'Blood Derived Normal', 'Solid Tissue Normal', 'Recurrent Tumor', 'FFPE Scrolls']","{'Primary Tumor': 598, 'Blood Derived Normal': 425, 'Solid Tissue Normal': 274, 'FFPE Scrolls': 4, 'Recurrent Tumor': 2}"
+TCGA-LUAD,TCGA-LUAD\0277f676-24c7-4a4b-90d3-3897e3b27a27\nationwidechildrens.org_biospecimen_sample_luad.txt,sample_type_id,float64,0.08,4,"['1.0', '10.0', '11.0', '2.0']","{'1.0': 602, '10.0': 425, '11.0': 274, '2.0': 2}"
+TCGA-LUAD,TCGA-LUAD\034ab098-0fd5-49cc-8f1a-f2486d005efe\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\03cb6c68-1d09-4a46-a29a-0af8bf4caa7a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\047a94b3-267a-4a47-9c63-71641e2ae8bd\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\05fc3749-a445-4f28-97c6-872b27de29f1\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\06090bf1-0de1-4e9d-b82a-99283a6fc5ad\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\08128e5e-f4ec-4f3e-a69d-45d6bc3bbe3f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\08391ffb-875f-484d-ba75-2b72862b4d42\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\0927a651-73b1-41dc-a7e8-959fec6e7ac9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\0a3ecb42-7209-43b6-af42-8d40b652b89c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\0a574fb7-74d7-463b-ae9d-e3a600119442\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\0c4a9a6e-5ec6-4959-8be2-a49e8dda309f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\0c4cfb37-1ef3-4782-8a37-92c3cc3e7828\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\0c79ae98-7228-40b2-b1cf-28ca60951079\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\0c9247a9-5bec-4af5-b734-f0d4f43379da\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\0cbf11cb-495b-4294-95cb-1988170050ae\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\0dd29fac-5cc1-452b-93ab-f779b3dab2dc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\0f1a8df0-57fe-4a8a-bd45-2e53205344c7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\0f83b5ea-5580-4a2c-8c20-357dd4a2e69c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\0fc0dd40-c907-4364-b9f3-91f93c7b92db\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\10631215-1f4b-45ce-97b4-64f051629466\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\106926e7-665d-49ef-b4a2-69e8fd1a8efe\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\11a8044c-5f37-4736-9d37-807ab7882c0c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\12964954-e0b8-4536-ba99-f33a34c74b2a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\129dcac2-74b2-46a4-834b-b3656189244f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\1329d5c2-0367-4371-b6a3-222f3634966a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\136764c6-3d33-432e-be92-1bf2cd8791ea\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\148b70b7-91df-403f-aca4-08846ca2750d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\174b589e-4492-4a34-96b9-8af85d4f04fa\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\176ce87c-5acc-4ef6-a72f-78b64001e143\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\17e0add1-4788-493a-817c-adaa6f018072\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\1943d07a-618d-4fb1-9bad-275e6f46e959\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\197be866-27ea-4a8c-9da8-2fed75fdf303\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\19ed2bb8-f4b7-4ba5-baac-88793bd50b20\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\19fea1e6-04f5-4311-965e-910c43944802\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\1b1818ee-c535-45a9-a5b0-d356cae5d8a5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\1ba0c805-7657-4207-b4c5-fe431a83482d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\1bba6b35-1896-4c2b-ba19-83a70dd2332b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\1cba5f2c-cf9e-4ab4-92f1-0a791420a0eb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\1ce00d2f-4ff2-4a9a-88d0-1b4334160b83\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\1e4e36bb-a805-4b8c-bb23-9d5bb7937ed9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\1f9d0790-5ada-421f-b388-4618f9e140d0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\1f9e31e4-6c5b-4b77-a865-bba33d8effdb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\1f9f392c-5fd3-449a-8c58-4a274ce1b446\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\20024b11-9e01-463e-8618-6ad6c2285ef5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\21d01df6-a4f1-4ecb-9c4a-a358355f1f0a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 3}
+TCGA-LUAD,TCGA-LUAD\2486c117-e1ec-4c6f-a095-51a217dbd660\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\24dc69a8-29bc-4da8-9735-0b81e9b7014a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\24f6f4f9-c9b0-4a26-836c-5c85bcb10eda\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\2682e1e9-7285-46f3-a1f8-40ae55fea973\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\26881ebc-b0e4-444a-8dae-c5e171eb2781\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\27bafc9d-b95c-4b49-b3e3-1c90bb1c15dd\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\27fd9ea0-9a83-4ada-a45c-abb4fa3c2b5b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\281a971b-b794-45e2-9193-ec8fc6d72df6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\2862257b-056d-497b-912a-e8d3fe664343\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\287fc852-21f4-4af9-803c-b664e488fd33\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\2adbfbab-800d-4657-b8b2-5640e594ef54\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\2b56b873-dc30-4602-a9af-a608bd720e79\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\2b733752-c398-456d-a9a6-5fab0f3eddcc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\2b9b9171-883c-4173-9efe-1049d64e235e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\2bd620f7-a777-473d-9aa1-b2bfe7dafe7e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\2d9dc3c9-93bb-4333-a54b-230e4d71f607\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\2dfa0ea0-b18a-4abf-adb7-ffe807b7f059\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\2e347bd9-9457-43b7-b37f-df1e3d7ed497\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\2eb76706-8f7b-4a0c-8bbc-5bae2364b8f0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\2f45505f-6022-45c5-9427-4983ef0c4b74\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3041001d-e69c-4bd8-bfbc-3490951e1c26\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\30ac6576-ca9d-4a6f-95c7-56410cd518a1\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\313e1d02-1efb-4f63-9922-f8962e195e18\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\31e13be6-4140-4ded-9322-50089b950024\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\33612e58-d10e-4d78-ac9d-866a065788ed\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\3385abf2-f141-4f06-a514-5c309144fd5f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\356004c4-ee26-430e-95ac-ad8e717811ff\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\36094254-b862-4e30-b0bc-a56df4d0406e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\37d85a6c-8dd6-4b14-8487-9724c4b72980\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\39171e1e-2f17-40ea-b0d5-857aefb49e03\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\391ae65f-1574-447a-b0d8-98d224eb3f79\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3a12aa52-18a6-4b93-9dfa-fa20b42995df\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3a4e65f6-e1a3-4477-a9b5-25190652580d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3aaf618f-3e71-4684-9bf2-150ed5b00c4e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3ab6907b-1b81-461d-825f-57837ba23799\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3af835c8-4dbd-4cd6-bdb4-c06fc6be9979\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3b0393cb-199d-4990-a6ba-beb6821ccf5b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3b7e6b73-ae5c-4327-9827-22dc67d259dc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\3bebccb4-5e54-4a83-925e-f0567b3124d1\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3cd31539-7b07-4d24-8733-359ea167309d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3cf86ec3-c1bd-47b5-8340-f88946340c8e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\3eadeb75-aa76-4f48-9288-1b771f53ddae\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3f11b718-151a-4c9b-ae46-abcbe1ef8f6d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3f37c9f9-1ef8-4735-a36f-42058f691678\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3f45e92f-6b44-4706-b601-06f5b8e7937b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\3f663182-8fe2-4ac5-ab1e-858ac66b0898\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\4097969c-2586-4776-96a6-0a98b6c58516\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\41468f12-cdd2-4882-8829-527438d7fbd0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\41cc4146-1efe-4382-8bc6-0a4d43c72913\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\4274659a-d2fc-4fdb-9b2e-73a5b05331d0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\4277ee9a-9d5a-4bca-97f4-d51c4283ea4d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histologic_diagnosis,str,0.0,3,"['diagnosis', 'CDE_ID:3081932', 'Lung Adenocarcinoma']","{'Lung Adenocarcinoma': 522, 'diagnosis': 1, 'CDE_ID:3081932': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,height_cm_at_diagnosis,str,0.0,3,"['height', 'CDE_ID:649', '[Not Available]']","{'[Not Available]': 522, 'height': 1, 'CDE_ID:649': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,weight_kg_at_diagnosis,str,0.0,3,"['weight', 'CDE_ID:651', '[Not Available]']","{'[Not Available]': 522, 'weight': 1, 'CDE_ID:651': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,ajcc_nodes_pathologic_pn,str,0.0,8,"['pathologic_N', 'CDE_ID:3203106', 'N2', 'N0', 'N1', 'N3', 'NX', '[Not Available]']","{'N0': 335, 'N1': 98, 'N2': 75, 'NX': 11, 'N3': 2, 'pathologic_N': 1, 'CDE_ID:3203106': 1, '[Not Available]': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,ajcc_metastasis_pathologic_pm,str,0.0,8,"['pathologic_M', 'CDE_ID:3045439', 'M1', 'M0', '[Not Available]', 'MX', 'M1b', 'M1a']","{'M0': 353, 'MX': 140, 'M1': 18, 'M1b': 5, '[Not Available]': 4, 'M1a': 2, 'pathologic_M': 1, 'CDE_ID:3045439': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,cd4_counts_at_diagnosis,str,0.0,3,"['cd4_counts_at_diagnosis', 'CDE_ID:2922654', '[Not Available]']","{'[Not Available]': 522, 'cd4_counts_at_diagnosis': 1, 'CDE_ID:2922654': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,hiv_rna_load_at_diagnosis,str,0.0,3,"['hiv_rna_load_at_diagnosis', 'CDE_ID:2922674', '[Not Available]']","{'[Not Available]': 522, 'hiv_rna_load_at_diagnosis': 1, 'CDE_ID:2922674': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,histologic_diagnosis.1,str,0.0,14,"['histological_type', 'CDE_ID:3081934', 'Lung Adenocarcinoma- Not Otherwise Specified (NOS)', 'Lung Adenocarcinoma Mixed Subtype', 'Lung Papillary Adenocarcinoma', 'Lung Mucinous Adenocarcinoma', 'Mucinous (Colloid) Carcinoma', 'Lung Clear Cell Adenocarcinoma']","{'Lung Adenocarcinoma- Not Otherwise Specified (NOS)': 327, 'Lung Adenocarcinoma Mixed Subtype': 107, 'Lung Papillary Adenocarcinoma': 23, 'Lung Bronchioloalveolar Carcinoma Nonmucinous': 19, 'Lung Acinar Adenocarcinoma': 18, 'Mucinous (Colloid) Carcinoma': 10, 'Lung Bronchioloalveolar Carcinoma Mucinous': 5, 'Lung Solid Pattern Predominant Adenocarcinoma': 5, 'Lung Micropapillary Adenocarcinoma': 3, 'Lung Mucinous Adenocarcinoma': 2}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,initial_pathologic_dx_year,str,0.0,26,"['year_of_initial_pathologic_diagnosis', 'CDE_ID:2896960', '2009', '2007', '2005', '2006', '2008', '2010']","{'2011': 113, '2012': 100, '2010': 53, '2009': 46, '2008': 37, '2007': 31, '2006': 29, '2005': 17, '2002': 15, '2004': 14}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,ajcc_tumor_pathologic_pt,str,0.0,11,"['pathologic_T', 'CDE_ID:3045435', 'T2', 'T3', 'T1', 'T4', 'T2b', 'T1b']","{'T2': 171, 'T2a': 82, 'T1': 69, 'T1b': 55, 'T1a': 48, 'T3': 47, 'T2b': 28, 'T4': 19, 'TX': 3, 'pathologic_T': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,ajcc_pathologic_tumor_stage,str,0.0,13,"['pathologic_stage', 'CDE_ID:3203222', 'Stage IV', 'Stage IIIA', 'Stage IB', 'Stage IA', 'Stage IIIB', 'Stage IIB']","{'Stage IB': 140, 'Stage IA': 134, 'Stage IIIA': 74, 'Stage IIB': 73, 'Stage IIA': 50, 'Stage IV': 26, 'Stage IIIB': 11, '[Discrepancy]': 7, 'Stage I': 5, 'pathologic_stage': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,age_at_initial_pathologic_diagnosis,str,0.0,55,"['age_at_initial_pathologic_diagnosis', 'CDE_ID:2006657', '70', '81', '67', '79', '68', '66']","{'70': 26, '72': 22, '69': 21, '59': 21, '60': 21, '61': 21, '67': 19, '74': 19, '71': 19, '[Not Available]': 19}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,cancer_diagnosis_cancer_type_icd9_text_name,str,0.0,3,"['cancer_diagnosis_cancer_type_icd9_text_name', 'CDE_ID:2195089', '[Not Available]']","{'[Not Available]': 522, 'cancer_diagnosis_cancer_type_icd9_text_name': 1, 'CDE_ID:2195089': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,days_to_hiv_diagnosis,str,0.0,3,"['days_to_hiv_diagnosis', 'CDE_ID:4618491', '[Not Available]']","{'[Not Available]': 522, 'days_to_hiv_diagnosis': 1, 'CDE_ID:4618491': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,days_to_initial_pathologic_diagnosis,str,0.0,4,"['days_to_initial_pathologic_diagnosis', 'CDE_ID:3008275', '0', '[Not Available]']","{'0': 503, '[Not Available]': 19, 'days_to_initial_pathologic_diagnosis': 1, 'CDE_ID:3008275': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,icd_o_3_histology,str,0.0,14,"['icd_o_3_histology', 'CDE_ID:3226275', '8140/3', '8255/3', '8260/3', '8550/3', '8480/3', '8310/3']","{'8140/3': 317, '8255/3': 107, '8550/3': 24, '8260/3': 22, '8252/3': 19, '8480/3': 14, '8253/3': 5, '8230/3': 5, '8507/3': 3, '8250/3': 3}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,metastatic_site_at_diagnosis,str,0.0,3,"['metastatic_site_at_diagnosis', 'CDE_ID:3124499', '[Not Available]']","{'[Not Available]': 522, 'metastatic_site_at_diagnosis': 1, 'CDE_ID:3124499': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,metastatic_site_at_diagnosis_other,str,0.0,3,"['metastatic_site_at_diagnosis_other', 'CDE_ID:3124503', '[Not Available]']","{'[Not Available]': 522, 'metastatic_site_at_diagnosis_other': 1, 'CDE_ID:3124503': 1}"
+TCGA-LUAD,TCGA-LUAD\42bf5eb2-bc49-45be-b18a-290f712b006c\nationwidechildrens.org_clinical_patient_luad.txt,project_code,str,0.0,4,"['project_code', 'CDE_ID:', '[Not Available]', 'TCGA']","{'[Not Available]': 510, 'TCGA': 12, 'project_code': 1, 'CDE_ID:': 1}"
+TCGA-LUAD,TCGA-LUAD\42cfa747-a687-44ee-bc9f-e3d33a1d2bcb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\43754777-59be-4e11-9cd7-ca24779ba596\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\4451bf5b-b52b-4712-9692-2b2487439899\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\45170dab-8193-4844-9308-c823a60f239e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\455e5c43-7152-4e89-9f26-755d8c5208d5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\459a7eb5-7350-4880-9588-71036ad37995\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\473292ba-0807-4737-9312-78563e0ed2f7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\485f898b-2c14-434f-9793-228441b61d75\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\48b90e12-d291-4e27-8583-ea21defceb14\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\49260aba-249b-492b-95eb-92c9030d5e98\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\4b31c955-6b92-45d3-81de-5a6b14ff187e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\4b94e27b-6813-492c-b0b1-ab27f26469e4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\4bb76e00-55b3-4b83-9ad4-3035d4271940\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\4bbb92f3-f94e-43eb-9afe-eb7a1c533853\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\4c004dfd-e2d9-4152-9968-f5ace513772b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\4c728fdf-ab2e-453f-9afd-de137933c19a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\4c7c10f6-241d-4fae-a6d1-9de745d13761\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\4c7c65ee-3ef9-4167-9e55-c0dd2e6fad06\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\4d89c535-b82c-447d-863e-6765f2eb5056\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\4e1db29d-4cb1-4bf5-8cee-9648d66e9f44\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\4e617c3c-ff31-4ead-84fa-ab3d5779732b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\4ee446bf-fe00-473d-8c87-c396c3564750\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\503b2966-6c39-4526-9f3b-2bb90c2dbf69\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\516bf8de-de80-4159-9877-555b9da08948\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\52a32023-c8ce-48e7-8b0c-8813f93a1e31\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\533c0f37-9630-4595-968e-700c8d7785cf\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\53c3383f-d55d-4c5a-842c-9a552d48cd19\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\54131809-ef78-4b72-ad7c-739b4717c867\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\54525a04-4bdc-479a-9134-2465dbd5d03f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\547a9ae1-7857-437b-a47a-a7fe50fa277a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\54de950b-39e6-43eb-a0b8-d11a24359b27\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\55a04665-a5b7-4a95-be5f-429c4f74a321\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\55be70b0-bfa0-47fb-8cb4-43b163a6c416\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5692f36c-7d55-4b5f-a5b2-af51a3fbd4e0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\569d36e3-012f-4ce3-a5c3-f9994d3e3505\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\56e4941b-3a37-4c61-9baa-3229edaf2bce\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5885e0de-08fa-4190-a17b-5e8c16885208\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\588639a6-77bd-4874-816e-a527d7d40f1a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\59015dfd-045b-4a80-9b4a-3cc3a41707f0\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\59015dfd-045b-4a80-9b4a-3cc3a41707f0\nationwidechildrens.org_clinical_drug_luad.txt,clinical_trial_drug_classification,str,0.0,5,"['clinical_trail_drug_classification', 'CDE_ID:3378323', '[Not Available]', 'ASCI', 'Tyrosine kinase inhibitor']","{'[Not Available]': 459, 'clinical_trail_drug_classification': 1, 'CDE_ID:3378323': 1, 'ASCI': 1, 'Tyrosine kinase inhibitor': 1}"
+TCGA-LUAD,TCGA-LUAD\59ced9f5-6a3a-4724-989c-d094928bff53\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5a278a81-387b-404e-a14e-7b0672ae3ca4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5a2c9904-3efa-424e-b5c8-e582fc78af6b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\5a5bceba-3dfd-43b3-83af-f4be6f719989\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5ab9873f-b0e7-4570-af29-e7912808293c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5ad55085-aac0-4596-84ff-cfcb3b44cc43\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5af9208f-727f-42ef-a76a-47a577ba1d43\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\5ca1a139-0b34-413b-989b-468c063f34d2\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5cd4bac1-7966-4ac2-8fb0-937b773c86d3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5d0f9574-6f1a-47a3-93ce-4f3e65b410cf\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\5d64ae00-602f-4bc8-96f7-6d2fae162720\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5e2c6d1d-ccef-4e3b-9665-cf4a75d32929\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\5f56a97f-d9e3-49e6-9ce7-4d0624f703c7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\5f8f9fb8-c850-410b-a065-b7a90edcaa63\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5fcbcf38-43e8-4334-bc84-36ce36e4eacd\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\5ffe685c-26c2-4699-bbe4-d35430aecd8c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\60d5f0c2-8aa0-4448-92f3-141afb00fed7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\61d4328e-ab28-4f4c-8870-8da0b942b68b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\62c7ce31-d929-49b1-bc11-d5d2561f474c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\62e2b2e1-b422-4caf-b84f-6f58a2125129\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\62e98ea1-ff2c-402d-acb7-604ae5648ca0\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\63897c44-875f-4dc3-afbc-818a3574cb33\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\649568d4-721a-47ce-848b-a276d15036f7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\65a032c9-3a59-4846-848c-15186884d94c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\65a66adf-f3bb-4d81-a411-567d41bedbb9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\66694a9d-4bd2-48ec-9168-7db51d4a4b4f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\669342e4-118a-4e9b-832d-f96c544b56ea\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\66ae4daa-8a7e-4705-a728-53ef6289e8bb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\66dde8ef-db80-420f-a212-68d8a8b2932d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\67012226-5f87-4691-b629-20b61d146a77\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\690067c4-51de-4375-a825-2e24414d366f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\69c724a8-87cb-4113-9846-d788c80da4b3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\6a235d38-639b-477c-9efb-c5c331b34bc2\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\6b52788e-33fc-4100-a874-cb93d507ac48\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\6b8eace0-1ae0-47d7-9567-a9c1a133baea\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\6d2c19a7-85ec-43ed-bad3-0e334254b1f5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\6d712d93-848e-42ae-b244-c841b9986d5b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\6dd83238-54df-42f9-9c33-1666e98e8d58\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\6e5091c7-879a-4d77-8cb5-1695a30a7568\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\6ebf01ca-8999-4a57-b696-7015e2237136\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\6f3247ca-a7d0-4e9c-b2e7-46ee6a694650\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\6f77c7b9-e114-4305-a12a-7ca8c0c35a88\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\704161be-08f2-4517-977a-ee7971c4d092\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\709e6425-3cfe-4f28-b97b-edaaa6aa257a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\70a4daa0-c405-4c09-94de-16bb0038ec66\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\73d10a57-15fc-490f-a61e-e2bed0006a9e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\74b39f6f-02e7-486e-a953-66f947ed28cf\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\75a6bfbc-2ca3-4115-9fe2-f9dd8a50d68b\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\75a6bfbc-2ca3-4115-9fe2-f9dd8a50d68b\nationwidechildrens.org_clinical_omf_v4.0_luad.txt,other_malignancy_histological_type,str,0.0,16,"['other_malignancy_histological_type', 'CDE_ID:4122411', 'Other, specify', '[Not Available]', 'Uterine serous endometrial adenocarcinoma', 'Endometrioid endometrial adenocarcinoma (Grade 1 or 2)', 'Adenocarcinoma, Not Otherwise Specified', 'Lung Adenocarcinoma- Not Otherwise Specified (NOS)']","{'Other, specify': 44, '[Not Available]': 34, 'Adenocarcinoma, Not Otherwise Specified': 10, 'Squamous Cell Carcinoma, Not Otherwise Specified': 6, 'Lung Adenocarcinoma- Not Otherwise Specified (NOS)': 3, 'Lung Adenocarcinoma Mixed Subtype': 3, 'Endometrioid endometrial adenocarcinoma (Grade 1 or 2)': 2, 'Lung Bronchioloalveolar Carcinoma Nonmucinous': 2, 'other_malignancy_histological_type': 1, 'CDE_ID:4122411': 1}"
+TCGA-LUAD,TCGA-LUAD\75a6bfbc-2ca3-4115-9fe2-f9dd8a50d68b\nationwidechildrens.org_clinical_omf_v4.0_luad.txt,ajcc_nodes_pathologic_pn,str,0.0,6,"['pathologic_N', 'CDE_ID:3203106', 'N1', '[Not Available]', 'N0', 'NX']","{'[Not Available]': 89, 'N0': 15, 'NX': 5, 'pathologic_N': 1, 'CDE_ID:3203106': 1, 'N1': 1}"
+TCGA-LUAD,TCGA-LUAD\75a6bfbc-2ca3-4115-9fe2-f9dd8a50d68b\nationwidechildrens.org_clinical_omf_v4.0_luad.txt,ajcc_tumor_pathologic_pt,str,0.0,11,"['pathologic_T', 'CDE_ID:3045435', 'T3', '[Not Available]', 'T1', 'T2', 'T1a', 'T1c']","{'[Not Available]': 89, 'T1a': 6, 'T3': 3, 'T1c': 3, 'T1': 2, 'T2': 2, 'T2a': 2, 'T1b': 2, 'pathologic_T': 1, 'CDE_ID:3045435': 1}"
+TCGA-LUAD,TCGA-LUAD\75a6bfbc-2ca3-4115-9fe2-f9dd8a50d68b\nationwidechildrens.org_clinical_omf_v4.0_luad.txt,ajcc_metastasis_pathologic_pm,str,0.0,6,"['pathologic_M', 'CDE_ID:3045439', 'M0', '[Not Available]', 'M1', 'MX']","{'[Not Available]': 89, 'M0': 10, 'MX': 10, 'pathologic_M': 1, 'CDE_ID:3045439': 1, 'M1': 1}"
+TCGA-LUAD,TCGA-LUAD\75a6bfbc-2ca3-4115-9fe2-f9dd8a50d68b\nationwidechildrens.org_clinical_omf_v4.0_luad.txt,ajcc_pathologic_tumor_stage,str,0.0,9,"['pathologic_stage', 'CDE_ID:3203222', '[Not Available]', 'Stage IIA', 'Stage I', 'Stage IA', 'Stage IB', 'Stage III']","{'[Not Available]': 92, 'Stage IA': 6, 'Stage IIA': 4, 'Stage I': 3, 'Stage IB': 3, 'pathologic_stage': 1, 'CDE_ID:3203222': 1, 'Stage III': 1, 'Stage II': 1}"
+TCGA-LUAD,TCGA-LUAD\75a6bfbc-2ca3-4115-9fe2-f9dd8a50d68b\nationwidechildrens.org_clinical_omf_v4.0_luad.txt,other_malignancy_histological_type_text,str,0.0,42,"['other_malignancy_histological_type_text', 'CDE_ID:4122431', 'Malignant neoplasm of colon', 'carcinoma in situ of penis', 'Malignant neoplasm of rectum', 'Malignant neoplasm of bladder', 'Malignant neoplasn of uterus', 'Malignant neoplasm of uterus']","{'[Not Applicable]': 66, 'Malignant neoplasm of prostate': 3, 'Malignant neoplasm of bladder': 2, 'Basal Cell Carcinoma': 2, 'Basal Cell Ca': 2, 'other_malignancy_histological_type_text': 1, 'CDE_ID:4122431': 1, 'Malignant neoplasm of colon': 1, 'carcinoma in situ of penis': 1, 'Malignant neoplasm of rectum': 1}"
+TCGA-LUAD,TCGA-LUAD\75a7c2c5-d694-4d65-b95e-66f4569c940d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\7754e8be-fea0-4987-b4c0-ac8f8b7ea339\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\77c425ca-4a14-49f4-9189-7b6b4ea8360e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\7822473e-7ba0-401b-969c-9faed99b6357\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\7828ec17-af0c-4b45-aeae-1fb3cbe66dcb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\784f543d-99c1-432b-bcc9-7957ac02c830\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\78562298-a5f1-45e9-8f47-3ce81ef289d6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\7a622529-9550-481a-ad28-b4487d0bf29b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\7bc75ee4-14ff-4f06-9d72-f8e171f95401\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\7c9fc6b3-d60b-43ad-8a50-991688d414a7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\7cfc8961-b99c-4bde-a251-93a54ef40f82\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\7ebdf601-2773-4f32-b718-4b4719e13a5e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\7ee8414d-c1e1-4c42-935e-ab397ea7e968\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\80ec99a3-fa95-45bd-9094-a6ee6a6eb85d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\814fe862-1757-4ea6-8864-a8acb0286961\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\817ab156-1498-4bfc-8d36-340978259783\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\834e34be-a22f-4932-8056-bc0244d2333d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\83d387d0-5426-4143-b277-83b3b6cf9fb5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\843d4ae1-f16f-49ea-b2e7-e96e4a89a141\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\84f533bf-5d8d-44cb-baa6-9aeb8760e925\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\8504c03f-912d-4510-b1b2-922d73a88866\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\87c92282-77f5-4f0c-9968-1b011154e54b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\88382ceb-20c4-4964-93fb-9e70ad0b96fc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\88b80a97-604d-492f-b7e2-64b80e58fa17\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\88d5e643-0514-4470-a09d-4da22e83a84b\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\897b9e78-9a86-4d48-8aed-62b5af4e853d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\89b3dd6e-b970-4a18-a3f0-615f7cf89e8c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 3}
+TCGA-LUAD,TCGA-LUAD\8aa38933-8f8c-46cc-a7da-51a108056eb3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\8ab6ac08-85c1-43f1-9718-53365c58d847\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\8b2afb5f-9fcb-4dcd-a6c6-3c6569d56d4d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\8b425e96-0a63-496b-b71d-ff52648085a0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\8b4f28de-25f3-4451-bd9b-4c2b8a1d8c1f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 3}
+TCGA-LUAD,TCGA-LUAD\8b8a19b1-49de-49c5-9ca8-3fd2a6b8afca\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\8d2a7b70-f8f0-4101-b7f7-b600af6ed06d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\8d6baebc-1162-42c6-813f-0b2f9f1c65b4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\8d9f46e4-3728-4f78-b6fa-8378b3762e06\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\8dbb6675-f23d-41ce-9ad3-48bb75567284\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\8e7fa01e-aff4-486f-a95f-7aeecd005270\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\8f3557d7-8070-47fc-a87a-ab81e53ddff2\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\920ebfa4-cc00-48f2-91ca-e23464ba438c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\9254b353-d7fe-4fb8-8567-80c532cf8abe\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\92e582c5-5448-454e-b06a-3db94a880f29\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\93542d01-7d01-4f98-8858-e2b634d0e51a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9365cbd0-05f6-45d4-ab52-1de33b086469\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\945635c5-1f9a-4e6f-b4d6-ab8da529dc33\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\945edb75-7073-4b3a-84b2-1c1423cd9afa\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\946c7ae5-fe21-4d13-8b81-fa7da13983ef\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 1, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\946f8d23-a5be-4193-8ebe-6e699f9ddace\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\95aa82c5-ded5-4d00-8110-aad723489b81\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\95b9cf55-a9cd-4225-a9d2-761b2d8c1c4c\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 1, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\95f73523-2aa4-433a-8734-e43d51d3e3a7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\966688a3-f2b7-412a-a9fd-1d65f5320603\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\976e7edb-49c5-444f-a412-bb879b704ffe\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\979ec3ca-c27c-47bc-a7dd-8fe3b1a905bd\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\98212ef8-2b59-4ec4-8a66-50a81f4e62d9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9905ec68-f5b3-40ef-a048-bc276cb5c7cf\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9a6c58bf-4474-481d-b0ec-069e5abcbd45\annotations.txt,classification,str,0.0,2,"['Observation', 'Notification']","{'Observation': 1, 'Notification': 1}"
+TCGA-LUAD,TCGA-LUAD\9ab44656-ae24-43e6-a031-3702a6bde959\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9b0e8212-dc29-434d-81b1-f83826fced50\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9b38b70d-1309-4535-b77f-3af35ee926fb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9c41ebd7-70f2-46c7-8711-f2a53772344b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9d7b49f6-03bc-4086-9747-744de32157fc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9f412139-106f-48fd-bdda-28765559d563\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9f548e12-9d4f-4db6-81d5-170d296d42d7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9f5ca565-41d7-471a-a05d-005d2e44ec53\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9f7f9cb2-1c21-4c90-971d-0c2b69c13166\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\9f95c1d3-28a8-4883-9fac-8bb9e766a794\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9fa15b50-7786-46b8-820c-62c19199674c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\9ff75cca-72ef-4341-8768-4f55604f12fa\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\a05493ea-22ae-4641-954d-3b8db5e49dc1\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\a327a35d-246c-4df6-9213-7f01353f4669\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\a4d1bfcd-86b0-463e-8529-9188698e9b1e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\a5892e66-9749-4007-9711-11bc7ab12e3d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\a7347b9b-8e73-4f36-87ad-650a73271640\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\a75b1b0c-f330-45fc-a2a4-9cf0686c80a6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\a79392eb-e434-4533-95e2-575e74025d2d\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 1, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\a81ec21b-ddfb-412c-9fce-fa16cb473be3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\a87bf8a7-eceb-4d17-b5b8-33ca4dc7251c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\a8e988f4-2197-4609-a471-d3eb8c865016\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\aacc6380-1015-4528-914f-b84bf2aa4290\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ac171335-af06-4498-b9b6-e2041cc0a568\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\acc1d0ce-5a6f-4254-b814-3487a3c4254b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ad2ab10d-e4f2-45e1-a708-c5136e8979b6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ae1827af-9e4a-4c96-b1f5-b34e220e8ccf\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\af610dba-2a02-4e08-a20f-879b9973dbf6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\afa76cf7-3951-40ef-96b9-b0b3bc051acd\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b08234d3-de99-4d01-9079-029bff26d7d6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b0867e12-38c9-4981-9b9a-6fc4e443b8bb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b08f086c-48cf-47ba-9aa8-5d0e16fae0f8\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b1a1eb9c-59ac-44fd-b3b2-6e6a5a5d68a8\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b2c0d7a7-a151-44af-b183-85db90d5f3ff\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b32570bc-1922-4571-b2c0-a38bfdd57c4b\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\b3900ef6-3672-406c-83b8-7e0c3be10304\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b3c569d4-eb77-4b85-9234-1ecc2ee0b7a9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b4d2e336-8ed9-4449-8ced-332cac163691\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b55c393e-2643-42bd-85e1-408c85abe7fa\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b5f37a7c-c3a6-4d3a-8082-86074ffed064\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b66521a6-c630-4f23-bedb-1e50165ae1ba\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b74d07c5-f539-48f3-9875-a1c5e91e8d90\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b78918c3-5fad-45cd-b032-569dd39c55ff\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\b8b73477-ad95-4e9d-a758-cc536754d420\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\b8c78159-6c01-4aeb-86a1-5403754cf4d1\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\b96d615f-8c29-4ceb-85d5-4a69b761489a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\ba0e5a20-dd98-4cf1-87fd-9e6b77ab0af5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\bb3f6d76-3334-477b-8c69-149bcc535821\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 3}
+TCGA-LUAD,TCGA-LUAD\bc29f8d9-639e-466a-bbfe-efaff5602cf6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\bc548e47-5a9f-47d6-961a-08a639b76e30\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\bce9672a-44c6-4da5-a7f2-fcb69f933086\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\bd187f0f-cf7e-42ff-8c26-800d7fa3cae1\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\bde182e1-20ba-466a-aa21-fb0d2f4c345e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\be42b996-1ece-44b5-8d81-5b8c56748177\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\be9ae7b4-632d-4f97-a251-063be24f437d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\bed3def1-c086-4be6-a1ec-d561aeb75f3d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c087532a-d768-4e83-bc81-7ca7b4d207c0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c0cb0e6a-b19e-46a5-b750-91ff91385071\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\c1759fc8-9682-4557-b90d-17ccd2eb8138\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c1c3a3ea-6027-4826-9bb5-4c2e2551a028\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c1e91cfa-ef82-450d-ae84-37c63586cd75\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c22c8cf2-9952-4ac0-8880-ac336c5ed27a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c2df24dc-cf0e-4f4c-a5f3-99726e9aab55\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c3058f36-d4ed-446b-9b8c-2bcad1ce7cc5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c38d82c5-0ede-4ea4-97c7-76b745280183\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c435dfb5-179a-4b86-8dcb-585b17a3fc22\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c595a541-1c2a-4ce4-9092-13fffa2a24eb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c7641186-29cb-4977-acc6-185f3d7cc856\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c830e211-6570-4fa5-8375-3fb7534d3216\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c8a1f323-632a-48d3-aab6-5f52b7f7d69e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\c9b06314-d440-45f7-adc0-acf69b55b0f3\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\c9b06314-d440-45f7-adc0-acf69b55b0f3\genome.wustl.edu_biospecimen_cqcf_luad.txt,days_to_pathology_review,str,0.0,2,"['CDE_ID:3288497', '[Not Available]']","{'[Not Available]': 63, 'CDE_ID:3288497': 1}"
+TCGA-LUAD,TCGA-LUAD\c9b06314-d440-45f7-adc0-acf69b55b0f3\genome.wustl.edu_biospecimen_cqcf_luad.txt,histological_type,str,0.0,2,"['CDE_ID:3081934', '[Not Available]']","{'[Not Available]': 63, 'CDE_ID:3081934': 1}"
+TCGA-LUAD,TCGA-LUAD\c9b06314-d440-45f7-adc0-acf69b55b0f3\genome.wustl.edu_biospecimen_cqcf_luad.txt,histological_type_other,str,0.0,2,"['CDE_ID:3124492', '[Not Available]']","{'[Not Available]': 63, 'CDE_ID:3124492': 1}"
+TCGA-LUAD,TCGA-LUAD\c9b06314-d440-45f7-adc0-acf69b55b0f3\genome.wustl.edu_biospecimen_cqcf_luad.txt,path_confirm_diagnosis_matching,str,0.0,2,"['CDE_ID:3288300', '[Not Available]']","{'[Not Available]': 63, 'CDE_ID:3288300': 1}"
+TCGA-LUAD,TCGA-LUAD\c9b06314-d440-45f7-adc0-acf69b55b0f3\genome.wustl.edu_biospecimen_cqcf_luad.txt,reason_path_confirm_diagnosis_not_matching,str,0.0,2,"['CDE_ID:3288315', '[Not Available]']","{'[Not Available]': 63, 'CDE_ID:3288315': 1}"
+TCGA-LUAD,TCGA-LUAD\cc2f50f4-8362-4784-9683-402b7c3b9a2b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\cc51e266-7b9c-4981-9ea4-72198ceb6196\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ccf41251-0a23-46fe-90d9-9141255622d2\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\cd9bb8a0-bb51-4319-b172-ec35c8c5e0e4\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\cdd073b4-1ab1-4026-83e6-a291849a8450\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\cdd3128f-f10f-4914-9dd5-6ea8472a0704\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ce0a7412-10a4-43b6-8e88-aedf4f0b6f17\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\cf4f0af5-b954-4358-bbc2-3554740789fa\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\cf9e4ccf-d3c3-4821-acdd-57ca84c6d378\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\cfc8aa57-78db-4a89-bf93-491f30bd228a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d00587c7-4199-4ccc-a80f-b53d26a5617f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d012dbe2-4758-4d33-9dbe-c1844da5cfad\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d07eb00c-6377-492e-a552-534c97b99f89\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d2632b5c-5253-46ad-9d47-dc5b2cd2e9f0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d364fb91-0a90-492d-a06f-91ccaebfba43\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d3bc0e7d-52c8-4640-977f-c983dd256591\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d3d58e7f-644f-4c42-94b7-2f1a7ccbe1d1\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d45f35c0-9d3b-42ce-b0ba-6e53fe266014\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\d556325e-63be-4781-b848-e7ce10f8c762\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\d58cffec-b7d5-4c50-8fbf-cae13ae02e56\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\d65edaa9-9292-426d-8560-db222ad25c10\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d6eb577f-04b5-4b0c-82d0-1f11d183e67e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d7d1b876-2073-4d33-81b8-1386b19e1a7c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d80bc543-e540-420d-bb56-e4364ccc7cee\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\d8726b28-0e5b-43b2-9fea-1f03beab1bb7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\d97ef921-176e-4c17-88fc-c443653c22b2\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\d9b8eadf-471e-4f1d-8b4c-f5695a7f379d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\da0ebcbb-097d-4457-a61b-e1d3775ef6f3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\dc0523a6-1ca2-4090-89f3-4de478fa0722\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 3}
+TCGA-LUAD,TCGA-LUAD\dc734692-be53-466c-a234-a681911399dd\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\dca98b8c-ad6e-48ae-b0e1-b7284c0c84ce\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\dcc76a75-4dbb-4a86-ae29-b6e57bb178ab\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\dd4c2ad2-c012-4d41-a67e-e6198805cc80\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\dd856f3b-1828-47dc-b9b3-3e1730e5cdf5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\de72e601-b104-4c2e-a137-e97226dfaa31\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e02ad356-c348-42dd-884b-97c640e895d9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e095104a-7888-4ad9-a92c-5c44b5136bb0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e13b4ef4-e804-48a7-8bd8-5c4703eb9ac8\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e175f7cc-9122-46c0-93bc-e98e86160a38\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e17aefbd-1432-409f-8304-4614c93e5239\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e2908315-7da1-42ef-aff1-3f80e6d70248\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e3114458-4138-44da-8629-37ab444658b5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e340f67f-aead-4a82-84bd-4e46a477223a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e34de68b-3107-4848-8a50-6bf61265f8ea\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e3d3a834-0e43-4ebd-a505-678c29bce6b9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e452aa9f-78c4-4c75-a961-a8656b0a7aaa\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\e4582519-ad26-4217-bc8c-7a4ab436f237\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e4ae1b3e-0d36-406b-9d32-6db23a55a261\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e5c648b5-6f3e-4e5c-a088-5e84e7ebbb25\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e64c8b5e-8c2a-4533-b9c4-585f3dfa3029\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\e89b8e03-1a68-4cb5-9cba-44e2d620498f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ea287e2e-8808-4ac2-95cd-9a12d40398ad\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ebaacf39-2d95-4e49-85fb-55f1774f9f59\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ebde0287-3c73-43ef-a7eb-b31f49d9bbce\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ec2063ae-075b-47e6-a71a-e8b3a9671ce3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ec70f598-2546-42c0-b9d0-27f8161931a9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ecf6f4f3-cabe-47bc-979b-741ccbebfa39\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ed12276a-56f2-4f4c-ae9f-27b452faca2b\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 1, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\f0bde46b-98cc-4368-8fa1-47735efee92a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\f24e4ff0-55b7-4d9d-af49-dcc9193c7c91\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\f341568b-8cf8-42ab-b2e1-44468e50ba22\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tss_pathology_submitted,str,0.0,4,"['path_confirm_report_attached', 'CDE_ID:3288292', 'YES', 'NO']","{'YES': 498, 'NO': 24, 'path_confirm_report_attached': 1, 'CDE_ID:3288292': 1}"
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histologic_diagnosis,str,0.0,16,"['histological_type', 'CDE_ID:3081934', 'Lung Adenocarcinoma- Not Otherwise Specified (NOS)', 'Lung Adenocarcinoma Mixed Subtype', 'Lung Papillary Adenocarcinoma', 'Lung Mucinous Adenocarcinoma', 'Lung Clear Cell Adenocarcinoma', 'Lung Acinar Adenocarcinoma']","{'Lung Adenocarcinoma- Not Otherwise Specified (NOS)': 320, 'Lung Adenocarcinoma Mixed Subtype': 107, 'Lung Papillary Adenocarcinoma': 22, 'Lung Acinar Adenocarcinoma': 21, 'Lung Bronchioloalveolar Carcinoma Nonmucinous': 21, 'Lung Mucinous Adenocarcinoma': 6, 'Mucinous (Colloid) Carcinoma': 6, 'Lung Solid Pattern Predominant Adenocarcinoma': 6, 'Lung Bronchioloalveolar Carcinoma Mucinous': 5, 'Lung Micropapillary Adenocarcinoma': 3}"
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,tss_pathology_review_days_to,str,0.0,347,"['days_to_pathology_review', 'CDE_ID:3288497', '241', '1034', '911', '453', '333', '1702']",{}
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histologic_dx_consistent,str,0.0,5,"['path_confirm_diagnosis_matching', 'CDE_ID:3288300', '[Not Available]', 'YES', 'NO']","{'YES': 473, '[Not Available]': 35, 'NO': 14, 'path_confirm_diagnosis_matching': 1, 'CDE_ID:3288300': 1}"
+TCGA-LUAD,TCGA-LUAD\f4b19626-a243-43a6-8257-cfe44cefa118\nationwidechildrens.org_ssf_tumor_samples_luad.txt,histologic_dx_inconsistent_reason,str,0.0,5,"['reason_path_confirm_diagnosis_not_matching', 'CDE_ID:3288315', '[Not Available]', 'Pathology review of frozen section for TCGA determined histological subtype different from the pathology report', 'Pathology analysis at TSS determined a specific histological subtype different from original pathology report']","{'[Not Available]': 508, 'Pathology analysis at TSS determined a specific histological subtype different from original pathology report': 12, 'Pathology review of frozen section for TCGA determined histological subtype different from the pathology report': 2, 'reason_path_confirm_diagnosis_not_matching': 1, 'CDE_ID:3288315': 1}"
+TCGA-LUAD,TCGA-LUAD\f6a3e9e7-2736-421f-871a-5240d984b8e8\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\f902915d-f26c-4060-9254-df7d85b23c39\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\f963a845-112f-4060-9ba1-77c142b24a59\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\f9a253f1-ff93-48e9-a1b9-8cb354191490\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\fb04acf9-524e-4bef-87c2-bf5a71713557\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 88, 'Observation': 1}"
+TCGA-LUAD,TCGA-LUAD\fb04acf9-524e-4bef-87c2-bf5a71713557\genome.wustl.edu_biospecimen_sample_luad.txt,pathology_report_file_name,str,0.79,1,['[Not Available]'],{'[Not Available]': 126}
+TCGA-LUAD,TCGA-LUAD\fb04acf9-524e-4bef-87c2-bf5a71713557\genome.wustl.edu_biospecimen_sample_luad.txt,pathology_report_uuid,str,0.79,1,['[Not Available]'],{'[Not Available]': 126}
+TCGA-LUAD,TCGA-LUAD\fb04acf9-524e-4bef-87c2-bf5a71713557\genome.wustl.edu_biospecimen_sample_luad.txt,sample_type,str,0.79,2,"['Primary Tumor', 'Solid Tissue Normal']","{'Primary Tumor': 63, 'Solid Tissue Normal': 63}"
+TCGA-LUAD,TCGA-LUAD\fb04acf9-524e-4bef-87c2-bf5a71713557\genome.wustl.edu_biospecimen_sample_luad.txt,sample_type_id,float64,0.79,2,"['1.0', '11.0']","{'1.0': 63, '11.0': 63}"
+TCGA-LUAD,TCGA-LUAD\fb266c01-6338-4b5a-b6d4-1f8916ef99c5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUAD,TCGA-LUAD\fb862516-c317-4dd1-ac3c-181bec6277ec\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\fdd80330-a0d3-433a-baed-47bc036969ec\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\fe90507f-1ca4-4639-b37d-5ba42b75edbc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\ff0f122a-10a5-46b9-8e66-baab1aefa540\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUAD,TCGA-LUAD\fff784d6-71a7-422e-8a7e-0296a0f66635\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\017ed67c-1ec9-4279-aec0-4a2c42b75713\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\022f2380-e7f8-49fb-a313-940e59015e6d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\025a5b15-39d0-4087-ab6b-958183d415b2\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\03926b1f-bc15-4847-92d9-8a85dc00555e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\04aa26d9-a4ec-4618-9860-3c3fe52c1702\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\062b4e71-bc95-44a6-a4aa-d43a16e3578a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\066f8a23-b7f3-4914-ae48-d5b86e7d2584\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\0693aef9-0ee6-4053-8817-1c2c28bcfa90\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\0850148b-2980-40ff-8306-a297f0318714\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\08577743-e86e-4e75-b348-da4e256e45ad\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\09fc6f01-e981-4e91-9110-55e28b4b443b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\0a4889a9-2e56-4bdb-b3ed-e4641e34fee2\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\0a53cfcc-3a81-40b3-9360-3fcddb7d9596\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\0bb34890-9ae1-4065-be83-58fb19d9935b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\0dac34e1-e598-4d9a-b28a-1c2f95030033\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\0df48079-455a-4ab9-add7-b0fe1dffc62a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\0ef97805-b399-40f4-9c32-e33a9add3352\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\0efec54c-33fb-4b67-a1f6-57f474925ab9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\0fffa573-bbc8-4bb4-affe-aa8cdcb2639c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\109471ca-b7d1-4495-94f0-14613d93c692\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\118514d7-460f-4b23-bac3-5e5f382f2595\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\11eaac57-8474-4ffc-8ded-492504c8af4f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\127a9969-8cd1-4e1c-b003-3da2ad9259bd\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\13cba2fb-cb09-41fd-b16d-892255019884\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\148a5c3e-e03c-40f4-9cb3-e19c5e255de4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\165fec2a-a95e-4494-bb13-1d4c1650e96c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\18f76a05-86d3-46bc-a355-0294c23c20f0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\18fc06e4-776c-4679-a754-eecead797f56\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\192164c0-b9ee-4e66-8ee2-1249eb8fa215\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\19a8be22-3a8d-405c-8f4a-f529d8168476\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\1a034ac4-73a1-479b-ad71-c8bce3eb079c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\1b0cc674-cc79-4544-89bc-beb658641c66\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\1e5ab466-fc03-4dba-b18b-6548234e0842\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\1ea4a5e7-3a48-41d9-83a4-b833c6090ee2\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\1eb5103a-a263-44c6-8856-2b92f750a0e3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\211e7935-9f02-411f-b9a0-25a4b158948a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\2223d5bf-0dc1-4848-bc7f-451599a34376\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 3}
+TCGA-LUSC,TCGA-LUSC\224ea5a0-1503-4486-8261-156510c22def\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\240c9a63-316c-4bef-a8cb-bd62fc4b563e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\24436a48-20a1-44dc-8268-6c175c6a29f9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\2555c516-4fdb-4af2-bc10-20bc7f5f6afc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\25d14bf8-07d5-48b9-b0f8-e40ba6b1f130\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\25ff4d2f-0e52-4027-a3fb-ebf0ed6abc01\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\26c945a1-ee04-4a0c-88bf-70a0dff16a03\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\27ed71cc-c634-4eda-b648-faf347f40826\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\28ea68e5-2636-4a53-9d8f-c7c46476d6ac\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\29926503-546a-4cfb-9b2e-1e7f5efd32fb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\29c870aa-8f42-438a-a888-7ea1f11c78eb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\2a6f2dfb-09b4-4aaf-a45d-6bd42c32b5e8\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\2b6441de-be8e-4126-b1f8-73d36e9079da\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\2d9b68ae-71c4-440a-a3d6-ec36238131c8\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\2e2514e4-71b8-48e3-823e-7daa63911a20\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\2f71c5f6-f211-4df6-b581-13d0c43e8fb4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\308733ce-eaa4-4af9-8a5b-958c292b0c8d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\32467126-8d7d-42ae-bd15-eccef2637e08\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\33d9168c-494e-4b56-be25-61996436563a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\34a13dfb-b60d-4801-8974-537cf1c11bd4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\3564c56f-90cc-4f93-90a6-de1a323eb5c5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\3585e467-151b-41f8-888c-e68945d87cdc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\35a84185-0d06-45ab-9a2d-e363e5824492\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\37673e23-5c60-4536-8bea-e9c43dfb3d9a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\383e0239-74e3-4e30-8f5a-a1637f2a349f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\39d09812-14eb-4e94-953a-9ec3703dd8c4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\3c7f7d3d-cd31-45eb-9a52-1bbc06e888b0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\3c82bfce-cf88-4407-a275-e7cabaf71be6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\3d8d7975-8c32-42da-ae14-48ea19004049\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\3dfd04a7-54ec-4325-8327-3e58b4e439fe\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\405a6766-55f1-4748-9410-a39499612076\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\40a5a166-aff7-4910-9950-6972b30e4456\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\40db486b-4678-4590-9d08-3a19de586b1f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\410384ef-4d0e-4b2f-9a64-e121c6b89a24\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\419b4d9e-1748-4565-8de6-7a5734ca8f23\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\41f03d8b-05c5-4bb2-8d8a-734c3251bee2\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\421ea134-4006-4546-9f8b-535fdc4803c1\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\43b85b2a-8aee-4ada-b020-57c569dd4719\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\43fc0d20-7338-45f7-b7ae-e36ad4200a14\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\4456d133-7607-49d9-a263-a19d5b347f01\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 2, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\475a3d97-b51f-4278-9ee1-b06a2febebfe\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\47c1ce81-50b6-4088-8eee-dc2d87161a24\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\48249176-902f-4746-85e4-92faeb58a03f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\48e1b978-eb31-4e47-a5fe-ec525d946c9c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\48fe651c-7f3b-4266-94bc-d2b4313c80b4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\4959c4f1-7772-4775-9afe-6e9a290a30b5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\497fa4bc-e907-4f69-be7f-2e0d0cd6f461\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\4a2e0afc-6997-4937-845e-c56c94624286\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\4a4f1580-5426-4c2b-b3ca-4a0c7493fc6c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 3}
+TCGA-LUSC,TCGA-LUSC\4b0a71f2-0cdd-4749-ab85-2288a98eb2ca\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\4bceff31-5bbe-45a5-b144-8083b1758f3f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\4bd5ddd8-bbeb-4556-b5e4-00ade5be1057\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\4c313e97-4127-4ca9-afa9-b6e447f07412\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\4d728163-c4dc-4fcc-a2d9-03672ff6d58d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\4d82b434-e6f1-4767-bf94-943fdb8d05ee\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\4f45f039-3400-4a95-89f6-c0803160e1c7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\4f4ca669-b16e-4a02-9fb7-12db1f362af3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\4f5f3f55-c995-4802-8cdf-8332b72dc2aa\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\4f82c878-2d75-4e80-ac42-c65d5db42afc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\5137cece-5f4a-40fb-b9c9-014a4cb9bbb4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\53100eb1-002a-4ed7-b3ea-784f8c101cec\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\53a05cfd-b532-421e-a6dc-6ff358ce4c08\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\5484ea3d-ec74-4cd7-b13b-a953e9a2d2c4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\559f6cbc-cc91-4696-9b46-5cf8ca1c1160\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\568a3dab-2df1-4ed1-b51e-8c01c49d66b1\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\5757be0b-e416-4fe7-80bc-77f4ef442ac6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\59ce5a88-67e1-4f67-b628-9deb63fab2dc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\5b0a3114-4133-4a87-aacd-97769c8103e4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\5b3ea0e5-a6b5-4933-babb-25200a9937ff\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\5b4e0377-fa13-4dcc-88b3-3ea4ec9ea34a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\5b55bb68-a083-46ac-a024-33d7a70f90fb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\5bbe80db-cd91-4b0a-a0df-c3768ffd9380\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\5ed8c1e2-0186-44bf-b8ce-587cd85a6461\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\5f71a484-ac55-445e-ae57-3e185572cc32\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\6110e570-49f8-4952-8e4d-147fe70e5742\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\61a7b327-c22b-466f-b097-caa76d90bd8b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\624b8b6d-ef92-4453-8f99-bf85273ff483\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\6286d36e-eb9f-4379-9a6e-b42e975ac8a3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\63440516-819d-43dd-ae17-10bef626945b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\636ef539-8f43-4e64-b050-04d58c703b9d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\63ea1b93-9f97-477e-bc8d-02ef3619df87\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\64113c5e-b86a-4e66-9f6f-f372c61bd3fb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\650126cd-fb6d-4029-b92a-7fc2d7bef90a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\6651f42a-c4ec-46f5-981a-9b8231736f41\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\67087802-3762-4a85-9661-b0316d9252d6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\67698811-54dd-4433-a4d1-1293dcbb5907\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\68a7aef6-bda7-4328-a411-23255f6e46df\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\6a5a820f-c573-49e4-9b52-b8f3ced4ab53\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\6aa3f79f-c6f0-4493-bb2a-d2e3d44dad71\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\6be0fd60-3298-469d-9627-d4db5a6f038e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\6be1c49d-8a1f-4e2e-b731-11e0ba183edc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\6d2895ef-95b0-4d15-87e5-135472366d36\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\6d414525-0924-4f97-a05a-04a94bfd6587\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\6f252b9c-5ebe-437a-9dcf-c81a1eaf7dcb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\6fd0f8e3-e7dc-49d1-92f7-9eea3b163aa5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\70ee593d-5201-4cd6-988e-8bf92ca36471\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\71c2ae7d-ed43-4165-aa64-12c3f13800bd\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\72226b97-caf8-4751-90ad-3266570dadb8\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\7297d9db-932b-4df3-95ba-991c7c202a22\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\73285e32-152e-4799-affd-3b64f0a4f8ca\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\7434adcc-dd45-4728-a8b8-6167d53af4a9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 3}
+TCGA-LUSC,TCGA-LUSC\750c6d24-f3d2-47c9-af8e-272f2047b639\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\75ee6a07-21a3-4d2d-a6c8-639675db3ecb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\76bf0ccb-1d11-424b-aad5-770f43e10c42\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\76d58887-c81d-4705-b877-e51faed73070\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\772adbae-50fe-49e9-8374-79f48a0034b3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\7a1390ed-ccf4-4aa1-988b-3bf3e138d362\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\7a7ba7cc-e8c3-4701-9e14-90bfa12654d1\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\7a8c62c8-d4f5-418a-9f6e-4d6f0cee78fa\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,histologic_diagnosis,str,0.0,3,"['diagnosis', 'CDE_ID:3081932', 'Lung Squamous Cell Carcinoma']","{'Lung Squamous Cell Carcinoma': 504, 'diagnosis': 1, 'CDE_ID:3081932': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,histologic_diagnosis.1,str,0.0,7,"['histological_type', 'CDE_ID:3081934', 'Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS)', 'Lung Basaloid Squamous Cell Carcinoma', 'Lung Small Cell Squamous Cell Carcinoma', '[Discrepancy]', 'Lung Papillary Squamous Cell Caricnoma']","{'Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS)': 482, 'Lung Basaloid Squamous Cell Carcinoma': 15, 'Lung Papillary Squamous Cell Caricnoma': 5, 'histological_type': 1, 'CDE_ID:3081934': 1, 'Lung Small Cell Squamous Cell Carcinoma': 1, '[Discrepancy]': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,initial_pathologic_dx_year,str,0.0,24,"['year_of_initial_pathologic_diagnosis', 'CDE_ID:2896960', '2003', '2004', '2005', '2006', '2007', '2009']","{'2011': 95, '2012': 73, '2007': 44, '2010': 39, '2008': 37, '2009': 34, '2006': 31, '2003': 21, '2004': 21, '2005': 20}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,ajcc_tumor_pathologic_pt,str,0.0,10,"['pathologic_T', 'CDE_ID:3045435', 'T1', 'T2', 'T3', 'T4', 'T1b', 'T2b']","{'T2': 174, 'T2a': 87, 'T3': 71, 'T1': 50, 'T1b': 40, 'T2b': 34, 'T4': 24, 'T1a': 24, 'pathologic_T': 1, 'CDE_ID:3045435': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,ajcc_nodes_pathologic_pn,str,0.0,7,"['pathologic_N', 'CDE_ID:3203106', 'N0', 'N2', 'N1', 'NX', 'N3']","{'N0': 320, 'N1': 133, 'N2': 40, 'NX': 6, 'N3': 5, 'pathologic_N': 1, 'CDE_ID:3203106': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,ajcc_metastasis_pathologic_pm,str,0.0,8,"['pathologic_M', 'CDE_ID:3045439', 'M0', 'M1', '[Not Available]', 'MX', 'M1a', 'M1b']","{'M0': 414, 'MX': 79, 'M1': 5, '[Not Available]': 4, 'pathologic_M': 1, 'CDE_ID:3045439': 1, 'M1a': 1, 'M1b': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,ajcc_pathologic_tumor_stage,str,0.0,13,"['pathologic_stage', 'CDE_ID:3203222', 'Stage IA', 'Stage IB', 'Stage IIB', 'Stage IIIA', 'Stage IV', 'Stage IIA']","{'Stage IB': 152, 'Stage IIB': 95, 'Stage IA': 90, 'Stage IIA': 65, 'Stage IIIA': 63, 'Stage IIIB': 19, 'Stage IV': 7, '[Discrepancy]': 4, 'Stage II': 3, 'Stage I': 3}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,age_at_initial_pathologic_diagnosis,str,0.0,48,"['age_at_initial_pathologic_diagnosis', 'CDE_ID:2006657', '67', '72', '77', '74', '81', '63']","{'73': 34, '70': 30, '74': 24, '68': 24, '71': 21, '66': 21, '67': 20, '65': 20, '64': 20, '76': 19}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,cd4_counts_at_diagnosis,str,0.0,3,"['cd4_counts_at_diagnosis', 'CDE_ID:2922654', '[Not Available]']","{'[Not Available]': 504, 'cd4_counts_at_diagnosis': 1, 'CDE_ID:2922654': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,days_to_hiv_diagnosis,str,0.0,3,"['days_to_hiv_diagnosis', 'CDE_ID:4618491', '[Not Available]']","{'[Not Available]': 504, 'days_to_hiv_diagnosis': 1, 'CDE_ID:4618491': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,days_to_initial_pathologic_diagnosis,str,0.0,4,"['days_to_initial_pathologic_diagnosis', 'CDE_ID:3008275', '0', '[Not Available]']","{'0': 479, '[Not Available]': 25, 'days_to_initial_pathologic_diagnosis': 1, 'CDE_ID:3008275': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,hiv_rna_load_at_diagnosis,str,0.0,3,"['hiv_rna_load_at_diagnosis', 'CDE_ID:2922674', '[Not Available]']","{'[Not Available]': 504, 'hiv_rna_load_at_diagnosis': 1, 'CDE_ID:2922674': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,icd_o_3_histology,str,0.0,9,"['icd_o_3_histology', 'CDE_ID:3226275', '8070/3', '8083/3', '8072/3', '8073/3', '8140/3', '8071/3']","{'8070/3': 468, '8083/3': 14, '8071/3': 13, '8052/3': 4, '8072/3': 3, 'icd_o_3_histology': 1, 'CDE_ID:3226275': 1, '8073/3': 1, '8140/3': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,on_haart_therapy_at_cancer_diagnosis,str,0.0,3,"['on_haart_therapy_at_cancer_diagnosis', 'CDE_ID:2922679', '[Not Available]']","{'[Not Available]': 504, 'on_haart_therapy_at_cancer_diagnosis': 1, 'CDE_ID:2922679': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,on_haart_therapy_prior_to_cancer_diagnosis,str,0.0,3,"['on_haart_therapy_prior_to_cancer_diagnosis', 'CDE_ID:3335156', '[Not Available]']","{'[Not Available]': 504, 'on_haart_therapy_prior_to_cancer_diagnosis': 1, 'CDE_ID:3335156': 1}"
+TCGA-LUSC,TCGA-LUSC\7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550\nationwidechildrens.org_clinical_patient_lusc.txt,project_code,str,0.0,3,"['project_code', 'CDE_ID:', '[Not Available]']","{'[Not Available]': 504, 'project_code': 1, 'CDE_ID:': 1}"
+TCGA-LUSC,TCGA-LUSC\7b7fc238-d9a0-42aa-a57b-15d49e86df03\annotations.txt,classification,str,0.0,2,"['Observation', 'Notification']","{'Notification': 2, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\7c6a8906-7feb-46f9-9dbd-8769a4b3ab48\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\7f2b1dff-fdb0-4d4e-9b9e-6bcf4991555e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\80bbcb23-0b0d-45ee-a3b8-ffd6979861c6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\81342b3e-0c1e-4fe5-964b-b37578b671e4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\823a2e8f-77d4-4525-b7d9-882e0bfcaa5e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\8258c0e2-95d8-4d76-b79e-02af60f327e9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\84028915-e738-4f79-8b32-e6522f043ad1\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 2, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\8576cd35-c27f-4ed4-855b-894c82822bbc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\86427e67-e13d-4892-878d-6d945d655dcc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\8690f7bd-de0c-41ee-806a-f4e949ed1fbf\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\86d84fed-3a69-44e8-b9fb-db991632013d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\8814a703-29f7-47b7-846e-17c297ceb07b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\8a6bf544-b63e-423c-8dfb-53c7b903c11d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\8ac42739-487b-4d46-acd3-9e535a84cae5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\8b851740-ce11-49e8-928d-ed01bb363aaa\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\8e666215-2978-4983-99ef-e2e0a4cafd32\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\8f39b96a-4edd-4774-901d-07f1b95ad5aa\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\903dd38b-843e-4075-8e16-0a9ca4996356\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\90772505-f8df-4649-956b-439bebe361e5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\92fc51bd-e4fb-4cca-8670-a83560ccfc4d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\950030cb-9959-438a-8da6-dc32cc2571e6\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\95367a69-27b9-4518-917a-85ad75eea2bc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\95a1fdfb-b1fe-488f-8a72-fe17782098aa\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\95e944f6-a8e3-4d5c-90d7-34d44ebd2121\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\963119ed-89f5-4774-98ba-c2f81a3a2c29\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\96d24e45-920f-4f14-b9f8-a5819716b865\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\970b268d-bae8-4323-bd66-0c1be1511a6f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\973e2d65-8da6-4719-a786-f8014097661d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\976cf9de-0a8e-4240-9e50-cbdfe9b84f62\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\982aaa3b-d126-4fa3-a948-963886bc9783\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\98c697a8-2cbc-4c97-b1b7-456602f56eea\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\98d52e9f-97b9-4425-82b2-6518523baffd\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\99145ea8-d55d-46f6-a295-b5befdf1756b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\99e9f02b-ca44-4ef3-af83-f854eca30412\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\9a6c94bd-8c30-4444-9fc7-efe2c33dfc6c\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\9af48fac-deb7-4cb9-976a-f30a7ee07e7d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\9b5d0831-7776-411a-a9df-156a8ad8305e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\9ba8d134-4d23-485d-a35a-97bca20091e7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\9ca81f2c-e5c5-4b20-b91c-73a7d52af7d7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\9d232e45-bec2-4a63-bbd5-733af6439259\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\9d7e302f-7d49-4fd1-bea0-2486115c2c1e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\9deab7b8-adde-4118-a5c4-ef0a7f1f886d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\9ec018f9-0fa1-49cd-a696-22e67fb91f8c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\9fbc1318-7a77-43e8-9f53-c8f2fa770e71\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\a1499e08-4585-49bd-bed8-a0d1f9d9c65a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\a288ce03-8ee9-4239-9929-2064afffc7e3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\a2cd5eba-3e99-4a21-b536-2b7bad82802a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\a332c5c4-0b47-4549-8734-a1af753c2ee6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\a45856eb-ed15-47ac-8b9f-93817efaf386\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\a4863d9d-ab1f-4054-a607-2e8822bde12b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\a64b80eb-d08b-4da3-8669-ef0c96fe9263\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\a68a3739-aadb-405e-bb48-79c9282f0886\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\a888f988-3a85-494b-994b-d074e9dad7ef\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\aa7dee53-6ea3-4394-8912-faea83a241ee\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histologic_diagnosis,str,0.0,11,"['histological_type', 'CDE_ID:3081934', 'Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS)', 'Lung Basaloid Squamous Cell Carcinoma', 'Squamous Cell Carcinoma, Not Otherwise Specified', 'Lung Small Cell Squamous Cell Carcinoma', 'Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS)|Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS)', 'Basaloid Squamous Cell']","{'Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS)': 276, 'Squamous Cell Carcinoma, Not Otherwise Specified': 202, 'Lung Basaloid Squamous Cell Carcinoma': 7, 'Basaloid Squamous Cell': 7, 'Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS)|Lung Squamous Cell Carcinoma- Not Otherwise Specified (NOS)': 5, 'Papillary Squamous Cell Carcinoma': 4, 'histological_type': 1, 'CDE_ID:3081934': 1, 'Lung Small Cell Squamous Cell Carcinoma': 1, 'Lung Papillary Squamous Cell Caricnoma': 1}"
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tss_pathology_submitted,str,0.0,4,"['path_confirm_report_attached', 'CDE_ID:3288292', 'YES', 'NO']","{'YES': 495, 'NO': 9, 'path_confirm_report_attached': 1, 'CDE_ID:3288292': 1}"
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histologic_dx_consistent,str,0.0,5,"['path_confirm_diagnosis_matching', 'CDE_ID:3288300', 'YES', '[Not Available]', 'NO']","{'YES': 461, '[Not Available]': 39, 'NO': 4, 'path_confirm_diagnosis_matching': 1, 'CDE_ID:3288300': 1}"
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,histologic_dx_inconsistent_reason,str,0.0,4,"['reason_path_confirm_diagnosis_not_matching', 'CDE_ID:3288315', '[Not Available]', 'Pathology analysis at TSS determined a specific histological subtype different from original pathology report']","{'[Not Available]': 500, 'Pathology analysis at TSS determined a specific histological subtype different from original pathology report': 4, 'reason_path_confirm_diagnosis_not_matching': 1, 'CDE_ID:3288315': 1}"
+TCGA-LUSC,TCGA-LUSC\ad34e12f-8307-4810-a3f2-13211c46d468\nationwidechildrens.org_ssf_tumor_samples_lusc.txt,tss_pathology_review_days_to,str,0.0,376,"['days_to_pathology_review', 'CDE_ID:3288497', '2319', '2325', '2107', '2031', '2024', '1835']",{}
+TCGA-LUSC,TCGA-LUSC\ad7b1ecc-c9fe-424b-81e4-331afd7364e9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\af829e66-e5e2-4fec-91cc-674fa0115e8f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\afd41778-57a9-45b7-9c7b-cfc07aad8f65\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\b01bfad6-5737-4596-a68b-3bb39ba3c525\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b04eef0a-3fb5-4287-8744-c0cbd0fe054a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b19afd49-21c2-4b3f-bdea-3bdc25fafa1f\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\b1f1fed0-b03c-44b5-a1e6-d238cb45d06e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\b23b77bc-b83d-4ce8-a380-b4bfbbcd6c02\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b2da5ede-b2f7-4976-b0fe-6c48abd361a4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b33d76fa-9a10-487f-92db-5ad37dd3968a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b3fb02da-fd36-4abc-95ee-3d89b9faae5a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b51063c3-3fc2-4fdd-bc6c-77022c15cc51\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\b5a6cd8c-726f-4dda-9037-56470fd5abc5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b5cceec9-8006-45e1-9f92-949c23d594bc\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\b5cceec9-8006-45e1-9f92-949c23d594bc\nationwidechildrens.org_clinical_drug_lusc.txt,clinical_trial_drug_classification,str,0.0,5,"['clinical_trail_drug_classification', 'CDE_ID:3378323', '[Not Available]', 'Antigen specific cancer immunotherapeutic therapy', 'MAGE/A3']","{'[Not Available]': 355, 'clinical_trail_drug_classification': 1, 'CDE_ID:3378323': 1, 'Antigen specific cancer immunotherapeutic therapy': 1, 'MAGE/A3': 1}"
+TCGA-LUSC,TCGA-LUSC\b60c2d19-efe2-4297-a770-59f659ef0f9d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b666c1a2-a09f-489b-b68d-d0f0bed1ef30\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b6845204-2964-4991-bc1f-8798a1d8c1d9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b6ec8d29-f25f-4b97-a3e5-78318c25e411\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b8c29b9b-8771-473a-b3c1-c69ab241cfdc\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b94ef337-4030-4f0a-97eb-54196c8bd5de\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\b964858d-162f-49b2-aa94-143353e5f40e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\bad25133-cf67-4290-8d9a-aa7c94e81fb1\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\bf12795c-731f-43ff-bbea-ba37c7c2115e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\bf517c8f-6796-4fdb-b471-e34052c76a46\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\bf570349-6da5-4882-ad78-cbb8dd4632c2\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\c1b095a1-2be5-4af7-90ad-5d9ed483b81c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\c1f3f44c-9543-43a4-9cfa-6f71d2a60b6b\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\c38b509c-5c0f-4661-acef-a708327ce20f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\c3b4204e-550a-415d-bac6-f826876064e1\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\c485fc26-bd0c-4313-8ab2-3b0d7efb63a3\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\c4bc67e5-861e-45be-a356-7132a0182b6f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\c7ef6601-ef76-4317-a77e-1a84f4e53aef\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\c8189bed-e1ec-4d5a-ad97-7f159ac5424c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\c9691f4c-91c6-4775-85af-4339d9224105\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\cad6c9f9-5267-4e78-b83d-19702d9db610\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\caf8da93-6f91-48b4-b1a9-a48a87528fb8\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\cb25b14c-b897-4630-9d4c-bbf0b56cb392\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\cb8628c7-f332-49db-a2a4-d556233ba412\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\cbcdcbd4-367b-4b97-8705-4290c050a773\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\cdbb52ff-7862-46f4-a9ac-c59107ec42e4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ce9c8dfd-4f18-4740-8242-8fdf3cd720e7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\cea77015-b723-4854-96fd-92a0cec0392d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\cf5634cb-4b85-4dd1-ad36-9384a2cbe771\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\d13964d4-2c61-47fc-8ed8-3f3ff556363f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 3}
+TCGA-LUSC,TCGA-LUSC\d4e61e39-b76c-4538-b275-8e1705ad7faf\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\d56bba96-9be2-417e-b2e9-1b0259d85b93\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\d6694865-dbfb-4da8-8e2f-94936f8427fb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\d69a5093-f02b-4158-85c6-d867ac34a404\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\d816cf77-f709-467a-ab58-c92e8f5cd456\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\d81d9871-d124-4e8d-be57-a43ee180da94\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\d84a82c2-c97a-4bc1-bbf0-df56189e3f54\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\d91bf339-f220-4b80-bae7-c469d0d231de\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\da8fbce4-98ed-4daf-b551-cd5ff263aeac\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 3}
+TCGA-LUSC,TCGA-LUSC\db214c4f-fc91-4a27-94df-0cf26bb326a6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\dcb9c1b1-30e4-448a-895a-af7c5292813f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ddcd5060-0ff6-4741-85a4-877a685b839f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\de30fd85-c117-40f8-8846-d4a585d7baa4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\df2dab56-fb35-48eb-a756-795d7bee3471\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\df54bfe1-d2b7-407f-b819-6b8002250e30\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\df8b0c0f-a1c9-49e0-a17f-d91d221cf1c0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\dfec4501-78e3-4f44-b58d-6892515f6af5\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\e01e506f-cec5-4dca-95c6-e6c9640d00b9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\e14d11cf-c22a-42f0-af03-bf0a1a80362d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\e177408a-d8c4-458b-b547-8d5e29ea8963\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\e35d88d7-90a3-490d-b034-837fa5041b1d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\e3b9a449-a777-452f-b242-e6d33cb155c0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\e58aefbd-46d5-4078-994d-e01363826bd9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\e5c24907-69e0-4e7f-aa78-414357e28904\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\e637423b-5ad7-4e09-973e-353b0c31e908\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\e7453d67-71e4-4a16-96f0-e103c067c902\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\e87e947e-0f49-426d-b191-099f89a7f011\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\e9e5e2d3-96a4-41e3-97d6-51e24556e605\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ea239581-58b1-41ff-a73d-5a3a6bb74381\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ea2f1f21-025b-4e02-8a13-5eecab9d78c6\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ea33cfd4-6d69-443e-b8c7-4bad907e7a4d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ea883041-1373-4286-91e4-ccf0d1c218ce\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 2, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\eb58126c-a5a5-4b8a-9941-10b7a99ba47f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\ebd9668d-7e8c-4649-8365-88e9d1e4d2d4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ec462acd-c5d0-4e25-80cd-fb6462393f10\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\ec462acd-c5d0-4e25-80cd-fb6462393f10\nationwidechildrens.org_biospecimen_sample_lusc.txt,pathology_report_file_name,str,0.09,507,"['TCGA-18-5592.fe921521-1681-4f88-bcda-b216cea7981a.pdf', '[Not Available]', 'TCGA-18-5595.3ca67814-08d3-4146-985d-b6608b3a7fe6.pdf', 'TCGA-21-5782.644e67c4-61cd-40f8-b2cb-287b8a868eb4.pdf', 'TCGA-21-5784.5d154faf-bb6e-4237-80cf-9d02e2127adb.pdf', 'TCGA-21-5786.7c63d47f-0a73-415c-b4e5-d5c70886709e.pdf', 'TCGA-21-5787.fe205444-57af-48ab-8e50-ea8c4a42eb07.pdf', 'TCGA-22-5471.139e042e-6971-4840-97b1-a54988346967.pdf']",{}
+TCGA-LUSC,TCGA-LUSC\ec462acd-c5d0-4e25-80cd-fb6462393f10\nationwidechildrens.org_biospecimen_sample_lusc.txt,pathology_report_uuid,str,0.09,507,"['fe921521-1681-4f88-bcda-b216cea7981a', '[Not Available]', '3ca67814-08d3-4146-985d-b6608b3a7fe6', '644e67c4-61cd-40f8-b2cb-287b8a868eb4', '5d154faf-bb6e-4237-80cf-9d02e2127adb', '7c63d47f-0a73-415c-b4e5-d5c70886709e', 'fe205444-57af-48ab-8e50-ea8c4a42eb07', '139e042e-6971-4840-97b1-a54988346967']",{}
+TCGA-LUSC,TCGA-LUSC\ec462acd-c5d0-4e25-80cd-fb6462393f10\nationwidechildrens.org_biospecimen_sample_lusc.txt,sample_type,str,0.09,4,"['Primary Tumor', 'Solid Tissue Normal', 'Blood Derived Normal', 'FFPE Scrolls']","{'Primary Tumor': 512, 'Blood Derived Normal': 319, 'Solid Tissue Normal': 260, 'FFPE Scrolls': 6}"
+TCGA-LUSC,TCGA-LUSC\ec462acd-c5d0-4e25-80cd-fb6462393f10\nationwidechildrens.org_biospecimen_sample_lusc.txt,sample_type_id,float64,0.09,3,"['1.0', '11.0', '10.0']","{'1.0': 518, '10.0': 319, '11.0': 260}"
+TCGA-LUSC,TCGA-LUSC\ed3de501-ae6f-4ab4-a4a9-afa9a52b894f\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ed508506-a14a-40f9-8695-0779bc3b7c7d\annotations.txt,classification,str,0.0,2,"['Observation', 'Notification']","{'Notification': 2, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\edb01310-8047-4167-8d6a-c77958574d44\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ee067455-c56d-43a7-8850-819ced93857d\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ee8d42a6-80f0-4beb-8f07-f82e0e3b4726\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\ef74a6f0-eafa-486b-a269-49d2ca5fd943\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\ef7985de-100c-4740-b5ce-515b0e5e4dd0\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\f1cb9e8d-9d99-45d8-b189-afaf772dd477\annotations.txt,classification,str,0.0,2,"['Notification', 'Observation']","{'Notification': 83, 'Observation': 1}"
+TCGA-LUSC,TCGA-LUSC\f1eeb4d0-8aaf-4a7a-b9da-4286ed5538f0\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\f1fa94e1-bfa1-401b-bd53-bb067ecf1dad\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\f1fcfedc-b11d-49ec-b31d-fa3425833c47\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\f21bf101-46f6-4606-baa9-6f039f28358e\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\f224a332-9d2e-4c62-a257-9d989c403c01\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\f25ae890-28f8-4b8c-b6e5-5c80999454b9\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\f28909f8-8310-44b2-9359-e90342d59500\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\f48d3d6b-cfd4-4acd-b7dd-b163b0ba4605\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\f4fc79a1-ebe6-4b96-af51-5cb87561ebdf\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\f51600de-ed4e-4908-b5ce-fd271c7c235a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\f64ec22c-7200-4ef4-8226-74d8ad8626e2\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\f69b152c-aa74-4628-8479-80336eafc424\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\f6a8b42b-2553-4503-aad2-889112fea535\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\f7288898-8b19-40d6-8386-6f99a4b49996\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\f901d429-0528-4874-9440-e58113c82233\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\f9723add-b4c9-439e-afb9-160975616ae7\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\faa944e6-efc2-410b-914d-03ef6b3d467a\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\fbaa3fd1-2367-44f2-a883-8906770c77c4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\fbf0cf53-f8df-4f73-9306-56a1f5bf5e6c\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\fc740207-f192-4501-979c-99be7c9313e4\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+TCGA-LUSC,TCGA-LUSC\fcc5cfa6-0174-4a83-b369-aa18a0c37d23\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 1}
+TCGA-LUSC,TCGA-LUSC\fe03994f-f562-400a-98b0-c2addf8298bb\annotations.txt,classification,str,0.0,1,['Notification'],{'Notification': 2}
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,Cancer Type,str,0.0,9,"['The main cancer type as defined by the Oncotree cancer classification system for precision oncology. Source: MPath', 'STRING', '3000', 'CANCER_TYPE', 'Non-Small Cell Lung Cancer', 'Breast Cancer', 'Colorectal Cancer', 'Pancreatic Cancer']","{'Non-Small Cell Lung Cancer': 1654, 'Breast Cancer': 1138, 'Colorectal Cancer': 1019, 'Prostate Cancer': 654, 'Pancreatic Cancer': 531, 'The main cancer type as defined by the Oncotree cancer classification system for precision oncology. Source: MPath': 1, 'STRING': 1, '3000': 1, 'CANCER_TYPE': 1}"
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,Sample Type,str,0.0,7,"['The type assigned to a sample (i.e., normal, primary, met, recurrence). Source: MPath', 'STRING', '990', 'SAMPLE_TYPE', 'Metastasis', 'Primary', 'Local Recurrence']","{'Primary': 2717, 'Metastasis': 2273, 'Local Recurrence': 6, 'The type assigned to a sample (i.e., normal, primary, met, recurrence). Source: MPath': 1, 'STRING': 1, '990': 1, 'SAMPLE_TYPE': 1}"
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,Cancer Type Detailed,str,0.0,46,"['The cancer subtype as defined by the Oncotree cancer classification system for precision oncology. Source: MPath', 'STRING', '2000', 'CANCER_TYPE_DETAILED', 'Lung Adenocarcinoma', 'Breast Invasive Ductal Carcinoma', 'Breast Mixed Ductal and Lobular Carcinoma', 'Breast Invasive Cancer, NOS']","{'Lung Adenocarcinoma': 1343, 'Breast Invasive Ductal Carcinoma': 856, 'Colon Adenocarcinoma': 719, 'Prostate Adenocarcinoma': 640, 'Pancreatic Adenocarcinoma': 424, 'Rectal Adenocarcinoma': 247, 'Lung Squamous Cell Carcinoma': 167, 'Breast Invasive Lobular Carcinoma': 148, 'Pancreatic Neuroendocrine Tumor': 68, 'Breast Mixed Ductal and Lobular Carcinoma': 48}"
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,Pathological Group,str,18.66,20,"['Pathological Group', 'STRING', '3000', 'PATHOLOGICAL_GROUP', '1', '2A', '4', '3C']","{'4': 1099, '2A': 410, '0': 408, '1A': 366, '2B': 349, '4A': 284, '3A': 247, '3B': 163, '3C': 157, '3': 150}"
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,ICD-O Histology Description,str,0.0,81,"['ICD-O Histology Description', 'STRING', '3000', 'ICD_O_HISTOLOGY_DESCRIPTION', 'Adenocarcinoma, Nos', 'Infiltrating Duct Carcinoma', 'Lobular Ca + Ifdc/Dcis', 'Mucinous Adenocarcinoma']","{'Adenocarcinoma, Nos': 2331, 'Infiltrating Duct Carcinoma': 956, 'Adenocarcinoma Combined With Other Types Of Carcinoma': 505, 'Lobular Carcinoma, Nos': 117, 'Squamous Cell Carcinoma, Nos': 108, 'Mucinous Adenocarcinoma': 96, 'Acinar Cell Carcinoma': 92, 'Adenoca In Tubulovillous Adenoma': 79, 'Adenocarcinoma In Polyp,Nos': 74, 'Lobular Ca + Ifdc/Dcis': 64}"
+MSK-CHORD-2024,msk_chord_2024\data_clinical_sample.txt,Diagnosis Description,str,0.0,20,"['Diagnosis Description', 'STRING', '3000', 'DIAGNOSIS_DESCRIPTION', 'Lung and Bronchus', 'Breast', 'Ascending Colon', 'Cecum']","{'Lung and Bronchus': 1654, 'Breast': 1137, 'Prostate': 654, 'Pancreas': 531, 'Rectum': 244, 'Sigmoid Colon': 240, 'Cecum': 152, 'Rectosigmoid Junction': 121, 'Ascending Colon': 108, 'Descending Colon': 64}"
+MSK-CHORD-2024,msk_chord_2024\data_mutations.txt,Variant_Classification,str,0.0,13,"['In_Frame_Del', 'Missense_Mutation', 'Frame_Shift_Del', 'Nonsense_Mutation', 'Splice_Site', 'Frame_Shift_Ins', ""5'Flank"", 'Translation_Start_Site']","{'Missense_Mutation': 3342, 'Frame_Shift_Del': 632, 'Nonsense_Mutation': 508, 'Frame_Shift_Ins': 191, 'Splice_Site': 168, 'In_Frame_Del': 105, 'In_Frame_Ins': 16, ""5'Flank"": 11, 'Translation_Start_Site': 10, 'Intron': 8}"
+MSK-CHORD-2024,msk_chord_2024\data_timeline_cancer_presence.txt,SUBTYPE,str,0.0,1,['HasCancer'],{'HasCancer': 5000}
+MSK-CHORD-2024,msk_chord_2024\data_timeline_diagnosis.txt,SUBTYPE,str,0.0,1,['Primary'],{'Primary': 5000}
+MSK-CHORD-2024,msk_chord_2024\data_timeline_gleason.txt,SUBTYPE,str,0.0,1,['Gleason Score'],{'Gleason Score': 4926}
+MSK-CHORD-2024,msk_chord_2024\data_timeline_mmr.txt,SUBTYPE,str,0.0,1,['MMR (IHC)'],{'MMR (IHC)': 5000}
+MSK-CHORD-2024,msk_chord_2024\data_timeline_pdl1.txt,SUBTYPE,str,0.0,1,['PD-L1 Positive'],{'PD-L1 Positive': 5000}
+MSK-CHORD-2024,msk_chord_2024\data_timeline_performance_status.txt,SUBTYPE,str,0.0,1,['Performance Status'],{'Performance Status': 5000}
+MSK-CHORD-2024,msk_chord_2024\data_timeline_prior_meds.txt,SUBTYPE,str,0.0,1,['Prior Medications to MSK'],{'Prior Medications to MSK': 5000}
+MSK-CHORD-2024,msk_chord_2024\data_timeline_progression.txt,SUBTYPE,str,0.0,1,['Progression'],{'Progression': 5000}
+MSK-CHORD-2024,msk_chord_2024\data_timeline_radiation.txt,SUBTYPE,str,0.0,1,['Radiation Therapy'],{'Radiation Therapy': 5000}
+MSK-CHORD-2024,msk_chord_2024\data_timeline_specimen.txt,SUBTYPE,float64,100.0,0,[],{}
+MSK-CHORD-2024,msk_chord_2024\data_timeline_specimen_surgery.txt,SUBTYPE,float64,100.0,0,[],{}
+MSK-CHORD-2024,msk_chord_2024\data_timeline_surgery.txt,SUBTYPE,str,0.0,2,"['SAMPLE', 'PROCEDURE']","{'PROCEDURE': 3095, 'SAMPLE': 1905}"
+MSK-CHORD-2024,msk_chord_2024\data_timeline_treatment.txt,SUBTYPE,str,0.0,7,"['Chemo', 'Investigational', 'Immuno', 'Hormone', 'Bone Treatment', 'Biologic', 'Targeted']","{'Chemo': 2254, 'Hormone': 1222, 'Investigational': 415, 'Targeted': 372, 'Bone Treatment': 368, 'Biologic': 323, 'Immuno': 46}"
+MSK-CHORD-2024,msk_chord_2024\data_timeline_tumor_sites.txt,SUBTYPE,str,0.0,1,['Tumor Sites'],{'Tumor Sites': 5000}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE,str,0.0,1,['Non-Small Cell Lung Cancer'],{'Non-Small Cell Lung Cancer': 5000}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,SAMPLE_TYPE,str,0.0,3,"['Metastasis', 'Primary', 'Local Recurrence']","{'Primary': 3184, 'Metastasis': 1813, 'Local Recurrence': 3}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PRIMARY_SITE,str,0.0,1,['Lung'],{'Lung': 5000}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,CANCER_TYPE_DETAILED,str,0.0,16,"['Lung Adenocarcinoma', 'Lung Squamous Cell Carcinoma', 'Large Cell Neuroendocrine Carcinoma', 'Atypical Lung Carcinoid', 'Sarcomatoid Carcinoma of the Lung', 'Lung Adenosquamous Carcinoma', 'Poorly Differentiated Non-Small Cell Lung Cancer', 'Lymphoepithelioma-like Carcinoma of the Lung']","{'Lung Adenocarcinoma': 3903, 'Lung Squamous Cell Carcinoma': 506, 'Non-Small Cell Lung Cancer': 224, 'Large Cell Neuroendocrine Carcinoma': 82, 'Poorly Differentiated Non-Small Cell Lung Cancer': 70, 'Lung Carcinoid': 61, 'Lung Adenosquamous Carcinoma': 33, 'Pleomorphic Carcinoma of the Lung': 33, 'Atypical Lung Carcinoid': 31, 'Lung Neuroendocrine Tumor': 23}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,PATHOLOGICAL_GROUP,str,32.64,14,"['4', '3A', '1B', '0', '1A', '2A', '3B', '2B']","{'4': 836, '1A': 552, '0': 345, '3A': 321, '1B': 302, '2A': 185, '2B': 177, '4A': 158, '4B': 133, '1A1': 124}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,ICD_O_HISTOLOGY_DESCRIPTION,str,0.0,53,"['Adenocarcinoma, Nos', 'Adenocarcinoma Combined With Other Types Of Carcinoma', 'Mucinous Adenocarcinoma', 'Squamous Cell Carcinoma, Nos', 'Sq Cell Ca, Keratinizing Type, Nos', 'Solid Carcinoma, Nos', 'Large Cell Neuroendocrine Carcinoma', 'Papillary Adenocarcinoma, Nos']","{'Adenocarcinoma, Nos': 2473, 'Adenocarcinoma Combined With Other Types Of Carcinoma': 912, 'Squamous Cell Carcinoma, Nos': 289, 'Acinar Cell Carcinoma': 200, 'Sq Cell Ca, Keratinizing Type, Nos': 175, 'Non-Small Cell Carcinoma (C34._)': 129, 'Mucinous Adenocarcinoma': 126, 'Large Cell Neuroendocrine Carcinoma': 80, 'Carcinoid Tumor, Malignant': 80, 'Sq Cell Ca, Large Cell, Non-Keratinizing': 62}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_clinical_sample.csv,DIAGNOSIS_DESCRIPTION,str,0.0,2,"['Lung and Bronchus', 'NHL - Extranodal']","{'Lung and Bronchus': 4999, 'NHL - Extranodal': 1}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_data_timeline_cancer_presence.txt,SUBTYPE,str,0.0,1,['HasCancer'],{'HasCancer': 5000}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_data_timeline_diagnosis.txt,SUBTYPE,str,0.0,1,['Primary'],{'Primary': 5000}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_data_timeline_pdl1.txt,SUBTYPE,str,0.0,1,['PD-L1 Positive'],{'PD-L1 Positive': 5000}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_data_timeline_performance_status.txt,SUBTYPE,str,0.0,1,['Performance Status'],{'Performance Status': 5000}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_data_timeline_progression.txt,SUBTYPE,str,0.0,1,['Progression'],{'Progression': 5000}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_data_timeline_treatment.txt,SUBTYPE,str,0.0,7,"['Chemo', 'Investigational', 'Immuno', 'Biologic', 'Targeted', 'Hormone', 'Bone Treatment']","{'Chemo': 2380, 'Targeted': 809, 'Investigational': 561, 'Biologic': 438, 'Hormone': 311, 'Immuno': 269, 'Bone Treatment': 232}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_data_timeline_tumor_sites.txt,SUBTYPE,str,0.0,1,['Tumor Sites'],{'Tumor Sites': 5000}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_mutations.csv,Variant_Classification,str,0.0,16,"['In_Frame_Del', 'Missense_Mutation', 'Frame_Shift_Del', 'Splice_Site', 'Nonsense_Mutation', 'Frame_Shift_Ins', ""5'Flank"", 'Translation_Start_Site']","{'Missense_Mutation': 3755, 'Nonsense_Mutation': 456, 'Frame_Shift_Del': 325, 'Splice_Site': 221, 'In_Frame_Del': 99, 'Frame_Shift_Ins': 68, 'In_Frame_Ins': 19, ""5'Flank"": 16, 'Translation_Start_Site': 9, 'Splice_Region': 9}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE,str,0.0,1,['Non-Small Cell Lung Cancer'],{'Non-Small Cell Lung Cancer': 5000}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,SAMPLE_TYPE,str,0.0,4,"['Metastasis', 'Primary', 'Unknown', 'Local Recurrence']","{'Primary': 3188, 'Metastasis': 1802, 'Unknown': 6, 'Local Recurrence': 4}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PRIMARY_SITE,str,0.0,2,"['Lung', 'lung']","{'Lung': 4999, 'lung': 1}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,CANCER_TYPE_DETAILED,str,0.0,16,"['Lung Adenocarcinoma', 'Lung Squamous Cell Carcinoma', 'Large Cell Neuroendocrine Carcinoma', 'Atypical Lung Carcinoid', 'Sarcomatoid Carcinoma of the Lung', 'Lung Adenosquamous Carcinoma', 'Poorly Differentiated Non-Small Cell Lung Cancer', 'Lymphoepithelioma-like Carcinoma of the Lung']","{'Lung Adenocarcinoma': 3907, 'Lung Squamous Cell Carcinoma': 498, 'Non-Small Cell Lung Cancer': 227, 'Large Cell Neuroendocrine Carcinoma': 83, 'Poorly Differentiated Non-Small Cell Lung Cancer': 69, 'Lung Carcinoid': 62, 'Lung Adenosquamous Carcinoma': 33, 'Pleomorphic Carcinoma of the Lung': 32, 'Atypical Lung Carcinoid': 31, 'Lung Neuroendocrine Tumor': 24}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,PATHOLOGICAL_GROUP,str,32.7,14,"['4', '1A', '3A', '1B', '0', '2A', '3B', '2B']","{'4': 838, '1A': 553, '0': 341, '3A': 320, '1B': 303, '2A': 183, '2B': 177, '4A': 157, '1A1': 134, '4B': 126}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,ICD_O_HISTOLOGY_DESCRIPTION,str,0.0,53,"['Adenocarcinoma, Nos', 'Adenocarcinoma Combined With Other Types Of Carcinoma', 'Small Cell Carcinoma, Nos', 'Mucinous Adenocarcinoma', 'Squamous Cell Carcinoma, Nos', 'Sq Cell Ca, Keratinizing Type, Nos', 'Solid Carcinoma, Nos', 'Large Cell Neuroendocrine Carcinoma']","{'Adenocarcinoma, Nos': 2470, 'Adenocarcinoma Combined With Other Types Of Carcinoma': 915, 'Squamous Cell Carcinoma, Nos': 280, 'Acinar Cell Carcinoma': 200, 'Sq Cell Ca, Keratinizing Type, Nos': 175, 'Non-Small Cell Carcinoma (C34._)': 129, 'Mucinous Adenocarcinoma': 127, 'Carcinoid Tumor, Malignant': 81, 'Large Cell Neuroendocrine Carcinoma': 80, 'Sq Cell Ca, Large Cell, Non-Keratinizing': 61}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_patient_level_features.csv,DIAGNOSIS_DESCRIPTION,str,0.0,2,"['Lung and Bronchus', 'NHL - Extranodal']","{'Lung and Bronchus': 4999, 'NHL - Extranodal': 1}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_test.csv,CANCER_TYPE,str,0.0,1,['Non-Small Cell Lung Cancer'],{'Non-Small Cell Lung Cancer': 1172}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_test.csv,SAMPLE_TYPE,str,0.0,4,"['Primary', 'Metastasis', 'Unknown', 'Local Recurrence']","{'Primary': 730, 'Metastasis': 418, 'Unknown': 19, 'Local Recurrence': 5}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_test.csv,PRIMARY_SITE,str,0.0,2,"['Lung', 'Unknown']","{'Lung': 1168, 'Unknown': 4}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_test.csv,CANCER_TYPE_DETAILED,str,0.0,15,"['Lung Adenocarcinoma', 'Lung Squamous Cell Carcinoma', 'Atypical Lung Carcinoid', 'Non-Small Cell Lung Cancer', 'Lung Adenosquamous Carcinoma', 'Large Cell Neuroendocrine Carcinoma', 'Lung Carcinoid', 'Pleomorphic Carcinoma of the Lung']","{'Lung Adenocarcinoma': 894, 'Lung Squamous Cell Carcinoma': 124, 'Non-Small Cell Lung Cancer': 75, 'Large Cell Neuroendocrine Carcinoma': 20, 'Lung Carcinoid': 20, 'Poorly Differentiated Non-Small Cell Lung Cancer': 9, 'Lung Adenosquamous Carcinoma': 8, 'Atypical Lung Carcinoid': 5, 'Pleomorphic Carcinoma of the Lung': 5, 'Sarcomatoid Carcinoma of the Lung': 5}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_test.csv,PATHOLOGICAL_GROUP,str,37.63,13,"['1A1', '3A', '1A', '4B', '2A', '2B', '0', '4']","{'4': 118, '1A': 94, '0': 78, '1A1': 59, '1B': 59, '4B': 54, '3A': 53, '2B': 50, '4A': 48, '1A2': 45}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_test.csv,ICD_O_HISTOLOGY_DESCRIPTION,str,0.0,36,"['Minimally Invasive Adenocarcinoma, Non Mucinous', 'Adenocarcinoma, Nos', 'Adenosquamous Carcinoma', 'Sq Cell Ca, Keratinizing Type, Nos', 'Bronchiolo-Alveolar Ca Mixed Muc/Non Mucinous (C34._)', 'Atypical Carcinoid Tumor', 'Carcinoid Tumor, Malignant', 'Adenocarcinoma Combined With Other Types Of Carcinoma']","{'Adenocarcinoma, Nos': 657, 'Adenocarcinoma Combined With Other Types Of Carcinoma': 157, 'Squamous Cell Carcinoma, Nos': 72, 'Sq Cell Ca, Keratinizing Type, Nos': 47, 'Acinar Cell Carcinoma': 29, 'Mucinous Adenocarcinoma': 26, 'Carcinoid Tumor, Malignant': 25, 'Non-Small Cell Carcinoma (C34._)': 25, 'Large Cell Neuroendocrine Carcinoma': 19, 'Adenosquamous Carcinoma': 13}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_test.csv,DIAGNOSIS_DESCRIPTION,str,0.0,1,['Lung and Bronchus'],{'Lung and Bronchus': 1172}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_test.csv,subtype_target,str,0.0,5,"['Lung Adenocarcinoma', 'Lung Squamous Cell Carcinoma', 'Other', 'Non-Small Cell Lung Cancer', 'Large Cell Neuroendocrine Carcinoma']","{'Lung Adenocarcinoma': 894, 'Lung Squamous Cell Carcinoma': 124, 'Non-Small Cell Lung Cancer': 75, 'Other': 59, 'Large Cell Neuroendocrine Carcinoma': 20}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_train.csv,CANCER_TYPE,str,0.0,1,['Non-Small Cell Lung Cancer'],{'Non-Small Cell Lung Cancer': 5000}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_train.csv,SAMPLE_TYPE,str,0.0,4,"['Metastasis', 'Primary', 'Unknown', 'Local Recurrence']","{'Primary': 3150, 'Metastasis': 1767, 'Unknown': 61, 'Local Recurrence': 22}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_train.csv,PRIMARY_SITE,str,0.0,4,"['Lung', 'Unknown', 'Lung - right upper', 'lung']","{'Lung': 4976, 'Unknown': 16, 'lung': 7, 'Lung - right upper': 1}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_train.csv,CANCER_TYPE_DETAILED,str,0.0,19,"['Lung Adenocarcinoma', 'Lung Squamous Cell Carcinoma', 'Non-Small Cell Lung Cancer', 'Atypical Lung Carcinoid', 'Lung Neuroendocrine Tumor', 'Large Cell Neuroendocrine Carcinoma', 'Lung Adenocarcinoma In Situ', 'Lung Carcinoid']","{'Lung Adenocarcinoma': 3825, 'Lung Squamous Cell Carcinoma': 529, 'Non-Small Cell Lung Cancer': 312, 'Large Cell Neuroendocrine Carcinoma': 86, 'Poorly Differentiated Non-Small Cell Lung Cancer': 54, 'Lung Carcinoid': 52, 'Lung Adenosquamous Carcinoma': 32, 'Pleomorphic Carcinoma of the Lung': 29, 'Atypical Lung Carcinoid': 25, 'Lung Neuroendocrine Tumor': 21}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_train.csv,PATHOLOGICAL_GROUP,str,36.58,16,"['4A', '4', '1A1', '1A', '0', '1B', '2A', '2B']","{'4': 562, '1A': 387, '0': 316, '1B': 271, '3A': 269, '4B': 229, '4A': 228, '2B': 212, '1A1': 210, '1A2': 203}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_train.csv,ICD_O_HISTOLOGY_DESCRIPTION,str,0.0,54,"['Adenocarcinoma, Nos', 'Adenocarcinoma Combined With Other Types Of Carcinoma', 'Squamous Cell Carcinoma, Nos', 'Non-Small Cell Carcinoma (C34._)', 'Sq Cell Ca, Keratinizing Type, Nos', 'Acinar Cell Cystadenocarcinoma', 'Adenocarcinoma, Ca Insitu', 'Neuroendocrine Carcinoma']","{'Adenocarcinoma, Nos': 2726, 'Adenocarcinoma Combined With Other Types Of Carcinoma': 645, 'Squamous Cell Carcinoma, Nos': 352, 'Sq Cell Ca, Keratinizing Type, Nos': 157, 'Acinar Cell Carcinoma': 134, 'Non-Small Cell Carcinoma (C34._)': 124, 'Mucinous Adenocarcinoma': 104, 'Large Cell Neuroendocrine Carcinoma': 87, 'Acinar Cell Cystadenocarcinoma': 67, 'Carcinoid Tumor, Malignant': 65}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_train.csv,DIAGNOSIS_DESCRIPTION,str,0.0,3,"['Lung and Bronchus', 'Miscellaneous', 'NHL - Extranodal']","{'Lung and Bronchus': 4998, 'Miscellaneous': 1, 'NHL - Extranodal': 1}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_train.csv,subtype_target,str,0.0,5,"['Lung Adenocarcinoma', 'Lung Squamous Cell Carcinoma', 'Non-Small Cell Lung Cancer', 'Other', 'Large Cell Neuroendocrine Carcinoma']","{'Lung Adenocarcinoma': 3825, 'Lung Squamous Cell Carcinoma': 529, 'Non-Small Cell Lung Cancer': 312, 'Other': 248, 'Large Cell Neuroendocrine Carcinoma': 86}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_val.csv,CANCER_TYPE,str,0.0,1,['Non-Small Cell Lung Cancer'],{'Non-Small Cell Lung Cancer': 1171}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_val.csv,SAMPLE_TYPE,str,0.0,4,"['Primary', 'Metastasis', 'Unknown', 'Local Recurrence']","{'Primary': 722, 'Metastasis': 424, 'Unknown': 17, 'Local Recurrence': 8}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_val.csv,PRIMARY_SITE,str,0.0,3,"['Lung', 'lung', 'Unknown']","{'Lung': 1164, 'lung': 4, 'Unknown': 3}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_val.csv,CANCER_TYPE_DETAILED,str,0.0,13,"['Pleomorphic Carcinoma of the Lung', 'Lung Adenocarcinoma', 'Non-Small Cell Lung Cancer', 'Lung Squamous Cell Carcinoma', 'Poorly Differentiated Non-Small Cell Lung Cancer', 'Large Cell Neuroendocrine Carcinoma', 'Lung Adenosquamous Carcinoma', 'Lung Adenocarcinoma In Situ']","{'Lung Adenocarcinoma': 893, 'Lung Squamous Cell Carcinoma': 123, 'Non-Small Cell Lung Cancer': 75, 'Large Cell Neuroendocrine Carcinoma': 20, 'Lung Adenosquamous Carcinoma': 12, 'Poorly Differentiated Non-Small Cell Lung Cancer': 11, 'Atypical Lung Carcinoid': 9, 'Pleomorphic Carcinoma of the Lung': 8, 'Lung Carcinoid': 8, 'Lung Neuroendocrine Tumor': 5}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_val.csv,PATHOLOGICAL_GROUP,str,35.01,13,"['2A', '1B', '1A3', '3B', '4', '4B', '3A', '1A']","{'4': 142, '1A': 94, '0': 78, '3A': 75, '1B': 70, '4A': 52, '1A2': 47, '1A1': 45, '4B': 44, '2B': 41}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_val.csv,ICD_O_HISTOLOGY_DESCRIPTION,str,0.0,34,"['Pleomorphic Carcinoma', 'Squamous Cell Carcinoma, Nos', 'Acinar Cell Cystadenocarcinoma', 'Adenocarcinoma, Nos', 'Sq Cell Ca, Keratinizing Type, Nos', 'Mucinous Adenocarcinoma', 'Adenocarcinoma Combined With Other Types Of Carcinoma', 'Acinar Cell Carcinoma']","{'Adenocarcinoma, Nos': 647, 'Adenocarcinoma Combined With Other Types Of Carcinoma': 143, 'Squamous Cell Carcinoma, Nos': 70, 'Acinar Cell Carcinoma': 37, 'Sq Cell Ca, Keratinizing Type, Nos': 35, 'Non-Small Cell Carcinoma (C34._)': 35, 'Mucinous Adenocarcinoma': 29, 'Sq Cell Ca, Large Cell, Non-Keratinizing': 23, 'Large Cell Neuroendocrine Carcinoma': 17, 'Pleomorphic Carcinoma': 14}"
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_val.csv,DIAGNOSIS_DESCRIPTION,str,0.0,1,['Lung and Bronchus'],{'Lung and Bronchus': 1171}
+MSK-CHORD-2024,msk_chord_2024\msk_chord_out\nsclc_val.csv,subtype_target,str,0.0,5,"['Other', 'Lung Adenocarcinoma', 'Non-Small Cell Lung Cancer', 'Lung Squamous Cell Carcinoma', 'Large Cell Neuroendocrine Carcinoma']","{'Lung Adenocarcinoma': 893, 'Lung Squamous Cell Carcinoma': 123, 'Non-Small Cell Lung Cancer': 75, 'Other': 60, 'Large Cell Neuroendocrine Carcinoma': 20}"

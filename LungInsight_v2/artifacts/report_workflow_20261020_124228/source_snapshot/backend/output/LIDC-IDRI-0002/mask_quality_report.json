@@ -1,0 +1,667 @@
+{
+  "meta_schema_version": "2.15",
+  "patient_id": "LIDC-IDRI-0002",
+  "status": "blocked",
+  "problems": [
+    "invalid_direction_matrix"
+  ],
+  "lung_voxels": 10234358,
+  "heart_voxels": 1565056,
+  "lung_heart_overlap_voxels": 0,
+  "lung_voxel_fraction": 0.16974338033924932,
+  "heart_voxel_fraction": 0.025957455842391303,
+  "shape_zyx": [
+    230,
+    512,
+    512
+  ],
+  "coordinate_system": "DICOM_LPS",
+  "array_axes": [
+    "z",
+    "y",
+    "x"
+  ],
+  "requires_visual_review": true,
+  "heart_mask_tracking": {
+    "method": "hu_guided_expanding_central_rod_with_thoracic_slice_gate",
+    "status": "tracked_central_3d_component",
+    "selection_mode": "growing_zyx_center_rod_plus_slice_component_tracking_not_cylinder_fill",
+    "center_yx_voxels": [
+      255.5,
+      255.5
+    ],
+    "spacing_zyx_mm": [
+      1.25,
+      0.681641,
+      0.681641
+    ],
+    "soft_tissue_hu_range": [
+      -80.0,
+      500.0
+    ],
+    "hu_threshold_is_growth_constraint": true,
+    "thoracic_slice_gate_is_growth_constraint": true,
+    "allows_seed_mask_overlap_with_provisional_lung": true,
+    "seed_radius_mm": 2.0,
+    "radius_step_mm": 4.0,
+    "max_radius_mm": 75.0,
+    "legacy_minimum_mask_radius_mm_ignored": 65.0,
+    "legacy_cylindrical_mask_growth_mm_ignored": 30.0,
+    "max_contour_growth_mm": 5.0,
+    "max_slice_area_ratio": 1.4,
+    "min_span_mm": 25.0,
+    "min_support_voxels_per_slice": 8,
+    "min_lung_slice_fraction": 0.14,
+    "axial_margin_mm": 10.0,
+    "lung_slice_fraction_min": 0.0,
+    "lung_slice_fraction_max": 0.242584228515625,
+    "thoracic_slice_count": 146,
+    "selected_radius_mm": 2.0,
+    "expanded_mask_radius_mm": 7.0,
+    "selected_component_label": 1,
+    "selected_component_voxels": 1565056,
+    "selected_z_range": [
+      77,
+      157
+    ],
+    "selected_component_span_mm": 100.0,
+    "rod_touch_z_range": [
+      77,
+      157
+    ],
+    "rod_touch_span_mm": 100.0,
+    "rod_touch_slice_count": 81,
+    "candidate_tissue_voxels": 2239905,
+    "output_mask_voxels": 1565056,
+    "output_mask_lung_overlap_voxels": 28846,
+    "tracked_slice_count": 89,
+    "component_area_by_slice": [
+      {
+        "z": 69,
+        "area_voxels": 18508
+      },
+      {
+        "z": 70,
+        "area_voxels": 18621
+      },
+      {
+        "z": 71,
+        "area_voxels": 18753
+      },
+      {
+        "z": 72,
+        "area_voxels": 18932
+      },
+      {
+        "z": 73,
+        "area_voxels": 19135
+      },
+      {
+        "z": 74,
+        "area_voxels": 19159
+      },
+      {
+        "z": 75,
+        "area_voxels": 19349
+      },
+      {
+        "z": 76,
+        "area_voxels": 19379
+      },
+      {
+        "z": 77,
+        "area_voxels": 19509
+      },
+      {
+        "z": 78,
+        "area_voxels": 19645
+      },
+      {
+        "z": 79,
+        "area_voxels": 19676
+      },
+      {
+        "z": 80,
+        "area_voxels": 19750
+      },
+      {
+        "z": 81,
+        "area_voxels": 19650
+      },
+      {
+        "z": 82,
+        "area_voxels": 19585
+      },
+      {
+        "z": 83,
+        "area_voxels": 19356
+      },
+      {
+        "z": 84,
+        "area_voxels": 19427
+      },
+      {
+        "z": 85,
+        "area_voxels": 19622
+      },
+      {
+        "z": 86,
+        "area_voxels": 19623
+      },
+      {
+        "z": 87,
+        "area_voxels": 19565
+      },
+      {
+        "z": 88,
+        "area_voxels": 19508
+      },
+      {
+        "z": 89,
+        "area_voxels": 19516
+      },
+      {
+        "z": 90,
+        "area_voxels": 19498
+      },
+      {
+        "z": 91,
+        "area_voxels": 19467
+      },
+      {
+        "z": 92,
+        "area_voxels": 19434
+      },
+      {
+        "z": 93,
+        "area_voxels": 19537
+      },
+      {
+        "z": 94,
+        "area_voxels": 19556
+      },
+      {
+        "z": 95,
+        "area_voxels": 19593
+      },
+      {
+        "z": 96,
+        "area_voxels": 19994
+      },
+      {
+        "z": 97,
+        "area_voxels": 19827
+      },
+      {
+        "z": 98,
+        "area_voxels": 19802
+      },
+      {
+        "z": 99,
+        "area_voxels": 19794
+      },
+      {
+        "z": 100,
+        "area_voxels": 19681
+      },
+      {
+        "z": 101,
+        "area_voxels": 19359
+      },
+      {
+        "z": 102,
+        "area_voxels": 19991
+      },
+      {
+        "z": 103,
+        "area_voxels": 19850
+      },
+      {
+        "z": 104,
+        "area_voxels": 19690
+      },
+      {
+        "z": 105,
+        "area_voxels": 19582
+      },
+      {
+        "z": 106,
+        "area_voxels": 19352
+      },
+      {
+        "z": 107,
+        "area_voxels": 19188
+      },
+      {
+        "z": 108,
+        "area_voxels": 19036
+      },
+      {
+        "z": 109,
+        "area_voxels": 19032
+      },
+      {
+        "z": 110,
+        "area_voxels": 19307
+      },
+      {
+        "z": 111,
+        "area_voxels": 19097
+      },
+      {
+        "z": 112,
+        "area_voxels": 18936
+      },
+      {
+        "z": 113,
+        "area_voxels": 18781
+      },
+      {
+        "z": 114,
+        "area_voxels": 18854
+      },
+      {
+        "z": 115,
+        "area_voxels": 19268
+      },
+      {
+        "z": 116,
+        "area_voxels": 19182
+      },
+      {
+        "z": 117,
+        "area_voxels": 20068
+      },
+      {
+        "z": 118,
+        "area_voxels": 19842
+      },
+      {
+        "z": 119,
+        "area_voxels": 18194
+      },
+      {
+        "z": 120,
+        "area_voxels": 17845
+      },
+      {
+        "z": 121,
+        "area_voxels": 17569
+      },
+      {
+        "z": 122,
+        "area_voxels": 17258
+      },
+      {
+        "z": 123,
+        "area_voxels": 17222
+      },
+      {
+        "z": 124,
+        "area_voxels": 16358
+      },
+      {
+        "z": 125,
+        "area_voxels": 15983
+      },
+      {
+        "z": 126,
+        "area_voxels": 15753
+      },
+      {
+        "z": 127,
+        "area_voxels": 15911
+      },
+      {
+        "z": 128,
+        "area_voxels": 16144
+      },
+      {
+        "z": 129,
+        "area_voxels": 16476
+      },
+      {
+        "z": 130,
+        "area_voxels": 16783
+      },
+      {
+        "z": 131,
+        "area_voxels": 16772
+      },
+      {
+        "z": 132,
+        "area_voxels": 16696
+      },
+      {
+        "z": 133,
+        "area_voxels": 16509
+      },
+      {
+        "z": 134,
+        "area_voxels": 16238
+      },
+      {
+        "z": 135,
+        "area_voxels": 15543
+      },
+      {
+        "z": 136,
+        "area_voxels": 15089
+      },
+      {
+        "z": 137,
+        "area_voxels": 14787
+      },
+      {
+        "z": 138,
+        "area_voxels": 14559
+      },
+      {
+        "z": 139,
+        "area_voxels": 14381
+      },
+      {
+        "z": 140,
+        "area_voxels": 14233
+      },
+      {
+        "z": 141,
+        "area_voxels": 14128
+      },
+      {
+        "z": 142,
+        "area_voxels": 14114
+      },
+      {
+        "z": 143,
+        "area_voxels": 14516
+      },
+      {
+        "z": 144,
+        "area_voxels": 14928
+      },
+      {
+        "z": 145,
+        "area_voxels": 14935
+      },
+      {
+        "z": 146,
+        "area_voxels": 14558
+      },
+      {
+        "z": 147,
+        "area_voxels": 14724
+      },
+      {
+        "z": 148,
+        "area_voxels": 14694
+      },
+      {
+        "z": 149,
+        "area_voxels": 14712
+      },
+      {
+        "z": 150,
+        "area_voxels": 14330
+      },
+      {
+        "z": 151,
+        "area_voxels": 14184
+      },
+      {
+        "z": 152,
+        "area_voxels": 13788
+      },
+      {
+        "z": 153,
+        "area_voxels": 13219
+      },
+      {
+        "z": 154,
+        "area_voxels": 12844
+      },
+      {
+        "z": 155,
+        "area_voxels": 12814
+      },
+      {
+        "z": 156,
+        "area_voxels": 12737
+      },
+      {
+        "z": 157,
+        "area_voxels": 12662
+      }
+    ],
+    "failure_reason": null,
+    "radius_search": [
+      {
+        "radius_mm": 2.0,
+        "supported_slices": 91,
+        "longest_run_slices": 81,
+        "selected": true
+      }
+    ],
+    "thoracic_z_range": [
+      45,
+      206
+    ],
+    "thoracic_eligible_z_range": [
+      53,
+      198
+    ],
+    "thoracic_eligible_slice_count": 146,
+    "search_roi_yx": [
+      [
+        145,
+        367
+      ],
+      [
+        145,
+        367
+      ]
+    ],
+    "required_rod_touch_slices": 21,
+    "tracked_z_range": [
+      69,
+      157
+    ],
+    "anchor_z": 117,
+    "anchor_component_area_voxels": 18150,
+    "candidate_component_counts_by_z": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      22,
+      22,
+      23,
+      25,
+      18,
+      18,
+      15,
+      20,
+      21,
+      26,
+      22,
+      20,
+      29,
+      31,
+      26,
+      24,
+      23,
+      21,
+      23,
+      23,
+      22,
+      28,
+      29,
+      33,
+      33,
+      30,
+      25,
+      28,
+      27,
+      32,
+      34,
+      32,
+      22,
+      27,
+      25,
+      28,
+      31,
+      24,
+      26,
+      26,
+      16,
+      19,
+      25,
+      22,
+      17,
+      16,
+      15,
+      18,
+      20,
+      17,
+      16,
+      16,
+      18,
+      17,
+      19,
+      23,
+      18,
+      15,
+      16,
+      10,
+      10,
+      10,
+      12,
+      15,
+      20,
+      23,
+      27,
+      27,
+      28,
+      28,
+      29,
+      24,
+      32,
+      29,
+      31,
+      16,
+      18,
+      12,
+      14,
+      16,
+      18,
+      18,
+      21,
+      21,
+      22,
+      16,
+      15,
+      14,
+      14,
+      14,
+      12,
+      11,
+      8,
+      13,
+      11,
+      11,
+      11,
+      11,
+      12,
+      9,
+      13,
+      17,
+      18,
+      19,
+      24,
+      19,
+      13,
+      17,
+      22,
+      24,
+      24,
+      21,
+      26,
+      24,
+      23,
+      22,
+      30,
+      26,
+      25,
+      27,
+      25,
+      25,
+      26,
+      23,
+      24,
+      22,
+      18,
+      23,
+      24,
+      22,
+      28,
+      32,
+      37,
+      25,
+      23,
+      23,
+      19,
+      19,
+      20,
+      21,
+      21,
+      24,
+      31,
+      24,
+      26,
+      25,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "propagation_stop_reasons": {
+      "no_candidate_component": [],
+      "no_nearby_component": [],
+      "area_growth_capped": []
+    },
+    "output_mask_lung_overlap_semantics": "pre-subtraction overlap; Stage 01 must apply lung_mask &= ~heart_mask",
+    "mask_description": "Rod-seeded, slice-propagated HU-qualified soft-tissue component constrained to thoracic slices and a physical radial envelope. It may overlap provisional lung_mask so Stage 01 can subtract it. Each slice is bounded by physical contour motion and maximum area growth. Heuristic cardiac/mediastinal exclusion, not clinical heart segmentation.",
+    "large_hole_component_count": 0,
+    "associated_large_hole_component_labels": [],
+    "associated_large_hole_voxels": 0,
+    "heart_mask_voxels_after_hole_association": 1565056,
+    "algorithm_config": {
+      "method": "hu_guided_expanding_central_rod_with_thoracic_slice_gate",
+      "seed_radius_mm": 2.0,
+      "radius_step_mm": 4.0,
+      "max_radius_mm": 75.0,
+      "max_contour_growth_mm": 5.0,
+      "max_slice_area_ratio": 1.4,
+      "soft_tissue_hu_range": [
+        -80.0,
+        500.0
+      ],
+      "exclusion_mask_hu_min": -950.0,
+      "min_support_voxels_per_slice": 8,
+      "min_lung_slice_fraction": 0.14,
+      "axial_margin_mm": 10.0,
+      "minimum_component_span_mm": 25.0
+    },
+    "heart_mask_voxels_final_pre_crop": 1565056,
+    "lung_mask_voxels_final_pre_crop": 10234358,
+    "heart_mask_overlap_lung_voxels_after_exclusion": 0
+  }
+}

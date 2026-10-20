@@ -1,0 +1,50 @@
+{
+  "input_count": 2,
+  "accepted_count": 1,
+  "rejected_count": 1,
+  "rejection_counts": {
+    "center_inside_heart_mask": 1
+  },
+  "center_inclusion_rule": "rounded center_zyx must be inside lung_mask and outside heart_mask",
+  "min_bbox_lung_occupancy": 0.0,
+  "heart_mask_voxels": 572165,
+  "heart_mask_found": true,
+  "heart_mask_required": true,
+  "heart_mask_review_required": true,
+  "heart_mask_reviewed": true,
+  "gate_status": "passed",
+  "lung_mask_voxels": 3501989,
+  "effective_lung_mask_voxels": 3501989,
+  "shape_zyx": [
+    108,
+    512,
+    512
+  ],
+  "coordinate_space": "stage01_final_cropped_ct",
+  "meta_schema_version": "2.12",
+  "stage": "02",
+  "patient_id": "LIDC-IDRI-0001",
+  "detector": "ViTDet3D",
+  "review_attestation": {
+    "verified": true,
+    "attestation_path": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\LungInsight_v2\\backend\\output\\LIDC-IDRI-0001\\heart_mask_review_attestation.json",
+    "reviewer": "Your Real Name or ID",
+    "reviewed_at_utc": "2026-10-14T16:12:50.161717+00:00",
+    "heart_mask_voxels": 572165,
+    "lung_mask_voxels": 3501989,
+    "artifact_hashes": {
+      "heart_mask.npy": "f03f350f6085c8711af990ad82bdb8cf09afc083eddccf985458b1a1654a11ea",
+      "heart_mask_review_metrics.json": "c487054950d8ad13dc262f65708fd1daa08a95b3a2fc1a38419142c430c132c6",
+      "heart_tracking_diagnostics.json": "4869107210e2bd6e2f54d947519ec3b8222e9b4e86aae0ddb723891e7ad03c9d",
+      "lung_mask.npy": "98a920a56c25d1d902eb3e4cb3f79625786b51997f8558df32150350fb8c52e9",
+      "montage:heart_mask_review_montage_000.png": "aaed323bece2b2ac4250195fab92b7f4ae31c7fb182cfc4e021e114ff256470c",
+      "montage:heart_mask_review_montage_001.png": "dfc12a93d286ae22e46b7690e6be4443aa69725d032b8897263af11e23fb3c96",
+      "montage:heart_mask_review_montage_002.png": "b4def47e34e8f5fc36ece42522b38d33b14fee0171de2313f0670535a30ce1d6",
+      "montage:heart_mask_review_montage_003.png": "ce9ea1f014bfc68fdbe29cc2829fde6f1b252e81df8d7dfcef4f90c86b08d9b8",
+      "montage:heart_mask_review_montage_004.png": "d65e418b75f7f3d62589f20599e8e1d0a6b4e4315b6132cf44d092fe93fdf9e8",
+      "montage:heart_mask_review_montage_005.png": "dde27fef03b7677fc90db0d12fc779982183c69917e592e3fc0f7715959927a7",
+      "montage:heart_mask_review_montage_006.png": "709d1c3e1704d1c68077af5119f997b4aa33d4023edba97efcd2901a1a881e00",
+      "volume_hu_cropped.npy": "5a0345f37c77a833c6b63cb705727d7f0d44df69578cab2947112ac0a10f07b2"
+    }
+  }
+}
