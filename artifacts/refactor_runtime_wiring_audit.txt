@@ -1,0 +1,846 @@
+﻿
+==============================================================================
+1. RUNNER PYTHON RESOLUTION
+==============================================================================
+--- run_pipeline.ps1 ---
+  21: $PythonVenv = Join-Path $RepoRoot 'l-env\Scripts\python.exe'
+  22: if (Test-Path $PythonVenv) {
+  23:     $Python = $PythonVenv
+  25:     $PythonCommand = Get-Command python -ErrorAction SilentlyContinue
+  26:     if (-not $PythonCommand) { throw 'Python was not found. Activate the project virtual environment or install Python.' }
+  27:     $Python = $PythonCommand.Source
+--- run_tests.ps1 ---
+  13: $PythonVenv = Join-Path $RepoRoot 'l-env\Scripts\python.exe'
+  14: if (Test-Path $PythonVenv) {
+  15:     $Python = $PythonVenv
+  17:     $PythonCommand = Get-Command python -ErrorAction SilentlyContinue
+  18:     if (-not $PythonCommand) { Write-Error 'Python was not found.'; exit 2 }
+  19:     $Python = $PythonCommand.Source
+
+==============================================================================
+2. PIPELINE STAGE IMPLEMENTATIONS
+==============================================================================
+--- 01_hu_and_crop.py ---
+FILE: backend\Imaging\01_hu_and_crop.py
+   1: from pathlib import Path as _Path
+FILE: backend\Imaging\stages\01_hu_and_crop.py
+  61: import argparse
+  62: import json
+  63: import os
+  64: import struct
+  65: import sys
+  66: from pathlib import Path
+  67: from dataclasses import dataclass, field
+  68: from typing import Any, List, Tuple, cast
+  76: import numpy as np
+  78: from pipeline_schema import get_required, load_schema, resolve_template
+  79: from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+  80: from heart_mask_review import write_heart_mask_review_montages
+--- 02_detect_and_patch.py ---
+FILE: backend\Imaging\02_detect_and_patch.py
+   1: from pathlib import Path as _Path
+FILE: backend\Imaging\stages\02_detect_and_patch.py
+   8:     ViTDet3D (rlsn/DeTr4LungNodule). Candidates are accepted only when their
+  39: from __future__ import annotations
+  41: import argparse
+  42: import csv
+  43: import json
+  44: import math
+  45: import os
+  46: import sys
+  47: from dataclasses import asdict, dataclass, field
+  48: from datetime import datetime, timezone
+  49: from pathlib import Path
+  50: from typing import Any, Dict, List, Optional, Sequence, Tuple, cast
+  58: import matplotlib.pyplot as plt
+  59: import numpy as np
+  60: import torch
+  61: import torch.nn as nn
+  62: from matplotlib.patches import Rectangle
+  63: from pipeline_schema import get_required, load_schema, check_meta_schema_version
+  64: from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+  65: from lunginsight_candidate_fusion import (
+  70: from paravertebral_gate import EXCLUSION_REASON as PARAVERTEBRAL_REASON, apply_paravertebral_gate
+  91: from matplotlib.widgets import Slider
+  92: from scipy import ndimage
+  98:         "Stage 02 requires Hugging Face transformers for the existing ViTDet3D detector. "
+--- 03_nodule_classification.py ---
+FILE: backend\Imaging\03_nodule_classification.py
+   1: from pathlib import Path as _Path
+FILE: backend\Imaging\stages\03_nodule_classification.py
+   3: from __future__ import annotations
+   5: import argparse
+   6: import csv
+   7: import json
+   8: import sys
+   9: from datetime import datetime, timezone
+  10: from pathlib import Path
+  11: from typing import Any
+  19: import numpy as np
+  20: import torch
+  22: from pipeline_schema import get_required, load_schema, check_meta_schema_version, validate_stage_version
+  23: from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+  24: from attribute_contract import build_attribute_support_audit
+  25: from stage02_eligibility import load_validated_stage02
+--- 04_malignancy_prediction.py ---
+FILE: backend\Imaging\04_malignancy_prediction.py
+   1: from pathlib import Path as _Path
+FILE: backend\Imaging\stages\04_malignancy_prediction.py
+   2: """Stage 04: Brock/PanCan research-only pulmonary nodule risk estimation."""
+   3: from __future__ import annotations
+   5: import argparse
+   6: import hashlib
+   7: import json
+   8: import sys
+   9: from pathlib import Path
+  10: from typing import Any
+  18: from brock import estimate_brock
+  19: from brock_inputs import (
+  32: from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+  33: from pipeline_schema import check_meta_schema_version, get_required, load_schema, validate_stage_version
+  34: from stage02_eligibility import load_validated_stage02
+  36: SUPPORTED_MALIGNANCY_METHODS = ("brock",)
+  37: BROCK_MODEL_VERSION = "published-coefficients-verified-v1"
+  76: def selected_prediction(brock: dict[str, Any]) -> dict[str, Any]:
+  78:         "method": "brock",
+  79:         "model_version": brock.get("model_version", BROCK_MODEL_VERSION),
+  80:         "status": brock.get("status", "error"),
+  81:         "probability": brock.get("probability"),
+  82:         "value": brock.get("probability"),
+  83:         "inputs_used": brock.get("inputs_used", []),
+  84:         "missing_inputs": brock.get("features_missing", []),
+  85:         "validation_warnings": [brock["failure_reason"]] if brock.get("failure_reason") else [],
+  86:         "explanation": brock,
+  87:         "limitations": brock.get("limitations", []),
+  94:         description="Stage 04 Brock-only research malignancy-risk inference."
+  96:     parser.add_argument(
+--- 05_gradcam.py ---
+FILE: backend\Imaging\05_gradcam.py
+   1: from pathlib import Path as _Path
+FILE: backend\Imaging\inference\05_gradcam.py
+   1: from pathlib import Path
+   2: import argparse
+   3: import hashlib
+   4: import json
+   5: import sys
+  13: import matplotlib
+  15: import matplotlib.pyplot as plt
+  16: from matplotlib.colors import LinearSegmentedColormap, Normalize
+  17: from matplotlib.cm import ScalarMappable
+  18: from matplotlib.patches import Rectangle
+  20: import numpy as np
+  21: import torch
+  22: import torch.nn.functional as F
+  27: from pipeline_schema import get_required, load_schema, check_meta_schema_version, validate_stage_version
+  28: from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+  29: from stage02_eligibility import load_validated_stage02
+--- 06_full_ct_gradcam.py ---
+FILE: backend\Imaging\06_full_ct_gradcam.py
+   1: from pathlib import Path as _Path
+FILE: backend\Imaging\visualization\06_full_ct_gradcam.py
+   1: from __future__ import annotations
+   3: import argparse
+   4: import hashlib
+   5: import json
+   6: import math
+   7: import shutil
+   8: import sys
+   9: import time
+  10: from pathlib import Path
+  11: from typing import Any
+  19: import matplotlib
+  21: import matplotlib.pyplot as plt
+  22: from matplotlib.colors import LinearSegmentedColormap, Normalize
+  23: from matplotlib.patches import Rectangle
+  24: from matplotlib.cm import ScalarMappable
+  25: import numpy as np
+  26: from PIL import Image, ImageDraw, ImageFont
+  27: from pipeline_schema import get_required, load_schema, check_meta_schema_version, validate_stage_version
+  28: from gradcam_projection import project_patch_cam_to_ct
+  29: from api.contract import create_contract_file
+  30: from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+  31: from stage02_eligibility import load_validated_stage02
+  72:     parser.add_argument(
+  77:     parser.add_argument(
+  82:     parser.add_argument(
+  87:     parser.add_argument(
+  92:     parser.add_argument(
+  97:     parser.add_argument(
+--- 07_visualize.py ---
+FILE: backend\Imaging\07_visualize.py
+   1: from pathlib import Path as _Path
+FILE: backend\Imaging\visualization\07_visualize.py
+   9: from __future__ import annotations
+  11: import argparse
+  12: import csv
+  13: import json
+  14: import math
+  15: import sys
+  16: from pathlib import Path
+  17: from typing import Any
+  25: import matplotlib
+  27: import matplotlib.pyplot as plt
+  28: import numpy as np
+  29: from matplotlib.lines import Line2D
+  30: from matplotlib.patches import Rectangle
+  31: from matplotlib.widgets import CheckButtons, Slider
+  32: from scipy import ndimage
+  34: from pipeline_schema import get_required, load_schema, check_meta_schema_version, validate_stage_version
+  35: from pipeline_logging import add_verbose_argument, configure_console, pipeline_print as print, stage_complete
+  36: from html_reports import generate_patient_report
+
+==============================================================================
+3. BACKEND APPLICATION ENTRY-POINT CANDIDATES
+==============================================================================
+FILE: backend\Clinical\api.py
+  12: from fastapi import File, Form, FastAPI, HTTPException, Query, Request, UploadFile
+  13: from fastapi.exception_handlers import request_validation_exception_handler
+  14: from fastapi.exceptions import RequestValidationError
+  15: from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
+  17: from fastapi.staticfiles import StaticFiles
+  28: from ..Imaging.api.contract import CONTRACT_FILENAME, read_json, validate_contract
+  90: def create_app(artifact_path: str | None = None, *, deployed: bool = False) -> FastAPI:
+ 104:     app = FastAPI(
+ 113:     @app.middleware("http")
+ 130:     @app.exception_handler(RequestValidationError)
+ 142:     @app.exception_handler(Exception)
+ 157:     @app.put("/api/v1/clinical/records/{patient_id}")
+FILE: backend\Imaging\api\app.py
+  12: from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+  13: from fastapi.openapi.utils import get_openapi
+  20: from .contract import (
+  21:     CONTRACT_FILENAME,
+  23:     create_contract_file,
+  25:     validate_contract,
+  40: app = FastAPI(
+  56:         return value.replace("#/$defs/", "#/components/schemas/ImagingClinicalContractV2_", 1)
+  64:     contract_schema = read_json(SCHEMA_PATH)
+  65:     definitions = contract_schema.pop("$defs", {})
+  67:     components["ImagingClinicalContractV2"] = _openapi_schema_ref(contract_schema)
+  69:         components[f"ImagingClinicalContractV2_{name}"] = _openapi_schema_ref(definition)
+  71:     study_ref = {"$ref": "#/components/schemas/ImagingClinicalContractV2"}
+  72:     nodule_ref = {"$ref": "#/components/schemas/ImagingClinicalContractV2_nodule"}
+ 100: @app.post("/api/v1/imaging/dicom/upload", status_code=202)
+ 114: @app.get("/api/v1/imaging/dicom/jobs/{job_id}")
+ 131: def _read_validated_contract(path: Path) -> dict[str, Any]:
+ 133:         contract = read_json(path)
+ 134:         validate_contract(contract)
+ 135:         return contract
+ 137:         logger.error("contract_validation_failed")
+ 138:         raise HTTPException(status_code=500, detail="Stored imaging contract is invalid.") from exc
+ 141: def _contracts() -> list[tuple[Path, dict[str, Any]]]:
+ 145:     for path in OUTPUT_ROOT.glob(f"*/{CONTRACT_FILENAME}"):
+ 146:         found.append((path.parent, _read_validated_contract(path)))
+ 159:     contract: dict[str, Any],
+ 163:     study_id = contract["study_id"]
+FILE: backend\Imaging\api\contract.py
+  11: SCHEMA_PATH = IMAGING_DIR / "schemas" / "imaging_clinical_contract_v2.schema.json"
+  12: CONTRACT_FILENAME = "imaging_clinical_contract_v2.json"
+  13: CONTRACT_VERSION = "2.0.0"
+
+==============================================================================
+4. TRAINING AND DATASET BUILDERS
+==============================================================================
+FILE: backend\Clinical\shap_diagnostic_request.json
+FILE: backend\Clinical\training.py
+   1: from __future__ import annotations
+   3: import json
+   4: import importlib.metadata
+   5: from pathlib import Path
+   6: from typing import Any
+   8: import numpy as np
+   9: import pandas as pd
+  10: from sklearn.compose import ColumnTransformer
+  11: from sklearn.impute import SimpleImputer
+  12: from sklearn.linear_model import LogisticRegression
+  13: from sklearn.metrics import (
+  23: from sklearn.model_selection import StratifiedGroupKFold
+  24: from sklearn.pipeline import Pipeline
+  25: from sklearn.preprocessing import OneHotEncoder, StandardScaler
+  26: from sklearn.calibration import CalibratedClassifierCV
+  27: from sklearn.ensemble import RandomForestClassifier
+  28: from sklearn.frozen import FrozenEstimator
+  29: from sksurv.ensemble import RandomSurvivalForest
+  30: from sksurv.metrics import (
+  35: from sksurv.util import Surv
+  45: CLASSIFIER_FEATURE_CONTRACT_VERSION = "msk-chord-sex-at-birth-v1"
+FILE: backend\Clinical\train_cancer_type.py
+   1: from __future__ import annotations
+   3: import argparse
+   4: import json
+   5: from pathlib import Path
+   6: from typing import Any
+   8: import numpy as np
+   9: import pandas as pd
+  11: from .ingestion import load_msk_cancer_type_cohort
+  12: from .inference import load_artifacts
+  13: from .training import (
+  23: def train_authorized_msk_classifier(
+  30:     """Train, persist, reload, and verify the authorized MSK-scoped classifier."""
+  32:     cohort = load_msk_cancer_type_cohort(datasets_root / "msk_chord_2024")
+  75:             "source": "MSK-CHORD",
+FILE: backend\Clinical\train_survival.py
+   1: from __future__ import annotations
+   3: import argparse
+   4: from pathlib import Path
+   5: from typing import Any
+   7: import numpy as np
+   8: import pandas as pd
+  10: from .ingestion import load_tcga_survival_cohort
+  11: from .inference import load_artifacts
+  12: from .training import (
+  22: def train_tcga_survival_model(
+  30:     """Train, persist, reload, and verify the TCGA-scoped random survival forest.
+  37:             load_tcga_survival_cohort(root / "TCGA-LUAD", "TCGA-LUAD"),
+  38:             load_tcga_survival_cohort(root / "TCGA-LUSC", "TCGA-LUSC"),
+  73:         provenance={**existing_provenance, "cohorts": ["TCGA-LUAD", "TCGA-LUSC"]},
+  84:         for train, test in (("TCGA-LUAD", "TCGA-LUSC"), ("TCGA-LUSC", "TCGA-LUAD"))
+  96:     parser = argparse.ArgumentParser(
+  97:         description="Train and verify the TCGA-LUAD/LUSC overall-survival research model."
+  99:     parser.add_argument("--datasets-root", type=Path, default=repo_root / "datasets")
+ 100:     parser.add_argument(
+FILE: backend\Clinical\artifacts\cancer_type_dataset\dataset_audit.json
+  14:     "prior_treatment_msk_prior_medication",
+  15:     "prior_treatment_tcga_neoadjuvant"
+  21:   "pooled_training_note": "TCGA-LUAD contains only LUAD and TCGA-LUSC only LUSC, so cohort membership is confounded with the target in the TCGA export.",
+  41:         "msk": [
+  44:         "tcga": [
+  52:         "MSK-CHORD-2024",
+  53:         "TCGA-LUAD",
+  54:         "TCGA-LUSC"
+  57:         "MSK-CHORD-2024": {
+  61:         "TCGA-LUAD": {
+  65:         "TCGA-LUSC": {
+  71:       "cohort_definition_differences": "MSK 'Sex' and TCGA 'gender' are both recorded sex; no known definition difference."
+  75:         "msk": [
+  78:         "tcga": [
+  86:         "MSK-CHORD-2024",
+  87:         "TCGA-LUAD",
+  88:         "TCGA-LUSC"
+  91:         "MSK-CHORD-2024": {
+  95:         "TCGA-LUAD": {
+  99:         "TCGA-LUSC": {
+FILE: backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\train_sex_smoking_baseline.py
+   1: from pathlib import Path
+   2: from itertools import combinations
+   3: import json
+   4: import shutil
+   5: import sys
+   7: import joblib
+   8: import numpy as np
+   9: import pandas as pd
+  10: import sklearn
+  11: from sklearn.compose import ColumnTransformer
+  12: from sklearn.dummy import DummyClassifier
+  13: from sklearn.impute import SimpleImputer
+  14: from sklearn.linear_model import LogisticRegression
+  15: from sklearn.metrics import (
+  25: from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_split
+  26: from sklearn.pipeline import Pipeline
+  27: from sklearn.preprocessing import OneHotEncoder
+  34: COHORT = "MSK-CHORD-2024"
+FILE: backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\integrate_stage_free_cancer_type.py
+   1: from __future__ import annotations
+   3: import json
+   4: import sys
+   5: import traceback
+   6: from datetime import datetime, timezone
+   7: from pathlib import Path
+FILE: backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_dataset.py
+   1: from __future__ import annotations
+   3: import importlib.util
+   4: import math
+   5: from pathlib import Path
+   7: import pandas as pd
+   8: import pytest
+  18:     "prior_treatment_msk_prior_medication", "prior_treatment_tcga_neoadjuvant",
+  48: def test_msk_smoking_only_verified_categories():
+  49:     assert bcd.normalize_msk_smoking("Never") == "never"
+  50:     assert bcd.normalize_msk_smoking("Former/Current Smoker") == "former_or_current"
+  52:         assert bcd.normalize_msk_smoking(v) is None
+  56: def test_tcga_smoking_codes_are_missing_until_verified(code):
+  57:     assert bcd.TCGA_SMOKING_CODES_VERIFIED is False
+  58:     assert bcd.normalize_tcga_smoking(code) is None
+  73:     assert bcd.normalize_msk_prior("Prior medications to MSK") == "yes"
+  74:     assert bcd.normalize_msk_prior("No prior medications") == "no"
+  75:     assert bcd.normalize_msk_prior("Unknown") is None
+  76:     assert bcd.normalize_msk_prior("Yes") is None  # TCGA wording is not accepted as MSK semantics
+  77:     assert bcd.normalize_tcga_neoadjuvant("Yes") == "yes"
+  78:     assert bcd.normalize_tcga_neoadjuvant("Yes, Pharmaceutical Treatment Prior to Resection") == "yes"
+  79:     assert bcd.normalize_tcga_neoadjuvant("No") == "no"
+  80:     for v in ["[Discrepancy]", "history_of_neoadjuvant_treatment", "CDE_ID:3382737", "", "Prior medications to MSK"]:
+  81:         assert bcd.normalize_tcga_neoadjuvant(v) is None
+  84: def _write_tcga(path, rows):
+  93: def test_tcga_metadata_rows_excluded_and_features_normalized(tmp_path):
+  99:     good = ["TCGA-AA-0001", "Lung Adenocarcinoma", "FEMALE", "61", "4", "40", "1", "Stage IB", "No"]
+ 100:     sparse = ["TCGA-AA-0002", "Lung Adenocarcinoma", "MALE", "[Not Available]", "[Unknown]",
+FILE: backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py
+   1: from __future__ import annotations
+   3: import json
+   4: import os
+   5: import re
+   6: import shutil
+   7: import subprocess
+   8: import threading
+   9: from pathlib import Path
+  11: import joblib
+  12: import numpy as np
+  13: import pandas as pd
+  14: import pytest
+  15: from jsonschema import Draft202012Validator, FormatChecker
+  17: from LungInsight_v2.backend.Clinical import inference as clinical_inference
+  18: from LungInsight_v2.backend.Clinical.api import create_app
+  19: from LungInsight_v2.backend.Clinical.harmonization import (
+  23: from LungInsight_v2.backend.Clinical.inference import (
+  32: from LungInsight_v2.backend.Clinical.training import fit_survival_model
+  33: from test_clinical_pipeline import _request
+FILE: backend\Clinical\artifacts\dataset_feature_inventory\inventory_all_three_datasets.py
+   1: from __future__ import annotations
+   3: import csv
+   4: import json
+   5: import os
+   6: import re
+   7: import traceback
+   8: from pathlib import Path
+  10: import pandas as pd
+  14: OUTPUT_DIR = PROJECT_ROOT / "backend" / "Clinical" / "artifacts" / "dataset_feature_inventory"
+  17:     "MSK-CHORD-2024": DATASETS_ROOT / "msk_chord_2024",
+  18:     "TCGA-LUAD": DATASETS_ROOT / "TCGA-LUAD",
+  19:     "TCGA-LUSC": DATASETS_ROOT / "TCGA-LUSC",
+FILE: backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\inspect_msk_primary_histology_v6.py
+   1: from pathlib import Path
+   2: import pandas as pd
+   4: data_root = Path(r"C:\Users\emkap\Documents\Projects\LungInsight\datasets\msk_chord_2024\msk_chord_out")
+   8: manifest_path = report_dir / "msk_luad_lusc_primary_sample_manifest_v4.csv"
+  10: def read_msk(path):
+  11:     # MSK clinical TXT/CSV exports can include four preamble lines.
+  20:     raise RuntimeError(f"Could not parse expected MSK columns in {path}")
+  35: sample = read_msk(sample_path)
+FILE: backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\compiled_clinical_dataset_v1\build_compiled_dataset.py
+   1: import csv
+   2: import json
+   3: import re
+   4: from pathlib import Path
+   5: from datetime import datetime, timezone
+   7: import pandas as pd
+  14: MSK_MANIFEST = REPORT / "msk_luad_lusc_primary_sample_manifest_v4.csv"
+  15: MSK_PATIENT = DATA / "msk_chord_2024" / "msk_chord_out" / "nsclc_clinical_patient.csv"
+  16: TCGA_FILES = {
+  17:     "TCGA-LUAD": DATA / "TCGA-LUAD" / "42bf5eb2-bc49-45be-b18a-290f712b006c" / "nationwidechildrens.org_clinical_patient_luad.txt",
+  18:     "TCGA-LUSC": DATA / "TCGA-LUSC" / "7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550" / "nationwidechildrens.org_clinical_patient_lusc.txt",
+  79:     """Preserve detailed source categories without splitting combined MSK labels."""
+  86:     # TCGA CDE 2181650: retain the source-specific quit-duration distinctions.
+  87:     tcga_codes = {
+  94:     if raw in tcga_codes:
+  95:         return tcga_codes[raw]
+FILE: backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\compiled_clinical_dataset_v1\dataset_audit.json
+   6:     "MSK|LUAD": 3715,
+   7:     "MSK|LUSC": 604,
+   8:     "TCGA-LUAD|LUAD": 522,
+   9:     "TCGA-LUSC|LUSC": 504
+  12:     "MSK": 4319,
+  13:     "TCGA-LUAD": 522,
+  14:     "TCGA-LUSC": 504
+  16:   "tcga_parse_audit": {
+  17:     "TCGA-LUAD": {
+  22:     "TCGA-LUSC": {
+  28:   "tcga_luad_lusc_overlap": [],
+FILE: backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\compiled_clinical_dataset_v1\pre_smoking_detail_patch_20261019_174728\build_compiled_dataset.py
+   1: import csv
+   2: import json
+   3: import re
+   4: from pathlib import Path
+   5: from datetime import datetime, timezone
+   7: import pandas as pd
+  14: MSK_MANIFEST = REPORT / "msk_luad_lusc_primary_sample_manifest_v4.csv"
+  15: MSK_PATIENT = DATA / "msk_chord_2024" / "msk_chord_out" / "nsclc_clinical_patient.csv"
+  16: TCGA_FILES = {
+  17:     "TCGA-LUAD": DATA / "TCGA-LUAD" / "42bf5eb2-bc49-45be-b18a-290f712b006c" / "nationwidechildrens.org_clinical_patient_luad.txt",
+  18:     "TCGA-LUSC": DATA / "TCGA-LUSC" / "7aaee8d4-3bea-4dfc-b392-c7aaa3e9a550" / "nationwidechildrens.org_clinical_patient_lusc.txt",
+FILE: backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\compiled_clinical_dataset_v1\pre_smoking_detail_patch_20261019_174728\dataset_audit.json
+   6:     "MSK|LUAD": 3715,
+   7:     "MSK|LUSC": 604,
+   8:     "TCGA-LUAD|LUAD": 522,
+   9:     "TCGA-LUSC|LUSC": 504
+  12:     "MSK": 4319,
+  13:     "TCGA-LUAD": 522,
+  14:     "TCGA-LUSC": 504
+  16:   "tcga_parse_audit": {
+  17:     "TCGA-LUAD": {
+  22:     "TCGA-LUSC": {
+  28:   "tcga_luad_lusc_overlap": [],
+FILE: backend\Clinical\schemas\clinical_prediction_v1.schema.pre_histology_shap_20261020_151340.json
+FILE: backend\Clinical\schemas\explore_dataset_metadata.py
+   2: """Inventory and profile metadata files in TCGA-LUAD, TCGA-LUSC, and MSK-CHORD.
+   7: from __future__ import annotations
+   8: import argparse, csv, json, re
+   9: from collections import Counter
+  10: from pathlib import Path
+  11: from typing import Any
+  12: import pandas as pd
+  69:     p = argparse.ArgumentParser(description=__doc__)
+  70:     p.add_argument('--datasets-root', type=Path, required=True, help='Folder containing TCGA-LUAD, TCGA-LUSC, and msk_chord_2024')
+  71:     p.add_argument('--output-dir', type=Path, default=Path('metadata_exploration'))
+  72:     p.add_argument('--sample-rows', type=int, default=5000, help='Maximum rows sampled per table (Parquet is counted exactly)')
+  73:     p.add_argument('--max-file-mb', type=float, default=2048, help='Skip profiling files larger than this; still inventory them')
+  75:     root = args.datasets_root.resolve(); out = args.output_dir.resolve(); out.mkdir(parents=True, exist_ok=True)
+  77:         ('TCGA-LUAD', root / 'TCGA-LUAD'),
+  78:         ('TCGA-LUSC', root / 'TCGA-LUSC'),
+  79:         ('MSK-CHORD-2024', root / 'msk_chord_2024'),
+FILE: backend\Clinical\tests\test_cancer_type_dataset.py
+   1: from __future__ import annotations
+   3: import importlib.util
+   4: import math
+   5: from pathlib import Path
+   7: import pandas as pd
+   8: import pytest
+  18:     "prior_treatment_msk_prior_medication", "prior_treatment_tcga_neoadjuvant",
+  48: def test_msk_smoking_only_verified_categories():
+  49:     assert bcd.normalize_msk_smoking("Never") == "never"
+  50:     assert bcd.normalize_msk_smoking("Former/Current Smoker") == "former_or_current"
+  52:         assert bcd.normalize_msk_smoking(v) is None
+  56: def test_tcga_smoking_codes_are_missing_until_verified(code):
+  57:     assert bcd.TCGA_SMOKING_CODES_VERIFIED is False
+  58:     assert bcd.normalize_tcga_smoking(code) is None
+  73:     assert bcd.normalize_msk_prior("Prior medications to MSK") == "yes"
+  74:     assert bcd.normalize_msk_prior("No prior medications") == "no"
+  75:     assert bcd.normalize_msk_prior("Unknown") is None
+  76:     assert bcd.normalize_msk_prior("Yes") is None  # TCGA wording is not accepted as MSK semantics
+  77:     assert bcd.normalize_tcga_neoadjuvant("Yes") == "yes"
+  78:     assert bcd.normalize_tcga_neoadjuvant("Yes, Pharmaceutical Treatment Prior to Resection") == "yes"
+  79:     assert bcd.normalize_tcga_neoadjuvant("No") == "no"
+  80:     for v in ["[Discrepancy]", "history_of_neoadjuvant_treatment", "CDE_ID:3382737", "", "Prior medications to MSK"]:
+  81:         assert bcd.normalize_tcga_neoadjuvant(v) is None
+  84: def _write_tcga(path, rows):
+  93: def test_tcga_metadata_rows_excluded_and_features_normalized(tmp_path):
+  99:     good = ["TCGA-AA-0001", "Lung Adenocarcinoma", "FEMALE", "61", "4", "40", "1", "Stage IB", "No"]
+ 100:     sparse = ["TCGA-AA-0002", "Lung Adenocarcinoma", "MALE", "[Not Available]", "[Unknown]",
+FILE: backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py
+   1: from __future__ import annotations
+   3: import json
+   4: import os
+   5: import re
+   6: import shutil
+   7: import subprocess
+   8: import threading
+   9: from pathlib import Path
+  11: import joblib
+  12: import numpy as np
+  13: import pandas as pd
+  14: import pytest
+  15: from jsonschema import Draft202012Validator, FormatChecker
+  17: from LungInsight_v2.backend.Clinical import inference as clinical_inference
+  18: from LungInsight_v2.backend.Clinical.api import create_app
+  19: from LungInsight_v2.backend.Clinical.harmonization import (
+  23: from LungInsight_v2.backend.Clinical.inference import (
+  32: from LungInsight_v2.backend.Clinical.training import fit_survival_model
+  33: from test_clinical_pipeline import _request
+FILE: backend\Clinical\tools\analyze_cancer_type_thresholds.py
+   1: from pathlib import Path
+   2: import json
+   4: import joblib
+   5: import numpy as np
+   6: import pandas as pd
+   8: from sklearn.compose import ColumnTransformer
+   9: from sklearn.impute import SimpleImputer
+  10: from sklearn.linear_model import LogisticRegression
+  11: from sklearn.metrics import (
+  15: from sklearn.model_selection import train_test_split, StratifiedKFold, cross_val_predict
+  16: from sklearn.pipeline import Pipeline
+  17: from sklearn.preprocessing import OneHotEncoder
+  58:     df = df.loc[df["cohort"].eq("MSK-CHORD-2024")].dropna(subset=["cancer_type"]).copy()
+  99:     joblib.dump(model, OUT / "sex_smoking_pipeline.joblib")
+FILE: backend\Clinical\tools\audit_msk_histology_categories.py
+   1: from pathlib import Path
+   2: import pandas as pd
+   7: # Find likely raw MSK clinical/sample TSVs; exclude generated dataset outputs.
+  10:     if "msk" in str(p).lower() or "chord" in str(p).lower()
+  14:     if "msk" in str(p).lower() or "chord" in str(p).lower()
+  36:         "No matching raw MSK TSV found. Locate the original MSK clinical/sample "
+FILE: backend\Clinical\tools\build_cancer_type_dataset.py
+   4: Target: cancer_type in {LUAD, LUSC}. Uses MSK-CHORD-2024 and TCGA-LUAD/LUSC.
+   8: only because cohort membership may be confounded with target (TCGA-LUAD is all
+   9: LUAD, TCGA-LUSC is all LUSC). Features are normalized, missing values are kept,
+  13: from __future__ import annotations
+  14: import argparse, json, re
+  15: from pathlib import Path
+  16: import pandas as pd
+  23: # source-specific columns because the MSK and TCGA definitions are not equivalent.
+  27:     "prior_treatment_msk_prior_medication", "prior_treatment_tcga_neoadjuvant",
+  30: TCGA_COHORTS = {"TCGA-LUAD": "LUAD", "TCGA-LUSC": "LUSC"}
+  31: MSK_COHORT = "MSK-CHORD-2024"
+  36: # TCGA tobacco_smoking_history_indicator codes 1-5 are withheld until their meanings are
+  38: TCGA_SMOKING_CODES_VERIFIED = False
+  42:         msk=["Sex"], tcga=["gender"],
+  45:         difference="MSK 'Sex' and TCGA 'gender' are both recorded sex; no known definition difference."),
+  47:         msk=["Current Age"], tcga=["age_at_initial_pathologic_diagnosis"],
+  49:         leakage="Low for TCGA. MSK 'Current Age' is age at the data snapshot, not at diagnosis, "
+  51:         difference="NOT equivalent: MSK is current age (>= age at diagnosis); TCGA is age at initial diagnosis."),
+  53:         msk=["Smoking History (NLP)"], tcga=["tobacco_smoking_history_indicator"],
+  54:         rule="MSK: Never -> never; Former/Current Smoker -> former_or_current; Unknown -> missing. "
+  55:              "TCGA codes 1-5 -> missing until verified against the data dictionary.",
+  56:         leakage="Moderate for MSK: NLP-derived from clinical notes of unspecified timing.",
+  57:         difference="TCGA is unpopulated by design; no more specific status is inferred."),
+  59:         msk=[], tcga=["tobacco_smoking_pack_years_smoked"],
+  62:         difference="Not available in the MSK patient table."),
+  64:         msk=[], tcga=["ecog_score"],
+  66:         leakage="Timing relative to treatment is not documented in the TCGA table.",
+  67:         difference="Not available in the MSK patient table (performance status is a separate timeline)."),
+  69:         msk=["Stage (Highest Recorded)"], tcga=["ajcc_pathologic_tumor_stage"],
+  70:         rule="MSK: 'Stage 1-3' -> stage_1_3, 'Stage 4' -> stage_4. TCGA: 'Stage IA'.. -> stage_ia etc. "
+  71:              "Anything else -> missing. TCGA clinical stage is not used (mostly [Not Applicable]).",
+  73:         difference="NOT equivalent: MSK is highest recorded stage binned to 1-3/4; TCGA is AJCC pathologic "
+  75:     "prior_treatment_msk_prior_medication": dict(
+  76:         msk=["Prior Treatment to MSK (NLP)"], tcga=[],
+  77:         rule="'Prior medications to MSK' -> yes; 'No prior medications' -> no; Unknown -> missing.",
+  79:         difference="Anti-cancer medication received before MSK care; not equivalent to TCGA neoadjuvant treatment."),
+  80:     "prior_treatment_tcga_neoadjuvant": dict(
+  81:         msk=[], tcga=["history_neoadjuvant_treatment"],
+  84:         difference="Neoadjuvant treatment before surgery; not equivalent to MSK prior medications."),
+FILE: backend\Clinical\tools\run_cancer_type_feature_ablation.py
+   1: from pathlib import Path
+   2: import json
+   3: from itertools import combinations
+   5: import joblib
+   6: import numpy as np
+   7: import pandas as pd
+   8: import sklearn
+  10: from sklearn.compose import ColumnTransformer
+  11: from sklearn.dummy import DummyClassifier
+  12: from sklearn.impute import SimpleImputer
+  13: from sklearn.linear_model import LogisticRegression
+  14: from sklearn.metrics import (
+  22: from sklearn.model_selection import (
+  27: from sklearn.pipeline import Pipeline
+  28: from sklearn.preprocessing import OneHotEncoder
+  32: COHORT = "MSK-CHORD-2024"
+  93:     output_dir = (
+  96:     output_dir.mkdir(parents=True, exist_ok=True)
+FILE: backend\Clinical\tools\run_cancer_type_feature_comparison.py
+   1: from pathlib import Path
+   2: import json
+   3: import warnings
+   5: import joblib
+   6: import numpy as np
+   7: import pandas as pd
+   8: import sklearn
+  10: from sklearn.compose import ColumnTransformer
+  11: from sklearn.impute import SimpleImputer
+  12: from sklearn.linear_model import LogisticRegression
+  13: from sklearn.metrics import (
+  18: from sklearn.model_selection import train_test_split, StratifiedKFold, cross_validate
+  19: from sklearn.pipeline import Pipeline
+  20: from sklearn.preprocessing import OneHotEncoder
+  27: COHORT = "MSK-CHORD-2024"
+FILE: backend\Clinical\tools\train_cancer_type_baseline.py
+   1: from pathlib import Path
+   2: import json
+   3: import warnings
+   5: import joblib
+   6: import numpy as np
+   7: import pandas as pd
+   8: import sklearn
+  10: from sklearn.compose import ColumnTransformer
+  11: from sklearn.dummy import DummyClassifier
+  12: from sklearn.impute import SimpleImputer
+  13: from sklearn.linear_model import LogisticRegression
+  14: from sklearn.metrics import (
+  24: from sklearn.model_selection import (
+  29: from sklearn.pipeline import Pipeline
+  30: from sklearn.preprocessing import OneHotEncoder
+  36: COHORT = "MSK-CHORD-2024"
+  86:     output_dir = clinical_dir / "artifacts" / "cancer_type_model"
+  87:     output_dir.mkdir(parents=True, exist_ok=True)
+  98:     # This first model deliberately uses MSK only. TCGA cohort membership
+FILE: backend\Clinical\tools\tcga_prep\02_build_tabular_dataset.py
+   2: """Build a tabular-only clinical dataset from TCGA clinical TSVs and an optional normalized MSK CSV.
+   6: The MSK CSV must be normalized to one row per patient with columns:
+   9: from __future__ import annotations
+  10: import argparse, csv, json, re
+  11: from collections import Counter
+  12: from pathlib import Path
+  15:     "TCGA-LUAD": ("nationwidechildrens.org_clinical_patient_luad.txt", "LUAD"),
+  16:     "TCGA-LUSC": ("nationwidechildrens.org_clinical_patient_lusc.txt", "LUSC"),
+  60:     ap = argparse.ArgumentParser()
+  61:     ap.add_argument("--datasets-root", required=True, type=Path)
+  62:     ap.add_argument("--output-dir", type=Path)
+  63:     ap.add_argument("--msk-csv", type=Path, help="Optional normalized MSK-CHORD patient-level CSV")
+  64:     ap.add_argument("--min-feature-coverage", type=float, default=0.05,
+  68:     out = (args.output_dir or root / "prepared" / "tcga").resolve()
+  70:     rows, qc, all_feature_names = [], {"tcga": {}, "msk": {"provided": False}}, set()
+  75:             qc["tcga"][cohort] = {"status": "missing_input"}
+  92:         qc["tcga"][cohort] = {"status": "ok", "rows_read": count, "clinical_file": str(path)}
+  94:     if args.msk_csv:
+  95:         p = args.msk_csv.resolve()
+  96:         if not p.exists(): raise FileNotFoundError(f"MSK CSV not found: {p}")
+FILE: backend\Clinical\tools\tcga_prep\03_audit_tabular_dataset.py
+   3: from __future__ import annotations
+   4: import argparse, csv, json
+   5: from collections import Counter
+   6: from pathlib import Path
+  13:     ap = argparse.ArgumentParser()
+  14:     ap.add_argument("--csv", required=True, type=Path)
+  15:     ap.add_argument("--output", type=Path)
+
+==============================================================================
+5. FRONTEND API WIRING
+==============================================================================
+  74: const imagingApiBase = window.LUNGINSIGHT_IMAGING_API_BASE || "/api/v1/imaging";
+  75: const analysisBase = "/api/v1/analysis";
+ 106: async function apiFetch(url, options = {}) {
+ 111:     response = await fetch(url, options);
+ 134:   for (const view of ["entry", "report"]) {
+ 138:   if (name === "report") resizeCanvas();
+ 141: $("tab-report").addEventListener("click", () => setView("report"));
+ 277:   setBadge("dob", e.age && !e.age.error ? "ok" : "warn", e.age && !e.age.error ? "Reported" : "Not reported");
+ 284:     else if (value !== null && !issue) setBadge(id, "ok", "Reported");
+ 285:     else setBadge(id, "warn", "Not reported");
+ 287:   setBadge("medical_history", f.history.length ? "ok" : "warn", f.history.length ? "Reported" : "Not reported");
+ 288:   setBadge("symptoms", f.symptoms.length ? "ok" : "warn", f.symptoms.length ? "Reported" : "Not reported");
+ 289:   const kpsReported = !f.kpsUnknown && f.kps !== null && !e.issues.kps;
+ 290:   setBadge("kps", kpsReported ? "ok" : "warn", kpsReported ? "Reported" : "Not reported");
+ 465:     years_smoked_status: f.hasDetail && f.years !== null ? "reported" : "not_reported",
+ 467:     packs_per_day_status: f.hasDetail && f.packs !== null ? "reported" : "not_reported",
+ 471:     medical_history_status: hasHistory ? "reported" : "not_reported",
+ 473:     symptoms_status: "reported",
+ 485:   const response = await apiFetch(`/api/v1/clinical/records/${encodeURIComponent(patientId)}`, {
+ 511:   set("sex", inputs.sex_at_baseline ?? (inputs.sex_at_baseline_status ? "not_reported" : ""));
+ 524:     ["medical_history", inputs.medical_history_status === "reported" ? (inputs.medical_history_conditions?.length ? inputs.medical_history_conditions : ["none"]) : []],
+ 525:     ["symptoms", inputs.symptoms_status === "reported" ? (inputs.symptoms?.length ? inputs.symptoms : ["none"]) : []],
+ 541:     const response = await apiFetch(`/api/v1/clinical/records/${encodeURIComponent(patientId)}`);
+ 560:     const response = await apiFetch(`${analysisBase}/patients/${encodeURIComponent(patientId)}/studies`);
+ 564:     setRecordStatus(studies.length ? `${studies.length} saved study(ies) for ${patientId}. Select one to open its report.` : `No saved studies for ${patientId}.`);
+ 592:   ["stage07", "Report and viewer artifacts"],
+ 611:   const response = await apiFetch(analysisBase + "/runs", {
+ 637:       const response = await apiFetch(`${analysisBase}/runs/${encodeURIComponent(runId)}`);
+ 726: /* ---------- report: data loading ---------- */
+ 728:   const response = await apiFetch(`${analysisBase}/runs/${encodeURIComponent(runId)}`);
+ 734:     const viewerResponse = await apiFetch(`${analysisBase}/runs/${encodeURIComponent(runId)}/viewer`);
+ 743:     const reportResponse = await apiFetch(`${analysisBase}/runs/${encodeURIComponent(runId)}/report`);
+ 744:     if (reportResponse.ok) inputs = (await reportResponse.json()).clinical_inputs || null;
+ 746:       const recordResponse = await apiFetch(`/api/v1/clinical/records/${encodeURIComponent(body.patient_id)}`);
+ 753:   renderReport();
+ 754:   setView("report");
+ 757: /* ---------- report: helpers ---------- */
+ 771: const contractBrockOf = (nodule) => nodule.malignancy?.brock || {};
+ 772: const brockIsManual = (nodule) => contractBrockOf(nodule).status !== "available" && Boolean(manualBrockOf(nodule));
+ 773: const brockOf = (nodule) => (brockIsManual(nodule) ? manualBrockOf(nodule) : contractBrockOf(nodule));
+ 810:     fallback: (x) => (x.inputs?.medical_history_status === "reported" ? ((x.inputs.medical_history_conditions || []).includes("emphysema") ? "Yes" : "No") : null),
+ 836:   const b = contractBrockOf(nodule);
+ 884:     const response = await apiFetch(`${analysisBase}/runs/${encodeURIComponent(V.runId)}/nodules/${encodeURIComponent(nodule.stable_nodule_id)}/brock`, {
+1005:       <p class="hint" style="margin:.3rem 0 0">Applies to patients already known to have LUAD or LUSC. Inputs used: ${esc(used || "not reported")}.</p>
+1047: /* ---------- report: rendering ---------- */
+1072:   const base = `${analysisBase}/runs/${encodeURIComponent(body.run_id)}`;
+1079:     <span class="links"><a href="${base}/report/html" target="_blank" rel="noopener">HTML report</a><a href="${base}/report" target="_blank" rel="noopener">JSON report</a>
+1080:       <button type="button" id="print-report" class="ghost">Print</button><button type="button" id="back-to-entry" class="ghost">Back to case entry</button></span>
+1087:     body.innerHTML = `<tr><td colspan="5">${V.meta ? "No nodule records in the validated contract." : esc(S.run.metaError || "Nodule records unavailable.")}</td></tr>`;
+1148:     const reported = p.value(c);
+1149:     const value = reported ?? p.fallback?.(ctx) ?? null;
+1216:   if (!inputs) { target.innerHTML = "<p class='hint' style='margin:0'>Clinical inputs were not stored for this run. Not reported.</p>"; return; }
+1217:   const text = (value, fallback = "Not reported") => (value == null || value === "" ? fallback : label(value));
+1219:   const emphysema = inputs.medical_history_status === "reported" ? (inputs.medical_history_conditions || []).includes("emphysema") ? "Yes" : "No" : "Not reported";
+1222:     <dt>Age</dt><dd>${fin(ageOfInputs(inputs)) ? `${ageOfInputs(inputs)} years` : "Not reported"}</dd>
+1225:     <dt>Stage</dt><dd>${esc(CANCER_STAGE_LABELS[inputs.stage_at_baseline] || "Not reported")}</dd>
+1228:     <dt>KPS</dt><dd>${fin(inputs.kps) ? esc(inputs.kps) : "Not reported"}</dd></dl>`;
+1326:         return `<tr><th>${esc(name)}</th><td>Unavailable</td><td>Not reported</td></tr>`;
+1345:     const reported = p.value(b?.contributions || b);
+1346:     const value = reported ?? p.fallback?.(ctx) ?? null;
+1403:   const url = `${analysisBase}/runs/${encodeURIComponent(V.runId)}/viewer/slices/${chosen.z}?${params}`;
+1404:   const response = await apiFetch(url);
+1509: function renderReport() {
+1516:   $("report-empty").hidden = true;
+1517:   $("report-grid").hidden = false;
+1537:   if (event.target.closest("#print-report")) {
+1540:       const button = $("print-report");
+1548:         console.error("Could not prepare the complete print report:", error);
+1549:         alert("The report could not be fully prepared for printing. Please check the browser console and try again.");
+1567: /* ---------- report: viewer ---------- */
+1717:   const response = await apiFetch(`${analysisBase}/runs/${encodeURIComponent(V.runId)}/viewer/slices/${index}?${params}`);
+
+==============================================================================
+6. REPOSITORY STATUS SUMMARY
+==============================================================================
+Python: Python 3.12.10
+Root venv exists: False
+Preserved venv exists: True
+Git status --short (first 80 lines):
+ M .gitignore
+ D LungInsight_v2/LungInsight_Report_Workflow.ps1
+ D LungInsight_v2/README_histology_SHAP_patch.txt
+ D LungInsight_v2/Repair_LungInsight_Report_Workflow.ps1
+ D LungInsight_v2/archive/review/20261014/main.py
+ D LungInsight_v2/archive/review/20261014/patch_gradcam_diagnostic.py
+ D LungInsight_v2/artifacts/LungInsight_Report_Triage.txt
+ D LungInsight_v2/artifacts/clinical_test_discovery_check.txt
+ D LungInsight_v2/artifacts/current_source_shap_print_audit.txt
+ D LungInsight_v2/artifacts/report_followup_inventory.txt
+ D LungInsight_v2/artifacts/report_frontend_review.txt
+ D LungInsight_v2/artifacts/report_rendering_audit.txt
+ D LungInsight_v2/artifacts/report_rendering_audit_active.txt
+ D LungInsight_v2/artifacts/report_rendering_sections.txt
+ D LungInsight_v2/artifacts/report_shap_print_followup.txt
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/acceptance_audit.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/acceptance_audit.md
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/relevant_file_inventory.txt
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/LungInsight_Report_Workflow.ps1
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/Repair_LungInsight_Report_Workflow.ps1
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/cancer-type-evaluation.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/cancer-type-luad-lusc-v2-evaluation.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/cancer-type-luad-lusc-v2-holdout-predictions.csv
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/classifier-baseline-report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/cross-cohort-evaluation.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/metadata_exploration/column_profiles.csv
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/metadata_exploration/file_inventory.csv
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/metadata_exploration/label_and_cohort_candidates.csv
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/metadata_exploration/metadata_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/metadata_exploration/table_profiles.csv
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/metadata_exploration/tcga_diagnosis_fields.csv
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/reports/survival-evaluation.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/tools/audit_msk_histology_categories.py
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/tools/build_cancer_type_dataset.py.pre_histology_fix.bak
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Clinical/train_survival.py
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Imaging/brock.py
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Imaging/brock_inputs.py
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Imaging/html_reports.py
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Imaging/schemas/imaging_clinical_contract_v1.schema.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Imaging/tests/test_brock.py
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/Imaging/tests/test_html_reports.py
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/models/malignancy/rounding_median_validation_v1/rounding_median_validation_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/models/malignancy/stage03_input_v2/training_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/models/malignancy/validation_model_comparison_v1/comparison_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/models/malignancy/xml_annotation_ranker_compatible_v1/training_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/models/malignancy/xml_nodule_level_v1/scale_alignment_validation_v1/feature_scale_alignment_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/models/malignancy/xml_nodule_level_v1/training_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/models/malignancy/xml_paired_calibration_v1/training_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/models/malignancy/xml_vs_stage03_experiment/data/prepare_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/models/malignancy/xml_vs_stage03_experiment/diagnostics/diagnostics_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/models/nodule_ranker_3d_distributional_v1/spatial_v1/checkpoints/hybrid/evaluation_reports/test.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/models/nodule_ranker_3d_distributional_v1/spatial_v1/checkpoints/hybrid/evaluation_reports/validation.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/.brock_inputs/LIDC-IDRI-0007.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0001/02_detect_and_patch/candidate_filter_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0001/02_detect_and_patch/log_candidate_filter_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0001/06_full_ct_gradcam_rainbow/full_ct_gradcam_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0002/mask_quality_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0003/mask_quality_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/02_detect_and_patch/candidate_filter_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/06_full_ct_gradcam_rainbow/full_ct_gradcam_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/07_visualization/nodule_report.csv
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/07_visualization/nodule_report.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_inputs_0c246709835e443c93c81e0e131525a6.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_inputs_32e21755d8554481b7c67b1571b11f4d.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_inputs_58b5cabffb574dfab80c133d144f6f4e.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_inputs_624f9a5b501541c4a23acb08ad9c4d30.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_inputs_72bb9badf749424c886409a15a84e3b7.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_inputs_785d5a3d2d6a4bd2a2c7c39b8a363ac9.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_inputs_aba30378b8ca42199b57bdd09ad3dad8.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_inputs_ac59019b8ec7451a9b59ac5a7e564f92.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_inputs_b3b549cda72f4d19a94da195744d0a80.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_inputs_b73c319dea5b48c79f12a20ad6c2fb3f.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_inputs_cee0ea911ab948789f07c9443cf3d871.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_manual_0c246709835e443c93c81e0e131525a6.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_manual_58b5cabffb574dfab80c133d144f6f4e.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_manual_624f9a5b501541c4a23acb08ad9c4d30.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_manual_785d5a3d2d6a4bd2a2c7c39b8a363ac9.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_manual_aba30378b8ca42199b57bdd09ad3dad8.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_manual_ac59019b8ec7451a9b59ac5a7e564f92.json
+ D LungInsight_v2/artifacts/report_workflow_20261020_124046/source_snapshot/backend/output/LIDC-IDRI-0005/brock_manual_b73c319dea5b48c79f12a20ad6c2fb3f.json

@@ -1,9 +1,0 @@
-{
-  "patient": {
-    "age_years": 45.0,
-    "sex": "male",
-    "family_history_lung_cancer": false,
-    "emphysema": false
-  },
-  "nodules": {}
-}

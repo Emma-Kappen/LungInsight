@@ -164,3 +164,7 @@ coverage/
 # --- Extraneous files and directories ---
 filetree.py
 kaggle.json
+.env.local
+.env.development.local
+.env.test.local
+.env.production.locals
