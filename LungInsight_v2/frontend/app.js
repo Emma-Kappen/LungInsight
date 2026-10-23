@@ -1,3 +1,72 @@
+/* lunginsight-theme-toggle-v1 */
+(() => {
+  const root = document.documentElement;
+  const key = "lunginsight-theme";
+  const button = document.getElementById("theme-toggle");
+  const valid = (value) => value === "light" || value === "dark";
+
+  let saved = null;
+  try {
+    saved = localStorage.getItem(key);
+  } catch (_) {
+    // Storage may be disabled; theme switching still works for this page.
+  }
+
+  const systemTheme = () =>
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+
+  function applyTheme(theme) {
+    const selected = valid(theme) ? theme : "light";
+    root.dataset.theme = selected;
+    root.style.colorScheme = selected;
+
+    if (button) {
+      const dark = selected === "dark";
+      button.textContent = dark ? "Light mode" : "Dark mode";
+      button.setAttribute("aria-pressed", String(dark));
+      button.setAttribute(
+        "aria-label",
+        dark ? "Switch to light theme" : "Switch to dark theme"
+      );
+      button.title = dark ? "Switch to light theme" : "Switch to dark theme";
+    }
+  }
+
+  applyTheme(valid(saved) ? saved : systemTheme());
+
+  if (button) {
+    button.addEventListener("click", () => {
+      const next = root.dataset.theme === "dark" ? "light" : "dark";
+      applyTheme(next);
+      try {
+        localStorage.setItem(key, next);
+      } catch (_) {
+        // The selected theme remains active until this page is closed.
+      }
+    });
+  }
+
+  // Track OS changes only until the user has explicitly selected a theme.
+  if (window.matchMedia) {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onSystemChange = (event) => {
+      let preference = null;
+      try {
+        preference = localStorage.getItem(key);
+      } catch (_) {}
+      if (!valid(preference)) applyTheme(event.matches ? "dark" : "light");
+    };
+
+    if (media.addEventListener) {
+      media.addEventListener("change", onSystemChange);
+    } else if (media.addListener) {
+      media.addListener(onSystemChange);
+    }
+  }
+})();
 "use strict";
 
 const $ = (id) => document.getElementById(id);
@@ -823,6 +892,7 @@ async function submitManualBrock(formEl) {
     renderShap();
     renderMethods();
     renderSummary();
+  renderPrintNoduleSummary();
   } catch (failure) {
     error.textContent = failure.message;
     button.disabled = false;
@@ -1211,6 +1281,231 @@ function renderMethods() {
     : '<tr><td colspan="5">No method outcomes are available for this run.</td></tr>';
 }
 
+
+function printRepresentativeSlice(nodule) {
+  if (!nodule || nodule._boxErr) return null;
+  const box = boxOf(nodule);
+  if (!Array.isArray(box.start) || !Array.isArray(box.end)) return null;
+  if (box.start.length < 3 || box.end.length < 3) return null;
+
+  const maxZ = Math.max(0, Number(V.meta?.shape_zyx?.[0] || 1) - 1);
+  const valid = Object.entries(box.slices || {})
+    .map(([z, rect]) => [Number(z), rect])
+    .filter(([z, rect]) =>
+      Number.isInteger(z) &&
+      z >= box.start[0] && z < box.end[0] &&
+      z >= 0 && z <= maxZ &&
+      Array.isArray(rect) && rect.length === 4 &&
+      rect.every(Number.isFinite) &&
+      rect[2] > rect[0] && rect[3] > rect[1]
+    )
+    .map(([z, rect]) => ({
+      z,
+      area: (rect[2] - rect[0]) * (rect[3] - rect[1]),
+      rect
+    }))
+    .sort((a, b) => b.area - a.area || a.z - b.z);
+
+  const fallback = Math.floor((box.start[0] + box.end[0] - 1) / 2);
+  const z = valid.length ? valid[0].z : fallback;
+  if (!Number.isFinite(z)) return null;
+  return { z: Math.min(maxZ, Math.max(0, z)), box };
+}
+
+function printCharacteristicHtml(nodule) {
+  if (nodule._boxErr) {
+    return `<p class="alert warn">Attribute ranking models unavailable: ${esc(nodule._boxErr)}. This is not a negative result.</p>`;
+  }
+  const attrs = nodule.classification?.attributes || {};
+  const rows = ATTRIBUTES
+    .filter(([key]) => !HIDDEN_ATTRIBUTES.has(key))
+    .map(([key, name, low, high]) => {
+      const item = attrs[key];
+      const rating = item?.expected_rating;
+      if (!fin(rating)) {
+        return `<tr><th>${esc(name)}</th><td>Unavailable</td><td>Not reported</td></tr>`;
+      }
+      const scale = Array.isArray(item.rating_scale) && item.rating_scale.length === 2
+        ? item.rating_scale : [1, 5];
+      return `<tr><th>${esc(name)}</th><td>${rating.toFixed(1)}</td><td>${esc(`${scale[0]}–${scale[1]} (${low} to ${high})`)}</td></tr>`;
+    }).join("");
+  return `<p class="hint">Predicted LIDC-style reader ranks, not measurements or a diagnosis.</p>
+    <table class="dt"><thead><tr><th>Characteristic</th><th>Predicted rank</th><th>Scale</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function printBrockHtml(nodule) {
+  const b = brockOf(nodule);
+  const missingNames = missingBrockInputs(nodule);
+  const usable = brockUsable(b);
+  const assessmentBlock = assessmentHtml(nodule);
+  const ctx = { inputs: S.run?.inputs, nodule, nodules: V.nodules };
+  const supplied = brockIsManual(nodule) ? (nodule.manual_brock.supplied || {}) : {};
+
+  const rows = BROCK_PARAMS.map((p) => {
+    const reported = p.value(b?.contributions || b);
+    const value = reported ?? p.fallback?.(ctx) ?? null;
+    const missing = p.missing.some((name) => missingNames.includes(name)) ||
+      (value == null && !usable && !p.fallback);
+    let cell;
+    if (missing) cell = "Missing";
+    else if (value == null) cell = "Derived by model";
+    else cell = `${esc(value)}${p.missing.some((name) => name in supplied) ? " (supplied)" : ""}`;
+    return `<tr><td>${esc(p.source)}</td><td>${esc(p.name)}</td><td>${cell}</td><td>${esc(p.enters)}</td></tr>`;
+  }).join("");
+
+  const probability = usable ? `<p><b>Brock probability of malignancy:</b> ${esc(pct(b.probability))}</p>` :
+    `<p class="alert warn"><b>Brock unavailable.</b> ${esc(missingNames.length
+      ? `Missing: ${missingNames.map((m) => MISSING_LABELS[m] || label(m)).join(", ")}`
+      : (b.status ? `Status: ${label(b.status)}` : "No Brock result for this nodule"))}. This is not a negative result.</p>`;
+
+  return `${probability}${assessmentBlock}
+    <table class="dt"><thead><tr><th>Source</th><th>Brock input</th><th>Value</th><th>Model encoding</th></tr></thead><tbody>${rows}</tbody></table>
+    <p class="hint">Brock (PanCan) model-derived malignancy risk; not a pathology result. ${esc(b.reference || "")}</p>`;
+}
+
+function printBrockContributionsHtml(nodule) {
+  const b = brockOf(nodule);
+  if (!brockUsable(b)) {
+    return `<p class="alert warn">Brock unavailable; contributions cannot be displayed.</p>`;
+  }
+  const c = contributions(b);
+  const items = BROCK_PARAMS.map((p) => {
+    let term = "";
+    try { term = BROCK_TERMS[p.key](c); } catch {}
+    return { p, value: p.value(c), contribution: p.contrib(c), term };
+  });
+  const peak = Math.max(...items.map(x => Math.abs(x.contribution ?? 0)), 1e-9);
+  const rows = items.map(({p, value, contribution, term}) => {
+    const known = fin(contribution);
+    const width = known ? Math.abs(contribution) / peak * 48 : 0;
+    const bar = known && contribution !== 0
+      ? `<i class="shap-bar ${contribution > 0 ? "pos" : "neg"}" style="width:${width}%"></i>`
+      : "";
+    return `<tr><th>${esc(p.name)}</th><td>${esc(value ?? "Missing")}</td><td>${esc(term)}</td><td>${known ? sgn(contribution) : "n/a"}</td></tr>`;
+  }).join("");
+  return `<p class="hint">Brock formula contributions (log-odds), not SHAP values.</p>
+    <table class="dt"><thead><tr><th>Term</th><th>Input</th><th>Formula term</th><th>Contribution</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="print-contribution-bars">${items.map(({p, contribution}) => {
+      const known = fin(contribution);
+      const width = known ? Math.abs(contribution) / peak * 48 : 0;
+      return `<div class="shap-row"><span class="shap-name">${esc(p.name)}</span><div class="shap-track">${known && contribution !== 0
+        ? `<i class="shap-bar ${contribution > 0 ? "pos" : "neg"}" style="width:${width}%"></i>` : ""}</div>
+        <span class="shap-val">${known ? sgn(contribution) : "n/a"}</span></div>`;
+    }).join("")}</div>`;
+}
+
+async function printSliceFigure(nodule, ordinal) {
+  const chosen = printRepresentativeSlice(nodule);
+  if (!chosen) {
+    return `<p class="hint">Representative CT slice unavailable: no valid bounding box.</p>`;
+  }
+  const params = new URLSearchParams({ lung_overlay: "false", heart_overlay: "false" });
+  const url = `${analysisBase}/runs/${encodeURIComponent(V.runId)}/viewer/slices/${chosen.z}?${params}`;
+  const response = await apiFetch(url);
+  if (!response.ok) {
+    return `<p class="hint">CT slice ${chosen.z} could not be loaded for printing.</p>`;
+  }
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  try {
+    const image = await new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("Could not decode CT slice image"));
+      img.src = objectUrl;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const context = canvas.getContext("2d");
+    context.drawImage(image, 0, 0);
+
+    const rect = sliceRect(nodule, chosen.z);
+    if (rect) {
+      context.lineWidth = Math.max(2, canvas.width / 256);
+      context.strokeStyle = "#ffd24a";
+      context.setLineDash(rect.dashed ? [6, 4] : []);
+      context.strokeRect(rect.x0, rect.y0, rect.x1 - rect.x0, rect.y1 - rect.y0);
+      context.setLineDash([]);
+      context.font = `${Math.max(12, canvas.width / 40)}px sans-serif`;
+      context.fillStyle = "#ffd24a";
+      context.fillText(nodule.stable_nodule_id || `Nodule ${ordinal + 1}`, rect.x0, Math.max(14, rect.y0 - 4));
+    }
+    return `<figure class="print-ct"><figcaption>Representative axial CT slice: Z = ${chosen.z}</figcaption><img alt="CT slice ${chosen.z} with bounding box for ${esc(nodule.stable_nodule_id || `Nodule ${ordinal + 1}`)}" src="${canvas.toDataURL("image/png")}"></figure>`;
+  } catch {
+    return `<p class="hint">CT slice ${chosen.z} could not be prepared for printing.</p>`;
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
+}
+
+async function renderPrintNoduleDetails() {
+  const target = $("print-nodule-detail-list");
+  if (!target) return;
+  const nodules = Array.isArray(V.nodules) ? V.nodules : [];
+  if (!nodules.length) {
+    target.innerHTML = "<p>No nodule records are available in this run.</p>";
+    return;
+  }
+
+  target.innerHTML = nodules.map((n, i) => `
+    <article class="print-nodule-detail">
+      <h3>${esc(n.stable_nodule_id || `Nodule ${i + 1}`)}</h3>
+      <p><b>Size:</b> ${esc(formatMm(n.geometry?.diameter_mm))}</p>
+      <div class="print-ct-slot" data-print-nodule-index="${i}"><p class="hint">Preparing CT slice…</p></div>
+      <h4>Characteristics</h4>${printCharacteristicHtml(n)}
+      <h4>Brock malignancy risk and assessment</h4>${printBrockHtml(n)}
+      <h4>Brock formula contributions (log-odds)</h4>${printBrockContributionsHtml(n)}
+    </article>`).join("");
+
+  const slots = Array.from(target.querySelectorAll(".print-ct-slot"));
+  await Promise.all(slots.map(async (slot) => {
+    const i = Number(slot.dataset.printNoduleIndex);
+    try {
+      slot.innerHTML = await printSliceFigure(nodules[i], i);
+    } catch {
+      slot.innerHTML = '<p class="hint">CT slice could not be prepared for printing.</p>';
+    }
+  }));
+}
+
+function renderPrintNoduleSummary() {
+  const target = $("print-nodule-table");
+  if (!target) return;
+
+  const nodules = Array.isArray(V.nodules) ? V.nodules : [];
+  if (!nodules.length) {
+    target.innerHTML = '<tbody><tr><td colspan="5">No nodule records are available in this run.</td></tr></tbody>';
+    return;
+  }
+
+  const rows = nodules.map((n) => {
+    const b = brockOf(n);
+    const a = assessment(n);
+    const id = n.stable_nodule_id || "ID unavailable";
+    const size = formatMm(n.geometry?.diameter_mm);
+    const risk = brockUsable(b)
+      ? esc(pct(b.probability)) + (brockIsManual(n) ? " (supplied inputs)" : "")
+      : "Unavailable";
+    const result = a?.label || "Unavailable";
+    const box = n._boxErr ? "Invalid" : "Valid";
+
+    return `<tr>
+      <td>${esc(id)}</td>
+      <td>${esc(size)}</td>
+      <td>${risk}</td>
+      <td>${esc(result)}</td>
+      <td>${esc(box)}${n._boxErr ? ": " + esc(n._boxErr) : ""}</td>
+    </tr>`;
+  }).join("");
+
+  target.innerHTML = `<thead><tr>
+    <th>Nodule ID</th><th>Size</th><th>Brock risk</th>
+    <th>Assessment</th><th>Bounding box</th>
+  </tr></thead><tbody>${rows}</tbody>`;
+}
+
 function renderReport() {
   const {body, meta} = S.run;
   V.meta = meta;
@@ -1222,6 +1517,7 @@ function renderReport() {
   $("report-grid").hidden = false;
   $("summary").hidden = false;
   renderSummary();
+  renderPrintNoduleSummary();
   renderMethods();
   renderClinicalInputs();
   renderClinicalModels();
@@ -1238,7 +1534,24 @@ function renderReport() {
 }
 
 $("summary").addEventListener("click", (event) => {
-  if (event.target.closest("#print-report")) window.print();
+  if (event.target.closest("#print-report")) {
+    event.preventDefault();
+    (async () => {
+      const button = $("print-report");
+      if (button) button.disabled = true;
+      try {
+        renderPrintNoduleSummary();
+        await renderPrintNoduleDetails();
+        if (document.fonts?.ready) await document.fonts.ready;
+        window.print();
+      } catch (error) {
+        console.error("Could not prepare the complete print report:", error);
+        alert("The report could not be fully prepared for printing. Please check the browser console and try again.");
+      } finally {
+        if (button) button.disabled = false;
+      }
+    })();
+  }
   if (event.target.closest("#back-to-entry")) setView("entry");
 });
 $("nodule-table").addEventListener("click", (event) => {
@@ -1447,9 +1760,15 @@ function selectNodule(index, focus = false) {
   const el = viewerEls();
   if (!nodule._boxErr) {
     const box = boxOf(nodule);
-    const own = Object.entries(box.slices).map(([z, [y0, x0, y1, x1]]) => [Number(z), (y1 - y0) * (x1 - x0)]);
-    const z = own.length ? own.sort((a, b) => b[1] - a[1])[0][0] : Math.floor((box.start[0] + box.end[0] - 1) / 2);
-    el.slice.value = String(Math.min(Number(el.slice.max), Math.max(0, z)));
+    const maxZ = Math.max(0, Number(V.meta?.shape_zyx?.[0] || el.slice.max || 1) - 1);
+    const own = Object.entries(box.slices)
+      .map(([z, rect]) => [Number(z), rect])
+      .filter(([z, rect]) => Number.isInteger(z) && z >= box.start[0] && z < box.end[0] && z >= 0 && z <= maxZ
+        && Array.isArray(rect) && rect.length === 4 && rect.every(Number.isFinite))
+      .map(([z, [y0, x0, y1, x1]]) => [z, Math.max(0, y1 - y0) * Math.max(0, x1 - x0)]);
+    const fallbackZ = Math.floor((box.start[0] + box.end[0] - 1) / 2);
+    const z = own.length ? own.sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0] : fallbackZ;
+    el.slice.value = String(Math.min(maxZ, Math.max(0, z)));
   }
   if (el.cam.checked) {
     V.camChecked = new Set([nodule.stable_nodule_id]);
@@ -1466,3 +1785,4 @@ function selectNodule(index, focus = false) {
 /* ---------- start ---------- */
 refresh();
 setView("entry");
+

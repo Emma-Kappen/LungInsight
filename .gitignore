@@ -1,31 +1,166 @@
-# Virtual Environment
-l-env/
+﻿# ============================================================
+# LungInsight v2 - Git exclusions
+# Root: LungInsight/
+# ============================================================
 
-# Python Cache & Bytecode
+# --- Python environments ---
+.venv/
+venv/
+env/
+l-env/
+ENV/
+.python-version
+
+# --- Python caches and test output ---
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+nosetests.xml
+test-results/
+junit.xml
 
-# Datasets (Ignores all dataset subfolders/files)
-datasets/
+# --- Secrets and local configuration ---
+.env
+.env.*
+!.env.example
+!.env.template
+secrets/
+*.pem
+*.key
 
-LungInsight_v2/backend/output/
-
-# OS & IDE Files (Recommended)
-.DS_Store
-Thumbs.db
+# --- Editors and operating systems ---
 .vscode/
 .idea/
-.env
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
 
-LungInsight_v1/
+# --- Logs and temporary files ---
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.temp
 
-# Zipped Files
+# --- Backup and rollback files ---
+*.bak
+*.bak_*
+*.old
+*.orig
+*.backup
+*.backup.*
+*~ 
+backup*/
+**/backup*/
+**/*_backup_*/
+**/pre_run_backup_*/
+**/pre_stage01_backup_*/
+**/rollback_backup/
+**/source_snapshot/
+
+# --- Local datasets: keep outside Git ---
+/datasets/
+/LungInsight_v2/datasets/
+
+# --- CT scans and medical imaging data ---
+*.dcm
+*.dicom
+*.nii
+*.nii.gz
+*.mha
+*.mhd
+*.nrrd
+*.vti
+*.vtk
+
+# --- Large generated arrays and imaging outputs ---
+*.npy
+*.npz
+*.nii.gz
+*.h5
+*.hdf5
+*.zarr/
+*.tfrecord
+*.tfrecords
+
+# --- Model weights, checkpoints, and exported models ---
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.engine
+*.safetensors
+*.joblib
+*.pkl
+*.pickle
+*.model
+*.weights
+*.keras
+*.tflite
+
+# --- Generated pipeline outputs ---
+/LungInsight_v2/backend/output/
+/LungInsight_v2/backend/logs/
+/LungInsight_v2/backend/tmp/
+/LungInsight_v2/backend/temp/
+
+# Also ignore these directories if the repository root is LungInsight_v2.
+backend/output/
+backend/logs/
+backend/tmp/
+backend/temp/
+
+# --- Generated reports and visualizations ---
+*.html.tmp
+*.png.tmp
+*.jpg.tmp
+*.jpeg.tmp
+*.gif.tmp
+*.mp4.tmp
+*.avi.tmp
+
+# --- Generated artifacts and run-specific snapshots ---
+**/report_workflow_*/source_snapshot/
+**/integration_audit/versioned_integration_*/rollback_backup/
+**/pre_run_backup_*/
+**/pre_stage01_backup_*/
+**/log_candidates_diagnostic.json
+
+# --- Archives and local exports ---
 *.zip
-*.tar.gz
+*.7z
+*.rar
+*.tar
+*.gz
+*.bak.zip
 
-# Local credentials and retired experiment recovery directory
-kaggle.json
-_restore_hybrid/
+# --- Frontend dependencies and build outputs ---
+node_modules/
+dist/
+build/
+coverage/
+.next/
+.parcel-cache/
+.vite/
 
-prompt.md
+# --- Local databases ---
+*.sqlite
+*.sqlite3
+*.db
+
+# --- Keep project source, tests, schemas, and documentation tracked ---
+# Do not ignore backend/, frontend/, tests/, schemas/, *.py, *.js,
+# *.html, *.css, *.json schemas, README.md, or report.md globally.

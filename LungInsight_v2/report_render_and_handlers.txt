@@ -1,0 +1,51 @@
+1210:     ? rows.map((row) => `<tr>${row.map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`).join("")
+1211:     : '<tr><td colspan="5">No method outcomes are available for this run.</td></tr>';
+1212: }
+1213: 
+1214: function renderReport() {
+1215:   const {body, meta} = S.run;
+1216:   V.meta = meta;
+1217:   V.runId = body.run_id;
+1218:   V.nodules = (meta?.nodules || []).map((n) => ({...n, _boxErr: validateBox(n, meta.shape_zyx)}));
+1219:   V.selected = -1;
+1220:   V.camChecked = new Set();
+1221:   $("report-empty").hidden = true;
+1222:   $("report-grid").hidden = false;
+1223:   $("summary").hidden = false;
+1224:   renderSummary();
+1225:   renderMethods();
+1226:   renderClinicalInputs();
+1227:   renderClinicalModels();
+1228:   setupViewer();
+1229:   if (V.nodules.length) selectNodule(0);
+1230:   else {
+1231:     renderNoduleTable();
+1232:     renderCharacteristics();
+1233:     renderBrock();
+1234:     renderShap();
+1235:     updateViewer().catch(() => {});
+1236:   }
+1237:   resizeCanvas();
+1238: }
+1239: 
+1240: $("summary").addEventListener("click", (event) => {
+1241:   if (event.target.closest("#print-report")) window.print();
+1242:   if (event.target.closest("#back-to-entry")) setView("entry");
+1243: });
+1244: $("nodule-table").addEventListener("click", (event) => {
+1245:   const button = event.target.closest("[data-nodule-index]");
+1246:   if (button) selectNodule(Number(button.dataset.noduleIndex), true);
+1247: });
+1248: $("b-brock").addEventListener("submit", (event) => {
+1249:   if (event.target.id !== "manual-brock-form") return;
+1250:   event.preventDefault();
+1251:   submitManualBrock(event.target);
+1252: });
+1253: 
+1254: /* ---------- report: viewer ---------- */
+1255: function viewerEls() {
+1256:   return {
+1257:     canvas: $("viewer-canvas"), wrap: $("canvas-wrap"), slice: $("viewer-slice"), label: $("viewer-slice-label"),
+1258:     lung: $("viewer-lung"), heart: $("viewer-heart"), cam: $("viewer-gradcam"), camControls: $("cam-controls"),
+1259:     attribute: $("viewer-gradcam-attribute"), camNodules: $("viewer-gradcam-nodules"),
+1260:     alpha: $("viewer-gradcam-alpha"), alphaLabel: $("viewer-gradcam-alpha-label"),

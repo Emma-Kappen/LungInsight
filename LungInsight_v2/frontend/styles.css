@@ -1,5 +1,5 @@
 :root{--bg:#eef1f3;--panel:#fff;--ink:#1c2a33;--mute:#56656f;--line:#b9c4cb;--accent:#17697a;--accent-ink:#fff;--head:#e2e9ed;--warn:#7a4800;--warnbg:#fff3dc;--bad:#a8231b;--badbg:#fde8e6;--ok:#1e6b3a;--okbg:#e3f3e8;--lower:#2a6fbd;--raise:#d9701a;--box:#f2b800;color-scheme:light}
-@media(prefers-color-scheme:dark){:root{--bg:#141b20;--panel:#1c262d;--ink:#e6edf1;--mute:#9bacb7;--line:#3d4d57;--accent:#5cc0d3;--accent-ink:#06242b;--head:#26343d;--warn:#ffcb7a;--warnbg:#3a2c10;--bad:#ff9d94;--badbg:#3d1d1a;--ok:#8fdba8;--okbg:#17321f;--lower:#6aa8ee;--raise:#f2a05a;--box:#ffd24a;color-scheme:dark}}
+html[data-theme=dark]{--bg:#141b20;--panel:#1c262d;--ink:#e6edf1;--mute:#9bacb7;--line:#3d4d57;--accent:#5cc0d3;--accent-ink:#06242b;--head:#26343d;--warn:#ffcb7a;--warnbg:#3a2c10;--bad:#ff9d94;--badbg:#3d1d1a;--ok:#8fdba8;--okbg:#17321f;--lower:#6aa8ee;--raise:#f2a05a;--box:#ffd24a;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:14px/1.4 "Segoe UI",system-ui,sans-serif}
@@ -328,3 +328,216 @@ body[data-view="report"] #canvas-wrap { min-width: 0; min-height: 180px; }
   a { color: #000 !important; text-decoration: none !important; }
 }
 
+
+
+/* Print-only all-nodule summary */
+.print-only {
+  display: none;
+}
+
+@media print {
+  #print-nodule-summary {
+    display: block !important;
+    width: 100%;
+    margin: 0 0 7mm;
+    color: #111;
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  #print-nodule-summary h2 {
+    margin: 0 0 2mm;
+    font-size: 14pt;
+  }
+
+  #print-nodule-summary .print-nodule-note {
+    margin: 0 0 3mm;
+    font-size: 8pt;
+    line-height: 1.35;
+  }
+
+  #print-nodule-summary table {
+    width: 100% !important;
+    border-collapse: collapse;
+    table-layout: auto;
+    font-size: 8pt !important;
+  }
+
+  #print-nodule-summary th,
+  #print-nodule-summary td {
+    padding: 2mm 1.5mm;
+    border: 1px solid #999;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+
+  #print-nodule-summary thead {
+    display: table-header-group;
+  }
+
+  #print-nodule-summary tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* Light/dark theme toggle */
+.theme-toggle {
+  margin-left: auto;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--line);
+}
+.theme-toggle:hover {
+  background: var(--head);
+}
+@media (max-width: 620px) {
+  .topbar {
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+  .theme-toggle {
+    margin-left: 0;
+  }
+}
+@media print {
+  html, html[data-theme=dark] {
+    color-scheme: light !important;
+  }
+}
+
+/* LungInsight print-only detailed report additions */
+.print-only { display: none; }
+
+@media print {
+  #print-nodule-details {
+    display: block !important;
+    width: 100% !important;
+    color: #111 !important;
+    break-before: page;
+    page-break-before: always;
+  }
+
+  #print-nodule-details > h2 {
+    margin: 0 0 4mm;
+    font-size: 15pt;
+  }
+
+  .print-nodule-detail {
+    display: block !important;
+    margin: 0 0 8mm !important;
+    padding: 3mm !important;
+    border: 1px solid #999 !important;
+    break-inside: auto;
+    page-break-inside: auto;
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  .print-nodule-detail > h3 {
+    margin: 0 0 3mm;
+    padding-bottom: 2mm;
+    border-bottom: 1px solid #999;
+    font-size: 12pt;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .print-nodule-detail > h4 {
+    margin: 4mm 0 2mm;
+    font-size: 10pt;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .print-nodule-detail .dt {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: auto;
+    font-size: 7.5pt !important;
+  }
+
+  .print-nodule-detail .dt th,
+  .print-nodule-detail .dt td {
+    border: 1px solid #bbb !important;
+    padding: 1.5mm !important;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+    color: #111 !important;
+  }
+
+  .print-nodule-detail .dt thead {
+    display: table-header-group;
+  }
+
+  .print-nodule-detail .dt tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-ct {
+    margin: 3mm 0;
+    text-align: center;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-ct figcaption {
+    margin-bottom: 2mm;
+    font-size: 8pt;
+  }
+
+  .print-ct img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 115mm;
+    margin: 0 auto;
+    object-fit: contain;
+  }
+
+  .print-contribution-bars {
+    margin-top: 2mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .shap-track {
+    position: relative !important;
+    min-height: 4mm;
+    overflow: visible !important;
+  }
+
+  .shap-bar.pos {
+    background: #d9701a !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .shap-bar.neg {
+    background: #2a6fbd !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .shap-bar,
+  .shap-track,
+  .shap-row,
+  .shap-sum,
+  .scale,
+  .scale i {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #print-nodule-summary,
+  #print-nodule-details,
+  #print-nodule-summary table,
+  #print-nodule-details table {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

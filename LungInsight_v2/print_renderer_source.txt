@@ -1,0 +1,152 @@
+﻿
+========== app.js lines 1157-1175 ==========
+1157:   const vertical = n.anatomical_location?.vertical_region;
+1158:   const why = missingNames.includes("upper_lobe") && vertical
+1159:     ? `<p class="hint">Upper-lobe location is withheld, not guessed: a â€œ${esc(vertical)}â€ vertical position has no unambiguous upper-lobe mapping.</p>` : "";
+1160:   target.innerHTML = `${head}<h3 class="sub-h">Assessment</h3>${assessmentHtml(n)}
+1161:     <div class="scroll"><table class="dt"><caption class="sr">Brock inputs for ${esc(n.stable_nodule_id)}</caption><thead><tr><th>Source</th><th>Brock input</th><th>Value</th><th>Enters model as</th></tr></thead><tbody>${rows}</tbody></table></div>${why}${usable ? "" : manualFormHtml(n, missingNames)}
+1162:     <p class="hint">Brock (PanCan) derives malignancy risk from the nodule characteristics and clinical data; there is no separate malignancy classifier. ${esc(b.reference || "")}</p>`;
+1163: }
+1164: 
+1165: /* The nine Brock terms with the patient's values substituted, exactly as the published formula computes them. */
+1166: const sgn = (v, d = 2) => `${v > 0 ? "+" : v < 0 ? "âˆ’" : ""}${Math.abs(v).toFixed(d)}`;
+1167: const BROCK_TERMS = {
+1168:   age: (c) => `0.0287 Ã— (${c.age_years.input_value} âˆ’ 62)`,
+1169:   sex: (c) => `0.6011 Ã— ${c.female.encoded_value}`,
+1170:   fh: (c) => `0.2961 Ã— ${c.family_history_lung_cancer.encoded_value}`,
+1171:   emph: (c) => `0.2953 Ã— ${c.emphysema.encoded_value}`,
+1172:   size: (c) => `âˆ’5.3854 Ã— ((${c.nodule_size_mm.input_value.toFixed(1)}/10)^âˆ’0.5 âˆ’ 1.5811)`,
+1173:   type: (c) => (c.part_solid.encoded_value ? "part-solid: +0.3770" : c.pure_ground_glass.encoded_value ? "non-solid: âˆ’0.1276" : "solid: 0 (reference)"),
+1174:   lobe: (c) => `0.6581 Ã— ${c.upper_lobe.encoded_value}`,
+1175:   count: (c) => `âˆ’0.0824 Ã— (${c.nodule_count.input_value} âˆ’ 4)`,
+
+========== app.js lines 1203-1245 ==========
+1203:   const lp = fin(b.logit) ? b.logit : (fin(intercept) ? intercept + net : null);
+1204:   const baseline = fin(intercept) ? 1 / (1 + Math.exp(-intercept)) : null;
+1205:   target.innerHTML = `<p class="hint formula" style="margin:0 0 .3rem">P = 1 / (1 + e<sup>âˆ’LP</sup>), with LP = âˆ’6.7892 + Î£ the nine terms below. Each bar is that term's push on the log-odds relative to the reference nodule
+1206:       (62-year-old male, no family history or emphysema, 4 mm solid nodule, lower/middle lobe, 4 nodules, not spiculated), whose LP is the intercept alone${baseline === null ? "" : ` (risk ${esc(pct(baseline))})`}.</p>
+1207:     <div class="shap-legend"><span class="lo">â† lowers risk</span><span class="hi">raises risk â†’</span></div>${rows}
+1208:     <div class="shap-sum" role="group" aria-label="Sum of terms">
+1209:       <span>Intercept <b>${fin(intercept) ? sgn(intercept) : "n/a"}</b></span><span>+ terms <b>${sgn(net)}</b></span>
+1210:       <span>= LP <b>${lp === null ? "n/a" : sgn(lp)}</b></span><span>â†’ P <b>${esc(pct(b.probability))}</b></span></div>
+1211:     <p class="hint">Exact for this additive model (not a sampled approximation). Model: ${esc(b.model_name || "Brock PanCan")}, ${esc(b.formula_version || "")}.</p>`;
+1212: }
+1213: function renderClinicalInputs() {
+1214:   const inputs = S.run.inputs;
+1215:   const target = $("b-inputs");
+1216:   if (!inputs) { target.innerHTML = "<p class='hint' style='margin:0'>Clinical inputs were not stored for this run. Not reported.</p>"; return; }
+1217:   const text = (value, fallback = "Not reported") => (value == null || value === "" ? fallback : label(value));
+1218:   const sex = inputs.sex_at_baseline ?? null;
+1219:   const emphysema = inputs.medical_history_status === "reported" ? (inputs.medical_history_conditions || []).includes("emphysema") ? "Yes" : "No" : "Not reported";
+1220:   const packs = fin(inputs.pack_years) ? ` (${inputs.pack_years.toFixed(1)} pack-years)` : "";
+1221:   target.innerHTML = `<dl class="kv">
+1222:     <dt>Age</dt><dd>${fin(ageOfInputs(inputs)) ? `${ageOfInputs(inputs)} years` : "Not reported"}</dd>
+1223:     <dt>Sex</dt><dd>${esc(text(sex))}</dd>
+1224:     <dt>Smoking</dt><dd>${esc(text(inputs.smoking_status))}${esc(packs)}</dd>
+1225:     <dt>Stage</dt><dd>${esc(CANCER_STAGE_LABELS[inputs.stage_at_baseline] || "Not reported")}</dd>
+1226:     <dt>Family history</dt><dd>${esc(text(inputs.family_history_lung_cancer))}</dd>
+1227:     <dt>Emphysema</dt><dd>${esc(emphysema)}</dd>
+1228:     <dt>KPS</dt><dd>${fin(inputs.kps) ? esc(inputs.kps) : "Not reported"}</dd></dl>`;
+1229: }
+1230: 
+1231: function renderClinicalModels() {
+1232:   const prediction = S.run.body.clinical_prediction;
+1233:   const survival = prediction?.survival;
+1234:   const chart = survivalChartHtml(survival);
+1235:   const survivalHtml = !prediction
+1236:     ? "<p class='hint' style='margin:0'>Survival model not available for this run.</p>"
+1237:     : chart
+1238:       ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
+1239:       : `<div>${modelResultHtml(survival)}</div>`;
+1240: 
+1241:   // Histology UI gate: require at least one nodule with an available Brock risk >= the existing threshold.
+1242:   // This is a display/eligibility gate; backend inference must also be gated to prevent model execution.
+1243:   const eligibleNodules = (Array.isArray(V.nodules) ? V.nodules : [])
+1244:     .map((nodule) => ({nodule, result: assessment(nodule)}))
+1245:     .filter(({result}) => result.state === "elevated");
+
+========== app.js lines 930-990 ==========
+ 930: function histologyShapHtml(explanation, predictedClass) {
+ 931:   if (!explanation || explanation.status !== "available" || !Array.isArray(explanation.feature_contributions)) {
+ 932:     const reason = explanation?.status === "unavailable"
+ 933:       ? "SHAP is unavailable for this run; the histology prediction is unchanged."
+ 934:       : "No histology SHAP explanation was returned.";
+ 935:     return `<div class="hint" style="margin-top:.6rem"><b>Histology SHAP:</b> ${esc(reason)}</div>`;
+ 936:   }
+ 937: 
+ 938:   const base = explanation.base_values?.[predictedClass];
+ 939:   const finalValue = explanation.prediction_values?.[predictedClass];
+ 940:   if (!fin(base) || !fin(finalValue)) {
+ 941:     return '<div class="hint" style="margin-top:.6rem">Histology SHAP values are incomplete for the predicted class.</div>';
+ 942:   }
+ 943: 
+ 944:   const entries = explanation.feature_contributions.map((item) => ({
+ 945:     feature: item.feature,
+ 946:     value: item.feature_value,
+ 947:     contribution: item.values?.[predictedClass],
+ 948:   })).filter((item) => fin(item.contribution));
+ 949: 
+ 950:   if (!entries.length) return '<div class="hint" style="margin-top:.6rem">No usable histology SHAP values.</div>';
+ 951: 
+ 952:   const peak = Math.max(...entries.map((item) => Math.abs(item.contribution)), 1e-9);
+ 953:   const rows = entries.map((item) => {
+ 954:     const pctPoints = item.contribution * 100;
+ 955:     const width = Math.abs(item.contribution) / peak * 50;
+ 956:     const positive = item.contribution >= 0;
+ 957:     const direction = positive ? "supports" : "opposes";
+ 958:     const featureName = label(item.feature);
+ 959:     const barClass = positive ? "pos" : "neg";
+ 960: 
+ 961:     return `<div class="shap-row">
+ 962:       <span class="shap-name"><b>${esc(featureName)}</b><small>${esc(item.value ?? "missing")}</small></span>
+ 963:       <span class="shap-track" role="img" aria-label="${esc(item.feature)} ${direction} ${esc(predictedClass)} by ${Math.abs(pctPoints).toFixed(2)} percentage points">
+ 964:         <i aria-hidden="true" class="shap-bar ${barClass}" style="width:${width}%"></i>
+ 965:       </span>
+ 966:       <b class="shap-val" style="color:${positive ? "var(--raise)" : "var(--lower)"}">${positive ? "+" : "âˆ’"}${Math.abs(pctPoints).toFixed(2)} pp</b>
+ 967:     </div>`;
+ 968:   }).join("");
+ 969: 
+ 970:   const sum = entries.reduce((total, item) => total + item.contribution, 0);
+ 971:   const localError = Math.abs((base + sum) - finalValue);
+ 972:   const ref = explanation.reference_population || {};
+ 973: 
+ 974:   return `<section aria-label="Histology SHAP explanation" style="margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--border,#ddd)">
+ 975:     <h4 style="margin:.1rem 0 .35rem">Exact SHAP explanation for ${esc(predictedClass)}</h4>
+ 976:     <p class="hint" style="margin:.2rem 0">Reference probability: ${(base * 100).toFixed(2)}% â†’ model probability: ${(finalValue * 100).toFixed(2)}%.</p>
+ 977:     <div class="shap-legend"><span class="lo">â† Lowers ${esc(predictedClass)} probability</span><span class="hi">Raises ${esc(predictedClass)} probability â†’</span></div>
+ 978:     ${rows}
+ 979:     <p class="hint" style="margin:.35rem 0">Base value + feature SHAP values reconstruct the model probability (absolute check error: ${localError.toExponential(1)}). Contributions are probability percentage points, not causal effects.</p>
+ 980:     <p class="hint" style="margin:.2rem 0">Reference: ${esc(ref.cohort || "documented training cohort")}, ${esc(ref.rows ?? "unknown")} training rows. ${esc((explanation.limitations || []).find((x) => /biological causation/i.test(x)) || "Research-only model explanation; not a diagnosis.")}</p>
+ 981:   </section>`;
+ 982: }
+ 983: 
+ 984: /* Patient-level histology panel: independent of any nodule's Brock risk and of the survival model. */
+ 985: function cancerTypePanelHtml(model) {
+ 986:   const head = `<h3 class="sub-h">Histology: LUAD vs LUSC (patient-level research model)</h3>`;
+ 987:   const limits = (Array.isArray(model?.limitations) && model.limitations.length ? model.limitations : [
+ 988:     "Research-only; not clinically validated.",
+ 989:     "Compares LUAD with LUSC only; it does not detect cancer, separate cancer from benign disease, or establish a diagnosis.",
+ 990:   ]).map((text) => `<li>${esc(text)}</li>`).join("");
+
+========== app.js lines 1112-1132 ==========
+1112: function renderCharacteristics() {
+1113:   const target = $("b-chars");
+1114:   const n = V.nodules[V.selected];
+1115:   if (!n) { target.textContent = "Select a nodule."; return; }
+1116:   if (n._boxErr) {
+1117:     target.innerHTML = `<div class="alert warn">Attribute ranking models unavailable for ${esc(n.stable_nodule_id)}: ${esc(n._boxErr)}. This is not a negative result.</div>`;
+1118:     return;
+1119:   }
+1120:   const attrs = n.classification?.attributes || {};
+1121:   const rows = ATTRIBUTES.filter(([key]) => !HIDDEN_ATTRIBUTES.has(key)).map(([key, name, low, high]) => {
+1122:     const item = attrs[key];
+1123:     const rating = item?.expected_rating;
+1124:     if (!fin(rating)) return `<div class="scale-row"><span>${esc(name)}</span><span>unavailable</span><span></span></div>`;
+1125:     const [lo, hi] = Array.isArray(item.rating_scale) && item.rating_scale.length === 2 ? item.rating_scale : [1, 5];
+1126:     const position = Math.min(100, Math.max(0, (rating - lo) / (hi - lo) * 100));
+1127:     return `<div class="scale-row"><span>${esc(name)}</span><div><div class="scale" role="img" aria-label="${esc(name)} rank ${rating.toFixed(1)} on a ${lo} to ${hi} scale"><i style="left:${position}%"></i></div>
+1128:       <div class="scale-ends" style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--mute)"><span>${lo} ${esc(low)}</span><span>${esc(high)} ${hi}</span></div></div><b>${rating.toFixed(1)}</b></div>`;
+1129:   }).join("");
+1130:   target.innerHTML = `<p class="hint" style="margin:0 0 .2rem">${esc(n.stable_nodule_id)}: predicted LIDC-style reader ranks, not measurements or a diagnosis.</p>${rows}`;
+1131: }
+1132: 

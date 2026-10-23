@@ -1,0 +1,449 @@
+﻿
+========== .\frontend\app.js :: async function updateViewer ==========
+1495: async function updateViewer() {
+1496:   const el = viewerEls();
+1497:   const meta = V.meta;
+1498:   if (!meta) return;
+1499:   const maxIndex = Math.max(0, Number(meta.shape_zyx?.[0] || 1) - 1);
+1500:   const index = Math.min(maxIndex, Math.max(0, Number(el.slice.value) || 0));
+1501:   const params = new URLSearchParams({
+1502:     lung_overlay: String(el.lung.checked && !el.lung.disabled),
+1503:     heart_overlay: String(el.heart.checked && !el.heart.disabled),
+1504:   });
+1505:   const camOn = el.cam.checked && el.attribute.value && V.camChecked.size > 0;
+1506:   if (camOn) {
+1507:     params.set("gradcam_attribute", el.attribute.value);
+1508:     for (const id of V.camChecked) params.append("gradcam_nodule_id", id);
+1509:     params.set("gradcam_alpha", String(Number(el.alpha.value) / 100));
+1510:   }
+1511:   const request = ++V.request;
+1512:   const response = await apiFetch(`${analysisBase}/runs/${encodeURIComponent(V.runId)}/viewer/slices/${index}?${params}`);
+1513:   if (!response.ok) throw new Error("slice unavailable");
+1514:   if (request !== V.request) return;
+1515:   const blob = await response.blob();
+1516:   const image = new Image();
+1517:   image.onload = () => {
+1518:     if (request !== V.request) return;
+1519:     el.canvas.width = image.naturalWidth;
+1520:     el.canvas.height = image.naturalHeight;
+1521:     const context = el.canvas.getContext("2d");
+1522:     context.drawImage(image, 0, 0);
+1523:     context.font = "13px sans-serif";
+1524:     V.nodules.forEach((nodule, i) => {
+1525:       if (nodule._boxErr) return;
+1526:       const rect = sliceRect(nodule, index);
+1527:       if (!rect) return;
+1528:       const selected = i === V.selected;
+1529:       context.lineWidth = selected ? 3 : 1.5;
+1530:       context.strokeStyle = selected ? "#ffd24a" : "rgba(255, 210, 74, .5)";
+1531:       context.setLineDash(rect.dashed ? [6, 4] : []);
+1532:       context.strokeRect(rect.x0, rect.y0, rect.x1 - rect.x0, rect.y1 - rect.y0);
+1533:       context.setLineDash([]);
+1534:       if (selected) {
+1535:         context.fillStyle = "#ffd24a";
+1536:         context.fillText(nodule.stable_nodule_id.slice(-6), rect.x0, Math.max(13, rect.y0 - 4));
+1537:       }
+1538:     });
+1539:     URL.revokeObjectURL(image.src);
+1540:   };
+1541:   image.src = URL.createObjectURL(blob);
+1542:   el.label.textContent = `${index + 1} of ${maxIndex + 1}`;
+1543:   el.previous.disabled = index === 0;
+1544:   el.next.disabled = index === maxIndex;
+1545:   const inverted = camOn && (meta.gradcam_inverted_attributes || []).includes(el.attribute.value);
+1546:   document.querySelector(".cam-legend").classList.toggle("inv", inverted);
+1547:   const note = camOn ? ` Grad-CAM is drawn over the nodule-centred patch (the square). Colours are relative within that patch (${inverted ? "inverted for this attribute: red = lowest, blue = highest" : "red = highest"}); a model-sensitivity map, not an attribute probability.` : "";
+1548:   setViewerStatus(`${boxStatus(V.nodules[V.selected], index)}${note}`.trim() || `CT volume ${meta.shape_zyx.join(" Ã— ")} voxels.`);
+1549: }
+1550: 
+1551: function selectNodule(index, focus = false) {
+1552:   const nodule = V.nodules[index];
+1553:   if (!nodule) return;
+1554:   V.selected = index;
+1555:   const el = viewerEls();
+1556:   if (!nodule._boxErr) {
+1557:     const box = boxOf(nodule);
+1558:     const maxZ = Math.max(0, Number(V.meta?.shape_zyx?.[0] || el.slice.max || 1) - 1);
+1559:     const own = Object.entries(box.slices)
+1560:       .map(([z, rect]) => [Number(z), rect])
+1561:       .filter(([z, rect]) => Number.isInteger(z) && z >= box.start[0] && z < box.end[0] && z >= 0 && z <= maxZ
+1562:         && Array.isArray(rect) && rect.length === 4 && rect.every(Number.isFinite))
+1563:       .map(([z, [y0, x0, y1, x1]]) => [z, Math.max(0, y1 - y0) * Math.max(0, x1 - x0)]);
+1564:     const fallbackZ = Math.floor((box.start[0] + box.end[0] - 1) / 2);
+1565:     const z = own.length ? own.sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0] : fallbackZ;
+1566:     el.slice.value = String(Math.min(maxZ, Math.max(0, z)));
+1567:   }
+1568:   if (el.cam.checked) {
+1569:     V.camChecked = new Set([nodule.stable_nodule_id]);
+1570:     renderCamNodules();
+1571:   }
+1572:   renderNoduleTable();
+1573:   renderCharacteristics();
+1574:   renderBrock();
+1575:   renderShap();
+1576:   updateViewer().catch(() => setViewerStatus("The requested CT slice could not be loaded.", "warning"));
+1577:   if (focus) el.canvas.focus({preventScroll: true});
+1578: }
+1579: 
+1580: /* ---------- start ---------- */
+1581: refresh();
+1582: setView("entry");
+1583: 
+
+========== .\frontend\app.js :: function renderPrintNoduleSummary ==========
+1285: function renderPrintNoduleSummary() {
+1286:   const target = $("print-nodule-table");
+1287:   if (!target) return;
+1288: 
+1289:   const nodules = Array.isArray(V.nodules) ? V.nodules : [];
+1290:   if (!nodules.length) {
+1291:     target.innerHTML = '<tbody><tr><td colspan="5">No nodule records are available in this run.</td></tr></tbody>';
+1292:     return;
+1293:   }
+1294: 
+1295:   const rows = nodules.map((n) => {
+1296:     const b = brockOf(n);
+1297:     const a = assessment(n);
+1298:     const id = n.stable_nodule_id || "ID unavailable";
+1299:     const size = formatMm(n.geometry?.diameter_mm);
+1300:     const risk = brockUsable(b)
+1301:       ? esc(pct(b.probability)) + (brockIsManual(n) ? " (supplied inputs)" : "")
+1302:       : "Unavailable";
+1303:     const result = a?.label || "Unavailable";
+1304:     const box = n._boxErr ? "Invalid" : "Valid";
+1305: 
+1306:     return `<tr>
+1307:       <td>${esc(id)}</td>
+1308:       <td>${esc(size)}</td>
+1309:       <td>${risk}</td>
+1310:       <td>${esc(result)}</td>
+1311:       <td>${esc(box)}${n._boxErr ? ": " + esc(n._boxErr) : ""}</td>
+1312:     </tr>`;
+1313:   }).join("");
+1314: 
+1315:   target.innerHTML = `<thead><tr>
+1316:     <th>Nodule ID</th><th>Size</th><th>Brock risk</th>
+1317:     <th>Assessment</th><th>Bounding box</th>
+1318:   </tr></thead><tbody>${rows}</tbody>`;
+1319: }
+1320: 
+1321: function renderReport() {
+1322:   const {body, meta} = S.run;
+1323:   V.meta = meta;
+1324:   V.runId = body.run_id;
+1325:   V.nodules = (meta?.nodules || []).map((n) => ({...n, _boxErr: validateBox(n, meta.shape_zyx)}));
+1326:   V.selected = -1;
+1327:   V.camChecked = new Set();
+1328:   $("report-empty").hidden = true;
+1329:   $("report-grid").hidden = false;
+1330:   $("summary").hidden = false;
+
+========== .\frontend\app.js :: addEventListener("click", (event) ==========
+ 143: document.addEventListener("click", (event) => {
+ 144:   const toggle = event.target.closest(".win-t");
+ 145:   if (!toggle) return;
+ 146:   const win = toggle.closest(".win");
+ 147:   const collapsed = win.classList.toggle("collapsed");
+ 148:   toggle.setAttribute("aria-expanded", String(!collapsed));
+ 149:   toggle.textContent = collapsed ? "Expand" : "Collapse";
+ 150:   resizeCanvas();
+ 151: });
+1348: $("summary").addEventListener("click", (event) => {
+1349:   if (event.target.closest("#print-report")) window.print();
+1350:   if (event.target.closest("#back-to-entry")) setView("entry");
+1351: });
+1352: $("nodule-table").addEventListener("click", (event) => {
+1353:   const button = event.target.closest("[data-nodule-index]");
+1354:   if (button) selectNodule(Number(button.dataset.noduleIndex), true);
+1355: });
+1356: $("b-brock").addEventListener("submit", (event) => {
+1352: $("nodule-table").addEventListener("click", (event) => {
+1353:   const button = event.target.closest("[data-nodule-index]");
+1354:   if (button) selectNodule(Number(button.dataset.noduleIndex), true);
+1355: });
+1356: $("b-brock").addEventListener("submit", (event) => {
+1357:   if (event.target.id !== "manual-brock-form") return;
+1358:   event.preventDefault();
+1359:   submitManualBrock(event.target);
+1360: });
+
+========== .\frontend\styles.css :: @media print ==========
+ 154: @media print{
+ 155:   .notice,.topbar,#view-entry,.win-t,.vctl{display:none!important}
+ 156:   body{background:#fff}
+ 157: }
+ 158: 
+ 159: /* LungInsight report layout v3: two balanced stacks, no grid-row gaps. */
+ 160: @media (min-width: 760px) {
+ 161:   body[data-view="report"] #report-grid.grid3 {
+ 162:     display: grid;
+ 163:     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+ 164:     align-items: start;
+ 165:     gap: 10px;
+ 166:   }
+ 167: }
+ 168: body[data-view="report"] #report-grid > .col {
+ 169:   display: flex;
+ 170:   flex-direction: column;
+ 171:   align-items: stretch;
+ 172:   align-self: start;
+ 173:   min-width: 0;
+ 174:   min-height: 0;
+ 175:   gap: 6px;
+ 176: }
+ 177: body[data-view="report"] #report-grid .win {
+ 178:   box-sizing: border-box;
+ 179:   flex: 0 0 auto;
+ 180:   width: 100%;
+ 181:   min-width: 0;
+ 182:   min-height: 80px;
+ 183:   max-width: 100%;
+ 184:   height: auto;
+ 185:   resize: vertical;
+ 186:   overflow: auto;
+ 187:   scrollbar-gutter: stable;
+ 188: }
+ 189: body[data-view="report"] #report-grid .win.collapsed {
+ 190:   min-height: 0;
+ 191:   resize: none;
+ 192: }
+ 193: body[data-view="report"] #win-viewer { min-height: 300px; }
+ 194: body[data-view="report"] #win-viewer .win-b { min-height: 0; }
+ 195: body[data-view="report"] #canvas-wrap { min-width: 0; min-height: 180px; }
+ 196: @media (max-width: 759px) {
+ 197:   body[data-view="report"] #report-grid.grid3 { grid-template-columns: minmax(0, 1fr); }
+ 198: }
+ 199: 
+ 200: @media print {
+ 201:   @page { size: auto; margin: 12mm; }
+ 202: 
+ 203:   html, body {
+ 204:     width: auto !important;
+ 205:     min-height: 0 !important;
+ 206:     height: auto !important;
+ 207:     margin: 0 !important;
+ 208:     padding: 0 !important;
+ 209:     background: #fff !important;
+ 210:     color: #000 !important;
+ 211:     overflow: visible !important;
+ 212:     display: block !important;
+ 213:     font-size: 10pt;
+ 214:   }
+ 215: 
+ 216:   .notice, .topbar, #view-entry, #report-empty, .summary .links,
+ 217:   .win-t, .vctl, button, input, select, textarea {
+ 218:     display: none !important;
+ 219:   }
+ 220: 
+ 221:   main, body[data-view="report"] main,
+ 222:   body[data-view="report"] #view-report {
+ 223:     display: block !important;
+ 224:     width: auto !important;
+ 225:     min-height: 0 !important;
+ 226:     height: auto !important;
+ 227:     margin: 0 !important;
+ 228:     padding: 0 !important;
+ 229:     overflow: visible !important;
+ 230:   }
+ 231: 
+ 232:   #summary {
+ 233:     display: flex !important;
+ 234:     margin: 0 0 8mm !important;
+ 235:     padding: 0 0 3mm !important;
+ 236:     border: 0 !important;
+ 237:     border-bottom: 1px solid #777 !important;
+ 238:     background: #fff !important;
+ 239:     color: #000 !important;
+ 240:   }
+ 241: 
+ 242:   #report-grid, body[data-view="report"] #report-grid.grid3 {
+ 243:     display: grid !important;
+ 244:     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+ 245:     gap: 5mm !important;
+ 246:     width: 100% !important;
+ 247:     height: auto !important;
+ 248:     min-height: 0 !important;
+ 249:     overflow: visible !important;
+ 250:   }
+ 251: 
+ 252:   #report-grid > .col {
+ 253:     display: flex !important;
+ 254:     flex-direction: column !important;
+ 200: @media print {
+ 201:   @page { size: auto; margin: 12mm; }
+ 202: 
+ 203:   html, body {
+ 204:     width: auto !important;
+ 205:     min-height: 0 !important;
+ 206:     height: auto !important;
+ 207:     margin: 0 !important;
+ 208:     padding: 0 !important;
+ 209:     background: #fff !important;
+ 210:     color: #000 !important;
+ 211:     overflow: visible !important;
+ 212:     display: block !important;
+ 213:     font-size: 10pt;
+ 214:   }
+ 215: 
+ 216:   .notice, .topbar, #view-entry, #report-empty, .summary .links,
+ 217:   .win-t, .vctl, button, input, select, textarea {
+ 218:     display: none !important;
+ 219:   }
+ 220: 
+ 221:   main, body[data-view="report"] main,
+ 222:   body[data-view="report"] #view-report {
+ 223:     display: block !important;
+ 224:     width: auto !important;
+ 225:     min-height: 0 !important;
+ 226:     height: auto !important;
+ 227:     margin: 0 !important;
+ 228:     padding: 0 !important;
+ 229:     overflow: visible !important;
+ 230:   }
+ 231: 
+ 232:   #summary {
+ 233:     display: flex !important;
+ 234:     margin: 0 0 8mm !important;
+ 235:     padding: 0 0 3mm !important;
+ 236:     border: 0 !important;
+ 237:     border-bottom: 1px solid #777 !important;
+ 238:     background: #fff !important;
+ 239:     color: #000 !important;
+ 240:   }
+ 241: 
+ 242:   #report-grid, body[data-view="report"] #report-grid.grid3 {
+ 243:     display: grid !important;
+ 244:     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+ 245:     gap: 5mm !important;
+ 246:     width: 100% !important;
+ 247:     height: auto !important;
+ 248:     min-height: 0 !important;
+ 249:     overflow: visible !important;
+ 250:   }
+ 251: 
+ 252:   #report-grid > .col {
+ 253:     display: flex !important;
+ 254:     flex-direction: column !important;
+ 255:     align-self: start !important;
+ 256:     min-width: 0 !important;
+ 257:     min-height: 0 !important;
+ 258:     height: auto !important;
+ 259:     overflow: visible !important;
+ 260:     gap: 4mm !important;
+ 261:   }
+ 262: 
+ 263:   #report-grid .win, #report-grid .win.collapsed,
+ 264:   body[data-view="report"] #win-viewer {
+ 265:     display: flex !important;
+ 266:     flex: 0 0 auto !important;
+ 267:     width: auto !important;
+ 268:     height: auto !important;
+ 269:     min-width: 0 !important;
+ 270:     min-height: 0 !important;
+ 271:     max-width: none !important;
+ 272:     max-height: none !important;
+ 273:     resize: none !important;
+ 274:     overflow: visible !important;
+ 275:     break-inside: avoid;
+ 276:     page-break-inside: avoid;
+ 277:     border: 1px solid #888 !important;
+ 278:     border-radius: 0 !important;
+ 279:     background: #fff !important;
+ 280:     color: #000 !important;
+ 281:     margin: 0 0 4mm !important;
+ 282:   }
+ 283: 
+ 284:   #report-grid .win-h {
+ 285:     background: #eee !important;
+ 286:     color: #000 !important;
+ 287:     print-color-adjust: exact;
+ 288:     -webkit-print-color-adjust: exact;
+ 289:   }
+ 290: 
+ 291:   #report-grid .win-b, #report-grid .win.collapsed .win-b {
+ 292:     display: block !important;
+ 293:     flex: 0 0 auto !important;
+ 294:     height: auto !important;
+ 295:     max-height: none !important;
+ 296:     overflow: visible !important;
+ 297:     padding: 2mm !important;
+ 298:     color: #000 !important;
+ 299:   }
+ 300: 
+ 338: @media print {
+ 339:   #print-nodule-summary {
+ 340:     display: block !important;
+ 341:     width: 100%;
+ 342:     margin: 0 0 7mm;
+ 343:     color: #111;
+ 344:     break-inside: auto;
+ 345:     page-break-inside: auto;
+ 346:   }
+ 347: 
+ 348:   #print-nodule-summary h2 {
+ 349:     margin: 0 0 2mm;
+ 350:     font-size: 14pt;
+ 351:   }
+ 352: 
+ 353:   #print-nodule-summary .print-nodule-note {
+ 354:     margin: 0 0 3mm;
+ 355:     font-size: 8pt;
+ 356:     line-height: 1.35;
+ 357:   }
+ 358: 
+ 359:   #print-nodule-summary table {
+ 360:     width: 100% !important;
+ 361:     border-collapse: collapse;
+ 362:     table-layout: auto;
+ 363:     font-size: 8pt !important;
+ 364:   }
+ 365: 
+ 366:   #print-nodule-summary th,
+ 367:   #print-nodule-summary td {
+ 368:     padding: 2mm 1.5mm;
+ 369:     border: 1px solid #999;
+ 370:     text-align: left;
+ 371:     vertical-align: top;
+ 372:     overflow-wrap: anywhere;
+ 373:   }
+ 374: 
+ 375:   #print-nodule-summary thead {
+ 376:     display: table-header-group;
+ 377:   }
+ 378: 
+ 379:   #print-nodule-summary tr {
+ 380:     break-inside: avoid;
+ 381:     page-break-inside: avoid;
+ 382:   }
+ 383: }
+ 384: 
+ 385: /* Light/dark theme toggle */
+ 386: .theme-toggle {
+ 387:   margin-left: auto;
+ 388:   white-space: nowrap;
+ 389:   background: transparent;
+ 390:   color: var(--accent);
+ 391:   border: 1px solid var(--line);
+ 392: }
+ 393: .theme-toggle:hover {
+ 394:   background: var(--head);
+ 395: }
+ 396: @media (max-width: 620px) {
+ 397:   .topbar {
+ 398:     flex-wrap: wrap;
+ 399:     gap: .5rem;
+ 400:   }
+ 401:   .theme-toggle {
+ 402:     margin-left: 0;
+ 403:   }
+ 404: }
+ 405: @media print {
+ 406:   html, html[data-theme=dark] {
+ 407:     color-scheme: light !important;
+ 408:   }
+ 409: }
+ 405: @media print {
+ 406:   html, html[data-theme=dark] {
+ 407:     color-scheme: light !important;
+ 408:   }
+ 409: }

@@ -63,9 +63,22 @@
     "count_policy": "Study-level counts are derived from persisted Stage 02 raw/fused/rejected records and Stage 04 prediction records. Missing artifacts produce null counts or explicit errors, never zero risk or successful stage states.",
     "eligible_nodule_policy": "Only Stage 02 lung-mask-gated candidates joined through Stage 03/04/06 are emitted as nodule records.",
     "clinical_form_source_inventory": {
-      "MSK_CHORD": ["CURRENT_AGE_DEID", "GENDER", "RACE", "ETHNICITY"],
-      "TCGA_LUAD_LUSC": ["age", "sex", "race", "ethnicity", "smoking history where actually reported"],
-      "not_direct_observations": ["SMOKING_PREDICTIONS_3_CLASSES is excluded as an observed smoking history predictor"]
+      "MSK_CHORD": [
+        "CURRENT_AGE_DEID",
+        "GENDER",
+        "RACE",
+        "ETHNICITY"
+      ],
+      "TCGA_LUAD_LUSC": [
+        "age",
+        "sex",
+        "race",
+        "ethnicity",
+        "smoking history where actually reported"
+      ],
+      "not_direct_observations": [
+        "SMOKING_PREDICTIONS_3_CLASSES is excluded as an observed smoking history predictor"
+      ]
     },
     "unknown_value_semantics": "Unknown, not_reported, reported-present, and reported-absent values are represented separately; absent properties are not interpreted as negative findings."
   },
@@ -577,7 +590,7 @@
         "max_radius_mm": 75.0,
         "soft_tissue_hu_min": -80.0,
         "soft_tissue_hu_max": 500.0,
-        "min_lung_slice_fraction": 0.14,
+        "min_lung_slice_fraction": 0.12,
         "min_support_voxels_per_slice": 8,
         "axial_margin_mm": 10.0,
         "description": "HU-guided expanding central Z-rod: only voxels in the configured soft-tissue HU interval can seed or grow the mask; slices with insufficient thoracic lung area are excluded so inferior liver/upper-abdominal tissue cannot seed tracking; the tracked mask may overlap the provisional lung mask and Stage 01 subtracts it after tracking. Shape growth is bounded by physical contour motion and an adjacent-slice area ratio. Heuristic central cardiac/mediastinal exclusion requiring visual QC, not clinical heart segmentation.",

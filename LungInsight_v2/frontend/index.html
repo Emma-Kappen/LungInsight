@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LungInsight - Lung Cancer Diagnosis from CT Scans and Clinical Data</title>
-<link rel="stylesheet" href="styles.css?v=20261017i">
+<link rel="stylesheet" href="styles.css?v=20261023-theme1">
+<link rel="icon" type="image/png" href="/favicon.png?v=1">
 </head>
 <body data-view="entry">
 <header class="topbar">
@@ -13,7 +14,9 @@
     <button type="button" role="tab" id="tab-entry" class="tab" aria-selected="true" aria-controls="view-entry">Case entry</button>
     <button type="button" role="tab" id="tab-report" class="tab" aria-selected="false" aria-controls="view-report">Report</button>
   </nav>
-</header>
+  <button type="button" id="theme-toggle" class="theme-toggle"
+          aria-label="Switch to dark theme" aria-pressed="false"
+          title="Switch theme">Dark mode</button></header>
 
 <main>
 <section id="view-entry" role="tabpanel" aria-labelledby="tab-entry">
@@ -223,6 +226,19 @@
     <p><b>No report to show yet.</b> Submit a case from “Case entry”, or enter a Patient ID there and use “Find saved studies” to reopen an earlier run. No values are shown unless they come from a run.</p>
   </div>
   <div id="summary" class="summary" hidden></div>
+  <section id="print-nodule-summary" class="print-only" aria-label="All detected nodules">
+    <h2>All detected nodules</h2>
+    <p class="print-nodule-note">Includes every nodule record in this run. Brock risk is a model-estimated probability, not a pathology result. Unavailable values are not interpreted as zero or as benign.</p>
+    <table class="dt" id="print-nodule-table">
+      <thead><tr><th>Nodule ID</th><th>Size</th><th>Brock risk</th><th>Assessment</th><th>Bounding box</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+  <section id="print-nodule-details" class="print-only" aria-label="Detailed findings for every nodule">
+    <h2>Individual nodule details</h2>
+    <div id="print-nodule-detail-list"></div>
+  </section>
+
   <div id="report-grid" class="grid3" hidden>
     <div class="col col-l">
       <section class="win" id="win-nodules"><header class="win-h"><h2>Nodules</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-nodules">Collapse</button></header>
@@ -272,6 +288,8 @@
   </div>
 </section>
 </main>
-<script src="app.js?v=20261017i" defer></script>
+<script src="app.js?v=20261023-theme1" defer></script>
 </body>
 </html>
+
+
