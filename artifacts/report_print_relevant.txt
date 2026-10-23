@@ -1,0 +1,208 @@
+﻿
+  artifacts\report_print_source_review.txt:79: 1364: }
+  artifacts\report_print_source_review.txt:80: 1365: 
+> artifacts\report_print_source_review.txt:81: 1366: function printBrockContributionsHtml(nodule) {
+  artifacts\report_print_source_review.txt:82: 1367:   const b = brockOf(nodule);
+  artifacts\report_print_source_review.txt:83: 1368:   if (!brockUsable(b)) {
+  artifacts\report_print_source_review.txt:84: 1369:     return `<p class="alert warn">Brock unavailable; contributions cannot be displayed.</p>`;
+  artifacts\report_print_source_review.txt:99: 1384:     return `<tr><th>${esc(p.name)}</th><td>${esc(value ?? "Missing")}</td><td>${esc(term)}</td><td>${known ? sgn(contribution) : "n/a"}</td></tr>`;
+  artifacts\report_print_source_review.txt:100: 1385:   }).join("");
+> artifacts\report_print_source_review.txt:101: 1386:   return `<p class="hint">Brock formula contributions (log-odds), not SHAP values.</p>
+  artifacts\report_print_source_review.txt:102: 1387:     <table class="dt"><thead><tr><th>Term</th><th>Input</th><th>Formula term</th><th>Contribution</th></tr></thead><tbody>${rows}</tbody></table>
+  artifacts\report_print_source_review.txt:103: 1388:     <div class="print-contribution-bars">${items.map(({p, contribution}) => {
+  artifacts\report_print_source_review.txt:104: 1389:       const known = fin(contribution);
+  artifacts\report_print_source_review.txt:171: 1456:       <div class="print-ct-slot" data-print-nodule-index="${i}"><p class="hint">Preparing CT sliceâ€¦</p></div>
+  artifacts\report_print_source_review.txt:172: 1457:       <h4>Characteristics</h4>${printCharacteristicHtml(n)}
+> artifacts\report_print_source_review.txt:173: 1458:       <h4>Brock malignancy risk and assessment</h4>${printBrockHtml(n)}
+> artifacts\report_print_source_review.txt:174: 1459:       <h4>Brock formula contributions (log-odds)</h4>${printBrockContributionsHtml(n)}
+  artifacts\report_print_source_review.txt:175: 1460:     </article>`).join("");
+  artifacts\report_print_source_review.txt:176: 1461: 
+  artifacts\report_print_source_review.txt:177: 1462:   const slots = Array.from(target.querySelectorAll(".print-ct-slot"));
+  artifacts\report_print_source_review.txt:260: 1544:         await renderPrintNoduleDetails();
+  artifacts\report_print_source_review.txt:261: 1545:         if (document.fonts?.ready) await document.fonts.ready;
+> artifacts\report_print_source_review.txt:262: 1546:         window.print();
+  artifacts\report_print_source_review.txt:263: 1547:       } catch (error) {
+  artifacts\report_print_source_review.txt:264: 1548:         console.error("Could not prepare the complete print report:", error);
+  artifacts\report_print_source_review.txt:265: 1549:         alert("The report could not be fully prepared for printing. Please check the browser console and try again.");
+  artifacts\report_print_source_review.txt:292:  137: /* Large displays: three columns filling the screen. Windows size to their content and never scroll
+  artifacts\report_print_source_review.txt:293:  138:    internally; if the content is taller than the screen, the page scrolls as a whole. */
+> artifacts\report_print_source_review.txt:294:  139: @media(min-width:1101px) and (min-height:681px){
+  artifacts\report_print_source_review.txt:295:  140:   body[data-view=report]{min-height:100vh;display:flex;flex-direction:column}
+  artifacts\report_print_source_review.txt:296:  141:   body[data-view=report] .notice{padding:.15rem 1rem;font-size:.78rem}
+  artifacts\report_print_source_review.txt:297:  142:   body[data-view=report] .topbar{padding:.1rem 1rem}
+  artifacts\report_print_source_review.txt:303:  148:   body[data-view=report] .canvas-wrap{flex:1 1 auto;min-height:320px}
+  artifacts\report_print_source_review.txt:304:  149: }
+> artifacts\report_print_source_review.txt:305:  150: @media(max-width:1100px),(max-height:680px){
+  artifacts\report_print_source_review.txt:306:  151:   .grid3{grid-template-columns:minmax(0,1fr)}
+  artifacts\report_print_source_review.txt:307:  152:   .viewer-b .canvas-wrap{flex:none;aspect-ratio:1;min-height:0;max-height:75vh;margin:0 auto;width:100%;max-width:75vh}
+  artifacts\report_print_source_review.txt:308:  153: }
+> artifacts\report_print_source_review.txt:309:  154: @media print{
+  artifacts\report_print_source_review.txt:310:  155:   .notice,.topbar,#view-entry,.win-t,.vctl{display:none!important}
+  artifacts\report_print_source_review.txt:311:  156:   body{background:#fff}
+  artifacts\report_print_source_review.txt:312:  157: }
+  artifacts\report_print_source_review.txt:313:  158: 
+  artifacts\report_print_source_review.txt:314:  159: /* LungInsight report layout v3: two balanced stacks, no grid-row gaps. */
+> artifacts\report_print_source_review.txt:315:  160: @media (min-width: 760px) {
+  artifacts\report_print_source_review.txt:316:  161:   body[data-view="report"] #report-grid.grid3 {
+  artifacts\report_print_source_review.txt:317:  162:     display: grid;
+  artifacts\report_print_source_review.txt:318:  163:     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  artifacts\report_print_source_review.txt:349:  194: body[data-view="report"] #win-viewer .win-b { min-height: 0; }
+  artifacts\report_print_source_review.txt:350:  195: body[data-view="report"] #canvas-wrap { min-width: 0; min-height: 180px; }
+> artifacts\report_print_source_review.txt:351:  196: @media (max-width: 759px) {
+  artifacts\report_print_source_review.txt:352:  197:   body[data-view="report"] #report-grid.grid3 { grid-template-columns: minmax(0, 1fr); }
+  artifacts\report_print_source_review.txt:353:  198: }
+  artifacts\report_print_source_review.txt:354:  199: 
+> artifacts\report_print_source_review.txt:355:  200: @media print {
+> artifacts\report_print_source_review.txt:356:  201:   @page { size: auto; margin: 12mm; }
+  artifacts\report_print_source_review.txt:357:  202: 
+  artifacts\report_print_source_review.txt:358:  203:   html, body {
+  artifacts\report_print_source_review.txt:359:  204:     width: auto !important;
+  artifacts\report_print_source_review.txt:400:  273:     resize: none !important;
+  artifacts\report_print_source_review.txt:401:  274:     overflow: visible !important;
+> artifacts\report_print_source_review.txt:402:  275:     break-inside: avoid;
+> artifacts\report_print_source_review.txt:403:  276:     page-break-inside: avoid;
+  artifacts\report_print_source_review.txt:404:  277:     border: 1px solid #888 !important;
+  artifacts\report_print_source_review.txt:405:  278:     border-radius: 0 !important;
+  artifacts\report_print_source_review.txt:406:  279:     background: #fff !important;
+  artifacts\report_print_source_review.txt:463:  336: }
+  artifacts\report_print_source_review.txt:464:  337: 
+> artifacts\report_print_source_review.txt:465:  338: @media print {
+  artifacts\report_print_source_review.txt:466:  339:   #print-nodule-summary {
+  artifacts\report_print_source_review.txt:467:  340:     display: block !important;
+  artifacts\report_print_source_review.txt:468:  341:     width: 100%;
+  artifacts\report_print_source_review.txt:469:  342:     margin: 0 0 7mm;
+  artifacts\report_print_source_review.txt:470:  343:     color: #111;
+> artifacts\report_print_source_review.txt:471:  344:     break-inside: auto;
+> artifacts\report_print_source_review.txt:472:  345:     page-break-inside: auto;
+  artifacts\report_print_source_review.txt:473:  346:   }
+  artifacts\report_print_source_review.txt:474:  347: 
+  artifacts\report_print_source_review.txt:475:  348:   #print-nodule-summary h2 {
+  artifacts\report_print_source_review.txt:493:  394:   background: var(--head);
+  artifacts\report_print_source_review.txt:494:  395: }
+> artifacts\report_print_source_review.txt:495:  396: @media (max-width: 620px) {
+  artifacts\report_print_source_review.txt:496:  397:   .topbar {
+  artifacts\report_print_source_review.txt:497:  398:     flex-wrap: wrap;
+  artifacts\report_print_source_review.txt:498:  399:     gap: .5rem;
+  artifacts\report_print_source_review.txt:502:  403:   }
+  artifacts\report_print_source_review.txt:503:  404: }
+> artifacts\report_print_source_review.txt:504:  405: @media print {
+  artifacts\report_print_source_review.txt:505:  406:   html, html[data-theme=dark] {
+  artifacts\report_print_source_review.txt:506:  407:     color-scheme: light !important;
+  artifacts\report_print_source_review.txt:507:  408:   }
+  artifacts\report_print_source_review.txt:511:  412: .print-only { display: none; }
+  artifacts\report_print_source_review.txt:512:  413: 
+> artifacts\report_print_source_review.txt:513:  414: @media print {
+  artifacts\report_print_source_review.txt:514:  415:   #print-nodule-details {
+  artifacts\report_print_source_review.txt:515:  416:     display: block !important;
+  artifacts\report_print_source_review.txt:516:  417:     width: 100% !important;
+  artifacts\report_print_source_review.txt:517:  418:     color: #111 !important;
+  artifacts\report_print_source_review.txt:518:  419:     break-before: page;
+> artifacts\report_print_source_review.txt:519:  420:     page-break-before: always;
+  artifacts\report_print_source_review.txt:520:  421:   }
+  artifacts\report_print_source_review.txt:521:  422: 
+  artifacts\report_print_source_review.txt:522:  423:   #print-nodule-details > h2 {
+  artifacts\report_print_source_review.txt:530:  431:     padding: 3mm !important;
+  artifacts\report_print_source_review.txt:531:  432:     border: 1px solid #999 !important;
+> artifacts\report_print_source_review.txt:532:  433:     break-inside: auto;
+> artifacts\report_print_source_review.txt:533:  434:     page-break-inside: auto;
+  artifacts\report_print_source_review.txt:534:  435:     background: #fff !important;
+  artifacts\report_print_source_review.txt:535:  436:     color: #111 !important;
+  artifacts\report_print_source_review.txt:536:  437:   }
+  artifacts\report_print_source_review.txt:542:  443:     font-size: 12pt;
+  artifacts\report_print_source_review.txt:543:  444:     break-after: avoid;
+> artifacts\report_print_source_review.txt:544:  445:     page-break-after: avoid;
+  artifacts\report_print_source_review.txt:545:  446:   }
+  artifacts\report_print_source_review.txt:546:  447: 
+  artifacts\report_print_source_review.txt:547:  448:   .print-nodule-detail > h4 {
+  artifacts\report_print_source_review.txt:549:  450:     font-size: 10pt;
+  artifacts\report_print_source_review.txt:550:  451:     break-after: avoid;
+> artifacts\report_print_source_review.txt:551:  452:     page-break-after: avoid;
+  artifacts\report_print_source_review.txt:552:  453:   }
+  artifacts\report_print_source_review.txt:553:  454: 
+  artifacts\report_print_source_review.txt:554:  455:   .print-nodule-detail .dt {
+  artifacts\report_print_source_review.txt:573:  474: 
+  artifacts\report_print_source_review.txt:574:  475:   .print-nodule-detail .dt tr {
+> artifacts\report_print_source_review.txt:575:  476:     break-inside: avoid;
+> artifacts\report_print_source_review.txt:576:  477:     page-break-inside: avoid;
+  artifacts\report_print_source_review.txt:577:  478:   }
+  artifacts\report_print_source_review.txt:578:  479: 
+  artifacts\report_print_source_review.txt:579:  480:   .print-ct {
+  artifacts\report_print_source_review.txt:580:  481:     margin: 3mm 0;
+  artifacts\report_print_source_review.txt:581:  482:     text-align: center;
+> artifacts\report_print_source_review.txt:582:  483:     break-inside: avoid;
+> artifacts\report_print_source_review.txt:583:  484:     page-break-inside: avoid;
+  artifacts\report_print_source_review.txt:584:  485:   }
+  artifacts\report_print_source_review.txt:585:  486: 
+  artifacts\report_print_source_review.txt:586:  487:   .print-ct figcaption {
+  artifacts\report_print_source_review.txt:601:  502:   .print-contribution-bars {
+  artifacts\report_print_source_review.txt:602:  503:     margin-top: 2mm;
+> artifacts\report_print_source_review.txt:603:  504:     break-inside: avoid;
+> artifacts\report_print_source_review.txt:604:  505:     page-break-inside: avoid;
+  artifacts\report_print_source_review.txt:605:  506:   }
+  artifacts\report_print_source_review.txt:606:  507: 
+  artifacts\report_print_source_review.txt:607:  508:   .shap-track {
+  artifacts\report_print_source_review.txt:647:    2: <html lang="en">
+  artifacts\report_print_source_review.txt:648:    3: <head>
+> artifacts\report_print_source_review.txt:649:    4: <meta charset="utf-8">
+  artifacts\report_print_source_review.txt:650:    5: <meta name="viewport" content="width=device-width, initial-scale=1">
+  artifacts\report_print_source_review.txt:651:    6: <title>LungInsight - Lung Cancer Diagnosis from CT Scans and Clinical Data</title>
+  artifacts\report_print_source_review.txt:652:    7: <link rel="stylesheet" href="styles.css?v=20261023-theme1">
+  artifacts\report_print_source_review.txt:712:  250:       <section class="win" id="win-brock"><header class="win-h"><h2>Brock malignancy risk</h2><button type="button" class="win-t" aria-expanded="true" 
+aria-controls="b-brock">Collapse</button></header>
+  artifacts\report_print_source_review.txt:713:  251:         <div class="win-b" id="b-brock"></div></section>
+> artifacts\report_print_source_review.txt:714:  252:       <section class="win" id="win-shap"><header class="win-h"><h2>Brock formula contributions (log-odds)</h2><button type="button" class="win-t" 
+aria-expanded="true" aria-controls="b-shap">Collapse</button></header>
+  artifacts\report_print_source_review.txt:715:  253:         <div class="win-b" id="b-shap"></div></section>
+  artifacts\report_print_source_review.txt:716:  254:     </div>
+  artifacts\report_print_source_review.txt:717:  255: 
+  artifacts\report_print_source_review.txt:753:  133: def _brock_decomposition_html(brock: dict[str, Any]) -> str:
+  artifacts\report_print_source_review.txt:754:  134:     """Render Brock inputs, coefficients, and logit contributions as a table."""
+> artifacts\report_print_source_review.txt:755:  135:     contributions = [item for item in brock.get("feature_contributions", []) if isinstance(item, dict)]
+  artifacts\report_print_source_review.txt:756:  136:     if not contributions:
+> artifacts\report_print_source_review.txt:757:  137:         return "<p class=\"unavailable\">Brock formula decomposition unavailable.</p>"
+  artifacts\report_print_source_review.txt:758:  138:     rows: list[str] = []
+  artifacts\report_print_source_review.txt:759:  139:     for item in contributions:
+  artifacts\report_print_source_review.txt:760:  140:         feature = str(item.get("feature"))
+  artifacts\report_print_source_review.txt:788:  291:                 "patch_shape_zyx": patch_shape,
+  artifacts\report_print_source_review.txt:789:  292:                 "cams": cams,
+> artifacts\report_print_source_review.txt:790:  293:                 "formula_contributions": brock.get("feature_contributions", []) if isinstance(brock, dict) else [],
+  artifacts\report_print_source_review.txt:791:  294:             }
+  artifacts\report_print_source_review.txt:792:  295:         )
+  artifacts\report_print_source_review.txt:793:  296:     nodules.sort(
+  artifacts\report_print_source_review.txt:814:  317:         "<section class='viewer'>"
+  artifacts\report_print_source_review.txt:815:  318:         f"<h2>Interactive {html.escape(tab.title())} viewer</h2>"
+> artifacts\report_print_source_review.txt:816:  319:         "<p>Nodules with available Brock probabilities are ordered highest first. Check one or more nodules to display their bounding boxes, Grad-CAM overlays, and 
+Brock formula decomposition.</p>"
+  artifacts\report_print_source_review.txt:817:  320:         "<div class='viewer-controls'>"
+  artifacts\report_print_source_review.txt:818:  321:         "<label>Grad-CAM attribute <select id='viewer-attribute'></select></label>"
+  artifacts\report_print_source_review.txt:819:  322:         "<label>Z slice <input id='viewer-z' type='range' step='1'><output id='viewer-z-value'></output></label>"
+  artifacts\report_print_source_review.txt:845:  348:         "if(attributes.includes(current))attributeSelect.value=current;zInput.value=String(Math.round(nodule.center_zyx[0]));renderShap();}"
+  artifacts\report_print_source_review.txt:846:  349:         "function renderShap(){const nodule=selected();rating.textContent='Brock probability: '+(nodule.brock?.probability??'unavailable')+' 
+('+(nodule.brock?.status||'unavailable')+').';shap.replaceChildren();"
+> artifacts\report_print_source_review.txt:847:  350:         "if(!nodule.formula_contributions.length){shap.textContent='Brock formula explanation unavailable.';return}"
+  artifacts\report_print_source_review.txt:848:  351:         "for(const item of nodule.formula_contributions){const row=document.createElement('div');row.className='shap-row';row.textContent=item.feature+' (input 
+'+(item.input_value??item.encoded_value??'n/a')+'): logit contribution '+(item.contribution_logit??'unavailable');shap.append(row)}}"
+  artifacts\report_print_source_review.txt:849:  352:         "function render(){const z=Number(zInput.value),attribute=attributeSelect.value,ctImage=ctImages[z],selectedNodules=checked();"
+  artifacts\report_print_source_review.txt:850:  353:         
+"document.getElementById('viewer-z-value').textContent=String(z);document.getElementById('viewer-alpha-value').textContent=Number(alphaInput.value).toFixed(2);"
+  artifacts\report_print_source_review.txt:977:  528:             f"<section><h2>{html.escape(stable_id)}</h2>{''.join(cam_lines) or '<p class=\"unavailable\">No CAM references.</p>'}</section>"
+  artifacts\report_print_source_review.txt:978:  529:         )
+> artifacts\report_print_source_review.txt:979:  530:         contributions = brock.get("feature_contributions", [])
+  artifacts\report_print_source_review.txt:980:  531:         limitations = record.get("uncertainty_and_limitations", {})
+  artifacts\report_print_source_review.txt:981:  532:         rating_content = (
+  artifacts\report_print_source_review.txt:982:  533:             f"<p>Selected malignancy method: {html.escape(str(malignancy.get('selected_prediction', {}).get('method', 'not specified')))}; "
+  artifacts\report_print_source_review.txt:989:  540:             f"<p>Limitations: {html.escape(json.dumps(limitations, ensure_ascii=False))}</p>"
+  artifacts\report_print_source_review.txt:990:  541:         )
+> artifacts\report_print_source_review.txt:991:  542:         shap_content = rating_content + "<h3>Brock formula decomposition</h3>" + _brock_decomposition_html(brock)
+  artifacts\report_print_source_review.txt:992:  543:         shap_sections.append(f"<section><h2>{html.escape(stable_id)}</h2>{shap_content}</section>")
+  artifacts\report_print_source_review.txt:993:  544:         lineage_sections.append(
+  artifacts\report_print_source_review.txt:994:  545:             f"<section><h2>{html.escape(stable_id)}</h2><p>Detection → Stage 03 → Stage 04 → Stage 05 → Stage 06 → Stage 07</p>"
+  artifacts\report_print_source_review.txt:1027:  578:         "nodules.html": page(f"Accepted nodules — {patient_id}", _interactive_viewer_body(viewer_data, tab="nodules") + nodules_body),
+  artifacts\report_print_source_review.txt:1028:  579:         "gradcam.html": page(f"Grad-CAM — {patient_id}", _interactive_viewer_body(viewer_data, tab="Grad-CAM") + gradcam_body),
+> artifacts\report_print_source_review.txt:1029:  580:         "brock.html": page(f"Brock formula explanation — {patient_id}", _interactive_viewer_body(viewer_data, tab="Brock") + shap_body),
+  artifacts\report_print_source_review.txt:1030:  581:         "lineage.html": page(f"Nodule lineage — {patient_id}", lineage_body),
+  artifacts\report_print_source_review.txt:1031:  582:     }
+  artifacts\report_print_source_review.txt:1032:  583:     written = []
+
+
+

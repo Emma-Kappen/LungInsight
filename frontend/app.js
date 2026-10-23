@@ -1,4 +1,4 @@
-﻿/* lunginsight-theme-toggle-v1 */
+/* lunginsight-theme-toggle-v1 */
 (() => {
   const root = document.documentElement;
   const key = "lunginsight-theme";
@@ -221,7 +221,7 @@ function evaluate() {
   range("years_smoked", f.years, 0, 90, "Years smoked");
   range("packs_per_day", f.packs, 0, 10, "Packs per day");
   range("years_since_cessation", f.cessation, 0, 80, "Years since quitting");
-  if (!f.symptoms.length) required.symptoms = "Tick at least one symptom, or â€œNo symptomsâ€.";
+  if (!f.symptoms.length) required.symptoms = "Tick at least one symptom, or “No symptoms”";
   if (!f.kpsUnknown) {
     if (f.kps === null) required.kps = "Enter KPS (0 to 100), or tick KPS unknown.";
     else if (!(fin(f.kps) && f.kps >= 0 && f.kps <= 100 && f.kps % 10 === 0)) issues.kps = "KPS must be 0 to 100 in steps of 10.";
@@ -427,7 +427,7 @@ async function confirmAndUpload() {
     const body = await uploadFiles(S.files, patientId);
     S.upload = body;
     S.uploadPid = patientId;
-    setUploadStatus(`CT uploaded and validated: ${body.series?.slice_count ?? "unknown"} slices${body.series?.volume_shape_zyx ? `, volume ${body.series.volume_shape_zyx.join(" Ã— ")}` : ""}.`, "success");
+    setUploadStatus(`CT uploaded and validated: ${body.series?.slice_count ?? "unknown"} slices${body.series?.volume_shape_zyx ? `, volume ${body.series.volume_shape_zyx.join(" × ")}` : ""}.`, "success");
   } catch (error) {
     setUploadStatus(error.name === "AbortError" ? "Upload cancelled." : `CT upload failed: ${error.message}`, error.name === "AbortError" ? "warning" : "error");
   } finally {
@@ -563,7 +563,7 @@ $("load-studies").addEventListener("click", async () => {
     const studies = body.studies || [];
     setRecordStatus(studies.length ? `${studies.length} saved study(ies) for ${patientId}. Select one to open its report.` : `No saved studies for ${patientId}.`);
     list.innerHTML = studies.map((study) => `<li><button type="button" data-run-id="${esc(study.run_id)}">
-      <span>${esc(study.run_id)} Â· ${esc(study.created_at || "date unknown")}</span>
+      <span>${esc(study.run_id)} · ${esc(study.created_at || "date unknown")}</span>
       <span>${badge(study.status || "unknown", study.status === "completed" ? "ok" : "warn")} ${esc(study.eligible_nodule_count ?? "unknown")} eligible nodule(s)</span></button></li>`).join("");
   } catch (error) {
     list.innerHTML = "";
@@ -638,7 +638,7 @@ async function pollRun(runId) {
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(errorMessage(body, `Analysis status could not be read (HTTP ${response.status}).`));
       renderStages(body);
-      if (!KNOWN_STATUS.test(String(body.status))) throw new Error(`Unknown status â€œ${body.status}â€ from the server.`);
+      if (!KNOWN_STATUS.test(String(body.status))) throw new Error(`Unknown status "${body.status}"`);
       if (TERMINAL.includes(body.status)) return body;
       setRunMessage("Analysis running. This page checks every 1.5 seconds.");
       await sleep(1500);
@@ -679,10 +679,10 @@ async function submitCase() {
   $("stages").innerHTML = "";
   refresh();
   try {
-    setRunMessage("Saving clinical informationâ€¦");
+    setRunMessage("Saving clinical information…");
     const inputs = clinicalInputs(e.f);
     await persistClinicalRecord(inputs, e.f.patientId);
-    setRunMessage("Starting the analysis runâ€¦");
+    setRunMessage("Starting the analysis run…");
     const run = await startAnalysis(e.f, inputs);
     S.runId = run.run_id;
     await finishRun(run.run_id);
@@ -793,36 +793,36 @@ const formatMm = (v) => (fin(v) ? `${v.toFixed(1)} mm` : "Unavailable");
 const flagText = (item, yes, no) => (item && fin(item.encoded_value) ? (item.encoded_value === 1 ? yes : no) : null);
 
 const BROCK_PARAMS = [
-  {key: "age", name: "Age", source: "Case entry (date of birth)", missing: ["age_years"], enters: "0.0287 Ã— (age âˆ’ 62)",
+  {key: "age", name: "Age", source: "Case entry (date of birth)", missing: ["age_years"], enters: "0.0287 × (age − 62)",
     value: (c) => (fin(c.age_years?.input_value) ? `${c.age_years.input_value} years` : null),
     fallback: (x) => (fin(ageOfInputs(x.inputs)) ? `${ageOfInputs(x.inputs)} years` : null),
     contrib: (c) => c.age_years?.contribution_logit},
-  {key: "sex", name: "Sex", source: "Case entry", missing: ["sex"], enters: "0.6011 Ã— sex (female = 1, male = 0)",
+  {key: "sex", name: "Sex", source: "Case entry", missing: ["sex"], enters: "0.6011 × sex (female = 1, male = 0)",
     value: (c) => flagText(c.female, "Female", "Male"),
     fallback: (x) => ({female: "Female", male: "Male"}[x.inputs?.sex_at_baseline] ?? null),
     contrib: (c) => c.female?.contribution_logit},
-  {key: "fh", name: "Family history", source: "Case entry", missing: ["family_history_lung_cancer"], enters: "0.2961 Ã— family history (yes = 1)",
+  {key: "fh", name: "Family history", source: "Case entry", missing: ["family_history_lung_cancer"], enters: "0.2961 × family history (yes = 1)",
     value: (c) => flagText(c.family_history_lung_cancer, "Yes", "No"),
     fallback: (x) => ({yes: "Yes", no: "No"}[x.inputs?.family_history_lung_cancer] ?? null),
     contrib: (c) => c.family_history_lung_cancer?.contribution_logit},
-  {key: "emph", name: "Emphysema", source: "Case entry (medical history)", missing: ["emphysema"], enters: "0.2953 Ã— emphysema (yes = 1)",
+  {key: "emph", name: "Emphysema", source: "Case entry (medical history)", missing: ["emphysema"], enters: "0.2953 × emphysema (yes = 1)",
     value: (c) => flagText(c.emphysema, "Yes", "No"),
     fallback: (x) => (x.inputs?.medical_history_status === "reported" ? ((x.inputs.medical_history_conditions || []).includes("emphysema") ? "Yes" : "No") : null),
     contrib: (c) => c.emphysema?.contribution_logit},
-  {key: "size", name: "Nodule size", source: "Imaging (detector)", missing: ["nodule_size_mm"], enters: "âˆ’5.3854 Ã— ((diameter/10)^âˆ’0.5 âˆ’ 1.58113883)",
+  {key: "size", name: "Nodule size", source: "Imaging (detector)", missing: ["nodule_size_mm"], enters: "−5.3854 × ((diameter/10)^−0.5 − 1.58113883)",
     value: (c) => (fin(c.nodule_size_mm?.input_value) ? `${c.nodule_size_mm.input_value.toFixed(1)} mm` : null),
     fallback: (x) => (fin(x.nodule.geometry?.diameter_mm) ? `${x.nodule.geometry.diameter_mm.toFixed(1)} mm` : null),
     contrib: (c) => c.nodule_size_mm?.contribution_logit},
-  {key: "type", name: "Nodule type", source: "Attribute models (texture)", missing: ["nodule_type"], enters: "Solid 0 (reference), part-solid +0.3770, non-solid âˆ’0.1276",
+  {key: "type", name: "Nodule type", source: "Attribute models (texture)", missing: ["nodule_type"], enters: "Solid 0 (reference), part-solid +0.3770, non-solid −0.1276",
     value: (c) => (c.pure_ground_glass && c.part_solid ? (c.part_solid.encoded_value === 1 ? "Part-solid" : c.pure_ground_glass.encoded_value === 1 ? "Nonsolid (GGO)" : "Solid") : null),
     contrib: (c) => (c.pure_ground_glass || c.part_solid ? (c.pure_ground_glass?.contribution_logit ?? 0) + (c.part_solid?.contribution_logit ?? 0) : undefined)},
-  {key: "lobe", name: "Upper-lobe location", source: "Imaging (location)", missing: ["upper_lobe"], enters: "0.6581 Ã— upper lobe (yes = 1)",
+  {key: "lobe", name: "Upper-lobe location", source: "Imaging (location)", missing: ["upper_lobe"], enters: "0.6581 × upper lobe (yes = 1)",
     value: (c) => flagText(c.upper_lobe, "Upper lobe", "Not upper lobe"), contrib: (c) => c.upper_lobe?.contribution_logit},
-  {key: "count", name: "Nodule count", source: "Imaging (valid boxes)", missing: ["nodule_count"], enters: "âˆ’0.0824 Ã— (nodule count âˆ’ 4)",
+  {key: "count", name: "Nodule count", source: "Imaging (valid boxes)", missing: ["nodule_count"], enters: "−0.0824 × (nodule count − 4)",
     value: (c) => (fin(c.nodule_count?.input_value) ? String(c.nodule_count.input_value) : null),
     fallback: (x) => String(x.nodules.filter((n) => !n._boxErr).length),
     contrib: (c) => c.nodule_count?.contribution_logit},
-  {key: "spic", name: "Spiculation", source: "Attribute models", missing: ["spiculation"], enters: "0.7729 Ã— spiculation (yes = 1)",
+  {key: "spic", name: "Spiculation", source: "Attribute models", missing: ["spiculation"], enters: "0.7729 × spiculation (yes = 1)",
     value: (c) => flagText(c.spiculation, "Present", "Absent"), contrib: (c) => c.spiculation?.contribution_logit},
 ];
 
@@ -923,7 +923,7 @@ function survivalChartHtml(model) {
     <text transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Survival probability</text></svg>`;
 }
 
-const CANCER_STAGE_LABELS = Object.assign(Object.create(null), {stage_1_3: "Stage Iâ€“III", stage_4: "Stage IV"});
+const CANCER_STAGE_LABELS = Object.assign(Object.create(null), {stage_1_3: "Stage I–III", stage_4: "Stage IV"});
 const SMOKING_HISTORY_LABELS = Object.assign(Object.create(null), {never: "never smoked", former_or_current: "former or current smoker"});
 
 /* Exact histology SHAP values: contribution to the predicted class probability. */
@@ -963,7 +963,7 @@ function histologyShapHtml(explanation, predictedClass) {
       <span class="shap-track" role="img" aria-label="${esc(item.feature)} ${direction} ${esc(predictedClass)} by ${Math.abs(pctPoints).toFixed(2)} percentage points">
         <i aria-hidden="true" class="shap-bar ${barClass}" style="width:${width}%"></i>
       </span>
-      <b class="shap-val" style="color:${positive ? "var(--raise)" : "var(--lower)"}">${positive ? "+" : "âˆ’"}${Math.abs(pctPoints).toFixed(2)} pp</b>
+      <b class="shap-val" style="color:${positive ? "var(--raise)" : "var(--lower)"}">${positive ? "+" : "−"}${Math.abs(pctPoints).toFixed(2)} pp</b>
     </div>`;
   }).join("");
 
@@ -973,8 +973,8 @@ function histologyShapHtml(explanation, predictedClass) {
 
   return `<section aria-label="Histology SHAP explanation" style="margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--border,#ddd)">
     <h4 style="margin:.1rem 0 .35rem">Exact SHAP explanation for ${esc(predictedClass)}</h4>
-    <p class="hint" style="margin:.2rem 0">Reference probability: ${(base * 100).toFixed(2)}% â†’ model probability: ${(finalValue * 100).toFixed(2)}%.</p>
-    <div class="shap-legend"><span class="lo">â† Lowers ${esc(predictedClass)} probability</span><span class="hi">Raises ${esc(predictedClass)} probability â†’</span></div>
+    <p class="hint" style="margin:.2rem 0">Reference probability: ${(base * 100).toFixed(2)}% → model probability: ${(finalValue * 100).toFixed(2)}%.</p>
+    <div class="shap-legend"><span class="lo">← Lowers ${esc(predictedClass)} probability</span><span class="hi">Raises ${esc(predictedClass)} probability →</span></div>
     ${rows}
     <p class="hint" style="margin:.35rem 0">Base value + feature SHAP values reconstruct the model probability (absolute check error: ${localError.toExponential(1)}). Contributions are probability percentage points, not causal effects.</p>
     <p class="hint" style="margin:.2rem 0">Reference: ${esc(ref.cohort || "documented training cohort")}, ${esc(ref.rows ?? "unknown")} training rows. ${esc((explanation.limitations || []).find((x) => /biological causation/i.test(x)) || "Research-only model explanation; not a diagnosis.")}</p>
@@ -1024,12 +1024,12 @@ function assessmentHtml(nodule) {
 function modelResultHtml(model) {
   if (!model) return "Unavailable";
   if (model.status === "research_prediction" && model.probabilities) {
-    const rows = Object.entries(model.probabilities).map(([name, p]) => `<small>${esc(name)} ${(p * 100).toFixed(1)}%</small>`).join(" Â· ");
+    const rows = Object.entries(model.probabilities).map(([name, p]) => `<small>${esc(name)} ${(p * 100).toFixed(1)}%</small>`).join(" · ");
     return `${badge("research prediction", "ok")} <b>${esc(model.predicted_class)}</b> (histology, conditional on LUAD or LUSC)<br>${rows}`;
   }
   if (model.status === "research_prediction" && model.prediction) {
     const horizons = Object.entries(model.prediction.probability_at_horizons_days || {})
-      .map(([days, p]) => `${Math.round(days / 365.25 * 10) / 10} y: ${(p * 100).toFixed(0)}%`).join(" Â· ");
+      .map(([days, p]) => `${Math.round(days / 365.25 * 10) / 10} y: ${(p * 100).toFixed(0)}%`).join(" · ");
     return `${badge("research prediction", "ok")} Overall survival from diagnosis<br><small>${esc(horizons)}</small>`;
   }
   const codes = {
@@ -1156,24 +1156,24 @@ function renderBrock() {
   }).join("");
   const vertical = n.anatomical_location?.vertical_region;
   const why = missingNames.includes("upper_lobe") && vertical
-    ? `<p class="hint">Upper-lobe location is withheld, not guessed: a â€œ${esc(vertical)}â€ vertical position has no unambiguous upper-lobe mapping.</p>` : "";
+    ? `<p class="hint">Upper-lobe location is withheld, not guessed: a “${esc(vertical)}” vertical position has no unambiguous upper-lobe mapping.</p>` : "";
   target.innerHTML = `${head}<h3 class="sub-h">Assessment</h3>${assessmentHtml(n)}
     <div class="scroll"><table class="dt"><caption class="sr">Brock inputs for ${esc(n.stable_nodule_id)}</caption><thead><tr><th>Source</th><th>Brock input</th><th>Value</th><th>Enters model as</th></tr></thead><tbody>${rows}</tbody></table></div>${why}${usable ? "" : manualFormHtml(n, missingNames)}
     <p class="hint">Brock (PanCan) derives malignancy risk from the nodule characteristics and clinical data; there is no separate malignancy classifier. ${esc(b.reference || "")}</p>`;
 }
 
 /* The nine Brock terms with the patient's values substituted, exactly as the published formula computes them. */
-const sgn = (v, d = 2) => `${v > 0 ? "+" : v < 0 ? "âˆ’" : ""}${Math.abs(v).toFixed(d)}`;
+const sgn = (v, d = 2) => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(d)}`;
 const BROCK_TERMS = {
-  age: (c) => `0.0287 Ã— (${c.age_years.input_value} âˆ’ 62)`,
-  sex: (c) => `0.6011 Ã— ${c.female.encoded_value}`,
-  fh: (c) => `0.2961 Ã— ${c.family_history_lung_cancer.encoded_value}`,
-  emph: (c) => `0.2953 Ã— ${c.emphysema.encoded_value}`,
-  size: (c) => `âˆ’5.3854 Ã— ((${c.nodule_size_mm.input_value.toFixed(1)}/10)^âˆ’0.5 âˆ’ 1.5811)`,
-  type: (c) => (c.part_solid.encoded_value ? "part-solid: +0.3770" : c.pure_ground_glass.encoded_value ? "non-solid: âˆ’0.1276" : "solid: 0 (reference)"),
-  lobe: (c) => `0.6581 Ã— ${c.upper_lobe.encoded_value}`,
-  count: (c) => `âˆ’0.0824 Ã— (${c.nodule_count.input_value} âˆ’ 4)`,
-  spic: (c) => `0.7729 Ã— ${c.spiculation.encoded_value}`,
+  age: (c) => `0.0287 × (${c.age_years.input_value} − 62)`,
+  sex: (c) => `0.6011 × ${c.female.encoded_value}`,
+  fh: (c) => `0.2961 × ${c.family_history_lung_cancer.encoded_value}`,
+  emph: (c) => `0.2953 × ${c.emphysema.encoded_value}`,
+  size: (c) => `−5.3854 × ((${c.nodule_size_mm.input_value.toFixed(1)}/10)^−0.5 − 1.5811)`,
+  type: (c) => (c.part_solid.encoded_value ? "part-solid: +0.3770" : c.pure_ground_glass.encoded_value ? "non-solid: −0.1276" : "solid: 0 (reference)"),
+  lobe: (c) => `0.6581 × ${c.upper_lobe.encoded_value}`,
+  count: (c) => `−0.0824 × (${c.nodule_count.input_value} − 4)`,
+  spic: (c) => `0.7729 × ${c.spiculation.encoded_value}`,
 };
 
 function renderShap() {
@@ -1202,12 +1202,12 @@ function renderShap() {
   const net = items.reduce((sum, item) => sum + (fin(item.contribution) ? item.contribution : 0), 0);
   const lp = fin(b.logit) ? b.logit : (fin(intercept) ? intercept + net : null);
   const baseline = fin(intercept) ? 1 / (1 + Math.exp(-intercept)) : null;
-  target.innerHTML = `<p class="hint formula" style="margin:0 0 .3rem">P = 1 / (1 + e<sup>âˆ’LP</sup>), with LP = âˆ’6.7892 + Î£ the nine terms below. Each bar is that term's push on the log-odds relative to the reference nodule
+  target.innerHTML = `<p class="hint formula" style="margin:0 0 .3rem">P = 1 / (1 + e<sup>−LP</sup>), with LP = −6.7892 + Σ the nine terms below. Each bar is that term's push on the log-odds relative to the reference nodule
       (62-year-old male, no family history or emphysema, 4 mm solid nodule, lower/middle lobe, 4 nodules, not spiculated), whose LP is the intercept alone${baseline === null ? "" : ` (risk ${esc(pct(baseline))})`}.</p>
-    <div class="shap-legend"><span class="lo">â† lowers risk</span><span class="hi">raises risk â†’</span></div>${rows}
+    <div class="shap-legend"><span class="lo">← lowers risk</span><span class="hi">raises risk →</span></div>${rows}
     <div class="shap-sum" role="group" aria-label="Sum of terms">
       <span>Intercept <b>${fin(intercept) ? sgn(intercept) : "n/a"}</b></span><span>+ terms <b>${sgn(net)}</b></span>
-      <span>= LP <b>${lp === null ? "n/a" : sgn(lp)}</b></span><span>â†’ P <b>${esc(pct(b.probability))}</b></span></div>
+      <span>= LP <b>${lp === null ? "n/a" : sgn(lp)}</b></span><span>→ P <b>${esc(pct(b.probability))}</b></span></div>
     <p class="hint">Exact for this additive model (not a sampled approximation). Model: ${esc(b.model_name || "Brock PanCan")}, ${esc(b.formula_version || "")}.</p>`;
 }
 function renderClinicalInputs() {
@@ -1265,12 +1265,12 @@ function renderMethods() {
   }
   if (nodules.length) {
     const ranked = nodules.filter((n) => Object.keys(n.classification?.attributes || {}).some((k) => !HIDDEN_ATTRIBUTES.has(k))).length;
-    rows.push(["Attribute ranking", ranked, 0, nodules.length - ranked, nodules.length - ranked ? "No attribute output for some nodules" : "â€“"]);
+    rows.push(["Attribute ranking", ranked, 0, nodules.length - ranked, nodules.length - ranked ? "No attribute output for some nodules" : "–"]);
   }
   if (eligible != null) {
     const manualOk = nodules.filter((n) => brockIsManual(n)).length;
     const unavailable = Math.max(0, (counts.incomplete ?? 0) + (counts.not_run ?? 0) - manualOk);
-    rows.push(["Brock", (counts.completed ?? 0) + manualOk, counts.failed ?? 0, unavailable, unavailable ? "Missing inputs or not run" : manualOk ? `${manualOk} calculated from clinician-supplied inputs` : "â€“"]);
+    rows.push(["Brock", (counts.completed ?? 0) + manualOk, counts.failed ?? 0, unavailable, unavailable ? "Missing inputs or not run" : manualOk ? `${manualOk} calculated from clinician-supplied inputs` : "–"]);
   }
   if (nodules.length) {
     const explained = nodules.filter((n) => brockUsable(brockOf(n)) && (brockOf(n).feature_contributions || []).length).length;
@@ -1327,7 +1327,7 @@ function printCharacteristicHtml(nodule) {
       }
       const scale = Array.isArray(item.rating_scale) && item.rating_scale.length === 2
         ? item.rating_scale : [1, 5];
-      return `<tr><th>${esc(name)}</th><td>${rating.toFixed(1)}</td><td>${esc(`${scale[0]}â€“${scale[1]} (${low} to ${high})`)}</td></tr>`;
+      return `<tr><th>${esc(name)}</th><td>${rating.toFixed(1)}</td><td>${esc(`${scale[0]}–${scale[1]} (${low} to ${high})`)}</td></tr>`;
     }).join("");
   return `<p class="hint">Predicted LIDC-style reader ranks, not measurements or a diagnosis.</p>
     <table class="dt"><thead><tr><th>Characteristic</th><th>Predicted rank</th><th>Scale</th></tr></thead><tbody>${rows}</tbody></table>`;
@@ -1453,7 +1453,7 @@ async function renderPrintNoduleDetails() {
     <article class="print-nodule-detail">
       <h3>${esc(n.stable_nodule_id || `Nodule ${i + 1}`)}</h3>
       <p><b>Size:</b> ${esc(formatMm(n.geometry?.diameter_mm))}</p>
-      <div class="print-ct-slot" data-print-nodule-index="${i}"><p class="hint">Preparing CT sliceâ€¦</p></div>
+      <div class="print-ct-slot" data-print-nodule-index="${i}"><p class="hint">Preparing CT slice…</p></div>
       <h4>Characteristics</h4>${printCharacteristicHtml(n)}
       <h4>Brock malignancy risk and assessment</h4>${printBrockHtml(n)}
       <h4>Brock formula contributions (log-odds)</h4>${printBrockContributionsHtml(n)}
@@ -1652,7 +1652,7 @@ function setupViewer() {
   el.camControls.hidden = true;
   if (!available) {
     el.slice.max = "0";
-    el.label.textContent = "â€“";
+    el.label.textContent = "–";
     el.canvas.getContext("2d").clearRect(0, 0, el.canvas.width, el.canvas.height);
     setViewerStatus(S.run.metaError || "CT viewer unavailable for this run.", "warning");
     return;
@@ -1666,7 +1666,7 @@ function setupViewer() {
   el.cam.disabled = !attributes.length;
   el.cam.title = attributes.length ? "" : "No Grad-CAM artifacts for this run";
   el.attribute.innerHTML = attributes.map((name) => `<option value="${esc(name)}">${esc(label(name))}</option>`).join("");
-  setViewerStatus(`CT volume ${meta.shape_zyx.join(" Ã— ")} voxels.`);
+  setViewerStatus(`CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
 }
 
 function stepSlice(delta) {
@@ -1684,8 +1684,8 @@ function boxStatus(nodule, index) {
   const z0 = box.start[0], z1 = box.end[0];
   const kind = box.method === "detector_box" ? "detector box (no distinct tissue found to refine it)" : "box fitted to the nodule in the CT";
   return index >= z0 && index < z1
-    ? `${nodule.stable_nodule_id}: ${kind} shown on this slice (z ${z0 + 1}â€“${z1}).`
-    : `${nodule.stable_nodule_id}: box spans slices ${z0 + 1}â€“${z1}; this slice is outside it.`;
+    ? `${nodule.stable_nodule_id}: ${kind} shown on this slice (z ${z0 + 1}–${z1}).`
+    : `${nodule.stable_nodule_id}: box spans slices ${z0 + 1}–${z1}; this slice is outside it.`;
 }
 
 /* Box for one slice: the nodule's own outline on that slice when known, otherwise the overall extent (dashed). */
@@ -1750,7 +1750,7 @@ async function updateViewer() {
   const inverted = camOn && (meta.gradcam_inverted_attributes || []).includes(el.attribute.value);
   document.querySelector(".cam-legend").classList.toggle("inv", inverted);
   const note = camOn ? ` Grad-CAM is drawn over the nodule-centred patch (the square). Colours are relative within that patch (${inverted ? "inverted for this attribute: red = lowest, blue = highest" : "red = highest"}); a model-sensitivity map, not an attribute probability.` : "";
-  setViewerStatus(`${boxStatus(V.nodules[V.selected], index)}${note}`.trim() || `CT volume ${meta.shape_zyx.join(" Ã— ")} voxels.`);
+  setViewerStatus(`${boxStatus(V.nodules[V.selected], index)}${note}`.trim() || `CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
 }
 
 function selectNodule(index, focus = false) {
