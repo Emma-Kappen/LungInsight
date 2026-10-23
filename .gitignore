@@ -161,6 +161,6 @@ coverage/
 *.sqlite3
 *.db
 
-# --- Keep project source, tests, schemas, and documentation tracked ---
-# Do not ignore backend/, frontend/, tests/, schemas/, *.py, *.js,
-# *.html, *.css, *.json schemas, README.md, or report.md globally.
+# --- Extraneous files and directories ---
+filetree.py
+kaggle.json
