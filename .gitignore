@@ -113,6 +113,7 @@ backup*/
 
 # --- Generated pipeline outputs ---
 diagnostics/
+artifacts/
 
 # Also ignore these directories if the repository root is LungInsight_v2.
 backend/output/
