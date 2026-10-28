@@ -741,7 +741,13 @@ async function openRun(runId) {
   let inputs = null;
   try {
     const reportResponse = await apiFetch(`${analysisBase}/runs/${encodeURIComponent(runId)}/report`);
-    if (reportResponse.ok) inputs = (await reportResponse.json()).clinical_inputs || null;
+    if (reportResponse.ok) {
+      const reportBody = await reportResponse.json();
+      inputs = reportBody.clinical_inputs || null;
+      if (reportBody.clinical_prediction) {
+        body.clinical_prediction = reportBody.clinical_prediction;
+      }
+    }
     if (!inputs && body.patient_id) {
       const recordResponse = await apiFetch(`/api/v1/clinical/records/${encodeURIComponent(body.patient_id)}`);
       if (recordResponse.ok) inputs = (await recordResponse.json()).clinician_inputs || null;
@@ -1238,20 +1244,31 @@ function renderClinicalModels() {
       ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
       : `<div>${modelResultHtml(survival)}</div>`;
 
-  // Histology UI gate: require at least one nodule with an available Brock risk >= the existing threshold.
-  // This is a display/eligibility gate; backend inference must also be gated to prevent model execution.
+  // Keep the Brock eligibility gate: never reveal a histology prediction
+  // when no nodule meets the configured threshold. Still show abstention
+  // and blocking reasons returned by the backend.
   const eligibleNodules = (typeof V !== "undefined" && Array.isArray(V.nodules) ? V.nodules : [])
     .map((nodule) => ({nodule, result: assessment(nodule)}))
     .filter(({result}) => result.state === "elevated");
-  const cancerHtml = !prediction
-    ? "<p class='hint' style='margin:0'>Histology model not available for this run.</p>"
-    : eligibleNodules.length === 0
-      ? `<div class="ct"><h3 class="sub-h">Histology: LUAD vs LUSC</h3><p class="hint">Locked: histology is shown only when at least one nodule has an available Brock malignancy risk at or above ${Math.round(MALIGNANCY_THRESHOLD * 100)}%. Missing Brock results do not qualify.</p></div>`
-      : `<p class="hint" style="margin:.2rem 0">Histology display enabled by ${eligibleNodules.length} nodule(s) at or above the ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock threshold. The histology model remains patient-level and does not diagnose the eligible nodule.</p>${cancerTypePanelHtml(prediction.cancer_type)}`;
+
+  let cancerHtml;
+  if (!prediction) {
+    cancerHtml = "<p class='hint' style='margin:0'>Histology model not available for this run.</p>";
+  } else if (eligibleNodules.length === 0) {
+    const model = prediction.cancer_type;
+    const statusHtml = model && model.status !== "research_prediction"
+      ? `<p style="margin:.3rem 0 0">${modelResultHtml(model)}</p>`
+      : "";
+    cancerHtml = `<div class="ct"><h3 class="sub-h">Histology: LUAD vs LUSC</h3>
+      <p class="hint">No nodule meets the ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock eligibility threshold. Histology predictions are withheld; missing Brock results do not qualify.</p>
+      ${statusHtml}</div>`;
+  } else {
+    cancerHtml = `<p class="hint" style="margin:.2rem 0">Histology display enabled by ${eligibleNodules.length} nodule(s) at or above the ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock threshold. The histology model remains patient-level and does not diagnose the eligible nodule.</p>${cancerTypePanelHtml(prediction.cancer_type)}`;
+  }
+
   $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
     <section aria-label="Histology model" style="margin-top:.8rem">${cancerHtml}</section>`;
 }
-
 function renderMethods() {
   const body = S.run.body;
   const study = body.study || body.study_summary || {};
@@ -1394,12 +1411,35 @@ function printBrockContributionsHtml(nodule) {
     }).join("")}</div>`;
 }
 
-async function printSliceFigure(nodule, ordinal) {
+async function printSliceFigure(nodule, ordinal, gradcamAttribute = null) {
   const chosen = printRepresentativeSlice(nodule);
   if (!chosen) {
     return `<p class="hint">Representative CT slice unavailable: no valid bounding box.</p>`;
   }
   const params = new URLSearchParams({ lung_overlay: "false", heart_overlay: "false" });
+
+  if (gradcamAttribute) {
+    const available = (V.meta?.gradcam_options || []).some(
+      (option) =>
+        option.attribute === gradcamAttribute &&
+        option.stable_nodule_id === nodule.stable_nodule_id
+    );
+
+    if (!available) {
+      return `<p class="hint">Grad-CAM unavailable for this nodule and attribute in this run.</p>`;
+    }
+
+    params.set("gradcam_attribute", gradcamAttribute);
+    params.set("gradcam_nodule_id", nodule.stable_nodule_id);
+
+    const alphaInput = $("viewer-gradcam-alpha");
+    const alphaValue = Number(alphaInput?.value ?? 55);
+    params.set(
+      "gradcam_alpha",
+      String((Number.isFinite(alphaValue) ? alphaValue : 55) / 100)
+    );
+  }
+
   const url = `${analysisBase}/runs/${encodeURIComponent(V.runId)}/viewer/slices/${chosen.z}?${params}`;
   const response = await apiFetch(url);
   if (!response.ok) {
@@ -1432,12 +1472,51 @@ async function printSliceFigure(nodule, ordinal) {
       context.fillStyle = "#ffd24a";
       context.fillText(nodule.stable_nodule_id || `Nodule ${ordinal + 1}`, rect.x0, Math.max(14, rect.y0 - 4));
     }
-    return `<figure class="print-ct"><figcaption>Representative axial CT slice: Z = ${chosen.z}</figcaption><img alt="CT slice ${chosen.z} with bounding box for ${esc(nodule.stable_nodule_id || `Nodule ${ordinal + 1}`)}" src="${canvas.toDataURL("image/png")}"></figure>`;
+    const caption = gradcamAttribute
+      ? `Grad-CAM: ${label(gradcamAttribute)} — Z = ${chosen.z}`
+      : `Representative axial CT slice: Z = ${chosen.z}`;
+    const imageDescription = gradcamAttribute
+      ? `CT slice ${chosen.z} with Grad-CAM overlay for ${label(gradcamAttribute)}`
+      : `CT slice ${chosen.z} with nodule bounding box`;
+
+    return `<figure class="print-ct"><figcaption>${esc(caption)}</figcaption><img alt="${esc(imageDescription)}" src="${canvas.toDataURL("image/png")}"></figure>`;
   } catch {
     return `<p class="hint">CT slice ${chosen.z} could not be prepared for printing.</p>`;
   } finally {
     URL.revokeObjectURL(objectUrl);
   }
+}
+
+async function printGradcamFigures(nodule, ordinal) {
+  const noduleId = nodule.stable_nodule_id;
+  const seen = new Set();
+
+  const options = (V.meta?.gradcam_options || []).filter((option) => {
+    if (
+      option.stable_nodule_id !== noduleId ||
+      !option.attribute ||
+      HIDDEN_ATTRIBUTES.has(option.attribute) ||
+      seen.has(option.attribute)
+    ) {
+      return false;
+    }
+
+    seen.add(option.attribute);
+    return true;
+  });
+
+  if (!options.length) {
+    return `<p class="hint">No Grad-CAM artifacts are listed for this nodule in this run.</p>`;
+  }
+
+  const figures = await Promise.all(options.map(async (option) => {
+    const attributeTitle = label(option.attribute);
+    const figure = await printSliceFigure(nodule, ordinal, option.attribute);
+
+    return `<section class="print-gradcam-item"><h5>${esc(attributeTitle)}</h5>${figure}</section>`;
+  }));
+
+  return figures.join("");
 }
 
 async function renderPrintNoduleDetails() {
@@ -1454,6 +1533,8 @@ async function renderPrintNoduleDetails() {
       <h3>${esc(n.stable_nodule_id || `Nodule ${i + 1}`)}</h3>
       <p><b>Size:</b> ${esc(formatMm(n.geometry?.diameter_mm))}</p>
       <div class="print-ct-slot" data-print-nodule-index="${i}"><p class="hint">Preparing CT slice…</p></div>
+      <h4>Per-attribute Grad-CAM explanations</h4>
+      <div class="print-gradcam-slot" data-print-nodule-index="${i}"><p class="hint">Preparing available Grad-CAM images…</p></div>
       <h4>Characteristics</h4>${printCharacteristicHtml(n)}
       <h4>Brock malignancy risk and assessment</h4>${printBrockHtml(n)}
       <h4>Brock formula contributions (log-odds)</h4>${printBrockContributionsHtml(n)}
@@ -1466,6 +1547,16 @@ async function renderPrintNoduleDetails() {
       slot.innerHTML = await printSliceFigure(nodules[i], i);
     } catch {
       slot.innerHTML = '<p class="hint">CT slice could not be prepared for printing.</p>';
+    }
+  }));
+  const camSlots = Array.from(target.querySelectorAll(".print-gradcam-slot"));
+  await Promise.all(camSlots.map(async (slot) => {
+    const i = Number(slot.dataset.printNoduleIndex);
+    try {
+      slot.innerHTML = await printGradcamFigures(nodules[i], i);
+    } catch (error) {
+      console.error("Could not prepare Grad-CAM figures for printing:", error);
+      slot.innerHTML = '<p class="hint">Grad-CAM images could not be prepared for printing.</p>';
     }
   }));
 }

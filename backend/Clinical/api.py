@@ -335,6 +335,14 @@ def create_app(artifact_path: str | None = None, *, deployed: bool = False) -> F
             raise HTTPException(status_code=500, detail="Structured study report is unreadable.") from exc
         if document.get("schema_version") != "lunginsight-study-result-v1" or document.get("run", {}).get("run_id") != run_id:
             raise HTTPException(status_code=500, detail="Structured study report failed identity validation.")
+        prediction_path = IMAGING_OUTPUT_ROOT / str(run["patient_id"]) / f"clinical_prediction_{run_id}.json"
+        if prediction_path.is_file():
+            try:
+                prediction_document = json.loads(prediction_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                raise HTTPException(status_code=500, detail="Clinical prediction file is unreadable.") from exc
+            if isinstance(prediction_document, dict):
+                document["clinical_prediction"] = prediction_document
         return document
 
     @app.get("/api/v1/analysis/runs/{run_id}/report/html", response_class=HTMLResponse)

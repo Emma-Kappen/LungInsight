@@ -112,15 +112,12 @@ backup*/
 *.tflite
 
 # --- Generated pipeline outputs ---
-/LungInsight_v2/backend/output/
-/LungInsight_v2/backend/logs/
-/LungInsight_v2/backend/tmp/
-/LungInsight_v2/backend/temp/
+diagnostics/
 
 # Also ignore these directories if the repository root is LungInsight_v2.
 backend/output/
 backend/logs/
-backend/tmp/
+backend/tmp/s
 backend/temp/
 
 # --- Generated reports and visualizations ---
@@ -168,3 +165,5 @@ kaggle.json
 .env.development.local
 .env.test.local
 .env.production.locals
+
+prompt.md
