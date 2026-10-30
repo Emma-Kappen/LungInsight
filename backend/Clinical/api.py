@@ -53,6 +53,30 @@ if not _lunginsight_logger.handlers:
     _lunginsight_logger.setLevel(logging.INFO)
 
 
+class HistologyV4Inputs(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    age_at_diagnosis: float | None = None
+    sex: Literal["FEMALE", "MALE"] | None = None
+    race: Literal["AMERICAN INDIAN OR ALASKA NATIVE", "ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"] | None = None
+    ethnicity: Literal["HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"] | None = None
+    smoking_history_code: Literal["1", "2", "3", "4", "5"] | None = None
+    pack_years: float | None = None
+    smoking_year_started: float | None = None
+    smoking_year_stopped: float | None = None
+    dlco_percent_predicted: float | None = None
+    fev1_fvc_post_percent: float | None = None
+    fev1_fvc_pre_percent: float | None = None
+    fev1_percent_predicted_post: float | None = None
+    fev1_percent_predicted_pre: float | None = None
+    pulmonary_function_test_performed: Literal["NO", "YES"] | None = None
+    ecog_preoperative: float | None = None
+    karnofsky_preoperative: float | None = None
+    lung_location: Literal["Central Lung", "Peripheral Lung"] | None = None
+    anatomic_subdivision: Literal["Bronchial", "L-Lower", "L-Upper", "Other (please specify)", "R-Lower", "R-Middle", "R-Upper", "[Discrepancy]"] | None = None
+    other_malignancy_history: Literal["No", "Yes", "Yes, History of Prior Malignancy", "Yes, History of Synchronous/Bilateral Malignancy"] | None = None
+
+
 class ClinicalRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -62,6 +86,7 @@ class ClinicalRequest(BaseModel):
     requested_malignancy_method: Literal["brock"] | None = None
     clinician_inputs: dict[str, Any]
     imaging_evidence: dict[str, Any]
+    histology_v4_inputs: HistologyV4Inputs | None = None
 
 
 class AnalysisRequest(BaseModel):
@@ -70,6 +95,7 @@ class AnalysisRequest(BaseModel):
     patient_id: str = Field(min_length=1, max_length=128)
     upload_job_id: str = Field(min_length=1, max_length=64)
     clinician_inputs: dict[str, Any]
+    histology_v4_inputs: HistologyV4Inputs | None = None
     requested_malignancy_method: Literal["brock"] | None = "brock"
     data_provenance: str | None = None
     baseline_definition: Literal["initial_pathologic_diagnosis", "other_or_unverified"] = "other_or_unverified"
@@ -270,6 +296,7 @@ def create_app(artifact_path: str | None = None, *, deployed: bool = False) -> F
                 requested_malignancy_method=request.requested_malignancy_method,
                 data_provenance=request.data_provenance,
                 baseline_definition=request.baseline_definition,
+                histology_v4_inputs=(request.histology_v4_inputs.model_dump(exclude_unset=True) if request.histology_v4_inputs else None),
             )
         except (ValueError, DicomUploadError, ClinicalValidationError) as exc:
             raise HTTPException(status_code=422, detail=str(exc)) from exc

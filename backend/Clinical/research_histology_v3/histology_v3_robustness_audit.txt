@@ -1,0 +1,213 @@
+
+==============================================================================
+LUNGINSIGHT HISTOLOGY V3 - FINAL ROBUSTNESS AUDIT
+==============================================================================
+Artifact: C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\models\cancer-type-luad-lusc-research-v3.joblib
+Output: C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3
+Saved model artifact will not be modified.
+Existing v2 and survival artifacts will not be modified.
+
+==============================================================================
+0. LOAD EXISTING ARTIFACT AND SOURCE DATA
+==============================================================================
+LUAD: 522 valid patients; 2 metadata rows excluded.
+LUSC: 504 valid patients; 2 metadata rows excluded.
+Combined valid patients: 1026
+Cohort and target are perfectly confounded.
+
+==============================================================================
+1. PACK-YEARS OUTLIERS AND MISSINGNESS BY SMOKING CATEGORY
+==============================================================================
+Smoking code interpretation used for grouping:
+  1 = Never smoker
+  2 = Current smoker
+  3 = Former smoker; quit >15 years
+  4 = Former smoker; quit <=15 years
+  5 = Former smoker; cessation interval unspecified
+  These descriptions are treated as supplied working definitions; source codebook verification is addressed separately.
+
+LUAD
+  Smoking 1: n=75, pack-years missing=75 (100.0%), observed=0
+    zero=0, negative=0, >100=0, >150=0
+  Smoking 2: n=122, pack-years missing=21 (17.2%), observed=101
+    zero=0, negative=0, >100=8, >150=0
+    median=47.00, mean=49.54, max=124.00
+  Smoking 3: n=137, pack-years missing=31 (22.6%), observed=106
+    zero=0, negative=0, >100=2, >150=0
+    median=25.00, mean=31.25, max=125.00
+  Smoking 4: n=170, pack-years missing=23 (13.5%), observed=147
+    zero=0, negative=0, >100=4, >150=1
+    median=40.00, mean=43.94, max=154.00
+  Smoking 5: n=4, pack-years missing=2 (50.0%), observed=2
+    zero=0, negative=0, >100=0, >150=0
+    median=45.00, mean=45.00, max=60.00
+  Smoking [MISSING]: n=14, pack-years missing=14 (100.0%), observed=0
+    zero=0, negative=0, >100=0, >150=0
+  IQR screening: lower fence=-23.12, upper fence=93.88, flagged=26
+  IQR flags are review candidates, not automatic errors.
+
+LUSC
+  Smoking 1: n=18, pack-years missing=18 (100.0%), observed=0
+    zero=0, negative=0, >100=0, >150=0
+  Smoking 2: n=134, pack-years missing=12 (9.0%), observed=122
+    zero=0, negative=0, >100=9, >150=2
+    median=50.00, mean=55.96, max=240.00
+  Smoking 3: n=83, pack-years missing=12 (14.5%), observed=71
+    zero=0, negative=0, >100=0, >150=0
+    median=33.00, mean=38.00, max=100.00
+  Smoking 4: n=252, pack-years missing=23 (9.1%), observed=229
+    zero=0, negative=0, >100=17, >150=4
+    median=50.00, mean=55.74, max=200.00
+  Smoking 5: n=5, pack-years missing=2 (40.0%), observed=3
+    zero=0, negative=0, >100=0, >150=0
+    median=35.00, mean=45.00, max=80.00
+  Smoking [MISSING]: n=12, pack-years missing=10 (83.3%), observed=2
+    zero=0, negative=0, >100=0, >150=0
+    median=85.00, mean=85.00, max=90.00
+  IQR screening: lower fence=-18.94, upper fence=114.56, flagged=15
+  IQR flags are review candidates, not automatic errors.
+
+==============================================================================
+2. SMOKING-STATUS SOURCE METADATA COMPARISON
+==============================================================================
+
+LUAD
+  Source field: tobacco_smoking_history_indicator
+  Metadata rows available: 2
+  Metadata row 1: tobacco_smoking_history
+  Metadata row 2: CDE_ID:2181650
+
+LUSC
+  Source field: tobacco_smoking_history_indicator
+  Metadata rows available: 2
+  Metadata row 1: tobacco_smoking_history
+  Metadata row 2: CDE_ID:2181650
+
+Cross-cohort metadata comparison:
+  Metadata values at the smoking-status field position match.
+  This supports positional/source-field consistency, but does not independently verify the meaning of codes 1-5.
+
+Important: if these rows contain CDE identifiers rather than human-readable value descriptions, this check cannot verify the semantic definitions of codes 1-5.
+
+==============================================================================
+3. RACE DOCUMENTATION-CATEGORY SENSITIVITY
+==============================================================================
+
+LUAD
+  WHITE: 393
+  [Not Available]: 56
+  BLACK OR AFRICAN AMERICAN: 53
+  ASIAN: 8
+  [Not Evaluated]: 6
+  [Unknown]: 5
+  AMERICAN INDIAN OR ALASKA NATIVE: 1
+
+LUSC
+  WHITE: 351
+  [Not Available]: 67
+  [Not Evaluated]: 45
+  BLACK OR AFRICAN AMERICAN: 31
+  ASIAN: 9
+  [Unknown]: 1
+
+Race model documentation-state perturbation:
+  Rows with documentation-state labels: 174
+  Mean absolute probability change: 0.042447
+  Maximum absolute probability change: 0.518160
+  Rows whose predicted class changed: 59
+  This is a sensitivity diagnostic, not an estimate of the causal or clinical contribution of race.
+
+==============================================================================
+4. ALTERNATIVE IMPUTATION AND MISSINGNESS-INDICATOR STABILITY
+==============================================================================
+All models below are fitted in memory for audit comparison only.
+They do not replace or overwrite the saved v3 artifact.
+All metrics remain cohort-confounded exploratory metrics.
+
+logistic_regression | baseline | repetitions=5
+  ROC-AUC: 0.7235 +/- 0.0241
+  Average precision: 0.7248 +/- 0.0354
+  Balanced accuracy: 0.6727 +/- 0.0145
+  Accuracy: 0.6724 +/- 0.0144
+
+random_forest | baseline | repetitions=5
+  ROC-AUC: 0.6693 +/- 0.0308
+  Average precision: 0.6620 +/- 0.0356
+  Balanced accuracy: 0.6192 +/- 0.0299
+  Accuracy: 0.6187 +/- 0.0298
+
+logistic_regression | numeric_missing_indicators | repetitions=5
+  ROC-AUC: 0.7282 +/- 0.0180
+  Average precision: 0.7333 +/- 0.0326
+  Balanced accuracy: 0.6754 +/- 0.0126
+  Accuracy: 0.6747 +/- 0.0125
+
+random_forest | numeric_missing_indicators | repetitions=5
+  ROC-AUC: 0.6873 +/- 0.0222
+  Average precision: 0.6777 +/- 0.0344
+  Balanced accuracy: 0.6332 +/- 0.0247
+  Accuracy: 0.6327 +/- 0.0245
+
+logistic_regression | categorical_mode | repetitions=5
+  ROC-AUC: 0.7204 +/- 0.0246
+  Average precision: 0.7242 +/- 0.0373
+  Balanced accuracy: 0.6751 +/- 0.0182
+  Accuracy: 0.6747 +/- 0.0182
+
+random_forest | categorical_mode | repetitions=5
+  ROC-AUC: 0.6665 +/- 0.0271
+  Average precision: 0.6626 +/- 0.0345
+  Balanced accuracy: 0.6184 +/- 0.0318
+  Accuracy: 0.6179 +/- 0.0314
+
+logistic_regression | all_missing_indicators | repetitions=5
+  ROC-AUC: 0.7281 +/- 0.0176
+  Average precision: 0.7336 +/- 0.0324
+  Balanced accuracy: 0.6761 +/- 0.0132
+  Accuracy: 0.6755 +/- 0.0131
+
+random_forest | all_missing_indicators | repetitions=5
+  ROC-AUC: 0.6914 +/- 0.0201
+  Average precision: 0.6821 +/- 0.0362
+  Balanced accuracy: 0.6262 +/- 0.0264
+  Accuracy: 0.6257 +/- 0.0263
+
+==============================================================================
+4B. IMPUTATION SENSITIVITY SUMMARY
+==============================================================================
+
+logistic_regression
+  baseline: ROC-AUC delta from baseline +0.0000
+  numeric_missing_indicators: ROC-AUC delta from baseline +0.0047
+  categorical_mode: ROC-AUC delta from baseline -0.0031
+  all_missing_indicators: ROC-AUC delta from baseline +0.0046
+
+random_forest
+  baseline: ROC-AUC delta from baseline +0.0000
+  numeric_missing_indicators: ROC-AUC delta from baseline +0.0179
+  categorical_mode: ROC-AUC delta from baseline -0.0029
+  all_missing_indicators: ROC-AUC delta from baseline +0.0220
+
+==============================================================================
+5. RESEARCH MODEL CARD
+==============================================================================
+Model card written: C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\MODEL_CARD_HISTOLOGY_RESEARCH_V3.md
+
+==============================================================================
+FINAL ROBUSTNESS AUDIT SUMMARY
+==============================================================================
+FAILURES: 0
+WARNINGS: 0
+
+IMPORTANT LIMITATION:
+All model comparison metrics are cohort-confounded exploratory metrics. They do not establish independent histology discrimination.
+
+OUTPUT FILES:
+  robustness_packyears_by_smoking.csv
+  robustness_smoking_metadata.csv
+  robustness_race_documentation.csv
+  robustness_imputation_comparison.csv
+  MODEL_CARD_HISTOLOGY_RESEARCH_V3.md
+  histology_v3_robustness_audit.txt
+
+OVERALL RESULT: COMPLETED

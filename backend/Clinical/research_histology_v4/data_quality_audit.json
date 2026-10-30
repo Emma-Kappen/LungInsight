@@ -1,0 +1,44 @@
+{
+  "clinical_header_records_removed": 2,
+  "label_header_records_removed": 2,
+  "clinical_rows_after_filter": 1026,
+  "label_rows_after_filter": 1026,
+  "unique_patient_ids": 1026,
+  "clinical_target_counts": {
+    "LUAD": 522,
+    "LUSC": 504
+  },
+  "label_target_counts": {
+    "LUAD": 522,
+    "LUSC": 504
+  },
+  "patient_ids_match": true,
+  "targets_match": true,
+  "duplicate_patient_ids_after_filter": 0,
+  "feature_count": 19,
+  "numeric_feature_count": 11,
+  "categorical_feature_count": 8,
+  "feature_audit": {
+    "age_at_diagnosis": {
+      "source": "birth_days_to",
+      "transformation": "Absolute days divided by 365.25",
+      "valid_range": "18-100 years"
+    },
+    "smoking_history_code": {
+      "note": "Original TCGA codes retained categorically. No unverified mapping to never/former/current."
+    },
+    "pulmonary_function": {
+      "dlco": "0-200 percent predicted; outside range set to missing",
+      "fev1_fvc": "0-150 percent; outside range set to missing",
+      "fev1_percent_predicted": "0-200 percent; outside range set to missing",
+      "timing": "Measurement timing was not established in the supplied table. Interpret cautiously."
+    },
+    "performance_status": {
+      "eligibility_rule": "ECOG and Karnofsky retained only for explicitly Preoperative records.",
+      "preoperative_rows": 319,
+      "excluded_other_or_missing_timing_rows": 105
+    }
+  },
+  "selected_model": "random_forest",
+  "selection_rule": "Highest mean 5-fold ROC-AUC on training partition only."
+}

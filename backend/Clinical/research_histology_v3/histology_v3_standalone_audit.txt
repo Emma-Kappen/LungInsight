@@ -1,0 +1,288 @@
+
+============================================================================
+LUNGINSIGHT HISTOLOGY V3 — READ-ONLY AUDIT
+============================================================================
+Artifact: C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\models\cancer-type-luad-lusc-research-v3.joblib
+Output directory: C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3
+No model training or application integration will be performed.
+
+============================================================================
+0. LOAD ARTIFACT AND VERIFY SOURCE ROWS
+============================================================================
+LUAD: 522 valid patients; 2 metadata rows excluded; 0 invalid identities
+LUSC: 504 valid patients; 2 metadata rows excluded; 0 invalid identities
+Combined source patients: 1026
+
+============================================================================
+1. CORRECTED FEATURE DISTRIBUTIONS AND MISSINGNESS
+============================================================================
+
+LUAD — n=522
+  age_at_diagnosis: observed=503, missing=19 (3.6%)
+    min=33.000, median=66.000, mean=65.332, max=88.000
+  sex: observed=522, missing=0 (0.0%)
+    FEMALE: 280
+    MALE: 242
+  smoking_status: observed=508, missing=14 (2.7%)
+    4: 170
+    3: 137
+    2: 122
+    1: 75
+    [MISSING]: 14
+    5: 4
+  pack_years: observed=356, missing=166 (31.8%)
+    min=0.150, median=40.000, mean=41.758, max=154.000
+  race_sensitivity: observed=517, missing=5 (1.0%)
+    WHITE: 393
+    [Not Available]: 56
+    BLACK OR AFRICAN AMERICAN: 53
+    ASIAN: 8
+    [Not Evaluated]: 6
+    [MISSING]: 5
+    AMERICAN INDIAN OR ALASKA NATIVE: 1
+
+LUSC — n=504
+  age_at_diagnosis: observed=495, missing=9 (1.8%)
+    min=39.000, median=68.000, mean=67.277, max=90.000
+  sex: observed=504, missing=0 (0.0%)
+    MALE: 373
+    FEMALE: 131
+  smoking_status: observed=492, missing=12 (2.4%)
+    4: 252
+    2: 134
+    3: 83
+    1: 18
+    [MISSING]: 12
+    5: 5
+  pack_years: observed=427, missing=77 (15.3%)
+    min=1.000, median=50.000, mean=52.913, max=240.000
+  race_sensitivity: observed=503, missing=1 (0.2%)
+    WHITE: 351
+    [Not Available]: 67
+    [Not Evaluated]: 45
+    BLACK OR AFRICAN AMERICAN: 31
+    ASIAN: 9
+    [MISSING]: 1
+
+============================================================================
+2. CROSS-COHORT FEATURE HARMONIZATION
+============================================================================
+
+age_at_diagnosis
+  LUAD source field: age_at_initial_pathologic_diagnosis
+  LUSC source field: age_at_initial_pathologic_diagnosis
+  Shared observed values: 44
+  Values only in LUAD: 8
+  Values only in LUSC: 1
+
+sex
+  LUAD source field: gender
+  LUSC source field: gender
+  Shared observed values: 2
+  Values only in LUAD: 0
+  Values only in LUSC: 0
+  LUAD categories: ['FEMALE', 'MALE']
+  LUSC categories: ['FEMALE', 'MALE']
+
+smoking_status
+  LUAD source field: tobacco_smoking_history_indicator
+  LUSC source field: tobacco_smoking_history_indicator
+  Shared observed values: 5
+  Values only in LUAD: 0
+  Values only in LUSC: 0
+  LUAD categories: ['1', '2', '3', '4', '5']
+  LUSC categories: ['1', '2', '3', '4', '5']
+
+pack_years
+  LUAD source field: tobacco_smoking_pack_years_smoked
+  LUSC source field: tobacco_smoking_pack_years_smoked
+  Shared observed values: 65
+  Values only in LUAD: 30
+  Values only in LUSC: 40
+
+race_sensitivity
+  LUAD source field: race
+  LUSC source field: race
+  Shared observed values: 5
+  Values only in LUAD: 1
+  Values only in LUSC: 0
+  LUAD categories: ['AMERICAN INDIAN OR ALASKA NATIVE', 'ASIAN', 'BLACK OR AFRICAN AMERICAN', 'WHITE', '[Not Available]', '[Not Evaluated]']
+  LUSC categories: ['ASIAN', 'BLACK OR AFRICAN AMERICAN', 'WHITE', '[Not Available]', '[Not Evaluated]']
+
+============================================================================
+3. MODEL COEFFICIENTS AND FEATURE IMPORTANCE
+============================================================================
+
+primary_four_predictors__logistic_regression
+  Logistic Regression coefficients:
+    categorical__smoking_status_1: +0.862036
+    categorical__sex_FEMALE: +0.657338
+    categorical__smoking_status_4: -0.638791
+    categorical__smoking_status_3: +0.475502
+    categorical__sex_MALE: -0.468996
+    numeric__age_at_diagnosis: -0.292211
+    categorical__smoking_status_2: -0.256668
+    categorical__smoking_status_5: -0.208260
+    numeric__pack_years: -0.197541
+    categorical__smoking_status___MISSING__: -0.045476
+
+primary_four_predictors__random_forest
+  Random Forest feature importances:
+    numeric__age_at_diagnosis: 0.367206
+    numeric__pack_years: 0.337173
+    categorical__sex_FEMALE: 0.088257
+    categorical__sex_MALE: 0.077776
+    categorical__smoking_status_4: 0.046114
+    categorical__smoking_status_1: 0.031745
+    categorical__smoking_status_3: 0.027178
+    categorical__smoking_status_2: 0.016191
+    categorical__smoking_status___MISSING__: 0.007215
+    categorical__smoking_status_5: 0.001144
+
+race_sensitivity__logistic_regression
+  Logistic Regression coefficients:
+    categorical__race_sensitivity_[Not Evaluated]: -1.443157
+    categorical__smoking_status_1: +0.903014
+    categorical__race_sensitivity___MISSING__: +0.854962
+    categorical__smoking_status_4: -0.635538
+    categorical__sex_FEMALE: +0.592946
+    categorical__sex_MALE: -0.480873
+    categorical__race_sensitivity_BLACK OR AFRICAN AMERICAN: +0.469793
+    categorical__smoking_status_3: +0.460519
+    categorical__race_sensitivity_AMERICAN INDIAN OR ALASKA NATIVE: +0.391526
+    categorical__race_sensitivity_ASIAN: -0.340947
+    numeric__age_at_diagnosis: -0.270284
+    categorical__smoking_status_2: -0.262434
+    categorical__smoking_status_5: -0.226059
+    numeric__pack_years: -0.188463
+    categorical__race_sensitivity_WHITE: +0.175202
+    categorical__smoking_status___MISSING__: -0.127430
+    categorical__race_sensitivity_[Not Available]: +0.004693
+
+race_sensitivity__random_forest
+  Random Forest feature importances:
+    numeric__pack_years: 0.289729
+    numeric__age_at_diagnosis: 0.271112
+    categorical__sex_MALE: 0.093987
+    categorical__sex_FEMALE: 0.085404
+    categorical__smoking_status_4: 0.055267
+    categorical__race_sensitivity_[Not Evaluated]: 0.038294
+    categorical__smoking_status_1: 0.038044
+    categorical__smoking_status_3: 0.031394
+    categorical__race_sensitivity_WHITE: 0.026045
+    categorical__race_sensitivity_BLACK OR AFRICAN AMERICAN: 0.022259
+    categorical__smoking_status_2: 0.020953
+    categorical__race_sensitivity_[Not Available]: 0.014710
+    categorical__smoking_status___MISSING__: 0.006783
+    categorical__race_sensitivity_ASIAN: 0.004789
+    categorical__smoking_status_5: 0.000761
+    categorical__race_sensitivity___MISSING__: 0.000470
+    categorical__race_sensitivity_AMERICAN INDIAN OR ALASKA NATIVE: 0.000000
+
+============================================================================
+4. MISSING-VALUE IMPUTATION AND PREPROCESSING TESTS
+============================================================================
+
+primary_four_predictors__logistic_regression
+  Baseline prediction: PASS
+  Single missing age_at_diagnosis: PASS — one-row missing value handled
+  Single missing sex: PASS — one-row missing value handled
+  Single missing smoking_status: PASS — one-row missing value handled
+  Single missing pack_years: PASS — one-row missing value handled
+  Entire batch missing age_at_diagnosis: PASS — all-missing inference column handled
+  Entire batch missing sex: PASS — all-missing inference column handled
+  Entire batch missing smoking_status: PASS — all-missing inference column handled
+  Entire batch missing pack_years: PASS — all-missing inference column handled
+  Input immutability: PASS
+
+primary_four_predictors__random_forest
+  Baseline prediction: PASS
+  Single missing age_at_diagnosis: PASS — one-row missing value handled
+  Single missing sex: PASS — one-row missing value handled
+  Single missing smoking_status: PASS — one-row missing value handled
+  Single missing pack_years: PASS — one-row missing value handled
+  Entire batch missing age_at_diagnosis: PASS — all-missing inference column handled
+  Entire batch missing sex: PASS — all-missing inference column handled
+  Entire batch missing smoking_status: PASS — all-missing inference column handled
+  Entire batch missing pack_years: PASS — all-missing inference column handled
+  Input immutability: PASS
+
+race_sensitivity__logistic_regression
+  Baseline prediction: PASS
+  Single missing age_at_diagnosis: PASS — one-row missing value handled
+  Single missing sex: PASS — one-row missing value handled
+  Single missing smoking_status: PASS — one-row missing value handled
+  Single missing pack_years: PASS — one-row missing value handled
+  Single missing race_sensitivity: PASS — one-row missing value handled
+  Entire batch missing age_at_diagnosis: PASS — all-missing inference column handled
+  Entire batch missing sex: PASS — all-missing inference column handled
+  Entire batch missing smoking_status: PASS — all-missing inference column handled
+  Entire batch missing pack_years: PASS — all-missing inference column handled
+  Entire batch missing race_sensitivity: PASS — all-missing inference column handled
+  Input immutability: PASS
+
+race_sensitivity__random_forest
+  Baseline prediction: PASS
+  Single missing age_at_diagnosis: PASS — one-row missing value handled
+  Single missing sex: PASS — one-row missing value handled
+  Single missing smoking_status: PASS — one-row missing value handled
+  Single missing pack_years: PASS — one-row missing value handled
+  Single missing race_sensitivity: PASS — one-row missing value handled
+  Entire batch missing age_at_diagnosis: PASS — all-missing inference column handled
+  Entire batch missing sex: PASS — all-missing inference column handled
+  Entire batch missing smoking_status: PASS — all-missing inference column handled
+  Entire batch missing pack_years: PASS — all-missing inference column handled
+  Entire batch missing race_sensitivity: PASS — all-missing inference column handled
+  Input immutability: PASS
+
+============================================================================
+5. STANDALONE ARTIFACT LOAD AND PREDICTION TEST
+============================================================================
+Artifact: C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\models\cancer-type-luad-lusc-research-v3.joblib
+scikit-learn runtime: 1.9.1
+Artifact version: research-v3
+Artifact name: LungInsight TCGA LUAD-LUSC Research Histology Model
+Expected model entries: 4
+Found model entries: 4
+
+primary_four_predictors__logistic_regression
+  Features: ['age_at_diagnosis', 'sex', 'smoking_status', 'pack_years']
+  Loaded pipeline: PASS
+  Input rows tested: 16
+  Output shape: (16, 2)
+  First probability vector: [0.72627 0.27373]
+  First predicted class: 0
+
+primary_four_predictors__random_forest
+  Features: ['age_at_diagnosis', 'sex', 'smoking_status', 'pack_years']
+  Loaded pipeline: PASS
+  Input rows tested: 16
+  Output shape: (16, 2)
+  First probability vector: [0.55288 0.44712]
+  First predicted class: 0
+
+race_sensitivity__logistic_regression
+  Features: ['age_at_diagnosis', 'sex', 'smoking_status', 'pack_years', 'race_sensitivity']
+  Loaded pipeline: PASS
+  Input rows tested: 16
+  Output shape: (16, 2)
+  First probability vector: [0.74077 0.25923]
+  First predicted class: 0
+
+race_sensitivity__random_forest
+  Features: ['age_at_diagnosis', 'sex', 'smoking_status', 'pack_years', 'race_sensitivity']
+  Loaded pipeline: PASS
+  Input rows tested: 16
+  Output shape: (16, 2)
+  First probability vector: [0.63671 0.36329]
+  First predicted class: 0
+
+============================================================================
+FINAL AUDIT SUMMARY
+============================================================================
+FAILURES: 0
+WARNINGS: 0
+
+Interpretation:
+All prediction tests are technical artifact/input-handling checks. They do not establish clinical validity or independent histology discrimination.
+OVERALL RESULT: PASS — no technical audit failures detected.

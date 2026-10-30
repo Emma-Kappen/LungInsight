@@ -541,3 +541,10 @@ body[data-view="report"] #canvas-wrap { min-width: 0; min-height: 180px; }
     print-color-adjust: exact;
   }
 }
+
+/* Histology v4 clinical-input and display-only summaries */
+#histology-v4-inputs{border-left:3px solid var(--accent)}
+.v4-imaging-summary{margin:.7rem 0;padding:.65rem;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+.v4-imaging-summary h4{margin:0 0 .35rem;font-size:.95rem}
+.v4-provenance{margin:.6rem 0;padding:.5rem;border:1px solid var(--line);border-radius:4px}
+.v4-provenance summary{cursor:pointer;font-weight:600}

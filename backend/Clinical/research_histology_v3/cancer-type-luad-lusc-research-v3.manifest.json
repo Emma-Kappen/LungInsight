@@ -1,0 +1,38 @@
+{
+  "model_name": "LungInsight TCGA LUAD-LUSC Research Histology Model",
+  "model_version": "research-v3",
+  "artifact": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\backend\\Clinical\\models\\cancer-type-luad-lusc-research-v3.joblib",
+  "created_utc": "2026-10-30T16:43:19.265819+00:00",
+  "training_cohorts": [
+    "TCGA-LUAD",
+    "TCGA-LUSC"
+  ],
+  "expected_patient_counts": {
+    "LUAD": 522,
+    "LUSC": 504
+  },
+  "observed_patient_counts": {
+    "LUAD": 522,
+    "LUSC": 504
+  },
+  "primary_predictors": [
+    "age_at_diagnosis",
+    "sex",
+    "smoking_status",
+    "pack_years"
+  ],
+  "algorithms": [
+    "logistic_regression",
+    "random_forest"
+  ],
+  "race_analysis": "sensitivity-only",
+  "validation": "internal metrics; cohort-confounded",
+  "clinical_use": false,
+  "api_integration": false,
+  "existing_models_modified": false,
+  "existing_api_files_modified": false,
+  "metrics_file": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\backend\\Clinical\\research_histology_v3\\model_metrics_cohort_confounded.csv",
+  "parser_reconciliation_file": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\backend\\Clinical\\research_histology_v3\\tcga_parser_reconciliation.csv",
+  "missingness_file": "C:\\Users\\emkap\\Documents\\Projects\\LungInsight\\backend\\Clinical\\research_histology_v3\\feature_missingness_corrected.csv",
+  "warning": "The TCGA-LUAD cohort contains only LUAD labels and the TCGA-LUSC cohort contains only LUSC labels. Cohort and target are perfectly confounded. Random train/test splits and cross-validation cannot establish independent histology discrimination. All reported metrics are cohort-confounded exploratory metrics, not estimates of clinical performance."
+}

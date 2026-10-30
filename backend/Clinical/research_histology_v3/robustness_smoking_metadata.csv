@@ -1,0 +1,5 @@
+cohort,metadata_row,smoking_field_metadata_value
+LUAD,1,tobacco_smoking_history
+LUAD,2,CDE_ID:2181650
+LUSC,1,tobacco_smoking_history
+LUSC,2,CDE_ID:2181650

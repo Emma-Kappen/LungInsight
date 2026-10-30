@@ -86,6 +86,16 @@ def _missing(source: str, reason: str) -> dict[str, Any]:
     return {"value": None, "source": source, "reason": reason}
 
 
+def bbox_in_plane_diameter_mm(bbox_size_mm_zyx: Any) -> float | None:
+    """Return the Brock nodule-size convention: the larger physical Y/X BBox extent."""
+    if not isinstance(bbox_size_mm_zyx, (list, tuple)) or len(bbox_size_mm_zyx) != 3:
+        return None
+    extents = [_finite_number(value) for value in bbox_size_mm_zyx]
+    if None in extents or any(value <= 0 for value in extents if value is not None):
+        return None
+    return max(extents[1], extents[2])
+
+
 def texture_to_nodule_type(rating: float) -> str:
     """Map a 1-5 LIDC-style texture expected rating to a Brock nodule_type (round half up)."""
     rounded = math.floor(rating + 0.5)
@@ -115,10 +125,10 @@ def derive_nodule_fields(
         fields["nodule_count"] = _missing(COUNT_SOURCE, "no lung-gated Stage 02 candidates for this patient")
 
     bbox = stage02_patch.get("bbox_size_mm_zyx")
-    extents = [_finite_number(value) for value in bbox] if isinstance(bbox, list) and len(bbox) == 3 else []
-    if len(extents) == 3 and None not in extents:
+    diameter_mm = bbox_in_plane_diameter_mm(bbox)
+    if diameter_mm is not None:
         fields["nodule_size_mm"] = {
-            "value": max(extents[1], extents[2]),
+            "value": diameter_mm,
             "source": SIZE_SOURCE,
             "derivation": "longest in-plane (y,x) detector bounding-box extent, mm",
             "data_role": "derived_detector_estimate",

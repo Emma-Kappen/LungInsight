@@ -1,0 +1,37 @@
+{
+  "schema_name": "lunginsight_histology_research_v3",
+  "schema_version": "1.0.0",
+  "description": "Independent research-only input contract for the TCGA-only LUAD/LUSC histology model. Not connected to the production API.",
+  "target": [
+    "LUSC",
+    "LUAD"
+  ],
+  "primary_predictors": {
+    "age_at_diagnosis": "number; years",
+    "sex": "categorical",
+    "smoking_status": "categorical; source codes 1-5; never ordinal",
+    "pack_years": "number; source-recorded pack-years; never inferred"
+  },
+  "sensitivity_only": {
+    "race_sensitivity": "categorical; excluded from primary model"
+  },
+  "forbidden_predictors": [
+    "ethnicity",
+    "KPS",
+    "ECOG",
+    "ICD-O-3 histology",
+    "ICD-O-3 site",
+    "ICD-10",
+    "histologic_diagnosis",
+    "histologic_diagnosis__duplicate_2",
+    "treatment",
+    "response",
+    "outcome",
+    "pathological_stage",
+    "imaging measurements",
+    "Brock malignancy probability"
+  ],
+  "missing_values": "preserved and handled within model pipelines",
+  "clinical_use": false,
+  "api_integration": false
+}

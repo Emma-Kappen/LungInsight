@@ -607,7 +607,34 @@ function renderStages(body) {
 
 const setRunMessage = (message) => { $("run-message").textContent = message; };
 
-async function startAnalysis(f, inputs) {
+function histologyV4Inputs() {
+  const number = (name) => {
+    const raw = val(name).trim();
+    if (raw === "") return null;
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+  const text = (name) => val(name).trim() || null;
+  return {
+    smoking_history_code: text("v4_smoking_history_code"),
+    pack_years: number("v4_pack_years"),
+    smoking_year_started: number("v4_smoking_year_started"),
+    smoking_year_stopped: number("v4_smoking_year_stopped"),
+    dlco_percent_predicted: number("v4_dlco_percent_predicted"),
+    fev1_fvc_post_percent: number("v4_fev1_fvc_post_percent"),
+    fev1_fvc_pre_percent: number("v4_fev1_fvc_pre_percent"),
+    fev1_percent_predicted_post: number("v4_fev1_percent_predicted_post"),
+    fev1_percent_predicted_pre: number("v4_fev1_percent_predicted_pre"),
+    pulmonary_function_test_performed: text("v4_pulmonary_function_test_performed"),
+    ecog_preoperative: number("v4_ecog_preoperative"),
+    karnofsky_preoperative: number("v4_karnofsky_preoperative"),
+    lung_location: text("v4_lung_location"),
+    anatomic_subdivision: text("v4_anatomic_subdivision"),
+    other_malignancy_history: text("v4_other_malignancy_history"),
+  };
+}
+
+async function startAnalysis(f, inputs, v4Inputs) {
   const response = await apiFetch(analysisBase + "/runs", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
@@ -618,6 +645,7 @@ async function startAnalysis(f, inputs) {
       data_provenance: "operator_submitted",
       baseline_definition: f.baselineConfirmed ? "initial_pathologic_diagnosis" : "other_or_unverified",
       clinician_inputs: inputs,
+      histology_v4_inputs: v4Inputs,
     }),
   });
   const body = await response.json().catch(() => ({}));
@@ -683,7 +711,7 @@ async function submitCase() {
     const inputs = clinicalInputs(e.f);
     await persistClinicalRecord(inputs, e.f.patientId);
     setRunMessage("Starting the analysis run…");
-    const run = await startAnalysis(e.f, inputs);
+    const run = await startAnalysis(e.f, inputs, histologyV4Inputs());
     S.runId = run.run_id;
     await finishRun(run.run_id);
   } catch (error) {
@@ -1014,6 +1042,46 @@ function cancerTypePanelHtml(model) {
   return `<div class="ct">${head}${modelResultHtml(model)}${limitsHtml}</div>`;
 }
 
+
+/* TCGA-only histology v4: distinct from the legacy MSK-scoped classifier. */
+function histologyV4PanelHtml(model) {
+  const head = `<h3 class="sub-h">Histology: LUAD vs LUSC (TCGA v4 tabular research model)</h3>`;
+  const limits = (model?.limitations || []).map((item) => `<li>${esc(item)}</li>`).join("");
+  if (model?.status !== "research_prediction" || !model.probabilities) {
+    const derived = model?.imaging_derived || {};
+    const ranks = derived.mean_attribute_ranks || {};
+    const rankText = Object.entries(ranks).map(([name, value]) => `${label(name)}: ${fin(value) ? Number(value).toFixed(2) : "Unavailable"}`).join(" · ");
+    const summary = model?.imaging_derived ? `<section class="v4-imaging-summary"><h4>Imaging-derived summary (display only — not v4 predictors)</h4><p class="hint">Eligible malignant nodules: <b>${esc(derived.n_malignant_nodules ?? "Unavailable")}</b> · Mean BBox size: <b>${fin(derived.mean_nodule_size_mm) ? `${Number(derived.mean_nodule_size_mm).toFixed(1)} mm` : "Unavailable"}</b></p><p class="hint">Lung location: <b>${esc(derived.lung_location || "Unavailable")}</b> · Anatomic subdivision: <b>${esc(derived.anatomic_subdivision || "Unavailable")}</b></p><p class="hint">${esc(rankText || "Attribute-ranker means unavailable.")}</p></section>` : "";
+    return `<div class="ct">${head}<p class="hint">${esc(model?.reason || "The v4 model did not return a prediction.")}</p>${summary}${(model?.warnings || []).map((item) => `<p class="hint">${esc(item)}</p>`).join("")}${limits ? `<ul class="hint">${limits}</ul>` : ""}</div>`;
+  }
+  const rows = Object.entries(model.probabilities).map(([name, probability]) => {
+    const percent = Math.min(100, Math.max(0, Number(probability) * 100));
+    return `<div class="ct-row"><span><b>${esc(name)}</b></span><div class="bar" role="img" aria-label="${esc(name)} probability ${percent.toFixed(1)} percent"><i style="width:${percent}%"></i></div><span class="ct-val">${percent.toFixed(1)}%</span></div>`;
+  }).join("");
+  const used = (model.features_used || []).map(label).join(", ") || "None";
+  const missing = (model.imputed_features || []).map(label).join(", ");
+  const derived = model.imaging_derived || {};
+  const ranks = derived.mean_attribute_ranks || {};
+  const rankRows = Object.entries(ranks).map(([name, value]) => `<tr><th>${esc(label(name))}</th><td>${fin(value) ? Number(value).toFixed(2) : "Unavailable"}</td></tr>`).join("");
+  const imagingSummary = `<section class="v4-imaging-summary"><h4>Imaging-derived summary (display only — not v4 predictors)</h4>
+    <p class="hint">Eligible malignant nodules: <b>${esc(derived.n_malignant_nodules ?? "Unavailable")}</b> · Mean BBox size: <b>${fin(derived.mean_nodule_size_mm) ? `${Number(derived.mean_nodule_size_mm).toFixed(1)} mm` : "Unavailable"}</b></p>
+    <p class="hint">Lung-location suggestion: <b>${esc(derived.lung_location || "Unavailable")}</b> · Anatomic-subdivision suggestion: <b>${esc(derived.anatomic_subdivision || "Unavailable")}</b></p>
+    ${rankRows ? `<div class="scroll"><table class="dt"><caption>Mean Stage 03 attribute ranks across eligible malignant nodules</caption><tbody>${rankRows}</tbody></table></div>` : "<p class=\"hint\">Attribute-ranker means unavailable.</p>"}
+  </section>`;
+  const provenance = model.input_provenance || {};
+  const sourceRows = Object.entries(provenance).map(([name, source]) => `<tr><th>${esc(label(name))}</th><td>${esc(source)}</td></tr>`).join("");
+  return `<div class="ct">${head}
+    <p style="margin:.2rem 0">${badge("research model output", "warn")} Highest-probability class: <b>${esc(model.predicted_class)}</b>. Not a diagnosis.</p>
+    ${rows}
+    <p class="hint">Inputs observed: ${esc(model.input_completeness || "unknown")} (${esc(used)}).</p>
+    <p class="hint">Inputs imputed by the model: ${esc(missing || "None")}.</p>
+    ${imagingSummary}
+    ${sourceRows ? `<details class="v4-provenance"><summary>Feature source / provenance</summary><div class="scroll"><table class="dt"><tbody>${sourceRows}</tbody></table></div></details>` : ""}
+    ${(model.warnings || []).map((item) => `<p class="hint">${esc(item)}</p>`).join("")}
+    ${limits ? `<ul class="hint" style="padding-left:1.1rem">${limits}</ul>` : ""}
+  </div>`;
+}
+
 function assessmentHtml(nodule) {
   const a = assessment(nodule);
   const manual = brockIsManual(nodule) ? " Based on clinician-supplied inputs." : "";
@@ -1261,9 +1329,9 @@ function renderClinicalModels() {
       : "";
     cancerHtml = `<div class="ct"><h3 class="sub-h">Histology: LUAD vs LUSC</h3>
       <p class="hint">No nodule meets the ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock eligibility threshold. Histology predictions are withheld; missing Brock results do not qualify.</p>
-      ${statusHtml}</div>`;
+      ${statusHtml}<p class="hint">${esc(prediction.cancer_type_v4?.reason || "The v4 histology output is withheld until the Brock eligibility gate is met.")}</p></div>`;
   } else {
-    cancerHtml = `<p class="hint" style="margin:.2rem 0">Histology display enabled by ${eligibleNodules.length} nodule(s) at or above the ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock threshold. The histology model remains patient-level and does not diagnose the eligible nodule.</p>${cancerTypePanelHtml(prediction.cancer_type)}`;
+    cancerHtml = `<p class="hint" style="margin:.2rem 0">Histology display enabled by ${eligibleNodules.length} nodule(s) at or above the ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock threshold. Both histology models are patient-level and do not diagnose an individual nodule.</p>${cancerTypePanelHtml(prediction.cancer_type)}${histologyV4PanelHtml(prediction.cancer_type_v4)}`;
   }
 
   $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>

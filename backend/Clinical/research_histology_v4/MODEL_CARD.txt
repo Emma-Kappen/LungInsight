@@ -1,0 +1,19 @@
+LungInsight Histology Research Model v4
+====================================================
+
+Purpose: Research classification of TCGA LUAD vs TCGA LUSC.
+Selected model: random_forest
+Patients: 1,026 unique TCGA patients.
+Features: clinical/demographic tabular predictors; race included.
+CT-derived ranker features: unavailable in current TCGA-linked table.
+LIDC data: not used.
+MSK-CHORD data: not used.
+
+CRITICAL SCIENTIFIC LIMITATION
+Labels are derived from TCGA-LUAD versus TCGA-LUSC cohort membership.
+Model performance may therefore reflect cohort-specific data collection and missingness patterns rather than histology-specific signals.
+This model is research-only and is not clinically validated.
+Do not use for diagnosis, screening, treatment, or patient management.
+
+Metrics: model_metrics.json
+Data audit: data_quality_audit.json

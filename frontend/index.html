@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LungInsight - Lung Cancer Diagnosis from CT Scans and Clinical Data</title>
-<link rel="stylesheet" href="styles.css?v=20261023-theme1">
+<link rel="stylesheet" href="styles.css?v=20261031-histology-v4-ui">
 <link rel="icon" type="image/png" href="/favicon.png?v=1">
 </head>
 <body data-view="entry">
@@ -202,6 +202,97 @@
           <p class="err" id="kps-e"></p></div>
       </div>
     </fieldset>
+
+    <fieldset id="histology-v4-inputs">
+      <legend>Histology v4 — Clinical Inputs (TCGA research model)</legend>
+      <p class="hint">Age, sex and race are taken from the Demographics section above. Ethnicity is intentionally not supplied to v4 and remains missing for the model's fitted imputation. All fields below are optional; do not guess values.</p>
+
+      <div class="frow">
+        <label for="v4-smoking-history-code">Smoking history code</label>
+        <div class="ctl"><select id="v4-smoking-history-code" name="v4_smoking_history_code">
+          <option value="">Not reported</option>
+          <option value="1">Training category 1</option><option value="2">Training category 2</option>
+          <option value="3">Training category 3</option><option value="4">Training category 4</option>
+          <option value="5">Training category 5</option>
+        </select><p class="hint-inline">Use the source-record code only. The app does not translate Never / Former / Current into these categories.</p></div>
+      </div>
+      <div class="frow">
+        <label for="v4-pack-years">Pack-years</label>
+        <div class="ctl"><input id="v4-pack-years" name="v4_pack_years" type="number" min="0" max="250" step="0.1" inputmode="decimal" placeholder="Not reported"></div>
+      </div>
+      <div class="frow">
+        <label for="v4-smoking-year-started">Year smoking started</label>
+        <div class="ctl"><input id="v4-smoking-year-started" name="v4_smoking_year_started" type="number" min="1900" max="2100" step="1" inputmode="numeric" placeholder="Not reported"></div>
+      </div>
+      <div class="frow">
+        <label for="v4-smoking-year-stopped">Year smoking stopped</label>
+        <div class="ctl"><input id="v4-smoking-year-stopped" name="v4_smoking_year_stopped" type="number" min="1900" max="2100" step="1" inputmode="numeric" placeholder="Not reported"></div>
+      </div>
+
+      <div class="frow">
+        <label for="v4-dlco">DLCO (% predicted)</label>
+        <div class="ctl"><input id="v4-dlco" name="v4_dlco_percent_predicted" type="number" min="0" max="250" step="0.1" inputmode="decimal" placeholder="Not reported"></div>
+      </div>
+      <div class="frow">
+        <label for="v4-fev1-fvc-post">FEV1/FVC post (%)</label>
+        <div class="ctl"><input id="v4-fev1-fvc-post" name="v4_fev1_fvc_post_percent" type="number" min="0" max="100" step="0.1" inputmode="decimal" placeholder="Not reported"></div>
+      </div>
+      <div class="frow">
+        <label for="v4-fev1-fvc-pre">FEV1/FVC pre (%)</label>
+        <div class="ctl"><input id="v4-fev1-fvc-pre" name="v4_fev1_fvc_pre_percent" type="number" min="0" max="100" step="0.1" inputmode="decimal" placeholder="Not reported"></div>
+      </div>
+      <div class="frow">
+        <label for="v4-fev1-pred-post">FEV1 (% predicted, post)</label>
+        <div class="ctl"><input id="v4-fev1-pred-post" name="v4_fev1_percent_predicted_post" type="number" min="0" max="250" step="0.1" inputmode="decimal" placeholder="Not reported"></div>
+      </div>
+      <div class="frow">
+        <label for="v4-fev1-pred-pre">FEV1 (% predicted, pre)</label>
+        <div class="ctl"><input id="v4-fev1-pred-pre" name="v4_fev1_percent_predicted_pre" type="number" min="0" max="250" step="0.1" inputmode="decimal" placeholder="Not reported"></div>
+      </div>
+      <div class="frow">
+        <label for="v4-pft-performed">Pulmonary function test performed</label>
+        <div class="ctl"><select id="v4-pft-performed" name="v4_pulmonary_function_test_performed">
+          <option value="">Not reported</option><option value="YES">Yes</option><option value="NO">No</option>
+        </select></div>
+      </div>
+      <div class="frow">
+        <label for="v4-ecog">ECOG preoperative</label>
+        <div class="ctl"><select id="v4-ecog" name="v4_ecog_preoperative">
+          <option value="">Not reported</option><option value="0">0</option><option value="1">1</option>
+          <option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+        </select></div>
+      </div>
+      <div class="frow">
+        <label for="v4-karnofsky">Karnofsky preoperative (0–100)</label>
+        <div class="ctl"><input id="v4-karnofsky" name="v4_karnofsky_preoperative" type="number" min="0" max="100" step="10" inputmode="numeric" placeholder="Not reported"></div>
+      </div>
+
+      <div class="frow">
+        <label for="v4-lung-location">Lung location</label>
+        <div class="ctl"><select id="v4-lung-location" name="v4_lung_location">
+          <option value="">Use imaging suggestion / otherwise missing</option>
+          <option value="Central Lung">Central Lung</option><option value="Peripheral Lung">Peripheral Lung</option>
+        </select><p class="hint-inline">Optional clinician override. If blank, the imaging-derived mode is used when unambiguous.</p></div>
+      </div>
+      <div class="frow">
+        <label for="v4-anatomic-subdivision">Anatomic subdivision</label>
+        <div class="ctl"><select id="v4-anatomic-subdivision" name="v4_anatomic_subdivision">
+          <option value="">Use imaging suggestion / otherwise missing</option>
+          <option value="Bronchial">Bronchial</option><option value="L-Lower">L-Lower</option>
+          <option value="L-Upper">L-Upper</option><option value="Other (please specify)">Other (please specify)</option>
+          <option value="R-Lower">R-Lower</option><option value="R-Middle">R-Middle</option>
+          <option value="R-Upper">R-Upper</option><option value="[Discrepancy]">[Discrepancy]</option>
+        </select><p class="hint-inline">Only choose a category supported by the clinical record. The system does not infer a lobe from superior / middle / inferior thirds.</p></div>
+      </div>
+      <div class="frow">
+        <label for="v4-other-malignancy-history">Other malignancy history</label>
+        <div class="ctl"><select id="v4-other-malignancy-history" name="v4_other_malignancy_history">
+          <option value="">Not reported</option><option value="No">No</option><option value="Yes">Yes</option>
+          <option value="Yes, History of Prior Malignancy">Yes, history of prior malignancy</option>
+          <option value="Yes, History of Synchronous/Bilateral Malignancy">Yes, history of synchronous/bilateral malignancy</option>
+        </select><p class="hint-inline">Clinician-entered only. Multiple or bilateral CT nodules are not evidence of another malignancy.</p></div>
+      </div>
+    </fieldset>
   </div>
 
   <aside class="side" aria-labelledby="h-side">
@@ -288,7 +379,7 @@
   </div>
 </section>
 </main>
-<script src="app.js?v=20261027-clinical-prediction-fix" defer></script>
+<script src="app.js?v=20261031-histology-v4-ui" defer></script>
 </body>
 </html>
 

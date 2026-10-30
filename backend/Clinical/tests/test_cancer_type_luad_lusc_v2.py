@@ -529,7 +529,7 @@ const code = [
   "const brockOf = (n) => brockIsManual(n) ? manualBrockOf(n) : contractBrockOf(n);",
   "const brockUsable = (b) => b.status === 'available' && fin(b.probability);",
   "function assessment(n) { const b = brockOf(n); if (!brockUsable(b)) return {state:'unavailable',label:'Not assessed'}; return b.probability >= MALIGNANCY_THRESHOLD ? {state:'elevated',label:'Elevated',p:b.probability} : {state:'unlikely',label:'Unlikely',p:b.probability}; }",
-  fn("survivalChartHtml"), fn("histologyShapHtml"), fn("cancerTypePanelHtml"), fn("modelResultHtml"), fn("renderClinicalModels"),
+  fn("survivalChartHtml"), fn("histologyShapHtml"), fn("cancerTypePanelHtml"), fn("histologyV4PanelHtml"), fn("modelResultHtml"), fn("renderClinicalModels"),
   "return {renderClinicalModels, cancerTypePanelHtml};",
 ].join("\n");
 const out = {};
@@ -570,3 +570,4 @@ console.log(JSON.stringify(results));
     assert 'class="chart"' in html["missing"] and "Histology" in html["missing"]
     assert "&lt;b&gt;x&lt;/b&gt;" in html["both"] and "<b>x</b>" not in html["both"]
     assert "<img" not in html["escaped"] and "&lt;img" in html["escaped"]
+

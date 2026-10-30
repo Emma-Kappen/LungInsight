@@ -1,0 +1,6 @@
+feature,luad_source_field,lusc_source_field,shared_observed_values,values_only_luad,values_only_lusc,luad_unique_values,lusc_unique_values
+age_at_diagnosis,age_at_initial_pathologic_diagnosis,age_at_initial_pathologic_diagnosis,44,8,1,52,45
+sex,gender,gender,2,0,0,2,2
+smoking_status,tobacco_smoking_history_indicator,tobacco_smoking_history_indicator,5,0,0,5,5
+pack_years,tobacco_smoking_pack_years_smoked,tobacco_smoking_pack_years_smoked,65,30,40,95,105
+race_sensitivity,race,race,5,1,0,6,5

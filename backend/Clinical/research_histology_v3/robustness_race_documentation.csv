@@ -1,0 +1,15 @@
+cohort,race_category,count,is_documentation_state,mean_absolute_probability_change,maximum_absolute_probability_change,class_changes
+LUAD,WHITE,393,False,,,
+LUAD,[Not Available],56,True,,,
+LUAD,BLACK OR AFRICAN AMERICAN,53,False,,,
+LUAD,ASIAN,8,False,,,
+LUAD,[Not Evaluated],6,True,,,
+LUAD,[Unknown],5,False,,,
+LUAD,AMERICAN INDIAN OR ALASKA NATIVE,1,False,,,
+LUSC,WHITE,351,False,,,
+LUSC,[Not Available],67,True,,,
+LUSC,[Not Evaluated],45,True,,,
+LUSC,BLACK OR AFRICAN AMERICAN,31,False,,,
+LUSC,ASIAN,9,False,,,
+LUSC,[Unknown],1,False,,,
+COMBINED,documentation_state_perturbation,174,True,0.042446641264768284,0.5181602845913342,59.0

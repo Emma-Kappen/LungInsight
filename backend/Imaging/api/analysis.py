@@ -42,6 +42,7 @@ def _now() -> str:
 def _public(run: dict[str, Any]) -> dict[str, Any]:
     result = dict(run)
     result.pop("_clinical_inputs", None)
+    result.pop("_histology_v4_inputs", None)
     result.pop("_baseline_definition", None)
     result.pop("_process", None)
     result.pop("log_path", None)
@@ -240,6 +241,7 @@ def _run_pipeline(
     requested_malignancy_method: str | None,
     resume_from_stage02: bool = False,
     baseline_definition: str = "other_or_unverified",
+    histology_v4_inputs: dict[str, Any] | None = None,
 ) -> None:
     run_root = output_root / patient_id
     log_path = run_root / f"analysis_{run_id}.log"
@@ -384,6 +386,7 @@ def _run_pipeline(
                 "baseline_definition": baseline_definition,
                 "requested_malignancy_method": requested_malignancy_method,
                 "clinician_inputs": clinical_inputs,
+                "histology_v4_inputs": histology_v4_inputs or {},
                 "imaging_evidence": {
                     "contract": contract,
                     "source_timestamp": _now(),
@@ -467,6 +470,7 @@ def start_analysis(
     requested_malignancy_method: str | None,
     data_provenance: str | None,
     baseline_definition: str = "other_or_unverified",
+    histology_v4_inputs: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if baseline_definition not in {"initial_pathologic_diagnosis", "other_or_unverified"}:
         raise ValueError("Invalid baseline_definition.")
@@ -529,6 +533,7 @@ def start_analysis(
             "created_at": _now(),
             "data_provenance": data_provenance or "operator_submitted",
             "_clinical_inputs": clinical_inputs,
+            "_histology_v4_inputs": histology_v4_inputs or {},
             "_baseline_definition": baseline_definition,
             "_state_path": str(state_path),
         }
@@ -546,6 +551,7 @@ def start_analysis(
             "requested_malignancy_method": requested_malignancy_method,
             "resume_from_stage02": False,
             "baseline_definition": baseline_definition,
+            "histology_v4_inputs": histology_v4_inputs or {},
         },
         daemon=True,
     ).start()
@@ -560,6 +566,7 @@ def resume_analysis(run_id: str, *, project_root: Path, output_root: Path) -> di
         patient_id = str(run["patient_id"])
         clinical_inputs = dict(run.get("_clinical_inputs", {}))
         baseline_definition = str(run.get("_baseline_definition", "other_or_unverified"))
+        histology_v4_inputs = dict(run.get("_histology_v4_inputs", {}))
     patient_root = (output_root / patient_id).resolve()
     _set(run_id, status="stage02_running", current_stage="stage02", message="Resuming from Stage 02 after automated Stage 01 validation.")
     threading.Thread(
@@ -574,6 +581,7 @@ def resume_analysis(run_id: str, *, project_root: Path, output_root: Path) -> di
             "requested_malignancy_method": "brock",
             "resume_from_stage02": True,
             "baseline_definition": baseline_definition,
+            "histology_v4_inputs": histology_v4_inputs,
         },
         daemon=True,
     ).start()

@@ -1,0 +1,5 @@
+model,status,rows_tested,output_columns,unique_predictions
+primary_four_predictors__logistic_regression,PASS,16,2,"0,1"
+primary_four_predictors__random_forest,PASS,16,2,"0,1"
+race_sensitivity__logistic_regression,PASS,16,2,"0,1"
+race_sensitivity__random_forest,PASS,16,2,"0,1"

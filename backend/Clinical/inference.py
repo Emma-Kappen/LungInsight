@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 import logging
@@ -14,6 +14,7 @@ from jsonschema import Draft202012Validator, FormatChecker
 
 from .harmonization import ClinicalValidationError, validate_clinician_inputs
 from .imaging import ImagingEvidenceError, validate_imaging_evidence
+from .histology_v4 import load_histology_v4, predict_histology_v4
 
 logger = logging.getLogger(__name__)
 CLINICAL_DIR = Path(__file__).resolve().parent
@@ -217,7 +218,12 @@ def validate_request(request: dict[str, Any]) -> dict[str, Any]:
             f"Requested malignancy method {requested_method!r} was not selected in the supplied "
             "Imaging contract; regenerate Stage 04 with --malignancy-method and resubmit its contract."
         )
-    return {"clinician": clinician, "imaging": imaging, "requested_malignancy_method": requested_method}
+    from .histology_v4_features import validate_histology_v4_inputs
+    try:
+        histology_v4_inputs = validate_histology_v4_inputs(request.get("histology_v4_inputs"))
+    except ValueError as exc:
+        raise ClinicalInferenceError(str(exc)) from exc
+    return {"clinician": clinician, "imaging": imaging, "requested_malignancy_method": requested_method, "histology_v4_inputs": histology_v4_inputs}
 
 
 def _feature_frame(
@@ -363,9 +369,10 @@ def _run_model_independently(
     predictor: Any,
     artifact: dict[str, Any] | None,
     clinician: dict[str, Any],
+    **predictor_kwargs: Any,
 ) -> dict[str, Any]:
     try:
-        return predictor(artifact, clinician)
+        return predictor(artifact, clinician, **predictor_kwargs)
     except (ClinicalInferenceError, ValueError, TypeError, KeyError, AttributeError, RuntimeError) as exc:
         return {
             "status": "failed",
@@ -684,6 +691,13 @@ def run_inference(
             _predict_cancer_type,
             artifacts.get("cancer_type"),
             clinician,
+        ),
+        "cancer_type_v4": _run_model_independently(
+            predict_histology_v4,
+            load_histology_v4(),
+            clinician,
+            imaging_contract=request["imaging_evidence"]["contract"],
+            form_values=normalized["histology_v4_inputs"],
         ),
         "survival": _run_model_independently(
             _predict_survival,

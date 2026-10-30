@@ -1,0 +1,47 @@
+LUNGINSIGHT HISTOLOGY RESEARCH MODEL V3
+============================================================
+Created UTC: 2026-10-30T16:43:19.265819+00:00
+
+CORRECTED TCGA PATIENT RECONCILIATION
+LUAD valid patients: 522 / 522
+LUSC valid patients: 504 / 504
+Combined patients: 1026 / 1026
+
+PARSER EXCLUSIONS
+LUAD metadata rows: 2
+LUSC metadata rows: 2
+Invalid/blank identity rows: 0
+
+SELECTED SOURCE FIELDS
+{
+  "LUAD": {
+    "age": "age_at_initial_pathologic_diagnosis",
+    "sex": "gender",
+    "smoking_status": "tobacco_smoking_history_indicator",
+    "pack_years": "tobacco_smoking_pack_years_smoked",
+    "race_sensitivity": "race"
+  },
+  "LUSC": {
+    "age": "age_at_initial_pathologic_diagnosis",
+    "sex": "gender",
+    "smoking_status": "tobacco_smoking_history_indicator",
+    "pack_years": "tobacco_smoking_pack_years_smoked",
+    "race_sensitivity": "race"
+  }
+}
+
+METRIC INTERPRETATION
+The TCGA-LUAD cohort contains only LUAD labels and the TCGA-LUSC cohort contains only LUSC labels. Cohort and target are perfectly confounded. Random train/test splits and cross-validation cannot establish independent histology discrimination. All reported metrics are cohort-confounded exploratory metrics, not estimates of clinical performance.
+
+ARTIFACT
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\models\cancer-type-luad-lusc-research-v3.joblib
+
+OUTPUT FILES
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\model_metrics_cohort_confounded.csv
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\tcga_parser_reconciliation.csv
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\feature_missingness_corrected.csv
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\cancer-type-luad-lusc-research-v3.manifest.json
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\cancer-type-luad-lusc-research-v3.schema.json
+
+API integration: NOT performed.
+Existing v2 and survival artifacts: NOT modified.

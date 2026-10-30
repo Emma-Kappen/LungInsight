@@ -1,0 +1,11 @@
+cohort,feature,patient_count,missing_count,observed_count,missing_percent
+LUAD,age_at_diagnosis,522,19,503,3.64
+LUAD,sex,522,0,522,0.0
+LUAD,smoking_status,522,14,508,2.68
+LUAD,pack_years,522,166,356,31.8
+LUAD,race_sensitivity,522,5,517,0.96
+LUSC,age_at_diagnosis,504,9,495,1.79
+LUSC,sex,504,0,504,0.0
+LUSC,smoking_status,504,12,492,2.38
+LUSC,pack_years,504,77,427,15.28
+LUSC,race_sensitivity,504,1,503,0.2
