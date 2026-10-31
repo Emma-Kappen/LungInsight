@@ -1,0 +1,653 @@
+========== REPORT AND SHAP REFERENCES ==========
+
+--- C:\Users\emkap\Documents\Projects\LungInsight\frontend ---
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:430: setUploadStatus(`CT uploaded and validated: ${body.series?.slice_count ?? "unknown"} slices${body.series?.volume_shape_zyx ? `, volume ${body.series.volume_shape_zyx.join(" × ")}` : ""}.`, "success");
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:610: function histologyV4Inputs() {
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:709: const run = await startAnalysis(e.f, inputs, histologyV4Inputs());
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:787: function validateBox(nodule, shape) {
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:794: if (start.some((v) => v < 0) || !Array.isArray(shape) || shape.length !== 3 || end.some((v, i) => v > shape[i])) return "Box outside image bounds";
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:921: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:931: /* Survival curve as an SVG line graph (years on x, survival probability on y). */
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:932: function survivalChartHtml(model) {
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:933: const curve = model?.prediction?.survival_function;
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:947: return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted overall survival curve: ${esc(summary)}">
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:948: <title>Predicted overall survival from diagnosis</title>${yTicks}${xTicks}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:952: <text transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Survival probability</text></svg>`;
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:958: /* Exact histology SHAP values: contribution to the predicted class probability. */
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:959: function histologyShapHtml(explanation, predictedClass) {
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:962: ? "SHAP is unavailable for this run; the histology prediction is unchanged."
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:963: : "No histology SHAP explanation was returned.";
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:964: return `<div class="hint" style="margin-top:.6rem"><b>Histology SHAP:</b> ${esc(reason)}</div>`;
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:970: return '<div class="hint" style="margin-top:.6rem">Histology SHAP values are incomplete for the predicted class.</div>';
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:979: if (!entries.length) return '<div class="hint" style="margin-top:.6rem">No usable histology SHAP values.</div>';
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:990: return `<div class="shap-row">
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:991: <span class="shap-name"><b>${esc(featureName)}</b><small>${esc(item.value ?? "missing")}</small></span>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:992: <span class="shap-track" role="img" aria-label="${esc(item.feature)} ${direction} ${esc(predictedClass)} by ${Math.abs(pctPoints).toFixed(2)} percentage points">
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:993: <i aria-hidden="true" class="shap-bar ${barClass}" style="width:${width}%"></i>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:995: <b class="shap-val" style="color:${positive ? "var(--raise)" : "var(--lower)"}">${positive ? "+" : "-"}${Math.abs(pctPoints).toFixed(2)} pp</b>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1003: return `<section aria-label="Histology SHAP explanation" style="margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--border,#ddd)">
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1004: <h4 style="margin:.1rem 0 .35rem">Exact SHAP explanation for ${esc(predictedClass)}</h4>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1006: <div class="shap-legend"><span class="lo">? Lowers ${esc(predictedClass)} probability</span><span class="hi">Raises ${esc(predictedClass)} probability ?</span></div>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1008: <p class="hint" style="margin:.35rem 0">Base value + feature SHAP values reconstruct the model probability (absolute check error: ${localError.toExponential(1)}). Contributions are probability percentage points, not causal effects.</p>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1013: /* Patient-level histology panel: independent of any nodule's Brock risk and of the survival model. */
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1035: ${histologyShapHtml(model.explanation, model.predicted_class)}${limitsHtml}</div>`;
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1041: /* TCGA-only histology v4: distinct from the legacy MSK-scoped classifier. */
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1043: // LUNGINSIGHT_HISTOLOGY_V4_SHAP_RENDERER
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1044: // Separate SHAP display for the TCGA Histology v4 model.
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1047: function histologyV4ShapHtml(explanation) {
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1053: ? "The v4 SHAP explanation is unavailable."
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1054: : "The v4 backend has not returned a SHAP explanation.");
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1057: <section class="v4-shap" aria-label="Histology v4 SHAP explanation"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1059: <h4 style="margin:.1rem 0 .4rem">Histology v4 — SHAP explanations</h4>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1072: <section class="v4-shap" aria-label="Histology v4 SHAP explanation"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1074: <h4 style="margin:.1rem 0 .4rem">Histology v4 — SHAP explanations</h4>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1084: <section class="v4-shap" aria-label="Histology v4 SHAP explanation"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1086: <h4 style="margin:.1rem 0 .4rem">Histology v4 — SHAP explanations</h4>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1087: <p class="hint">No feature contributions were returned.</p>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1102: <section class="v4-shap-class" style="margin:.7rem 0">
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1150: <div class="shap-row"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1153: <div class="shap-name" style="min-width:0">
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1158: <div class="shap-track"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1160: <div class="shap-bar"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1165: <div class="shap-val"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1173: <section class="v4-shap-class"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1188: <div class="shap-legend hint"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1197: Base value plus feature contributions reconstructs the model probability.
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1210: const method = explanation.method || "SHAP method not specified";
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1217: <section class="v4-shap"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1218: aria-label="Histology v4 explanations for both classes"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1222: Histology v4 — feature contributions
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1271: ${histologyV4ShapHtml(model.explanation)}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1303: return `${badge("research prediction", "ok")} Overall survival from diagnosis<br><small>${esc(horizons)}</small>`;
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1449: function renderShap() {
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1450: const target = $("b-shap");
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1469: const bar = known && contribution !== 0 ? `<i class="shap-bar ${contribution > 0 ? "pos" : "neg"}" style="width:${width}%"></i>` : "";
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1470: return `<div class="shap-row"><span class="shap-name" title="${esc(`${p.name}: ${p.enters}`)}">${esc(p.name)}: <b>${esc(value ?? "Missing")}</b><small>${esc(term)}</small></span><div class="shap-track">${bar}</div><span class="shap-val">${known ? sgn(contribution) : "n/a"}</span></div>`;
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1477: <div class="shap-legend"><span class="lo">? lowers risk</span><span class="hi">raises risk ?</span></div>${rows}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1478: <div class="shap-sum" role="group" aria-label="Sum of terms">
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1503: const survival = prediction?.survival;
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1504: const chart = survivalChartHtml(survival);
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1505: const survivalHtml = !prediction
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1506: ? "<p class='hint' style='margin:0'>Survival model not available for this run.</p>"
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1508: ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1509: : `<div>${modelResultHtml(survival)}</div>`;
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1512: // Histology V4 is a separate patient-level research model and is displayed
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1545: $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1570: rows.push(["Brock formula contributions", explained, 0, nodules.length - explained, nodules.length - explained ? "Analytical Brock formula terms; not SHAP" : "Analytical Brock formula terms; not SHAP"]);
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1584: const maxZ = Math.max(0, Number(V.meta?.shape_zyx?.[0] || 1) - 1);
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1675: ? `<i class="shap-bar ${contribution > 0 ? "pos" : "neg"}" style="width:${width}%"></i>`
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1679: return `<p class="hint">Brock formula contributions (log-odds), not SHAP values.</p>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1684: return `<div class="shap-row"><span class="shap-name">${esc(p.name)}</span><div class="shap-track">${known && contribution !== 0
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1685: ? `<i class="shap-bar ${contribution > 0 ? "pos" : "neg"}" style="width:${width}%"></i>` : ""}</div>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1686: <span class="shap-val">${known ? sgn(contribution) : "n/a"}</span></div>`;
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1880: V.nodules = (meta?.nodules || []).map((n) => ({...n, _boxErr: validateBox(n, meta.shape_zyx)}));
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:1897: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:2027: const maxIndex = Math.max(0, Number(meta.shape_zyx?.[0] || 1) - 1);
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:2036: setViewerStatus(`CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:2071: const maxIndex = Math.max(0, Number(meta.shape_zyx?.[0] || 1) - 1);
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:2120: setViewerStatus(`${boxStatus(V.nodules[V.selected], index)}${note}`.trim() || `CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:2130: const maxZ = Math.max(0, Number(V.meta?.shape_zyx?.[0] || el.slice.max || 1) - 1);
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\app.js:2147: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\index.html:46: <div class="ctl"><label class="check"><input type="checkbox" name="baseline_confirmed" value="on"> The CT was acquired at initial pathologic diagnosis (required for the Cancer-type and Survival models)</label></div>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\index.html:207: <legend>Histology v4 — Clinical Inputs (TCGA research model)</legend>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\index.html:322: <section class="win" id="win-shap"><header class="win-h"><h2>Brock formula contributions (log-odds)</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-shap">Collapse</button></header>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\index.html:323: <div class="win-b" id="b-shap"></div></section>
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\index_reference.html:143: brock:{status:"completed", risk:.31}, shap:{status:"completed", top:[["Diameter",.34],["Spiculation",.22],["Age",.09]]}},
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\index_reference.html:147: brock:{status:"unavailable", missing:["emphysema","family history"]}, shap:{status:"blocked", reason:"Clinical inputs incomplete"}},
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\index_reference.html:149: malignancy:null, attrs:null, brock:{status:"blocked"}, shap:{status:"blocked", reason:"No valid box"}}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\index_reference.html:151: methods:[["Detection",3,0,0,"–"],["Malignancy classifier",2,0,1,"Nodule 3 has no valid box"],["Attributes",2,0,1,"Nodule 3 has no valid box"],["Brock",1,0,2,"Missing clinical inputs"],["SHAP",1,0,2,"Blocked: incomplete inputs"]]
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\index_reference.html:300: h+=`<h4>SHAP explanation</h4>`+(n.shap.status==="completed"?`<dl>${n.shap.top.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${v>0?"+":""}${v.toFixed(2)}</dd>`).join("")}</dl>`:statusLine(n.shap,"SHAP"));
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:99: .shap-legend{display:flex;justify-content:space-between;font-size:.78rem;font-weight:700;margin-bottom:.2rem}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:100: .shap-legend .lo{color:var(--lower)}.shap-legend .hi{color:var(--raise)}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:101: .shap-row{display:grid;grid-template-columns:minmax(7rem,38%) 1fr 3.4rem;align-items:center;gap:.4rem;margin:.18rem 0;font-size:.82rem}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:102: .shap-name small{display:block;color:var(--mute);font-size:.72rem;font-weight:400}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:103: .shap-sum{display:flex;flex-wrap:wrap;gap:.2rem .9rem;margin-top:.5rem;padding:.35rem .5rem;border:1px solid var(--line);border-radius:4px;background:var(--bg);font-size:.88rem}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:104: .shap-sum b{font-variant-numeric:tabular-nums}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:105: .shap-track{position:relative;height:16px;background:var(--bg);border:1px solid var(--line);border-radius:3px}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:106: .shap-track::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--mute)}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:107: .shap-bar{position:absolute;top:1px;bottom:1px;border-radius:2px}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:108: .shap-bar.pos{left:50%;background:var(--raise)}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:109: .shap-bar.neg{right:50%;background:var(--lower)}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:110: .shap-val{text-align:right;font-variant-numeric:tabular-nums}
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:508: .shap-track {
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:514: .shap-bar.pos {
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:520: .shap-bar.neg {
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:526: .shap-bar,
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:527: .shap-track,
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:528: .shap-row,
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:529: .shap-sum,
+C:\Users\emkap\Documents\Projects\LungInsight\frontend\styles.css:545: /* Histology v4 clinical-input and display-only summaries */
+
+--- C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical ---
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\api.py:56: class HistologyV4Inputs(BaseModel):
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\api.py:89: histology_v4_inputs: HistologyV4Inputs | None = None
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\api.py:98: histology_v4_inputs: HistologyV4Inputs | None = None
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\audit.py:13: load_tcga_survival_cohort,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\audit.py:70: frame.loc[frame["endpoint_issue"].isna(), "overall_survival_time_days"],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\audit.py:85: frame = load_tcga_survival_cohort(root / cohort, cohort)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\audit.py:88: & frame["overall_survival_time_days"].notna()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\audit.py:89: & frame["overall_survival_event"].notna()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\audit.py:161: "event_count": int((complete["overall_survival_event"] == True).sum()),  # noqa: E712
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\audit.py:162: "right_censored_count": int((complete["overall_survival_event"] == False).sum()),  # noqa: E712
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\audit.py:169: "definition": "Overall survival; death from any cause",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\audit.py:336: "survival_target_status": (
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\audit.py:399: "survival": "TCGA-only OS endpoint/time origin are sufficiently explicit for research development after data-use confirmation. MSK OS semantics and prediction baseline are not established; do not pool.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:94: def _histology_v4_tree_shap(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:100: """Explain V4 random-forest probabilities with tree-path-dependent TreeSHAP.
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:107: import shap
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:116: if transformed.shape[1] != len(transformed_names):
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:121: explainer = shap.TreeExplainer(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:126: raw_shap = explainer.shap_values(transformed, check_additivity=False)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:132: # SHAP 0.54 can return either a class list or a 3-D ndarray.
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:133: if isinstance(raw_shap, list):
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:134: if len(raw_shap) != 2:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:135: raise ValueError("Unexpected V4 SHAP class output.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:137: np.asarray(raw_shap[i], dtype=float).reshape(-1)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:141: arr = np.asarray(raw_shap, dtype=float)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:142: if arr.ndim == 3 and arr.shape[0] == 1 and arr.shape[2] == 2:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:144: elif arr.ndim == 3 and arr.shape[0] == 1 and arr.shape[1] == 2:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:146: elif arr.ndim == 3 and arr.shape[0] == 2 and arr.shape[1] == 1:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:149: raise ValueError(f"Unsupported V4 SHAP array shape: {arr.shape}")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:151: expected = np.asarray(explainer.expected_value, dtype=float).reshape(-1)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:153: raise ValueError("V4 SHAP expected values do not contain both classes.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:156: raise ValueError("V4 SHAP contribution count does not match transformed features.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:173: f"Cannot safely map transformed SHAP feature {transformed_name!r}."
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:181: raise ValueError(f"No transformed SHAP columns found for {feature_name}.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:219: f"V4 SHAP local-accuracy check failed (max error={max_error:.6g})."
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:224: "method": "tree_shap_tree_path_dependent",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:238: "TreeSHAP uses the fitted random forest's tree-path statistics; it does not use a reconstructed patient-level training reference dataset.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:246: logger.warning("histology_v4_shap_unavailable reason=%s", type(exc).__name__)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:249: "method": "tree_shap_tree_path_dependent",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:258: "reason": f"V4 TreeSHAP unavailable ({type(exc).__name__}).",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:267: "No feature contributions are reported because the V4 explanation could not be verified.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:326: if probabilities.shape != (2,) or not np.isfinite(probabilities).all():
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:345: "explanation": _histology_v4_tree_shap(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4.py:358: "warnings": sorted(set(preview["warnings"] + ["Histology v4 prediction failed; imaging-derived summaries are retained for audit."])),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\histology_v4_features.py:260: # Ethnicity is intentionally not collected for Histology v4; retain the
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:46: def _cancer_type_shap_background() -> pd.DataFrame:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:55: raise FileNotFoundError("Histology SHAP reference dataset is unavailable.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:61: raise ValueError(f"Histology SHAP reference dataset is missing columns: {missing}")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:66: raise ValueError("Histology SHAP reference cohort has missing or duplicate patient IDs.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:68: raise ValueError("Histology SHAP reference cohort does not match the supported classes.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:78: "Histology SHAP reference split differs from the documented 5,423-row training partition."
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:83: def _cancer_type_shap_explanation(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:89: """Exact two-feature interventional Shapley values in predict_proba space.
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:92: using a sampled approximation. This is the SHAP/Shapley definition; it does
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:93: not rely on the SHAP package or change the underlying prediction.
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:97: raise ValueError("Exact histology SHAP currently supports the active two-feature model only.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:99: background = _cancer_type_shap_background()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:102: raise ValueError("Histology SHAP reference population is empty.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:123: raise ValueError("Histology SHAP values failed the local-accuracy check.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:127: "method": "exact_interventional_shapley",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:151: "Exact Shapley attribution for the model's predicted probabilities using an interventional training-reference background.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:157: logger.warning("histology_shap_unavailable reason=%s", type(exc).__name__)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:160: "method": "exact_interventional_shapley",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:171: "partition": "unavailable; SHAP reference could not be verified",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:176: "SHAP explanation is unavailable because its reference population or calculation could not be verified.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:177: "Prediction values are the existing model probabilities; no SHAP base values or feature contributions are claimed.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:301: "SHAP is not applied to the calibrated composite estimator; this is not a causal attribution."
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:312: "SHAP is not applied to the calibrated composite estimator.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:317: def _survival_explanation(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:328: function = estimator.predict_survival_function(ablated)[0]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:337: "observed_survival_probability": base_probabilities[str(horizon)],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:338: "ablated_survival_probability": ablated_value,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:352: "Survival explanation is unavailable for the fitted estimator/input combination."
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:358: "target": "survival probability at each reported horizon",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:363: "This does not claim absolute survival calibration.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:489: "explanation": _cancer_type_shap_explanation(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:566: def _predict_survival(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:573: "No eligible censoring-aware survival model artifact is available.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:596: functions = estimator.predict_survival_function(features)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:616: raise ClinicalInferenceError("Survival function has no points within the validated horizon.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:625: raise ClinicalInferenceError("Survival model returned invalid survival probabilities.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:627: raise ClinicalInferenceError("Survival model returned a non-monotone survival function.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:631: "survival_function": {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:641: "calibration_status": "not_calibrated_for_absolute_survival",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:645: "explanation": _survival_explanation(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:702: "survival": _run_model_independently(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:703: _predict_survival,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:704: artifacts.get("survival"),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:746: for name in ("cancer_type", "survival"):
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:846: # An invalid model is reported as a failed model, without disturbing the survival model.
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:865: """Use v2 as the sole cancer-type model; preserve the bundle's survival artifact.
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:871: merged = dict(models) if models else {"cancer_type": None, "survival": None}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:888: survival = available.get("survival")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\inference.py:895: "survival_model": "loaded" if survival else "not_trained",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\ingestion.py:183: "overall_survival_time_days": time_days,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\ingestion.py:184: "overall_survival_event": event,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\ingestion.py:190: def load_tcga_survival_cohort(root: str | Path, cohort: str) -> pd.DataFrame:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:29: from sksurv.ensemble import RandomSurvivalForest
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:38: SURVIVAL_FEATURE_ORDER = [
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:550: def _survival_preprocessor() -> ColumnTransformer:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:551: return _clinical_preprocessor(SURVIVAL_FEATURE_ORDER)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:573: def _survival_metrics(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:612: survival_functions = estimator.predict_survival_function(x_test)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:615: for function in survival_functions
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:633: def fit_survival_model(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:637: time_col: str = "overall_survival_time_days",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:638: event_col: str = "overall_survival_event",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:651: *SURVIVAL_FEATURE_ORDER,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:654: raise ModelEligibilityError(f"Survival training is missing fields: {sorted(required - set(frame.columns))}.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:656: raise ModelEligibilityError("Every survival-training record requires an explicit cohort source.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:660: "This survival target accepts TCGA-LUAD/LUSC only; MSK-CHORD endpoints are not harmonized."
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:668: raise ModelEligibilityError("Survival training requires resolved, unique patient outcomes.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:670: raise ModelEligibilityError("Survival event values must be explicit booleans, not inferred encodings.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:674: raise ModelEligibilityError("Survival target needs valid nonnegative times, events, and censored observations.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:688: x = eligible[SURVIVAL_FEATURE_ORDER]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:696: ("preprocessor", _survival_preprocessor()),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:697: ("survival_forest", RandomSurvivalForest(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:717: evaluation = _survival_metrics(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:731: "model": "RandomSurvivalForest with 200 trees and minimum leaf size 15",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:732: "proportional_hazards_assumption": "not_required_by_selected_random_survival_forest",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:733: "censoring": "right censoring retained; time-dependent AUC/Brier use censoring-aware scikit-survival metrics",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:770: "model_type": "random_survival_forest",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:771: "endpoint": "overall survival; death from any cause",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:776: "feature_order": SURVIVAL_FEATURE_ORDER,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:816: def evaluate_cross_cohort_survival(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:824: raise ModelEligibilityError("Cross-cohort survival evaluation requires source labels.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:829: raise ModelEligibilityError("Cross-cohort survival evaluation supports distinct TCGA cohorts only.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:833: "overall_survival_time_days",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:834: "overall_survival_event",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:836: *SURVIVAL_FEATURE_ORDER,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:839: raise ModelEligibilityError("Cross-cohort survival evaluation is missing required fields.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:842: & frame["overall_survival_time_days"].notna()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:843: & frame["overall_survival_event"].notna()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:855: if not records["overall_survival_event"].map(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:860: records["overall_survival_time_days"],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:864: raise ModelEligibilityError(f"{label} survival times must be finite and nonnegative.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:866: event=training["overall_survival_event"].astype(bool).to_numpy(),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:867: time=training["overall_survival_time_days"].astype(float).to_numpy(),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:870: event=testing["overall_survival_event"].astype(bool).to_numpy(),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:871: time=testing["overall_survival_time_days"].astype(float).to_numpy(),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:875: ("preprocessor", _survival_preprocessor()),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:876: ("survival_forest", RandomSurvivalForest(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:885: x_train = training[SURVIVAL_FEATURE_ORDER]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:886: x_test = testing[SURVIVAL_FEATURE_ORDER]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:888: metrics = _survival_metrics(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:912: survival: dict[str, Any] | None = None,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:922: "survival": survival,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\training.py:944: for package in ("numpy", "pandas", "scikit-learn", "scikit-survival", "joblib"):
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_cancer_type.py:56: existing_survival = None
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_cancer_type.py:64: existing_survival = existing_bundle.get("survival")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_cancer_type.py:84: survival=existing_survival,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:10: from .ingestion import load_tcga_survival_cohort
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:13: SURVIVAL_FEATURE_ORDER,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:15: evaluate_cross_cohort_survival,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:16: fit_survival_model,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:22: def train_tcga_survival_model(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:30: """Train, persist, reload, and verify the TCGA-scoped random survival forest.
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:37: load_tcga_survival_cohort(root / "TCGA-LUAD", "TCGA-LUAD"),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:38: load_tcga_survival_cohort(root / "TCGA-LUSC", "TCGA-LUSC"),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:42: survival, report = fit_survival_model(rows, use_authorized=True, random_state=random_state)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:66: columns=SURVIVAL_FEATURE_ORDER,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:68: expected_risk = survival["estimator"].predict(examples)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:72: survival=survival,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:75: reloaded = load_artifacts(artifact_path)["survival"]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:77: raise RuntimeError("Saved survival artifact was unavailable after reload.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:79: raise RuntimeError("Reloaded survival artifact changed fixed-example risk scores.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:83: evaluate_cross_cohort_survival(rows, training_source=train, test_source=test)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:97: description="Train and verify the TCGA-LUAD/LUSC overall-survival research model."
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:104: "--report", type=Path, default=clinical_dir / "reports" / "survival-evaluation.json"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:113: report = train_tcga_survival_model(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\train_survival.py:122: "Survival model trained: "
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\train_sex_smoking_baseline.py:154: "OncoTree code", "survival", "vital status",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:159: "SHAP is not applied to the calibrated composite estimator; this is not a causal attribution."
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:170: "SHAP is not applied to the calibrated composite estimator.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:175: def _survival_explanation(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:186: function = estimator.predict_survival_function(ablated)[0]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:195: "observed_survival_probability": base_probabilities[str(horizon)],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:196: "ablated_survival_probability": ablated_value,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:210: "Survival explanation is unavailable for the fitted estimator/input combination."
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:216: "target": "survival probability at each reported horizon",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:221: "This does not claim absolute survival calibration.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:413: def _predict_survival(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:420: "No eligible censoring-aware survival model artifact is available.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:443: functions = estimator.predict_survival_function(features)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:463: raise ClinicalInferenceError("Survival function has no points within the validated horizon.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:472: raise ClinicalInferenceError("Survival model returned invalid survival probabilities.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:474: raise ClinicalInferenceError("Survival model returned a non-monotone survival function.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:478: "survival_function": {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:488: "calibration_status": "not_calibrated_for_absolute_survival",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:492: "explanation": _survival_explanation(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:542: "survival": _run_model_independently(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:543: _predict_survival,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:544: artifacts.get("survival"),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:586: for name in ("cancer_type", "survival"):
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:678: # An invalid model is reported as a failed model, without disturbing the survival model.
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:699: The survival artifact is passed through untouched. The bundled default (not explicitly configured)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:702: merged = dict(models) if models else {"cancer_type": None, "survival": None}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:723: survival = available.get("survival")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\inference.py:730: "survival_model": "loaded" if survival else "not_trained",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_dataset.py:25: forbidden = ("histolog", "oncotree", "cancer_type", "diagnosis_desc", "survival", "vital", "label", "patient_id", "cohort")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:32: from LungInsight_v2.backend.Clinical.training import fit_survival_model
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:111: def _write_bundle(path: Path, *, cancer_type: dict | None, survival: dict | None) -> Path:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:113: {"schema_version": "1.0.0", "cancer_type": cancer_type, "survival": survival, "provenance": {}},
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:123: def _survival_stub() -> dict:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:124: return {"estimator": "survival-estimator", "metadata": {"model_version": "survival-stub"}}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:133: assert artifacts["survival"] is None
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:150: def test_default_bundle_survival_is_kept_and_its_cancer_type_is_superseded(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:153: bundle = _write_bundle(isolated_artifacts / "default.joblib", cancer_type=_legacy_cancer_type(), survival=_survival_stub())
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:156: assert artifacts["survival"] == _survival_stub()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:163: bundle = _write_bundle(isolated_artifacts / "configured.joblib", cancer_type=_legacy_cancer_type(), survival=_survival_stub())
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:167: assert artifacts["survival"] == _survival_stub()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:171: def test_configured_bundle_without_cancer_type_is_filled_without_touching_survival(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:174: bundle = _write_bundle(isolated_artifacts / "configured.joblib", cancer_type=None, survival=_survival_stub())
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:178: assert artifacts["survival"] == _survival_stub()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:179: survival = _survival_stub()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:180: models = {"cancer_type": None, "survival": survival}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:181: assert with_standalone_cancer_type(models, bundle_configured=True)["survival"] is survival
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:185: def test_survival_inference_is_independent_of_the_standalone_cancer_type(isolated_artifacts: Path) -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:189: "patient_id": [f"v2-survival-{i}" for i in range(n)],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:194: "overall_survival_time_days": rng.uniform(100, 2500, n),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:195: "overall_survival_event": np.arange(n) % 4 != 0,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:198: survival_artifact, _ = fit_survival_model(frame, use_authorized=True, random_state=15)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:200: {"cancer_type": None, "survival": survival_artifact}, bundle_configured=True
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:204: assert output["survival"]["status"] == "research_prediction"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:208: assert abstaining["survival"]["status"] == "research_prediction"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:211: def test_standalone_cache_follows_file_changes_and_invalid_model_does_not_hide_survival(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:216: bundle = _write_bundle(isolated_artifacts / "default.joblib", cancer_type=None, survival=_survival_stub())
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:230: assert artifacts["survival"] == _survival_stub()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:257: bundle = _write_bundle(isolated_artifacts / "configured.joblib", cancer_type=None, survival=_survival_stub())
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:261: assert status["survival_model"] == "loaded"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:266: assert status["survival_model"] == "loaded"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:514: def test_subtype_panel_is_independent_of_brock_and_survival(tmp_path: Path) -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:524: fn("survivalChartHtml"), fn("cancerTypePanelHtml"), fn("modelResultHtml"), fn("renderClinicalModels"),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:531: const survival = {status: "research_prediction", prediction: {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:532: survival_function: {time_days: [0, 365, 1826], probability: [1, 0.8, 0.5]}, probability_at_horizons_days: {"365": 0.8}}};
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:538: both: render({survival, cancer_type: cancer}),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:539: noSurvival: render({survival: {status: "not_trained", prediction: null, reason: "No survival model."}, cancer_type: cancer}),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:540: noCancer: render({survival, cancer_type: {status: "not_trained", prediction: null, reason: "No cancer model."}}),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:541: abstained: render({survival, cancer_type: abstained}),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:542: missing: render({survival}),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:557: assert "No survival model." in html["noSurvival"] and "LUAD" in html["noSurvival"]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:19: load_tcga_survival_cohort,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:30: SURVIVAL_FEATURE_ORDER,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:35: fit_survival_model,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:36: evaluate_cross_cohort_survival,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:143: "shap_refs": {},
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:279: assert "stage_at_baseline" not in SURVIVAL_FEATURE_ORDER
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:345: assert parsed["overall_survival_event"] is False
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:346: assert parsed["overall_survival_time_days"] == 500
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:371: assert parsed["overall_survival_event"] is False
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:389: load_tcga_survival_cohort(cohort, "TCGA-LUAD")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:421: def test_unverified_prediction_baseline_blocks_survival_output() -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:427: "survival": {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:431: "endpoint": "overall survival",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:436: assert output["survival"]["status"] == "blocked"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:437: assert "prediction_baseline_does_not_match_training_baseline" in output["survival"]["warnings"]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:443: assert output["survival"]["status"] == "not_trained"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:455: assert status.json()["survival_model"] == "not_trained"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:506: volume = np.linspace(-1000, 400, 24, dtype=np.float32).reshape(3, 4, 2)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:522: assert metadata.json()["shape_zyx"] == [3, 4, 2]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:650: outside = np.ones(base.shape[:2], dtype=bool)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:812: def test_model_failure_does_not_invalidate_independent_survival_output() -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:829: "overall_survival_time_days": times,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:830: "overall_survival_event": event,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:833: survival_artifact, _ = fit_survival_model(frame, use_authorized=True, random_state=15)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:843: "survival": survival_artifact,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:848: assert output["survival"]["status"] == "research_prediction"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:849: values = output["survival"]["prediction"]["survival_function"]["probability"]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:977: def test_survival_training_retains_censoring_and_emits_supported_horizons() -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:986: "patient_id": [f"survival-{i}" for i in range(n)],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:991: "overall_survival_time_days": times,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:992: "overall_survival_event": observed_event,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:995: artifact, report = fit_survival_model(frame, use_authorized=True, random_state=9)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:998: assert artifact["metadata"]["endpoint"].startswith("overall survival")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:1000: functions = artifact["estimator"].predict_survival_function(frame.iloc[:2][[
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:1016: def test_survival_development_refuses_to_pool_unharmonized_msk_endpoints() -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:1023: "overall_survival_time_days": [500],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:1024: "overall_survival_event": [True],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:1028: fit_survival_model(frame, use_authorized=True)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:1043: "overall_survival_time_days": times,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:1044: "overall_survival_event": events,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\backend\Clinical\tests\test_clinical_pipeline.py:1047: result = evaluate_cross_cohort_survival(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:361: setUploadStatus(`CT uploaded and validated: ${body.series?.slice_count ?? "unknown"} slices${body.series?.volume_shape_zyx ? `, volume ${body.series.volume_shape_zyx.join(" × ")}` : ""}.`, "success");
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:689: function validateBox(nodule, shape) {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:696: if (start.some((v) => v < 0) || !Array.isArray(shape) || shape.length !== 3 || end.some((v, i) => v > shape[i])) return "Box outside image bounds";
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:823: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:832: /* Survival curve as an SVG line graph (years on x, survival probability on y). */
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:833: function survivalChartHtml(model) {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:834: const curve = model?.prediction?.survival_function;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:848: return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted overall survival curve: ${esc(summary)}">
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:849: <title>Predicted overall survival from diagnosis</title>${yTicks}${xTicks}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:853: <text transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Survival probability</text></svg>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:859: /* Patient-level histology panel: independent of any nodule's Brock risk and of the survival model. */
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:907: return `${badge("research prediction", "ok")} Overall survival from diagnosis<br><small>${esc(horizons)}</small>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1053: function renderShap() {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1054: const target = $("b-shap");
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1073: const bar = known && contribution !== 0 ? `<i class="shap-bar ${contribution > 0 ? "pos" : "neg"}" style="width:${width}%"></i>` : "";
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1074: return `<div class="shap-row"><span class="shap-name" title="${esc(`${p.name}: ${p.enters}`)}">${esc(p.name)}: <b>${esc(value ?? "Missing")}</b><small>${esc(term)}</small></span><div class="shap-track">${bar}</div><span class="shap-val">${known ? sgn(contribution) : "n/a"}</span></div>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1081: <div class="shap-legend"><span class="lo">? lowers risk</span><span class="hi">raises risk ?</span></div>${rows}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1082: <div class="shap-sum" role="group" aria-label="Sum of terms">
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1107: const survival = prediction?.survival;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1108: const chart = survivalChartHtml(survival);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1109: const survivalHtml = !prediction
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1110: ? "<p class='hint' style='margin:0'>Survival model not available for this run.</p>"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1112: ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1113: : `<div>${modelResultHtml(survival)}</div>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1117: $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1143: rows.push(["SHAP", explained, 0, nodules.length - explained, nodules.length - explained ? "Blocked where Brock is unavailable" : "–"]);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1154: V.nodules = (meta?.nodules || []).map((n) => ({...n, _boxErr: validateBox(n, meta.shape_zyx)}));
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1170: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1283: const maxIndex = Math.max(0, Number(meta.shape_zyx?.[0] || 1) - 1);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1292: setViewerStatus(`CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1327: const maxIndex = Math.max(0, Number(meta.shape_zyx?.[0] || 1) - 1);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1376: setViewerStatus(`${boxStatus(V.nodules[V.selected], index)}${note}`.trim() || `CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\app.js:1397: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\index.html:43: <div class="ctl"><label class="check"><input type="checkbox" name="baseline_confirmed" value="on"> The CT was acquired at initial pathologic diagnosis (required for the Cancer-type and Survival models)</label></div>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\index.html:270: <section class="win" id="win-shap"><header class="win-h"><h2>Explanation (SHAP on Brock inputs)</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-shap">Collapse</button></header>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\cancer_type_sex_smoking_baseline\integration_audit\versioned_integration_20261019_012218\rollback_backup\frontend\index.html:271: <div class="win-b" id="b-shap"></div></section>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\inventory_all_three_datasets.py:106: if any(k in name_l for k in ["survival", "vital", "death", "follow_up", "followup", "days_to"]):
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\inventory_all_three_datasets.py:107: return "survival_or_followup"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_baseline_readiness_v4.py:207: "3. Do not use label fields, stage, survival, treatment, mutation/TMB, gene-panel, purity, or coverage as clinical baseline predictors.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_cohort_v3.py:64: "rows_with_repeated_id": int(dup.shape[0]),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_cohort_v3.py:110: "patient_shape": list(patient.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_cohort_v3.py:111: "sample_shape": list(sample.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_cohort_v3.py:150: "patient_shape": list(patient.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_cohort_v3.py:151: "sample_shape": list(sample.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_cohort_v3.py:152: "nsclc_patient_shape": list(ns_patient.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_cohort_v3.py:153: "nsclc_sample_shape": list(ns_sample.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_cohort_v3.py:154: "combined_features_shape": list(combined.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_cohort_v3.py:278: {"source": "TCGA-LUAD_patient", "metric": "rows", "value": details["tcga"]["TCGA-LUAD"]["patient_shape"][0]},
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_cohort_v3.py:279: {"source": "TCGA-LUSC_patient", "metric": "rows", "value": details["tcga"]["TCGA-LUSC"]["patient_shape"][0]},
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\audit_luad_lusc_cohort_v3.py:306: "- Do not use stage, survival, treatment, or molecular features in a diagnosis-time clinical-only baseline.",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\diagnose_msk_csv_headers_v7.py:39: print(f"FULL SHAPE: {df.shape}")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\label_cohort_integrity_audit.py:129: "shape": list(msk_patient.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\label_cohort_integrity_audit.py:136: "shape": list(msk_sample.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\label_cohort_integrity_audit.py:163: "patient_shape": list(msk_nsclc_patient.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\label_cohort_integrity_audit.py:164: "sample_shape": list(msk_nsclc_sample.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\label_cohort_integrity_audit.py:165: "features_shape": list(msk_nsclc_features.shape),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\dataset_feature_inventory\deep_dive\label_cohort_integrity_audit.py:214: entry["shape"] = list(df.shape)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:361: setUploadStatus(`CT uploaded and validated: ${body.series?.slice_count ?? "unknown"} slices${body.series?.volume_shape_zyx ? `, volume ${body.series.volume_shape_zyx.join(" × ")}` : ""}.`, "success");
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:689: function validateBox(nodule, shape) {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:696: if (start.some((v) => v < 0) || !Array.isArray(shape) || shape.length !== 3 || end.some((v, i) => v > shape[i])) return "Box outside image bounds";
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:823: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:832: /* Survival curve as an SVG line graph (years on x, survival probability on y). */
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:833: function survivalChartHtml(model) {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:834: const curve = model?.prediction?.survival_function;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:848: return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted overall survival curve: ${esc(summary)}">
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:849: <title>Predicted overall survival from diagnosis</title>${yTicks}${xTicks}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:853: <text transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Survival probability</text></svg>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:859: /* Patient-level histology panel: independent of any nodule's Brock risk and of the survival model. */
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:907: return `${badge("research prediction", "ok")} Overall survival from diagnosis<br><small>${esc(horizons)}</small>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1053: function renderShap() {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1054: const target = $("b-shap");
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1073: const bar = known && contribution !== 0 ? `<i class="shap-bar ${contribution > 0 ? "pos" : "neg"}" style="width:${width}%"></i>` : "";
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1074: return `<div class="shap-row"><span class="shap-name" title="${esc(`${p.name}: ${p.enters}`)}">${esc(p.name)}: <b>${esc(value ?? "Missing")}</b><small>${esc(term)}</small></span><div class="shap-track">${bar}</div><span class="shap-val">${known ? sgn(contribution) : "n/a"}</span></div>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1081: <div class="shap-legend"><span class="lo">? lowers risk</span><span class="hi">raises risk ?</span></div>${rows}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1082: <div class="shap-sum" role="group" aria-label="Sum of terms">
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1107: const survival = prediction?.survival;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1108: const chart = survivalChartHtml(survival);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1109: const survivalHtml = !prediction
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1110: ? "<p class='hint' style='margin:0'>Survival model not available for this run.</p>"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1112: ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1113: : `<div>${modelResultHtml(survival)}</div>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1117: $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1143: rows.push(["SHAP", explained, 0, nodules.length - explained, nodules.length - explained ? "Blocked where Brock is unavailable" : "–"]);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1154: V.nodules = (meta?.nodules || []).map((n) => ({...n, _boxErr: validateBox(n, meta.shape_zyx)}));
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1170: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1283: const maxIndex = Math.max(0, Number(meta.shape_zyx?.[0] || 1) - 1);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1292: setViewerStatus(`CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1327: const maxIndex = Math.max(0, Number(meta.shape_zyx?.[0] || 1) - 1);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1376: setViewerStatus(`${boxStatus(V.nodules[V.selected], index)}${note}`.trim() || `CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\app.js:1397: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\index.html:43: <div class="ctl"><label class="check"><input type="checkbox" name="baseline_confirmed" value="on"> The CT was acquired at initial pathologic diagnosis (required for the Cancer-type and Survival models)</label></div>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\index.html:270: <section class="win" id="win-shap"><header class="win-h"><h2>Explanation (SHAP on Brock inputs)</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-shap">Collapse</button></header>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\index.html:271: <div class="win-b" id="b-shap"></div></section>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:99: .shap-legend{display:flex;justify-content:space-between;font-size:.78rem;font-weight:700;margin-bottom:.2rem}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:100: .shap-legend .lo{color:var(--lower)}.shap-legend .hi{color:var(--raise)}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:101: .shap-row{display:grid;grid-template-columns:minmax(7rem,38%) 1fr 3.4rem;align-items:center;gap:.4rem;margin:.18rem 0;font-size:.82rem}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:102: .shap-name small{display:block;color:var(--mute);font-size:.72rem;font-weight:400}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:103: .shap-sum{display:flex;flex-wrap:wrap;gap:.2rem .9rem;margin-top:.5rem;padding:.35rem .5rem;border:1px solid var(--line);border-radius:4px;background:var(--bg);font-size:.88rem}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:104: .shap-sum b{font-variant-numeric:tabular-nums}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:105: .shap-track{position:relative;height:16px;background:var(--bg);border:1px solid var(--line);border-radius:3px}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:106: .shap-track::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--mute)}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:107: .shap-bar{position:absolute;top:1px;bottom:1px;border-radius:2px}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:108: .shap-bar.pos{left:50%;background:var(--raise)}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:109: .shap-bar.neg{right:50%;background:var(--lower)}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212837\frontend_before\styles.css:110: .shap-val{text-align:right;font-variant-numeric:tabular-nums}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:361: setUploadStatus(`CT uploaded and validated: ${body.series?.slice_count ?? "unknown"} slices${body.series?.volume_shape_zyx ? `, volume ${body.series.volume_shape_zyx.join(" × ")}` : ""}.`, "success");
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:689: function validateBox(nodule, shape) {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:696: if (start.some((v) => v < 0) || !Array.isArray(shape) || shape.length !== 3 || end.some((v, i) => v > shape[i])) return "Box outside image bounds";
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:823: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:832: /* Survival curve as an SVG line graph (years on x, survival probability on y). */
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:833: function survivalChartHtml(model) {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:834: const curve = model?.prediction?.survival_function;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:848: return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted overall survival curve: ${esc(summary)}">
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:849: <title>Predicted overall survival from diagnosis</title>${yTicks}${xTicks}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:853: <text transform="translate(11 ${(T + H - B) / 2}) rotate(-90)" text-anchor="middle">Survival probability</text></svg>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:859: /* Patient-level histology panel: independent of any nodule's Brock risk and of the survival model. */
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:907: return `${badge("research prediction", "ok")} Overall survival from diagnosis<br><small>${esc(horizons)}</small>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1053: function renderShap() {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1054: const target = $("b-shap");
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1073: const bar = known && contribution !== 0 ? `<i class="shap-bar ${contribution > 0 ? "pos" : "neg"}" style="width:${width}%"></i>` : "";
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1074: return `<div class="shap-row"><span class="shap-name" title="${esc(`${p.name}: ${p.enters}`)}">${esc(p.name)}: <b>${esc(value ?? "Missing")}</b><small>${esc(term)}</small></span><div class="shap-track">${bar}</div><span class="shap-val">${known ? sgn(contribution) : "n/a"}</span></div>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1081: <div class="shap-legend"><span class="lo">? lowers risk</span><span class="hi">raises risk ?</span></div>${rows}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1082: <div class="shap-sum" role="group" aria-label="Sum of terms">
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1107: const survival = prediction?.survival;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1108: const chart = survivalChartHtml(survival);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1109: const survivalHtml = !prediction
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1110: ? "<p class='hint' style='margin:0'>Survival model not available for this run.</p>"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1112: ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1113: : `<div>${modelResultHtml(survival)}</div>`;
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1117: $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1143: rows.push(["SHAP", explained, 0, nodules.length - explained, nodules.length - explained ? "Blocked where Brock is unavailable" : "–"]);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1154: V.nodules = (meta?.nodules || []).map((n) => ({...n, _boxErr: validateBox(n, meta.shape_zyx)}));
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1170: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1283: const maxIndex = Math.max(0, Number(meta.shape_zyx?.[0] || 1) - 1);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1292: setViewerStatus(`CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1327: const maxIndex = Math.max(0, Number(meta.shape_zyx?.[0] || 1) - 1);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1376: setViewerStatus(`${boxStatus(V.nodules[V.selected], index)}${note}`.trim() || `CT volume ${meta.shape_zyx.join(" × ")} voxels.`);
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\app.js:1397: renderShap();
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\index.html:43: <div class="ctl"><label class="check"><input type="checkbox" name="baseline_confirmed" value="on"> The CT was acquired at initial pathologic diagnosis (required for the Cancer-type and Survival models)</label></div>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\index.html:270: <section class="win" id="win-shap"><header class="win-h"><h2>Explanation (SHAP on Brock inputs)</h2><button type="button" class="win-t" aria-expanded="true" aria-controls="b-shap">Collapse</button></header>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\index.html:271: <div class="win-b" id="b-shap"></div></section>
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:99: .shap-legend{display:flex;justify-content:space-between;font-size:.78rem;font-weight:700;margin-bottom:.2rem}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:100: .shap-legend .lo{color:var(--lower)}.shap-legend .hi{color:var(--raise)}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:101: .shap-row{display:grid;grid-template-columns:minmax(7rem,38%) 1fr 3.4rem;align-items:center;gap:.4rem;margin:.18rem 0;font-size:.82rem}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:102: .shap-name small{display:block;color:var(--mute);font-size:.72rem;font-weight:400}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:103: .shap-sum{display:flex;flex-wrap:wrap;gap:.2rem .9rem;margin-top:.5rem;padding:.35rem .5rem;border:1px solid var(--line);border-radius:4px;background:var(--bg);font-size:.88rem}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:104: .shap-sum b{font-variant-numeric:tabular-nums}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:105: .shap-track{position:relative;height:16px;background:var(--bg);border:1px solid var(--line);border-radius:3px}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:106: .shap-track::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--mute)}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:107: .shap-bar{position:absolute;top:1px;bottom:1px;border-radius:2px}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:108: .shap-bar.pos{left:50%;background:var(--raise)}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:109: .shap-bar.neg{right:50%;background:var(--lower)}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\artifacts\manual_frontend_audit_20261019_212925\frontend_before\styles.css:110: .shap-val{text-align:right;font-variant-numeric:tabular-nums}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\audit_histology_v3.py:479: if probabilities.ndim != 2 or probabilities.shape[1] != 2:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\audit_histology_v3.py:481: f"Expected binary probability matrix; got {probabilities.shape}"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\audit_histology_v3.py:645: emit(f"  Output shape: {probabilities.shape}")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\audit_histology_v3.py:659: "output_columns": probabilities.shape[1],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\audit_histology_v3_robustness.py:962: The existing v2 histology model and survival model remain separate and
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\audit_histology_v3_robustness.py:1006: emit("Existing v2 and survival artifacts will not be modified.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\build_histology_v3.py:67: "survival",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v3\build_histology_v3.py:873: summary.append("Existing v2 and survival artifacts: NOT modified.")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v4\runs\20261030_235828\build_histology_v4.py:622: # - survival/follow-up/vital status
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v4\runs\20261030_235828\build_histology_v4.py:1075: "feature_count": int(X.shape[1]),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\research_histology_v4\runs\20261030_235828\build_histology_v4.py:1165: print("HISTOLOGY V4 TRAINING COMPLETE")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_dataset.py:25: forbidden = ("histolog", "oncotree", "cancer_type", "diagnosis_desc", "survival", "vital", "label", "patient_id", "cohort")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:32: from backend.Clinical.training import fit_survival_model
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:111: def _write_bundle(path: Path, *, cancer_type: dict | None, survival: dict | None) -> Path:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:113: {"schema_version": "1.0.0", "cancer_type": cancer_type, "survival": survival, "provenance": {}},
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:123: def _survival_stub() -> dict:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:124: return {"estimator": "survival-estimator", "metadata": {"model_version": "survival-stub"}}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:133: assert artifacts["survival"] is None
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:149: def test_default_bundle_survival_is_kept_and_its_cancer_type_is_superseded(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:152: bundle = _write_bundle(isolated_artifacts / "default.joblib", cancer_type=_legacy_cancer_type(), survival=_survival_stub())
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:155: assert artifacts["survival"] == _survival_stub()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:159: def test_explicitly_configured_bundle_uses_v2_cancer_type_and_preserves_survival(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:162: bundle = _write_bundle(isolated_artifacts / "configured.joblib", cancer_type=_legacy_cancer_type(), survival=_survival_stub())
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:167: assert artifacts["survival"] == _survival_stub()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:171: def test_configured_bundle_without_cancer_type_is_filled_without_touching_survival(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:174: bundle = _write_bundle(isolated_artifacts / "configured.joblib", cancer_type=None, survival=_survival_stub())
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:178: assert artifacts["survival"] == _survival_stub()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:179: survival = _survival_stub()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:180: models = {"cancer_type": None, "survival": survival}
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:181: assert with_standalone_cancer_type(models, bundle_configured=True)["survival"] is survival
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:185: def test_survival_inference_is_independent_of_the_standalone_cancer_type(isolated_artifacts: Path) -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:189: "patient_id": [f"v2-survival-{i}" for i in range(n)],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:194: "overall_survival_time_days": rng.uniform(100, 2500, n),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:195: "overall_survival_event": np.arange(n) % 4 != 0,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:198: survival_artifact, _ = fit_survival_model(frame, use_authorized=True, random_state=15)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:200: {"cancer_type": None, "survival": survival_artifact}, bundle_configured=True
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:204: assert output["survival"]["status"] == "research_prediction"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:208: assert abstaining["survival"]["status"] == "research_prediction"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:211: def test_standalone_cache_follows_file_changes_and_invalid_model_does_not_hide_survival(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:216: bundle = _write_bundle(isolated_artifacts / "default.joblib", cancer_type=None, survival=_survival_stub())
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:230: assert artifacts["survival"] == _survival_stub()
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:257: bundle = _write_bundle(isolated_artifacts / "configured.joblib", cancer_type=None, survival=_survival_stub())
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:261: assert status["survival_model"] == "loaded"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:266: assert status["survival_model"] == "loaded"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:514: def test_subtype_panel_is_independent_of_brock_and_survival(tmp_path: Path) -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:532: fn("survivalChartHtml"), fn("histologyShapHtml"), fn("cancerTypePanelHtml"), fn("histologyV4PanelHtml"), fn("modelResultHtml"), fn("renderClinicalModels"),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:540: const survival = {status: "research_prediction", prediction: {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:541: survival_function: {time_days: [0, 365, 1826], probability: [1, 0.8, 0.5]}, probability_at_horizons_days: {"365": 0.8}}};
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:547: both: render({survival, cancer_type: cancer}),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:548: noSurvival: render({survival: {status: "not_trained", prediction: null, reason: "No survival model."}, cancer_type: cancer}),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:549: noCancer: render({survival, cancer_type: {status: "not_trained", prediction: null, reason: "No cancer model."}}),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:550: abstained: render({survival, cancer_type: abstained}),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:551: missing: render({survival}),
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_cancer_type_luad_lusc_v2.py:566: assert "No survival model." in html["noSurvival"] and "LUAD" in html["noSurvival"]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:19: load_tcga_survival_cohort,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:30: SURVIVAL_FEATURE_ORDER,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:35: fit_survival_model,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:36: evaluate_cross_cohort_survival,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:143: "shap_refs": {},
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:279: assert "stage_at_baseline" not in SURVIVAL_FEATURE_ORDER
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:345: assert parsed["overall_survival_event"] is False
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:346: assert parsed["overall_survival_time_days"] == 500
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:371: assert parsed["overall_survival_event"] is False
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:389: load_tcga_survival_cohort(cohort, "TCGA-LUAD")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:421: def test_unverified_prediction_baseline_blocks_survival_output() -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:427: "survival": {
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:431: "endpoint": "overall survival",
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:436: assert output["survival"]["status"] == "blocked"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:437: assert "prediction_baseline_does_not_match_training_baseline" in output["survival"]["warnings"]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:443: assert output["survival"]["status"] == "not_trained"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:455: assert status.json()["survival_model"] == "not_trained"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:506: volume = np.linspace(-1000, 400, 24, dtype=np.float32).reshape(3, 4, 2)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:522: assert metadata.json()["shape_zyx"] == [3, 4, 2]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:650: outside = np.ones(base.shape[:2], dtype=bool)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:812: def test_model_failure_does_not_invalidate_independent_survival_output() -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:829: "overall_survival_time_days": times,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:830: "overall_survival_event": event,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:833: survival_artifact, _ = fit_survival_model(frame, use_authorized=True, random_state=15)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:843: "survival": survival_artifact,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:848: assert output["survival"]["status"] == "research_prediction"
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:849: values = output["survival"]["prediction"]["survival_function"]["probability"]
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:977: def test_survival_training_retains_censoring_and_emits_supported_horizons() -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:986: "patient_id": [f"survival-{i}" for i in range(n)],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:991: "overall_survival_time_days": times,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:992: "overall_survival_event": observed_event,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:995: artifact, report = fit_survival_model(frame, use_authorized=True, random_state=9)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:998: assert artifact["metadata"]["endpoint"].startswith("overall survival")
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:1000: functions = artifact["estimator"].predict_survival_function(frame.iloc[:2][[
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:1016: def test_survival_development_refuses_to_pool_unharmonized_msk_endpoints() -> None:
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:1023: "overall_survival_time_days": [500],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:1024: "overall_survival_event": [True],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:1028: fit_survival_model(frame, use_authorized=True)
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:1043: "overall_survival_time_days": times,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:1044: "overall_survival_event": events,
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tests\test_clinical_pipeline.py:1047: result = evaluate_cross_cohort_survival(
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tools\build_cancer_type_dataset.py:364: "excluded_from_predictors":["patient_id","cohort","cancer_type","label_provenance","sample_count","source_record_id","raw source fields","histology","OncoTree code","diagnosis description","survival","vital status","treatment outcome"],
+C:\Users\emkap\Documents\Projects\LungInsight\backend\Clinical\tools\train_cancer_type_baseline.py:193: "survival", "vital status", "treatment outcome",

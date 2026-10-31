@@ -89,6 +89,187 @@ def load_histology_v4() -> dict[str, Any] | None:
         return {"load_error": str(exc)}
 
 
+
+
+def _histology_v4_tree_shap(
+    artifact: dict[str, Any],
+    features: pd.DataFrame,
+    probabilities: np.ndarray,
+    class_probabilities: dict[str, float],
+) -> dict[str, Any]:
+    """Explain V4 random-forest probabilities with tree-path-dependent TreeSHAP.
+
+    The fitted preprocessing pipeline is applied unchanged. Encoded one-hot
+    and missingness-indicator contributions are aggregated back to the
+    original 19 clinical predictors.
+    """
+    try:
+        import shap
+
+        pipeline = artifact["model"]
+        preprocess = pipeline.named_steps["preprocess"]
+        classifier = pipeline.named_steps["classifier"]
+
+        transformed = preprocess.transform(features)
+        transformed_names = [str(x) for x in preprocess.get_feature_names_out()]
+
+        if transformed.shape[1] != len(transformed_names):
+            raise ValueError("Transformed V4 feature names do not match matrix width.")
+
+        # Tree-path-dependent mode uses the fitted trees' node-cover statistics;
+        # it does not invent or substitute a patient reference dataset.
+        explainer = shap.TreeExplainer(
+            classifier,
+            feature_perturbation="tree_path_dependent",
+            model_output="raw",
+        )
+        raw_shap = explainer.shap_values(transformed, check_additivity=False)
+
+        class_order = ["LUSC", "LUAD"]
+        if list(getattr(classifier, "classes_", [])) != [0, 1]:
+            raise ValueError("V4 classifier class order is not the expected [LUSC, LUAD] mapping.")
+
+        # SHAP 0.54 can return either a class list or a 3-D ndarray.
+        if isinstance(raw_shap, list):
+            if len(raw_shap) != 2:
+                raise ValueError("Unexpected V4 SHAP class output.")
+            per_class = [
+                np.asarray(raw_shap[i], dtype=float).reshape(-1)
+                for i in range(2)
+            ]
+        else:
+            arr = np.asarray(raw_shap, dtype=float)
+            if arr.ndim == 3 and arr.shape[0] == 1 and arr.shape[2] == 2:
+                per_class = [arr[0, :, i] for i in range(2)]
+            elif arr.ndim == 3 and arr.shape[0] == 1 and arr.shape[1] == 2:
+                per_class = [arr[0, i, :] for i in range(2)]
+            elif arr.ndim == 3 and arr.shape[0] == 2 and arr.shape[1] == 1:
+                per_class = [arr[i, 0, :] for i in range(2)]
+            else:
+                raise ValueError(f"Unsupported V4 SHAP array shape: {arr.shape}")
+
+        expected = np.asarray(explainer.expected_value, dtype=float).reshape(-1)
+        if expected.size != 2:
+            raise ValueError("V4 SHAP expected values do not contain both classes.")
+
+        if any(len(v) != len(transformed_names) for v in per_class):
+            raise ValueError("V4 SHAP contribution count does not match transformed features.")
+
+        # Map every transformed column to exactly one original input feature.
+        groups = {name: [] for name in artifact["feature_columns"]}
+        for index, transformed_name in enumerate(transformed_names):
+            name = transformed_name.split("__", 1)[-1]
+            matched = []
+            for feature_name in artifact["feature_columns"]:
+                if (
+                    name == feature_name
+                    or name.startswith(feature_name + "_")
+                    or name == "missingindicator_" + feature_name
+                ):
+                    matched.append(feature_name)
+
+            if len(matched) != 1:
+                raise ValueError(
+                    f"Cannot safely map transformed SHAP feature {transformed_name!r}."
+                )
+            groups[matched[0]].append(index)
+
+        contributions = []
+        for feature_name in artifact["feature_columns"]:
+            indices = groups[feature_name]
+            if not indices:
+                raise ValueError(f"No transformed SHAP columns found for {feature_name}.")
+
+            feature_value = features.iloc[0][feature_name]
+            if pd.isna(feature_value):
+                feature_value = None
+            else:
+                feature_value = str(feature_value)
+
+            contributions.append({
+                "feature": feature_name,
+                "feature_value": feature_value,
+                "values": {
+                    class_order[class_index]: float(
+                        np.sum(per_class[class_index][indices])
+                    )
+                    for class_index in range(2)
+                },
+            })
+
+        base_values = {
+            class_order[i]: float(expected[i]) for i in range(2)
+        }
+        prediction_values = {
+            class_order[i]: float(probabilities[i]) for i in range(2)
+        }
+
+        reconstruction_errors = {}
+        for i, label in enumerate(class_order):
+            reconstructed = base_values[label] + sum(
+                item["values"][label] for item in contributions
+            )
+            reconstruction_errors[label] = abs(
+                reconstructed - prediction_values[label]
+            )
+
+        max_error = max(reconstruction_errors.values())
+        if not np.isfinite(max_error) or max_error > 1e-4:
+            raise ValueError(
+                f"V4 SHAP local-accuracy check failed (max error={max_error:.6g})."
+            )
+
+        return {
+            "status": "available",
+            "method": "tree_shap_tree_path_dependent",
+            "output_space": "predict_proba",
+            "class_order": class_order,
+            "base_values": base_values,
+            "prediction_values": prediction_values,
+            "feature_contributions": contributions,
+            "reference_population": {
+                "cohort": "fitted V4 random-forest tree path statistics",
+                "partition": "tree_path_dependent; no external background dataset supplied",
+                "rows": None,
+                "features": list(artifact["feature_columns"]),
+            },
+            "reconstruction_error": reconstruction_errors,
+            "limitations": [
+                "TreeSHAP uses the fitted random forest's tree-path statistics; it does not use a reconstructed patient-level training reference dataset.",
+                "One-hot encoded and missingness-indicator contributions are aggregated to their original clinical predictors.",
+                "Attributions explain model probability output, not biological causation, clinical risk, or diagnostic truth.",
+                "The V4 model is research-only and has no external validation.",
+            ],
+        }
+
+    except Exception as exc:
+        logger.warning("histology_v4_shap_unavailable reason=%s", type(exc).__name__)
+        return {
+            "status": "unavailable",
+            "method": "tree_shap_tree_path_dependent",
+            "output_space": "predict_proba",
+            "class_order": ["LUSC", "LUAD"],
+            "base_values": {},
+            "prediction_values": {
+                "LUSC": float(class_probabilities["LUSC"]),
+                "LUAD": float(class_probabilities["LUAD"]),
+            },
+            "feature_contributions": [],
+            "reason": f"V4 TreeSHAP unavailable ({type(exc).__name__}).",
+            "failure_reason": type(exc).__name__,
+            "reference_population": {
+                "cohort": "fitted V4 random-forest tree path statistics",
+                "partition": "unavailable",
+                "rows": None,
+                "features": list(artifact.get("feature_columns", [])),
+            },
+            "limitations": [
+                "No feature contributions are reported because the V4 explanation could not be verified.",
+                "The V4 prediction probabilities remain unchanged.",
+            ],
+        }
+
+
 def predict_histology_v4(
     artifact: dict[str, Any] | None,
     clinician: dict[str, Any],
@@ -161,6 +342,9 @@ def predict_histology_v4(
             "imputed_features": missing,
             "missing_feature_count": len(missing),
             "input_completeness": f"{len(observed)}/{len(artifact['feature_columns'])}",
+            "explanation": _histology_v4_tree_shap(
+                artifact, features, probabilities, values
+            ),
             "warnings": sorted(set(built["warnings"] + [
                 "Missing predictors were handled by the model's training-time imputation pipeline.",
                 "TCGA cohort-membership labels may encode cohort effects; external validation is absent.",

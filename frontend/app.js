@@ -616,10 +616,6 @@ function histologyV4Inputs() {
   };
   const text = (name) => val(name).trim() || null;
   return {
-    smoking_history_code: text("v4_smoking_history_code"),
-    pack_years: number("v4_pack_years"),
-    smoking_year_started: number("v4_smoking_year_started"),
-    smoking_year_stopped: number("v4_smoking_year_stopped"),
     dlco_percent_predicted: number("v4_dlco_percent_predicted"),
     fev1_fvc_post_percent: number("v4_fev1_fvc_post_percent"),
     fev1_fvc_pre_percent: number("v4_fev1_fvc_pre_percent"),
@@ -627,7 +623,6 @@ function histologyV4Inputs() {
     fev1_percent_predicted_pre: number("v4_fev1_percent_predicted_pre"),
     pulmonary_function_test_performed: text("v4_pulmonary_function_test_performed"),
     ecog_preoperative: number("v4_ecog_preoperative"),
-    karnofsky_preoperative: number("v4_karnofsky_preoperative"),
     lung_location: text("v4_lung_location"),
     anatomic_subdivision: text("v4_anatomic_subdivision"),
     other_malignancy_history: text("v4_other_malignancy_history"),
@@ -1037,51 +1032,465 @@ function cancerTypePanelHtml(model) {
     return `<div class="ct">${head}
       <p style="margin:.2rem 0">${badge("research model output", "ok")} Highest-probability class: <b>${esc(model.predicted_class)}</b>. Not a diagnosis.</p>${rows}
       <p class="hint" style="margin:.3rem 0 0">Applies to patients already known to have LUAD or LUSC. Inputs used: ${esc(used || "not reported")}.</p>
-      ${histologyShapHtml(model.explanation, model.predicted_class)}${limitsHtml}</div>`;
+      ${limitsHtml}</div>`;
   }
   return `<div class="ct">${head}${modelResultHtml(model)}${limitsHtml}</div>`;
 }
 
 
 /* TCGA-only histology v4: distinct from the legacy MSK-scoped classifier. */
+
+// LUNGINSIGHT_HISTOLOGY_V4_SHAP_RENDERER
+// Separate SHAP display for the TCGA Histology v4 model.
+// Shows both class explanations regardless of predicted class.
+
+function histologyV4ShapHtml(explanation) {
+  const classes = ["LUAD", "LUSC"];
+  const tolerance = 1e-4;
+
+  const unavailable = (message) => `
+    <section class="v4-shap" aria-label="Histology V4 feature explanations">
+      <div class="v4-section-heading">
+        <h4>Feature contribution analysis</h4>
+        <span class="v4-section-tag">SHAP</span>
+      </div>
+      <p class="hint">${esc(message)}</p>
+    </section>`;
+
+  if (!explanation || explanation.status !== "available") {
+    return unavailable(
+      explanation?.reason ||
+      (explanation?.status === "unavailable"
+        ? "The V4 SHAP explanation is unavailable. The histology prediction is unchanged."
+        : "The backend has not returned an available V4 SHAP explanation.")
+    );
+  }
+
+  if (
+    explanation.output_space !== "predict_proba" ||
+    !explanation.base_values ||
+    !explanation.prediction_values ||
+    !Array.isArray(explanation.feature_contributions)
+  ) {
+    return unavailable(
+      "The explanation does not satisfy the probability-output contract. Contributions are not displayed."
+    );
+  }
+
+  if (
+    fin(explanation.reconstruction_error) &&
+    Number(explanation.reconstruction_error) > tolerance
+  ) {
+    return unavailable(
+      "The backend SHAP reconstruction check exceeded tolerance. Contributions are not displayed."
+    );
+  }
+
+  const contributions = explanation.feature_contributions;
+  const reference = explanation.reference_population || {};
+
+  if (!contributions.length) {
+    return unavailable("No feature contributions were returned.");
+  }
+
+  // Parse both classes before drawing either one. This produces a common,
+  // symmetric scale without assuming that the class contributions are opposites.
+  const classData = Object.create(null);
+
+  for (const className of classes) {
+    const base = explanation.base_values[className];
+    const prediction = explanation.prediction_values[className];
+
+    if (
+      !fin(base) ||
+      !fin(prediction) ||
+      Number(base) < 0 || Number(base) > 1 ||
+      Number(prediction) < 0 || Number(prediction) > 1
+    ) {
+      classData[className] = {
+        valid: false,
+        message: "A valid base value or prediction probability was not supplied."
+      };
+      continue;
+    }
+
+    const entries = contributions
+      .map(item => ({
+        feature: item.feature,
+        featureValue: item.feature_value,
+        contribution: item.values?.[className]
+      }))
+      .filter(item =>
+        typeof item.feature === "string" &&
+        fin(item.contribution)
+      )
+      .sort((a, b) =>
+        Math.abs(Number(b.contribution)) - Math.abs(Number(a.contribution))
+      );
+
+    if (!entries.length) {
+      classData[className] = {
+        valid: false,
+        message: `No valid contributions were returned for ${className}.`
+      };
+      continue;
+    }
+
+    const contributionSum = entries.reduce(
+      (sum, item) => sum + Number(item.contribution),
+      0
+    );
+
+    const localError = Math.abs(
+      Number(base) + contributionSum - Number(prediction)
+    );
+
+    if (!Number.isFinite(localError) || localError > tolerance) {
+      classData[className] = {
+        valid: false,
+        message: `The ${className} contribution reconstruction check failed.`
+      };
+      continue;
+    }
+
+    classData[className] = {
+      valid: true,
+      base: Number(base),
+      prediction: Number(prediction),
+      entries,
+      localError
+    };
+  }
+
+  const allMagnitudes = classes.flatMap(className => {
+    const data = classData[className];
+    return data?.valid
+      ? data.entries.map(item => Math.abs(Number(item.contribution)))
+      : [];
+  });
+
+  if (!allMagnitudes.length) {
+    return unavailable(
+      "Neither class has a complete, numerically consistent SHAP explanation."
+    );
+  }
+
+  // Both class panels use the same maximum absolute contribution.
+  const sharedScale = Math.max(1e-6, ...allMagnitudes);
+
+  const sections = classes.map(className => {
+    const data = classData[className];
+
+    if (!data?.valid) {
+      return `
+        <section class="v4-shap-class">
+          <div class="v4-shap-class-heading">
+            <h5>${className}</h5>
+          </div>
+          <p class="hint">${esc(data?.message || "Class explanation unavailable.")}</p>
+        </section>`;
+    }
+
+    const rows = data.entries.map(item => {
+      const contribution = Number(item.contribution);
+      const positive = contribution >= 0;
+      const direction = positive ? "raises" : "lowers";
+      const width = Math.min(
+        50,
+        Math.abs(contribution) / sharedScale * 50
+      );
+      const left = positive ? 50 : 50 - width;
+
+      const featureValue =
+        item.featureValue === null ||
+        item.featureValue === undefined
+          ? "Missing / imputed"
+          : String(item.featureValue);
+
+      const valueText =
+        `${positive ? "+" : "−"}${Math.abs(contribution * 100).toFixed(3)} pp`;
+
+      return `
+        <div class="v4-shap-row">
+          <div class="v4-shap-feature">
+            <strong>${esc(label(item.feature))}</strong>
+            <span>${esc(featureValue)}</span>
+          </div>
+          <div class="v4-shap-track"
+               role="img"
+               aria-label="${esc(label(item.feature))} ${direction} ${className} probability by ${Math.abs(contribution * 100).toFixed(3)} percentage points">
+            <span class="v4-shap-zero" aria-hidden="true"></span>
+            <i class="${positive ? "positive" : "negative"}"
+               aria-hidden="true"
+               style="left:${left.toFixed(3)}%;width:${width.toFixed(3)}%"></i>
+          </div>
+          <div class="v4-shap-value ${positive ? "positive" : "negative"}">
+            ${valueText}
+          </div>
+        </div>`;
+    }).join("");
+
+    return `
+      <section class="v4-shap-class" aria-label="${className} SHAP explanation">
+        <div class="v4-shap-class-heading">
+          <h5>${className}</h5>
+          <span class="v4-shap-class-probability">
+            ${(data.prediction * 100).toFixed(2)}% predicted probability
+          </span>
+        </div>
+
+        <div class="v4-shap-reconstruction">
+          <div>
+            <span>Base probability</span>
+            <strong>${(data.base * 100).toFixed(2)}%</strong>
+          </div>
+          <div>
+            <span>Model probability</span>
+            <strong>${(data.prediction * 100).toFixed(2)}%</strong>
+          </div>
+        </div>
+
+        <div class="v4-shap-legend" aria-label="Contribution direction legend">
+          <span><i class="positive"></i> Raises class probability</span>
+          <span><i class="negative"></i> Lowers class probability</span>
+        </div>
+
+        <div class="v4-shap-axis-labels" aria-hidden="true">
+          <span>Negative contribution</span>
+          <span>0</span>
+          <span>Positive contribution</span>
+        </div>
+
+        ${rows}
+
+        <p class="hint v4-shap-footnote">
+          Base value plus feature contributions reconstructs the model probability.
+          Absolute reconstruction error:
+          <strong>${data.localError.toExponential(2)}</strong>.
+          Values are probability percentage points, not causal effects.
+        </p>
+      </section>`;
+  }).join("");
+
+  const limitations = Array.isArray(explanation.limitations)
+    ? explanation.limitations
+    : [];
+
+  return `
+    <section class="v4-shap" aria-label="Histology V4 explanations for both classes">
+      <div class="v4-section-heading">
+        <div>
+          <h4>Feature contribution analysis</h4>
+          <p class="hint">Separate probability explanations for LUAD and LUSC.</p>
+        </div>
+        <span class="v4-section-tag">SHAP</span>
+      </div>
+
+      <p class="hint v4-shap-method">
+        Method: ${esc(explanation.method || "Not specified")}.
+        Bars share one symmetric scale across both classes; class contributions are calculated independently.
+      </p>
+
+      <div class="v4-shap-classes">${sections}</div>
+
+      <p class="hint v4-reference">
+        Reference population: ${esc(reference.cohort || "V4 reference population")};
+        ${esc(reference.rows ?? "Unknown")} reference rows.
+      </p>
+
+      ${limitations.length
+        ? `<ul class="hint v4-limitations">
+            ${limitations.map(item => `<li>${esc(String(item))}</li>`).join("")}
+          </ul>`
+        : ""}
+    </section>`;
+}
+
 function histologyV4PanelHtml(model) {
-  const head = `<h3 class="sub-h">Histology: LUAD vs LUSC (TCGA v4 tabular research model)</h3>`;
-  const limits = (model?.limitations || []).map((item) => `<li>${esc(item)}</li>`).join("");
+  const head = `
+    <div class="v4-panel-heading">
+      <div>
+        <h3>Histology classification</h3>
+        <p class="hint">LUAD vs LUSC · TCGA V4 tabular research model</p>
+      </div>
+      <span class="v4-model-tag">Research model</span>
+    </div>`;
+
+  const limits = (model?.limitations || [])
+    .map(item => `<li>${esc(item)}</li>`)
+    .join("");
+
   if (model?.status !== "research_prediction" || !model.probabilities) {
     const derived = model?.imaging_derived || {};
     const ranks = derived.mean_attribute_ranks || {};
-    const rankText = Object.entries(ranks).map(([name, value]) => `${label(name)}: ${fin(value) ? Number(value).toFixed(2) : "Unavailable"}`).join(" · ");
-    const summary = model?.imaging_derived ? `<section class="v4-imaging-summary"><h4>Imaging-derived summary (display only — not v4 predictors)</h4><p class="hint">Eligible malignant nodules: <b>${esc(derived.n_malignant_nodules ?? "Unavailable")}</b> · Mean BBox size: <b>${fin(derived.mean_nodule_size_mm) ? `${Number(derived.mean_nodule_size_mm).toFixed(1)} mm` : "Unavailable"}</b></p><p class="hint">Lung location: <b>${esc(derived.lung_location || "Unavailable")}</b> · Anatomic subdivision: <b>${esc(derived.anatomic_subdivision || "Unavailable")}</b></p><p class="hint">${esc(rankText || "Attribute-ranker means unavailable.")}</p></section>` : "";
-    return `<div class="ct">${head}<p class="hint">${esc(model?.reason || "The v4 model did not return a prediction.")}</p>${summary}${(model?.warnings || []).map((item) => `<p class="hint">${esc(item)}</p>`).join("")}${limits ? `<ul class="hint">${limits}</ul>` : ""}</div>`;
+
+    const rankRows = Object.entries(ranks).map(([name, value]) => `
+      <tr>
+        <th>${esc(label(name))}</th>
+        <td>${fin(value) ? Number(value).toFixed(2) : "Unavailable"}</td>
+      </tr>`).join("");
+
+    const summary = model?.imaging_derived
+      ? `<section class="v4-imaging-summary">
+          <h4>Imaging-derived summary</h4>
+          <p class="v4-display-only-note">Display only — these values are not V4 model predictors.</p>
+          <div class="v4-summary-grid">
+            <div><span>Eligible malignant nodules</span><strong>${esc(derived.n_malignant_nodules ?? "Unavailable")}</strong></div>
+            <div><span>Mean bounding-box size</span><strong>${fin(derived.mean_nodule_size_mm) ? `${Number(derived.mean_nodule_size_mm).toFixed(1)} mm` : "Unavailable"}</strong></div>
+            <div><span>Lung location</span><strong>${esc(derived.lung_location || "Unavailable")}</strong></div>
+            <div><span>Anatomic subdivision</span><strong>${esc(derived.anatomic_subdivision || "Unavailable")}</strong></div>
+          </div>
+          ${rankRows
+            ? `<div class="scroll"><table class="dt">
+                <caption>Mean Stage 03 attribute ranks across eligible malignant nodules</caption>
+                <tbody>${rankRows}</tbody>
+              </table></div>`
+            : `<p class="hint">Attribute-ranker means unavailable.</p>`}
+        </section>`
+      : "";
+
+    return `
+      <div class="ct v4-panel">
+        ${head}
+        <div class="v4-unavailable">
+          <strong>Prediction unavailable</strong>
+          <p class="hint">${esc(model?.reason || "The V4 model did not return a prediction.")}</p>
+        </div>
+        ${summary}
+        ${(model?.warnings || []).map(item => `<p class="hint">${esc(item)}</p>`).join("")}
+        ${limits ? `<ul class="hint v4-limitations">${limits}</ul>` : ""}
+      </div>`;
   }
-  const rows = Object.entries(model.probabilities).map(([name, probability]) => {
-    const percent = Math.min(100, Math.max(0, Number(probability) * 100));
-    return `<div class="ct-row"><span><b>${esc(name)}</b></span><div class="bar" role="img" aria-label="${esc(name)} probability ${percent.toFixed(1)} percent"><i style="width:${percent}%"></i></div><span class="ct-val">${percent.toFixed(1)}%</span></div>`;
+
+  const probabilities = model.probabilities || {};
+  const classNames = ["LUAD", "LUSC"];
+
+  const probabilityCards = classNames.map(name => {
+    const raw = probabilities[name];
+    const valid = fin(raw) && Number(raw) >= 0 && Number(raw) <= 1;
+    const percent = valid ? Number(raw) * 100 : null;
+    const predicted = model.predicted_class === name;
+
+    return `
+      <div class="v4-probability-card ${predicted ? "is-predicted" : ""}">
+        <div class="v4-probability-heading">
+          <strong>${name}</strong>
+          ${predicted ? `<span class="v4-predicted-tag">Predicted class</span>` : ""}
+        </div>
+        <div class="v4-probability-value">
+          ${valid ? `${percent.toFixed(2)}%` : "Unavailable"}
+        </div>
+        <div class="v4-probability-track"
+             role="img"
+             aria-label="${name} probability ${valid ? `${percent.toFixed(2)} percent` : "unavailable"}">
+          <i style="width:${valid ? percent : 0}%"></i>
+        </div>
+      </div>`;
   }).join("");
-  const used = (model.features_used || []).map(label).join(", ") || "None";
-  const missing = (model.imputed_features || []).map(label).join(", ");
+
+  const used = (model.features_used || []).map(label);
+  const missing = (model.imputed_features || []).map(label);
+
+  const featureList = (items, emptyText) => items.length
+    ? `<ul class="v4-feature-list">${items.map(item => `<li>${esc(item)}</li>`).join("")}</ul>`
+    : `<p class="hint">${emptyText}</p>`;
+
   const derived = model.imaging_derived || {};
   const ranks = derived.mean_attribute_ranks || {};
-  const rankRows = Object.entries(ranks).map(([name, value]) => `<tr><th>${esc(label(name))}</th><td>${fin(value) ? Number(value).toFixed(2) : "Unavailable"}</td></tr>`).join("");
-  const imagingSummary = `<section class="v4-imaging-summary"><h4>Imaging-derived summary (display only — not v4 predictors)</h4>
-    <p class="hint">Eligible malignant nodules: <b>${esc(derived.n_malignant_nodules ?? "Unavailable")}</b> · Mean BBox size: <b>${fin(derived.mean_nodule_size_mm) ? `${Number(derived.mean_nodule_size_mm).toFixed(1)} mm` : "Unavailable"}</b></p>
-    <p class="hint">Lung-location suggestion: <b>${esc(derived.lung_location || "Unavailable")}</b> · Anatomic-subdivision suggestion: <b>${esc(derived.anatomic_subdivision || "Unavailable")}</b></p>
-    ${rankRows ? `<div class="scroll"><table class="dt"><caption>Mean Stage 03 attribute ranks across eligible malignant nodules</caption><tbody>${rankRows}</tbody></table></div>` : "<p class=\"hint\">Attribute-ranker means unavailable.</p>"}
-  </section>`;
-  const provenance = model.input_provenance || {};
-  const sourceRows = Object.entries(provenance).map(([name, source]) => `<tr><th>${esc(label(name))}</th><td>${esc(source)}</td></tr>`).join("");
-  return `<div class="ct">${head}
-    <p style="margin:.2rem 0">${badge("research model output", "warn")} Highest-probability class: <b>${esc(model.predicted_class)}</b>. Not a diagnosis.</p>
-    ${rows}
-    <p class="hint">Inputs observed: ${esc(model.input_completeness || "unknown")} (${esc(used)}).</p>
-    <p class="hint">Inputs imputed by the model: ${esc(missing || "None")}.</p>
-    ${imagingSummary}
-    ${sourceRows ? `<details class="v4-provenance"><summary>Feature source / provenance</summary><div class="scroll"><table class="dt"><tbody>${sourceRows}</tbody></table></div></details>` : ""}
-    ${(model.warnings || []).map((item) => `<p class="hint">${esc(item)}</p>`).join("")}
-    ${limits ? `<ul class="hint" style="padding-left:1.1rem">${limits}</ul>` : ""}
-  </div>`;
-}
 
+  const rankRows = Object.entries(ranks).map(([name, value]) => `
+    <tr>
+      <th>${esc(label(name))}</th>
+      <td>${fin(value) ? Number(value).toFixed(2) : "Unavailable"}</td>
+    </tr>`).join("");
+
+  const imagingSummary = `
+    <section class="v4-imaging-summary">
+      <h4>Imaging-derived summary</h4>
+      <p class="v4-display-only-note">Display only — these values are not V4 model predictors.</p>
+      <div class="v4-summary-grid">
+        <div><span>Eligible malignant nodules</span><strong>${esc(derived.n_malignant_nodules ?? "Unavailable")}</strong></div>
+        <div><span>Mean bounding-box size</span><strong>${fin(derived.mean_nodule_size_mm) ? `${Number(derived.mean_nodule_size_mm).toFixed(1)} mm` : "Unavailable"}</strong></div>
+        <div><span>Lung-location suggestion</span><strong>${esc(derived.lung_location || "Unavailable")}</strong></div>
+        <div><span>Anatomic-subdivision suggestion</span><strong>${esc(derived.anatomic_subdivision || "Unavailable")}</strong></div>
+      </div>
+      ${rankRows
+        ? `<div class="scroll"><table class="dt">
+            <caption>Mean Stage 03 attribute ranks across eligible malignant nodules</caption>
+            <tbody>${rankRows}</tbody>
+          </table></div>`
+        : `<p class="hint">Attribute-ranker means unavailable.</p>`}
+    </section>`;
+
+  const provenance = model.input_provenance || {};
+  const sourceRows = Object.entries(provenance).map(([name, source]) => `
+    <tr>
+      <th>${esc(label(name))}</th>
+      <td>${esc(source)}</td>
+    </tr>`).join("");
+
+  return `
+    <div class="ct v4-panel">
+      ${head}
+
+      <div class="v4-classification-summary">
+        <div class="v4-classification-title">
+          <div>
+            <span class="v4-overline">Model classification</span>
+            <strong>${esc(model.predicted_class || "Unavailable")}</strong>
+          </div>
+          ${badge("research prediction", "warn")}
+        </div>
+        <div class="v4-probability-grid">${probabilityCards}</div>
+        <p class="hint v4-not-diagnosis">
+          Probabilities are model outputs, not a confirmed histological diagnosis.
+        </p>
+      </div>
+
+      ${histologyV4ShapHtml(model.explanation)}
+
+      <section class="v4-input-summary">
+        <div class="v4-section-heading">
+          <div>
+            <h4>Model input coverage</h4>
+            <p class="hint">Availability of the clinical features supplied to the model.</p>
+          </div>
+          <span class="v4-completeness">${esc(model.input_completeness || "Unknown")}</span>
+        </div>
+
+        <div class="v4-input-columns">
+          <div>
+            <h5>Features used</h5>
+            ${featureList(used, "No used-feature list was returned.")}
+          </div>
+          <div>
+            <h5>Features imputed by the model</h5>
+            ${featureList(missing, "No imputed features reported.")}
+          </div>
+        </div>
+      </section>
+
+      ${imagingSummary}
+
+      ${sourceRows
+        ? `<details class="v4-provenance">
+            <summary>Clinical feature source and provenance</summary>
+            <div class="scroll">
+              <table class="dt"><tbody>${sourceRows}</tbody></table>
+            </div>
+          </details>`
+        : ""}
+
+      ${(model.warnings || []).map(item => `<p class="hint v4-warning">${esc(item)}</p>`).join("")}
+
+      ${limits
+        ? `<section class="v4-limitations-section">
+            <h4>Model limitations</h4>
+            <ul class="hint v4-limitations">${limits}</ul>
+          </section>`
+        : ""}
+    </div>`;
+}
 function assessmentHtml(nodule) {
   const a = assessment(nodule);
   const manual = brockIsManual(nodule) ? " Based on clinician-supplied inputs." : "";
@@ -1312,28 +1721,40 @@ function renderClinicalModels() {
       ? `${chart}<p class="hint" style="margin:.2rem 0 0">Predicted overall survival from diagnosis (random survival forest on age and sex). Research-only, not calibrated for absolute survival.</p>`
       : `<div>${modelResultHtml(survival)}</div>`;
 
-  // Keep the Brock eligibility gate: never reveal a histology prediction
-  // when no nodule meets the configured threshold. Still show abstention
-  // and blocking reasons returned by the backend.
+  // Brock eligibility continues to gate the legacy histology display.
+  // Histology V4 is a separate patient-level research model and is displayed
+  // independently of Brock eligibility. This does not change Brock scoring.
   const eligibleNodules = (typeof V !== "undefined" && Array.isArray(V.nodules) ? V.nodules : [])
     .map((nodule) => ({nodule, result: assessment(nodule)}))
     .filter(({result}) => result.state === "elevated");
 
   let cancerHtml;
+
   if (!prediction) {
     cancerHtml = "<p class='hint' style='margin:0'>Histology model not available for this run.</p>";
-  } else if (eligibleNodules.length === 0) {
-    const model = prediction.cancer_type;
-    const statusHtml = model && model.status !== "research_prediction"
-      ? `<p style="margin:.3rem 0 0">${modelResultHtml(model)}</p>`
-      : "";
-    cancerHtml = `<div class="ct"><h3 class="sub-h">Histology: LUAD vs LUSC</h3>
-      <p class="hint">No nodule meets the ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock eligibility threshold. Histology predictions are withheld; missing Brock results do not qualify.</p>
-      ${statusHtml}<p class="hint">${esc(prediction.cancer_type_v4?.reason || "The v4 histology output is withheld until the Brock eligibility gate is met.")}</p></div>`;
   } else {
-    cancerHtml = `<p class="hint" style="margin:.2rem 0">Histology display enabled by ${eligibleNodules.length} nodule(s) at or above the ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock threshold. Both histology models are patient-level and do not diagnose an individual nodule.</p>${cancerTypePanelHtml(prediction.cancer_type)}${histologyV4PanelHtml(prediction.cancer_type_v4)}`;
-  }
+    const legacyModel = prediction.cancer_type;
+    const v4Model = prediction.cancer_type_v4;
 
+    let legacyHtml;
+
+    if (eligibleNodules.length === 0) {
+      const legacyStatusHtml = legacyModel && legacyModel.status !== "research_prediction"
+        ? `<div style="margin:.3rem 0 0">${modelResultHtml(legacyModel)}</div>`
+        : "";
+
+      legacyHtml = `<div class="ct">
+        <h3 class="sub-h">Legacy histology model</h3>
+        <p class="hint">Legacy histology output is withheld because no nodule meets the ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock eligibility threshold. Missing Brock results do not qualify.</p>
+        ${legacyStatusHtml}
+      </div>`;
+    } else {
+      legacyHtml = `<p class="hint" style="margin:.2rem 0">Legacy histology display enabled by ${eligibleNodules.length} nodule(s) at or above the ${Math.round(MALIGNANCY_THRESHOLD * 100)}% Brock threshold.</p>
+        ${cancerTypePanelHtml(legacyModel)}`;
+    }
+
+    cancerHtml = `${legacyHtml}${histologyV4PanelHtml(v4Model)}`;
+  }
   $("b-models").innerHTML = `<section aria-label="Overall survival model"><h3 class="sub-h">Overall survival</h3>${survivalHtml}</section>
     <section aria-label="Histology model" style="margin-top:.8rem">${cancerHtml}</section>`;
 }
@@ -1944,5 +2365,3 @@ function selectNodule(index, focus = false) {
 /* ---------- start ---------- */
 refresh();
 setView("entry");
-
-

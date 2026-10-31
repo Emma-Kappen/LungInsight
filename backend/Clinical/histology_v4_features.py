@@ -261,7 +261,7 @@ def build_histology_features(
         # unchanged model column as missing so fitted training-time imputation applies.
         "ethnicity": None,
         "smoking_history_code": None,
-        "pack_years": None,
+        "pack_years": clinical.get("pack_years"),
         "smoking_year_started": None,
         "smoking_year_stopped": None,
         "dlco_percent_predicted": None,
@@ -271,7 +271,7 @@ def build_histology_features(
         "fev1_percent_predicted_pre": None,
         "pulmonary_function_test_performed": None,
         "ecog_preoperative": None,
-        "karnofsky_preoperative": None,
+        "karnofsky_preoperative": clinical.get("kps"),
         **imaging_values,
     }
     # Existing structured history is a defensible form source for prior cancer.

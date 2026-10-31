@@ -548,3 +548,260 @@ body[data-view="report"] #canvas-wrap { min-width: 0; min-height: 180px; }
 .v4-imaging-summary h4{margin:0 0 .35rem;font-size:.95rem}
 .v4-provenance{margin:.6rem 0;padding:.5rem;border:1px solid var(--line);border-radius:4px}
 .v4-provenance summary{cursor:pointer;font-weight:600}
+
+/* LUNGINSIGHT_HISTOLOGY_V4_REPORT_REDESIGN */
+#b-models .v4-panel{min-width:0}
+#b-models .v4-panel-heading,
+#b-models .v4-section-heading,
+#b-models .v4-classification-title,
+#b-models .v4-probability-heading,
+#b-models .v4-shap-class-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+#b-models .v4-panel-heading{margin:.2rem 0 .85rem}
+#b-models .v4-panel-heading h3{margin:0}
+#b-models .v4-panel-heading p{margin:.2rem 0 0}
+#b-models .v4-model-tag,
+#b-models .v4-section-tag,
+#b-models .v4-predicted-tag{display:inline-block;padding:.2rem .5rem;border:1px solid var(--line);border-radius:999px;font-size:.75rem;font-weight:650;white-space:nowrap}
+#b-models .v4-classification-summary{padding:.85rem;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+#b-models .v4-classification-title{align-items:center;margin-bottom:.75rem}
+#b-models .v4-classification-title>div{display:flex;flex-direction:column;gap:.15rem}
+#b-models .v4-overline{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+#b-models .v4-classification-title strong{font-size:1.35rem}
+#b-models .v4-probability-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+#b-models .v4-probability-card{min-width:0;padding:.7rem;border:1px solid var(--line);border-radius:6px;background:var(--surface,transparent)}
+#b-models .v4-probability-card.is-predicted{border:2px solid var(--accent)}
+#b-models .v4-probability-heading{align-items:center}
+#b-models .v4-probability-heading strong{font-size:1rem}
+#b-models .v4-probability-value{margin:.35rem 0;font-size:1.55rem;font-weight:750;font-variant-numeric:tabular-nums}
+#b-models .v4-probability-track{height:9px;overflow:hidden;border-radius:8px;background:var(--surface-2,#e8e8e8)}
+#b-models .v4-probability-track i{display:block;height:100%;border-radius:8px;background:var(--accent)}
+#b-models .v4-not-diagnosis{margin:.65rem 0 0}
+#b-models .v4-shap{margin:1rem 0;padding:.85rem 0;border-top:1px solid var(--line)}
+#b-models .v4-shap h4,
+#b-models .v4-input-summary h4,
+#b-models .v4-limitations-section h4{margin:0}
+#b-models .v4-shap-method{margin:.35rem 0 .75rem}
+#b-models .v4-shap-classes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}
+#b-models .v4-shap-class{min-width:0;margin:0;padding:.75rem;border:1px solid var(--line);border-radius:7px}
+#b-models .v4-shap-class h5{margin:0;font-size:1rem}
+#b-models .v4-shap-class-probability{font-size:.8rem;font-weight:650;font-variant-numeric:tabular-nums}
+#b-models .v4-shap-reconstruction{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;margin:.65rem 0;padding:.55rem;background:var(--panel);border-radius:5px}
+#b-models .v4-shap-reconstruction>div{display:flex;flex-direction:column;gap:.15rem}
+#b-models .v4-shap-reconstruction span{font-size:.75rem;color:var(--muted)}
+#b-models .v4-shap-reconstruction strong{font-variant-numeric:tabular-nums}
+#b-models .v4-shap-legend{display:flex;gap:.8rem;flex-wrap:wrap;margin:.55rem 0;font-size:.75rem;color:var(--muted)}
+#b-models .v4-shap-legend span{display:inline-flex;align-items:center;gap:.3rem}
+#b-models .v4-shap-legend i{display:inline-block;width:9px;height:9px;border-radius:2px}
+#b-models .v4-shap-legend i.positive{background:#25865b}
+#b-models .v4-shap-legend i.negative{background:#c45b55}
+#b-models .v4-shap-row{display:grid;grid-template-columns:minmax(105px,1.2fr) minmax(45px,1fr) 75px;gap:.45rem;align-items:center;margin:.55rem 0}
+#b-models .v4-shap-feature{display:flex;flex-direction:column;min-width:0;overflow-wrap:anywhere}
+#b-models .v4-shap-feature strong{font-size:.78rem}
+#b-models .v4-shap-feature span{font-size:.72rem;color:var(--muted)}
+#b-models .v4-shap-track{height:9px;overflow:hidden;border-radius:5px;background:var(--surface-2,#e8e8e8)}
+#b-models .v4-shap-track i{display:block;height:100%;border-radius:5px}
+#b-models .v4-shap-track i.positive{background:#25865b}
+#b-models .v4-shap-track i.negative{background:#c45b55}
+#b-models .v4-shap-value{text-align:right;font-size:.76rem;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+#b-models .v4-shap-value.positive{color:#25865b}
+#b-models .v4-shap-value.negative{color:#c45b55}
+#b-models .v4-shap-footnote{margin:.65rem 0 0}
+#b-models .v4-reference{margin:.65rem 0 0}
+#b-models .v4-input-summary{margin:.9rem 0;padding:.8rem;border:1px solid var(--line);border-radius:7px}
+#b-models .v4-completeness{font-size:.8rem;font-weight:650}
+#b-models .v4-input-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;margin-top:.65rem}
+#b-models .v4-input-columns h5{margin:0 0 .35rem}
+#b-models .v4-feature-list{margin:.25rem 0;padding-left:1.1rem}
+#b-models .v4-feature-list li{margin:.2rem 0;overflow-wrap:anywhere}
+#b-models .v4-imaging-summary{margin:.9rem 0;padding:.8rem;border:1px solid var(--line);border-radius:7px;background:var(--panel)}
+#b-models .v4-imaging-summary h4{margin:0 0 .25rem}
+#b-models .v4-display-only-note{margin:.2rem 0 .65rem;font-size:.78rem;color:var(--muted)}
+#b-models .v4-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem;margin:.5rem 0}
+#b-models .v4-summary-grid>div{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+#b-models .v4-summary-grid span{font-size:.75rem;color:var(--muted)}
+#b-models .v4-summary-grid strong{overflow-wrap:anywhere}
+#b-models .v4-provenance{margin:.8rem 0;padding:.65rem;border:1px solid var(--line);border-radius:6px}
+#b-models .v4-provenance summary{cursor:pointer;font-weight:650}
+#b-models .v4-limitations-section{margin:.8rem 0;padding:.7rem;border-left:3px solid var(--line);background:var(--panel)}
+#b-models .v4-limitations{margin:.4rem 0;padding-left:1.2rem}
+#b-models .v4-warning{padding:.45rem .6rem;border-left:3px solid var(--line);background:var(--panel)}
+#b-models .v4-unavailable{margin:.5rem 0;padding:.75rem;border:1px solid var(--line);border-radius:6px}
+@media(max-width:760px){
+  #b-models .v4-shap-classes{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  #b-models .v4-probability-grid,
+  #b-models .v4-input-columns,
+  #b-models .v4-summary-grid{grid-template-columns:1fr}
+  #b-models .v4-shap-row{grid-template-columns:minmax(85px,1fr) minmax(35px,.7fr) 68px;gap:.3rem}
+  #b-models .v4-shap-value{font-size:.7rem}
+  #b-models .v4-shap-class{padding:.55rem}
+}
+
+/* LUNGINSIGHT_HISTOLOGY_V4_BIDIRECTIONAL_SHAP_PATCH */
+#b-models .v4-shap-classes {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: .85rem;
+}
+
+#b-models .v4-shap-class {
+  min-width: 0;
+  overflow: hidden;
+}
+
+#b-models .v4-shap-axis-labels {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: .4rem;
+  margin: .55rem 0 .2rem;
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+#b-models .v4-shap-axis-labels span:first-child {
+  text-align: left;
+}
+
+#b-models .v4-shap-axis-labels span:nth-child(2) {
+  text-align: center;
+  font-weight: 700;
+}
+
+#b-models .v4-shap-axis-labels span:last-child {
+  text-align: right;
+}
+
+#b-models .v4-shap-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(72px, 1fr) minmax(76px, auto);
+  gap: .5rem;
+  align-items: center;
+  margin: .6rem 0;
+}
+
+#b-models .v4-shap-feature {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+#b-models .v4-shap-feature strong {
+  display: block;
+  font-size: .78rem;
+  line-height: 1.25;
+}
+
+#b-models .v4-shap-feature span {
+  display: block;
+  margin-top: .12rem;
+  color: var(--muted);
+  font-size: .7rem;
+  overflow-wrap: anywhere;
+}
+
+#b-models .v4-shap-track {
+  position: relative;
+  height: 12px;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--surface-2, #e8e8e8);
+}
+
+#b-models .v4-shap-track .v4-shap-zero {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: var(--ink, #333);
+  opacity: .75;
+  transform: translateX(-.5px);
+}
+
+#b-models .v4-shap-track i {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  display: block;
+  min-width: 0;
+  border-radius: 2px;
+}
+
+#b-models .v4-shap-track i.positive,
+#b-models .v4-shap-value.positive,
+#b-models .v4-shap-legend i.positive {
+  background-color: #25865b;
+}
+
+#b-models .v4-shap-track i.negative,
+#b-models .v4-shap-legend i.negative {
+  background-color: #c45b55;
+}
+
+#b-models .v4-shap-value {
+  text-align: right;
+  white-space: nowrap;
+  font-size: .75rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+#b-models .v4-shap-value.positive {
+  color: #25865b;
+  background: transparent;
+}
+
+#b-models .v4-shap-value.negative {
+  color: #c45b55;
+}
+
+#b-models .v4-shap-legend i {
+  flex: 0 0 9px;
+  height: 9px;
+}
+
+#b-models > section[aria-label="Overall survival model"],
+#b-models > section[aria-label="Histology model"] {
+  min-width: 0;
+  margin: .75rem 0;
+  padding: .75rem;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface, transparent);
+}
+
+@media (max-width: 760px) {
+  #b-models .v4-shap-classes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  #b-models .v4-shap-row {
+    grid-template-columns: minmax(78px, 1fr) minmax(54px, .8fr) minmax(68px, auto);
+    gap: .3rem;
+  }
+
+  #b-models .v4-shap-value {
+    font-size: .68rem;
+  }
+
+  #b-models .v4-shap-axis-labels {
+    font-size: .62rem;
+  }
+}
+
+@media print {
+  #b-models .v4-shap-class {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  #b-models .v4-shap-track .v4-shap-zero {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
